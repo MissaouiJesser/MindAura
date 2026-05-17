@@ -1,0 +1,81 @@
+<script>
+(function () {
+  function getText(el) {
+    if (!el) return '';
+    if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') return el.value;
+    return el.textContent || '';
+  }
+  function setText(el, text) {
+    if (!el) return;
+    if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = text;
+    else el.textContent = text;
+  }
+
+  const labelTranslate =
+    '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/></svg> Traduire';
+  const labelOriginal = '↩ Texte original';
+
+  function bindTranslateGroup(group) {
+    const targetSel = group.dataset.textTarget;
+    if (!targetSel) return;
+    const textEl = document.querySelector(targetSel);
+    const btn = group.querySelector('.btn-translate');
+    const langSel = group.querySelector('.translate-lang');
+    if (!textEl || !btn || !langSel) return;
+
+    btn.addEventListener('click', async function () {
+      if (btn.dataset.mode === 'translated') {
+        setText(textEl, textEl.dataset.original || '');
+        btn.dataset.mode = 'original';
+        btn.innerHTML = labelTranslate;
+        langSel.disabled = false;
+        return;
+      }
+
+      const originalText =
+        textEl.dataset.original !== undefined && textEl.dataset.original !== ''
+          ? textEl.dataset.original
+          : getText(textEl);
+      if (textEl.dataset.original === undefined || textEl.dataset.original === '') {
+        textEl.dataset.original = originalText;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+      langSel.disabled = true;
+      btn.innerHTML =
+        '<span style="width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin-tr .8s linear infinite;display:inline-block"></span> Traduction…';
+
+      try {
+        const response = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: originalText,
+            target: langSel.value,
+            source: 'fr',
+          }),
+        });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        const translated =
+          typeof data === 'string' ? data : (data.translated ?? data.translation ?? '');
+        if (!translated) throw new Error('Réponse vide');
+        setText(textEl, translated);
+        btn.dataset.mode = 'translated';
+        btn.innerHTML = labelOriginal;
+      } catch (e) {
+        console.error(e);
+        alert('Erreur lors de la traduction. Réessayez plus tard.');
+        btn.innerHTML = labelTranslate;
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        langSel.disabled = false;
+      }
+    });
+  }
+
+  document.querySelectorAll('.front-translate-group').forEach(bindTranslateGroup);
+})();
+</script>

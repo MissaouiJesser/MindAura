@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mon espace{% endblock %} - MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --g1:#1B4332; --g2:#2D6A4F; --g3:#52B788; --g-pale:#D8F3DC; --g-hover:#E8F5EE;
+      --violet:#7B5EA7; --vio-pale:#EDE9F6; --bg:#F0F4F8; --white:#fff;
+      --text:#1A1A2E; --text-sec:#5A6475; --border:#D5DCE6;
+      --shadow-card:0 2px 14px rgba(27,67,50,.07), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover:0 14px 38px rgba(27,67,50,.13);
+    }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; }
+
+        /* ── NAV ── */
+        .user-nav {
+            background: var(--ink);
+            padding: 0.9rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .user-nav .brand {
+            font-family:'Syne',sans-serif;
+            font-weight:800;
+            font-size:1.35rem;
+            color:#fff;
+            text-decoration:none;
+            letter-spacing:-0.5px;
+        }
+        .user-nav .brand span { color: var(--rust); }
+        .user-nav .nav-links { display:flex; align-items:center; gap:1rem; }
+        .btn-nav-outline {
+            font-size:0.82rem;
+            padding:0.4rem 1rem;
+            border-radius:8px;
+            border:1.5px solid rgba(255,255,255,0.3);
+            color:rgba(255,255,255,0.8);
+            text-decoration:none;
+            transition:all 0.2s;
+        }
+        .btn-nav-outline:hover { background:rgba(255,255,255,0.12); color:#fff; }
+
+        /* ── MAIN ── */
+        .user-main { min-height: calc(100vh - 60px); }
+
+        /* ── FOOTER ── */
+        .user-footer {
+            background: var(--ink);
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            padding: 1.2rem;
+            font-size: 0.8rem;
+            margin-top: 4rem;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+{# ── NAVBAR UTILISATEUR ── #}
+<nav class="user-nav">
+    <a class="brand" href="{{ path('home') }}">Gestion<span>Events</span></a>
+    <div class="nav-links">
+        <a href="{{ path('user_evenements_list') }}" class="btn-nav-outline">
+            <i class="fas fa-calendar me-1"></i> Événements
+        </a>
+
+        {# ── 🔒 LIEN ADMIN : affiché uniquement si l'utilisateur a le rôle ADMIN ── #}
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_dashboard_index') }}" class="btn-nav-admin">
+                <i class="fas fa-lock me-1"></i> Administration
+            </a>
+        {% endif %}
+    </div>
+</nav>
+
+{# ── CONTENU ── #}
+<main class="user-main">
+    {% block body %}{% endblock %}
+</main>
+
+{# ── FOOTER ── #}
+<footer class="user-footer">
+    © {{ "now"|date("Y") }} GestionEvents · Tous droits réservés
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block javascripts %}{% endblock %}
+
+{# Script de compteur de favoris supprimé #}
+</body>
+</html>

@@ -1,0 +1,452 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% form_theme form _self %}
+
+{# ── Surcharge du rendu des erreurs Symfony ──────────────────────────────────
+   Par défaut form_errors() génère une <ul> sans couleur.
+   On remplace par un <p class="form-error"> qui utilise notre CSS rouge.
+   ─────────────────────────────────────────────────────────────────────────── #}
+{% block form_errors %}
+  {% if errors|length %}
+    {% for error in errors %}
+      <p class="form-error">
+        <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="6.5" cy="6.5" r="5.5"/>
+          <path d="M6.5 4v3M6.5 9h.01" stroke-linecap="round"/>
+        </svg>
+        {{ error.message }}
+      </p>
+    {% endfor %}
+  {% endif %}
+{% endblock %}
+
+{% block title %}{{ editMode ? 'Modifier' : 'Ajouter' }} un utilisateur{% endblock %}
+{% block page_label %}{{ editMode ? 'Modifier' : 'Ajouter' }} un utilisateur{% endblock %}
+
+{% block content %}
+
+<style>
+  /* ── Form page layout ──────────────────────────────────────────────────── */
+  .form-page {
+    max-width: 860px; margin: 0 auto;
+    animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .form-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
+  }
+  .form-header-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: var(--green-pale); color: var(--green);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .form-header-icon svg { width: 24px; height: 24px; }
+  .form-header-title { font-size: 1.2rem; font-weight: 800; }
+  .form-header-sub   { font-size: .82rem; color: var(--text-sec); margin-top: 2px; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text-sec); font-size: .83rem; font-weight: 600;
+    text-decoration: none; margin-left: auto;
+    padding: 8px 14px; border-radius: 9px; border: 1.5px solid var(--border);
+    background: var(--white); transition: all .2s;
+  }
+  .back-link svg { width: 15px; height: 15px; }
+  .back-link:hover { border-color: var(--green-light); color: var(--green); }
+
+  /* ── Card ─────────────────────────────────────────────────────────────── */
+  .form-card {
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  /* ── Avatar section ──────────────────────────────────────────────────── */
+  .avatar-section {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+    padding: 28px 32px; display: flex; align-items: center; gap: 22px;
+  }
+  .avatar-preview {
+    width: 80px; height: 80px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.4); overflow: hidden;
+    background: rgba(255,255,255,.18); display: grid; place-items: center;
+    font-size: 1.6rem; font-weight: 800; color: #fff; flex-shrink: 0;
+    cursor: pointer; transition: border-color .2s;
+  }
+  .avatar-preview:hover { border-color: rgba(255,255,255,.7); }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-info { color: rgba(255,255,255,.9); }
+  .avatar-info h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .avatar-info p  { font-size: .78rem; opacity: .75; }
+  .avatar-upload-btn {
+    margin-left: auto;
+    padding: 9px 18px; border-radius: 10px;
+    background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.3);
+    color: #fff; font-family: 'Outfit',sans-serif; font-size: .82rem; font-weight: 600;
+    cursor: pointer; transition: background .2s; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .avatar-upload-btn:hover { background: rgba(255,255,255,.25); }
+  .avatar-upload-btn svg { width: 15px; height: 15px; }
+
+  /* ── Form body ────────────────────────────────────────────────────────── */
+  .form-body { padding: 28px 32px; }
+
+  .form-section-title {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-sec); margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--border); display: flex; align-items: center; gap: 8px;
+  }
+  .form-section-title svg { width: 14px; height: 14px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 26px; }
+  .form-grid.single { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: .79rem; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  label .required { color: #DC2626; }
+
+  .form-input, .form-select {
+    padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; background: var(--bg);
+    font-family: 'Outfit',sans-serif; font-size: .875rem; color: var(--text);
+    outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus {
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 3px rgba(82,183,136,.12);
+    background: var(--white);
+  }
+  .form-input.error, .form-select.error {
+    border-color: #FCA5A5; background: #FFF5F5;
+  }
+  .form-input.error:focus { box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+  .input-wrapper { position: relative; }
+  .input-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-sec); pointer-events: none;
+  }
+  .input-icon svg { width: 16px; height: 16px; }
+  .input-wrapper .form-input { padding-left: 38px; }
+
+  .form-error { font-size: .76rem; color: #DC2626; display: flex; align-items: center; gap: 4px; }
+  .form-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* Password strength */
+  .password-strength { margin-top: 6px; }
+  .strength-bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .strength-fill { height: 100%; border-radius: 2px; width: 0; transition: width .4s, background .4s; }
+  .strength-label { font-size: .72rem; color: var(--text-sec); margin-top: 4px; }
+
+  /* ── Form footer ──────────────────────────────────────────────────────── */
+  .form-footer {
+    padding: 20px 32px; background: #F7F9FB;
+    border-top: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 12px; justify-content: flex-end;
+  }
+  .btn-submit {
+    padding: 11px 28px; border-radius: 10px; border: none;
+    background: var(--green-mid); color: #fff;
+    font-family: 'Outfit',sans-serif; font-size: .875rem; font-weight: 700;
+    cursor: pointer; transition: background .2s, box-shadow .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 2px 8px rgba(45,106,79,.25);
+  }
+  .btn-submit svg { width: 16px; height: 16px; }
+  .btn-submit:hover { background: var(--green); box-shadow: 0 4px 14px rgba(45,106,79,.35); }
+
+  .btn-secondary {
+    padding: 11px 22px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--white);
+    font-family: 'Outfit',sans-serif; font-size: .875rem; font-weight: 600;
+    cursor: pointer; color: var(--text-sec); transition: all .2s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { border-color: var(--text-sec); color: var(--text); }
+
+  /* Edit mode photo preview */
+  .current-photo {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; background: var(--bg); border-radius: 10px;
+    border: 1.5px solid var(--border); margin-bottom: 10px;
+  }
+  .current-photo img {
+    width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+    border: 2px solid var(--border);
+  }
+  .current-photo-info { font-size: .8rem; color: var(--text-sec); }
+  .current-photo-info strong { display: block; color: var(--text); margin-bottom: 2px; }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-body, .form-footer { padding: 20px 18px; }
+    .avatar-section { flex-direction: column; align-items: flex-start; }
+    .avatar-upload-btn { margin-left: 0; }
+  }
+</style>
+
+<div class="form-page">
+
+  {# Header #}
+  <div class="form-header">
+    <div class="form-header-icon">
+      {% if editMode %}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M14.5 2.5a2.12 2.12 0 013 3L6 17H3v-3L14.5 2.5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {% else %}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="10" cy="7" r="3.5"/><path d="M10 13c-3.9 0-7 2-7 4.5" stroke-linecap="round"/>
+          <path d="M15 11v6M12 14h6" stroke-linecap="round"/>
+        </svg>
+      {% endif %}
+    </div>
+    <div>
+      <div class="form-header-title">{{ editMode ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}</div>
+      <div class="form-header-sub">
+        {{ editMode
+          ? 'Modifiez les informations de ' ~ utilisateur.prenomUtilisateur ~ ' ' ~ utilisateur.nomUtilisateur
+          : 'Remplissez le formulaire pour créer un nouveau compte utilisateur' }}
+      </div>
+    </div>
+    <a href="{{ path('app_admin_utilisateurs') }}" class="back-link">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M13 5l-5 5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Retour à la liste
+    </a>
+  </div>
+
+  {# Form card #}
+  <div class="form-card">
+
+    {# Avatar banner #}
+    <div class="avatar-section">
+      <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('photo_input').click()">
+        {% if editMode and utilisateur.photoProfilUtilisateur != 'default.png' %}
+          <img src="{{ asset('avatars/' ~ utilisateur.photoProfilUtilisateur) }}" alt="avatar" id="avatarImg"/>
+        {% else %}
+          <span id="avatarInitials">
+            {{ editMode ? (utilisateur.prenomUtilisateur|first ~ utilisateur.nomUtilisateur|first)|upper : '?' }}
+          </span>
+        {% endif %}
+      </div>
+      <div class="avatar-info">
+        <h3>Photo de profil</h3>
+        <p>Cliquez sur l'avatar ou utilisez le bouton ci-contre</p>
+      </div>
+      <button type="button" class="avatar-upload-btn" onclick="document.getElementById('photo_input').click()">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M10 14V4M6 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 17h14" stroke-linecap="round"/>
+        </svg>
+        Changer la photo
+      </button>
+    </div>
+
+    {# Symfony form #}
+    {{ form_start(form, {'attr': {'id': 'userForm', 'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
+      {{ form_errors(form) }}
+
+      {# Hidden file input from form widget — we'll style it ourselves #}
+      <div style="display:none" id="photoFieldWrap">
+        {{ form_widget(form.photoProfil, {'id': 'photo_input'}) }}
+      </div>
+
+      <div class="form-body">
+
+        {# ── Informations personnelles ── #}
+        <div class="form-section-title">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <circle cx="10" cy="7" r="3.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/>
+          </svg>
+          Informations personnelles
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group {{ form.prenomUtilisateur.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.prenomUtilisateur) }}
+            <div class="input-wrapper">
+              <span class="input-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="7" r="3.5"/></svg></span>
+              {{ form_widget(form.prenomUtilisateur, {'attr': {'class': 'form-input' ~ (form.prenomUtilisateur.vars.errors|length ? ' error' : ''), 'id': 'prenom_field'}}) }}
+            </div>
+            {{ form_errors(form.prenomUtilisateur) }}
+          </div>
+
+          <div class="form-group {{ form.nomUtilisateur.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.nomUtilisateur) }}
+            <div class="input-wrapper">
+              <span class="input-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="7" r="3.5"/></svg></span>
+              {{ form_widget(form.nomUtilisateur, {'attr': {'class': 'form-input' ~ (form.nomUtilisateur.vars.errors|length ? ' error' : '')}}) }}
+            </div>
+            {{ form_errors(form.nomUtilisateur) }}
+          </div>
+
+          <div class="form-group full {{ form.emailUtilisateur.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.emailUtilisateur) }}
+            <div class="input-wrapper">
+              <span class="input-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 8l8 5 8-5" stroke-linecap="round"/></svg></span>
+              {{ form_widget(form.emailUtilisateur, {'attr': {'class': 'form-input' ~ (form.emailUtilisateur.vars.errors|length ? ' error' : '')}}) }}
+            </div>
+            {{ form_errors(form.emailUtilisateur) }}
+          </div>
+
+          <div class="form-group {{ form.telephoneUtilisateur.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.telephoneUtilisateur) }}
+            <div class="input-wrapper">
+              <span class="input-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 4a1 1 0 011-1h3l1 4-2 1a11 11 0 005 5l1-2 4 1v3a1 1 0 01-1 1A15 15 0 013 4z" stroke-linecap="round"/></svg></span>
+              {{ form_widget(form.telephoneUtilisateur, {'attr': {'class': 'form-input' ~ (form.telephoneUtilisateur.vars.errors|length ? ' error' : '')}}) }}
+            </div>
+            {{ form_errors(form.telephoneUtilisateur) }}
+          </div>
+
+          <div class="form-group {{ form.dateNaissanceUtilisateur.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.dateNaissanceUtilisateur) }}
+            {{ form_widget(form.dateNaissanceUtilisateur, {'attr': {'class': 'form-input' ~ (form.dateNaissanceUtilisateur.vars.errors|length ? ' error' : '')}}) }}
+            {{ form_errors(form.dateNaissanceUtilisateur) }}
+          </div>
+        </div>
+
+        {# ── Rôle ── #}
+        <div class="form-section-title" style="margin-top:8px;">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M9 3H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9" stroke-linecap="round"/>
+            <path d="M15 3l2 2-6 6H9V9l6-6z" stroke-linecap="round"/>
+          </svg>
+          Rôle & Permissions
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full {{ form.roleUtilisateur.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.roleUtilisateur) }}
+            {{ form_widget(form.roleUtilisateur, {'attr': {'class': 'form-select' ~ (form.roleUtilisateur.vars.errors|length ? ' error' : '')}}) }}
+            {{ form_errors(form.roleUtilisateur) }}
+          </div>
+        </div>
+
+        {# ── Sécurité ── #}
+        <div class="form-section-title" style="margin-top:8px;">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M10 2l6 3v5c0 4-2.7 7.5-6 9-3.3-1.5-6-5-6-9V5l6-3z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sécurité
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group {{ form.plainPassword.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.plainPassword) }}
+            <div class="input-wrapper">
+              <span class="input-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="9" width="12" height="9" rx="2"/><path d="M8 9V6a4 4 0 018 0v3" stroke-linecap="round"/></svg></span>
+              {{ form_widget(form.plainPassword, {'attr': {'class': 'form-input' ~ (form.plainPassword.vars.errors|length ? ' error' : ''), 'id': 'passwordField'}}) }}
+            </div>
+            {% if not editMode %}
+              <div class="password-strength">
+                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                <div class="strength-label" id="strengthLabel">Entrez un mot de passe</div>
+              </div>
+            {% endif %}
+            {{ form_errors(form.plainPassword) }}
+          </div>
+
+          <div class="form-group {{ form.plainPasswordConfirm.vars.errors|length ? 'has-error' : '' }}">
+            {{ form_label(form.plainPasswordConfirm) }}
+            <div class="input-wrapper">
+              <span class="input-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="9" width="12" height="9" rx="2"/><path d="M8 9V6a4 4 0 018 0v3" stroke-linecap="round"/></svg></span>
+              {{ form_widget(form.plainPasswordConfirm, {'attr': {'class': 'form-input' ~ (form.plainPasswordConfirm.vars.errors|length ? ' error' : '')}}) }}
+            </div>
+            {{ form_errors(form.plainPasswordConfirm) }}
+          </div>
+        </div>
+
+      </div>{# /form-body #}
+
+      <div class="form-footer">
+        <a href="{{ path('app_admin_utilisateurs') }}" class="btn-secondary">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M13 5l-5 5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Annuler
+        </a>
+        <button type="submit" class="btn-submit">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            {% if editMode %}
+              <path d="M14.5 2.5a2.12 2.12 0 013 3L6 17H3v-3L14.5 2.5z" stroke-linecap="round" stroke-linejoin="round"/>
+            {% else %}
+              <path d="M4 10l4 4 8-8" stroke-linecap="round" stroke-linejoin="round"/>
+            {% endif %}
+          </svg>
+          {{ editMode ? 'Enregistrer les modifications' : 'Créer l\'utilisateur' }}
+        </button>
+      </div>
+
+    {{ form_end(form) }}
+  </div>{# /form-card #}
+
+</div>{# /form-page #}
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// ── Avatar preview ─────────────────────────────────────────────────────────
+const photoInput    = document.getElementById('photo_input');
+const avatarPreview = document.getElementById('avatarPreview');
+const prenomField   = document.getElementById('prenom_field');
+
+photoInput?.addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    avatarPreview.innerHTML = `<img src="${e.target.result}" alt="preview" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Update initials live
+prenomField?.addEventListener('input', updateInitials);
+function updateInitials() {
+  const initialsEl = document.getElementById('avatarInitials');
+  if (!initialsEl) return;  // photo already set
+  const prenom = (document.getElementById('prenom_field')?.value || '').trim();
+  initialsEl.textContent = prenom ? prenom[0].toUpperCase() : '?';
+}
+
+// ── Password strength ──────────────────────────────────────────────────────
+const pwdField     = document.getElementById('passwordField');
+const strengthFill = document.getElementById('strengthFill');
+const strengthLabel= document.getElementById('strengthLabel');
+
+pwdField?.addEventListener('input', function() {
+  const val = this.value;
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const levels = [
+    { w: '10%',  bg: '#EF4444', label: 'Très faible' },
+    { w: '35%',  bg: '#F97316', label: 'Faible' },
+    { w: '65%',  bg: '#EAB308', label: 'Moyen' },
+    { w: '85%',  bg: '#22C55E', label: 'Fort' },
+    { w: '100%', bg: '#15803D', label: 'Très fort' },
+  ];
+  const lvl = val.length === 0 ? null : levels[Math.min(score, 4)];
+
+  if (strengthFill && strengthLabel) {
+    strengthFill.style.width      = lvl ? lvl.w  : '0';
+    strengthFill.style.background = lvl ? lvl.bg : '';
+    strengthLabel.textContent     = lvl ? lvl.label : 'Entrez un mot de passe';
+    strengthLabel.style.color     = lvl ? lvl.bg : '';
+  }
+});
+</script>
+{% endblock %}

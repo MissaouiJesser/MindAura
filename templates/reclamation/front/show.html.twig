@@ -1,0 +1,394 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}{{ reclamation.sujet_reclamation }}{% endblock %}
+{% block page_title %}Détail réclamation{% endblock %}
+
+{% block header_actions %}
+  <div class="page-head-actions">
+    <a href="{{ path('front_reclamation_index') }}" class="btn-secondary">← Retour à la liste</a>
+    {% if currentUserId and reclamation.id_utilisateur == currentUserId %}
+      <a href="{{ path('front_reclamation_edit', {id: reclamation.id_reclamation}) }}" class="btn-primary">Modifier</a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block content %}
+{% include '_partials/front_translate_toolbar_styles.html.twig' %}
+<style>
+  @keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: none; } }
+  .detail-hero {
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg, #1B4332 0%, #1A3A5C 48%, #0F2447 100%);
+    border-radius:22px; padding:28px 30px; margin-bottom:22px;
+    box-shadow:0 12px 40px rgba(27,67,50,.25);
+    animation:fadeUp .4s ease both;
+  }
+  .detail-hero::before { content:''; position:absolute; width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,.06); top:-80px; right:-50px; }
+  .dh-row { position:relative; z-index:1; display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:flex-start; }
+  .dh-title { font-family:'Playfair Display',serif; font-size:1.45rem; font-weight:700; color:#fff; margin:0 0 10px; line-height:1.25; }
+  .dh-meta { display:flex; flex-wrap:wrap; gap:12px; font-size:.84rem; color:rgba(255,255,255,.85); }
+  .dh-meta span { display:inline-flex; align-items:center; gap:6px; }
+  .dh-badge { display:inline-block; padding:5px 12px; border-radius:99px; font-size:.75rem; font-weight:700; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.25); }
+  .st-wait { background:#FEF3C7; color:#92400E; border:none; }
+  .st-prog { background:#DBEAFE; color:#1D4ED8; border:none; }
+  .st-done { background:#DCFCE7; color:#166534; border:none; }
+  .st-rej { background:#FEE2E2; color:#B91C1C; border:none; }
+
+  .body-card {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:24px 26px;
+    margin-bottom:18px; box-shadow:var(--shadow-card);
+  }
+  .body-card h2 { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--g1); margin:0 0 14px; }
+  .desc-text { font-size:.95rem; line-height:1.7; color:var(--text); white-space:pre-wrap; }
+
+  .author-bar {
+    display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:14px;
+    background:linear-gradient(135deg, var(--g-pale), #fff); border:1px solid rgba(82,183,136,.25);
+    margin-bottom:20px; font-size:.9rem;
+  }
+  .author-bar strong { color:var(--g1); }
+
+  .reply-box {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:22px;
+    margin-bottom:22px; box-shadow:var(--shadow-card);
+  }
+  .reply-box h3 { font-size:1rem; font-weight:700; color:var(--g1); margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+  .reply-box textarea {
+    width:100%; min-height:120px; padding:14px; border:1.5px solid var(--border); border-radius:12px; font-family:'Outfit',sans-serif; font-size:.92rem; resize:vertical;
+  }
+  .reply-box textarea:focus { outline:none; border-color:var(--g3); box-shadow:0 0 0 3px rgba(82,183,136,.12); }
+  .reply-hint { font-size:.8rem; color:var(--text-sec); margin-top:8px; }
+  .reply-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:14px; flex-wrap:wrap; }
+
+  .msg-list { display:flex; flex-direction:column; gap:14px; }
+  .msg {
+    border-radius:16px; padding:18px 20px; border:1.5px solid var(--border);
+    background:#FAFBFC; animation:fadeUp .35s ease both;
+  }
+  .msg.own { border-color:rgba(82,183,136,.45); background:linear-gradient(135deg, rgba(216,243,220,.5), #fff); }
+  .msg-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .msg-author { font-weight:700; color:var(--g1); font-size:.95rem; }
+  .msg-date { font-size:.78rem; color:var(--text-sec); }
+  .msg-body { font-size:.9rem; line-height:1.65; color:var(--text); white-space:pre-wrap; margin:0; }
+  .msg-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .msg-actions a, .msg-actions button { font-size:.78rem; padding:6px 12px; border-radius:8px; text-decoration:none; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; border:none; }
+  .btn-msg-edit { background:var(--vio-pale); color:var(--violet); }
+  .btn-msg-del { background:#FEF2F2; color:#B91C1C; }
+
+  .danger-zone { margin-top:18px; padding-top:18px; border-top:1px dashed var(--border); }
+  .btn-danger-outline {
+    display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:10px;
+    border:1.5px solid #FECACA; background:#FFFBFB; color:#B91C1C; font-size:.84rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;
+  }
+
+  .btn-translate {
+    display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:8px;
+    background:var(--g2); color:#fff; border:none; font-size:.82rem; font-weight:600; cursor:pointer;
+    font-family:'Outfit',sans-serif; transition:background .2s, transform .15s;
+  }
+  .btn-translate:hover { background:var(--g1); transform:translateY(-1px); }
+  .btn-translate.loading { background:#94A3B8; cursor:not-allowed; transform:none; }
+  .visually-hidden-translate {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* =========================================================
+     RATING SYSTEM
+  ========================================================= */
+  .rating-container {
+    display:flex; align-items:center; gap:12px; margin-top:14px;
+    padding-top:14px; border-top:1px solid rgba(0,0,0,.08);
+  }
+  .rating-stars { display:flex; gap:4px; align-items:center; }
+  .star {
+    font-size:1.4rem; cursor:pointer; color:#DDD;
+    transition:all .2s ease; user-select:none;
+  }
+  .star:hover, .star.active { color:#FFD700; transform:scale(1.15); }
+  .star.disabled { cursor:not-allowed; opacity:.6; }
+  .star.filled   { color:#FFD700; }
+  .rating-text   { font-size:.85rem; color:var(--text-sec); font-weight:600; }
+  .rating-text strong { color:var(--text); }
+  .vote-count    { font-size:.8rem; color:var(--text-sec); }
+</style>
+
+<div class="detail-hero">
+  <div class="dh-row">
+    <div style="flex:1; min-width:220px;">
+      <h1 class="dh-title">{{ reclamation.sujet_reclamation }}</h1>
+      <div class="dh-meta">
+        <span class="dh-badge">{{ reclamation.categorie ? reclamation.categorie.nom_categorie : 'Sans catégorie' }}</span>
+        <span>
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg>
+          {{ reclamation.dateCreation_reclamation|date('d/m/Y H:i') }}
+        </span>
+        <span>
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 10a3 3 0 100-6 3 3 0 000 6z"/><path d="M3 18c0-4 4-7 7-7s7 3 7 7"/></svg>
+          Par <strong style="color:#fff;">{{ authorName }}</strong>
+        </span>
+      </div>
+    </div>
+    <span class="dh-badge {% if reclamation.statut_reclamation == 'En attente' %}st-wait{% elseif reclamation.statut_reclamation == 'En cours de traitement' %}st-prog{% elseif reclamation.statut_reclamation == 'Résolu' %}st-done{% else %}st-rej{% endif %}">
+      {{ reclamation.statut_reclamation }}
+    </span>
+  </div>
+</div>
+
+<div class="author-bar">
+  <span>Réclamation par <strong>{{ authorName }}</strong></span>
+  {% if app.user %}<span style="color:var(--text-sec);">· Vous êtes connecté en tant que <strong>{{ app.user.prenomUtilisateur }} {{ app.user.nomUtilisateur }}</strong></span>{% endif %}
+</div>
+
+<div class="body-card">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+    <h2 style="margin:0;">Description</h2>
+    <div class="translate-toolbar front-translate-group" data-text-target="#reclamation-description">
+      <label for="translate-reclamation-lang" class="visually-hidden-translate">Langue</label>
+      <select id="translate-reclamation-lang" class="translate-lang" aria-label="Langue de traduction" title="Langue cible">
+        {% include '_partials/translate_lang_options.html.twig' %}
+      </select>
+      <button type="button" class="btn-translate" title="Traduire la description">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true">
+          <circle cx="10" cy="10" r="7"/>
+          <path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/>
+        </svg>
+        Traduire
+      </button>
+    </div>
+  </div>
+  <p class="desc-text" id="reclamation-description">{{ reclamation.description_reclamation }}</p>
+
+  {# ---- Rating réclamation ---- #}
+  {% if app.user %}
+  <div class="rating-container" id="rating-reclamation-{{ reclamation.id_reclamation }}">
+    <div class="rating-stars" data-type="reclamation" data-id="{{ reclamation.id_reclamation }}">
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
+    </div>
+    <div class="rating-text">
+      <strong id="rating-avg-reclamation-{{ reclamation.id_reclamation }}">
+        {% if reclamation.rate_count > 0 %}
+          {{ reclamation.rate_Reclamation|number_format(1, '.') }}/5
+        {% else %}
+          0/5
+        {% endif %}
+      </strong>
+    </div>
+    <div class="vote-count" id="rating-count-reclamation-{{ reclamation.id_reclamation }}">
+      {% if reclamation.rate_count > 0 %}{{ reclamation.rate_count }} avis{% else %}Aucun avis{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<div class="reply-box">
+  <h3>
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--g2)" stroke-width="1.7"><path d="M4 10h10M4 14h7M4 6h12"/></svg>
+    Ajouter une réponse
+  </h3>
+  {{ form_start(replyForm) }}
+    {{ form_widget(replyForm.contenu_reponse, { attr: { placeholder: "Votre message sera signé avec votre nom de session…", class: "" } }) }}
+    {{ form_errors(replyForm.contenu_reponse) }}
+    <div class="reply-hint">Votre nom affiché : <strong>{{ app.user.prenomUtilisateur }} {{ app.user.nomUtilisateur }}</strong></div>
+    <div class="reply-actions">
+      <button type="submit" class="btn-primary" style="border:none;">Publier la réponse</button>
+    </div>
+  {{ form_end(replyForm) }}
+</div>
+
+<div class="body-card" style="margin-bottom:28px;">
+  <h2>Discussion ({{ sortedReponses|length }})</h2>
+  {% if sortedReponses is empty %}
+    <p style="color:var(--text-sec);font-size:.9rem;">Aucune réponse pour l’instant. Soyez le premier à répondre.</p>
+  {% else %}
+    <div class="msg-list">
+      {% for reponse in sortedReponses %}
+        <div class="msg {% if currentUserId and reponse.id_utilisateur == currentUserId %}own{% endif %}">
+          <div class="msg-head">
+            <span class="msg-author">{{ reponse.nom_utilisateur ?: 'Membre' }}</span>
+            <span class="msg-date">{{ reponse.date_reponse|date('d/m/Y H:i') }}</span>
+          </div>
+          <div class="translate-toolbar front-translate-group" data-text-target="#msg-body-{{ reponse.id_reponse }}">
+            <label for="translate-msg-lang-{{ reponse.id_reponse }}" class="visually-hidden-translate">Langue</label>
+            <select id="translate-msg-lang-{{ reponse.id_reponse }}" class="translate-lang" aria-label="Langue de traduction">
+              {% include '_partials/translate_lang_options.html.twig' %}
+            </select>
+            <button type="button" class="btn-translate" title="Traduire cette réponse">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true">
+                <circle cx="10" cy="10" r="7"/>
+                <path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/>
+              </svg>
+              Traduire
+            </button>
+          </div>
+          <p class="msg-body" id="msg-body-{{ reponse.id_reponse }}">{{ reponse.contenu_reponse }}</p>
+          {# ---- Rating réponse ---- #}
+          {% if app.user %}
+          <div class="rating-container" id="rating-reponse-{{ reponse.id_reponse }}">
+            <div class="rating-stars" data-type="reponse" data-id="{{ reponse.id_reponse }}">
+              <span class="star" data-value="1">★</span>
+              <span class="star" data-value="2">★</span>
+              <span class="star" data-value="3">★</span>
+              <span class="star" data-value="4">★</span>
+              <span class="star" data-value="5">★</span>
+            </div>
+            <div class="rating-text">
+              <strong id="rating-avg-reponse-{{ reponse.id_reponse }}">
+                {% if reponse.rate_count > 0 %}
+                  {{ reponse.rate_reponse|number_format(1, '.') }}/5
+                {% else %}
+                  0/5
+                {% endif %}
+              </strong>
+            </div>
+            <div class="vote-count" id="rating-count-reponse-{{ reponse.id_reponse }}">
+              {% if reponse.rate_count > 0 %}{{ reponse.rate_count }} avis{% else %}Aucun avis{% endif %}
+            </div>
+          </div>
+          {% endif %}
+          {% if currentUserId and reponse.id_utilisateur == currentUserId %}
+            <div class="msg-actions">
+              <a href="{{ path('front_reponse_edit', {id: reponse.id_reponse}) }}" class="btn-msg-edit">Modifier</a>
+              <form method="post" action="{{ path('front_reponse_delete', {id: reponse.id_reponse}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette réponse ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_reponse_' ~ reponse.id_reponse) }}">
+                <button type="submit" class="btn-msg-del">Supprimer</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% if currentUserId and reclamation.id_utilisateur == currentUserId %}
+  <div class="body-card danger-zone">
+    <h2 style="color:#B91C1C;font-size:1rem;">Supprimer cette réclamation</h2>
+    <p style="font-size:.86rem;color:var(--text-sec);margin:0 0 12px;">Action irréversible (réponses incluses).</p>
+    <form method="post" action="{{ path('front_reclamation_delete', {id: reclamation.id_reclamation}) }}" onsubmit="return confirm('Confirmer la suppression définitive ?');">
+      <input type="hidden" name="_token" value="{{ csrf_token('delete_reclamation_' ~ reclamation.id_reclamation) }}">
+      <button type="submit" class="btn-danger-outline">Supprimer ma réclamation</button>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% include '_partials/front_translate_controls_script.html.twig' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ===================================================
+     RATING SYSTEM
+  =================================================== */
+  const STORAGE_KEY_PREFIX = 'mindaura_rating_';
+  const CURRENT_USER_ID    = {{ currentUserId ? currentUserId : 'null' }};
+
+  document.querySelectorAll('.rating-stars').forEach(container => {
+    const type       = container.getAttribute('data-type');
+    const id         = container.getAttribute('data-id');
+    const storageKey = STORAGE_KEY_PREFIX + type + '_' + id + '_' + CURRENT_USER_ID;
+    const userRating = localStorage.getItem(storageKey);
+
+    if (userRating) {
+      container.querySelectorAll('.star').forEach(star => {
+        if (parseInt(star.getAttribute('data-value')) <= parseInt(userRating)) {
+          star.classList.add('filled');
+        }
+        star.classList.add('disabled');
+      });
+    } else {
+      attachRatingEvents(container, type, id);
+    }
+  });
+
+  function attachRatingEvents(container, type, id) {
+    const stars = container.querySelectorAll('.star');
+
+    stars.forEach(star => {
+      star.addEventListener('mouseenter', function () {
+        const val = parseInt(this.getAttribute('data-value'));
+        stars.forEach(s => {
+          parseInt(s.getAttribute('data-value')) <= val
+            ? s.classList.add('active')
+            : s.classList.remove('active');
+        });
+      });
+
+      star.addEventListener('click', function (e) {
+        e.preventDefault();
+        submitRating(type, id, parseInt(this.getAttribute('data-value')), container);
+      });
+    });
+
+    container.addEventListener('mouseleave', () =>
+      stars.forEach(s => s.classList.remove('active'))
+    );
+  }
+
+  function submitRating(type, id, rating, container) {
+    const endpoint = type === 'reclamation'
+      ? '{{ path("rating_reclamation", {id: "__ID__"}) }}'.replace('__ID__', id)
+      : '{{ path("rating_reponse",    {id: "__ID__"}) }}'.replace('__ID__', id);
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ rating })
+    })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => {
+      if (data.success) {
+        const storageKey = STORAGE_KEY_PREFIX + type + '_' + id + '_' + CURRENT_USER_ID;
+        localStorage.setItem(storageKey, rating);
+        updateRatingUI(type, id, rating, data.moyenne, data.count);
+        disableStars(container);
+      } else {
+        alert('Erreur : ' + (data.message || 'Impossible de voter'));
+      }
+    })
+    .catch(err => {
+      console.error('Rating error:', err);
+      alert('Erreur serveur. Votre vote n\'a pas été enregistré.');
+    });
+  }
+
+  function updateRatingUI(type, id, userRating, moyenne, count) {
+    const avgEl   = document.getElementById('rating-avg-'   + type + '-' + id);
+    const countEl = document.getElementById('rating-count-' + type + '-' + id);
+    if (avgEl)   avgEl.textContent   = moyenne.toFixed(1) + '/5';
+    if (countEl) countEl.textContent = count + ' avis';
+
+    const container = document.querySelector('[data-type="' + type + '"][data-id="' + id + '"]');
+    if (container) {
+      container.querySelectorAll('.star').forEach(star => {
+        parseInt(star.getAttribute('data-value')) <= userRating
+          ? star.classList.add('filled')
+          : star.classList.remove('filled');
+      });
+    }
+  }
+
+  function disableStars(container) {
+    container.querySelectorAll('.star').forEach(star => {
+      star.classList.add('disabled');
+      star.style.cursor = 'not-allowed';
+    });
+  }
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,815 @@
+{# ╔══════════════════════════════════════════════════════════════════╗
+   ║  templates/base_backoffice.html.twig                            ║
+   ║  Template de base — Back Office (Admins uniquement)             ║
+   ╚══════════════════════════════════════════════════════════════════╝ #}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Admin{% endblock %} — MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #1B4332;
+      --green-mid:    #2D6A4F;
+      --green-light:  #52B788;
+      --green-pale:   #D8F3DC;
+      --green-hover:  #E8F5EE;
+      --violet:       #7B5EA7;
+      --violet-pale:  #EDE9F6;
+      --bg:           #E8EEF4;
+      --white:        #FFFFFF;
+      --text:         #1A1A2E;
+      --text-sec:     #5A6475;
+      --border:       #D5DCE6;
+      --sidebar-w:    268px;
+      --header-h:     64px;
+      --gap:          12px;
+      --radius:       20px;
+      --radius-sm:    14px;
+      --shadow-card:  0 2px 12px rgba(27,67,50,.08), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover: 0 10px 32px rgba(27,67,50,.16);
+      --shadow-panel: 0 8px 32px rgba(27,67,50,.14), 0 1px 4px rgba(27,67,50,.06);
+      --sb-bg:        #1B4332;
+      --sb-hover:     rgba(255,255,255,.09);
+      --sb-active:    rgba(255,255,255,.15);
+      --sb-text:      rgba(255,255,255,.72);
+      --sb-text-act:  #FFFFFF;
+      --sb-border:    rgba(255,255,255,.1);
+      --sb-label:     rgba(255,255,255,.38);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 15% 10%, rgba(82,183,136,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 85% 90%, rgba(123,94,167,.06) 0%, transparent 55%);
+    }
+
+    .layout {
+      display: flex;
+      height: 100vh;
+      padding: var(--gap);
+      gap: var(--gap);
+      position: relative; z-index: 1;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--sb-bg);
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      position: relative; z-index: 10;
+      box-shadow: var(--shadow-panel);
+      overflow: hidden;
+      animation: slideInLeft .5s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green-light), var(--violet));
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    @keyframes slideInLeft { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    .layout.sidebar-collapsed .sidebar {
+      width: 0;
+      padding: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sidebar {
+      transition: width .32s cubic-bezier(.22,1,.36,1),
+                  opacity .25s ease,
+                  padding .32s ease;
+    }
+
+    .sidebar-toggle {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      display: grid; place-items: center; cursor: pointer;
+      transition: all .2s; flex-shrink: 0;
+    }
+    .sidebar-toggle svg { width: 18px; height: 18px; color: var(--text-sec); transition: color .2s; }
+    .sidebar-toggle:hover { background: var(--green-hover); border-color: var(--green-light); }
+    .sidebar-toggle:hover svg { color: var(--green); }
+
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--sb-border);
+    }
+    .brand-logo img { width: 90px; height: 90px; object-fit: contain; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #fff; font-weight: 700; line-height: 1.1; }
+    .brand-sub  { font-size: .62rem; color: var(--sb-label); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+
+    .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; scrollbar-width: none; }
+    .sidebar-nav::-webkit-scrollbar { display: none; }
+
+    .nav-label {
+      font-size: .6rem; font-weight: 700; color: var(--sb-label);
+      letter-spacing: 1.4px; text-transform: uppercase;
+      padding: 16px 12px 6px; display: block;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 12px; border-radius: 12px;
+      color: var(--sb-text); font-size: .86rem; font-weight: 500;
+      cursor: pointer; text-decoration: none;
+      transition: all .22s; margin-bottom: 2px; position: relative;
+      border: none; background: none; width: 100%; text-align: left;
+      font-family: 'Outfit', sans-serif;
+    }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; transition: transform .2s; }
+    .nav-item:hover { background: var(--sb-hover); color: var(--sb-text-act); }
+    .nav-item:hover svg { transform: scale(1.12); }
+    .nav-item.active {
+      background: var(--sb-active); color: var(--sb-text-act); font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+    }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: 0; top: 22%; bottom: 22%;
+      width: 3px; border-radius: 0 3px 3px 0; background: var(--green-light);
+    }
+    .nav-badge {
+      margin-left: auto; background: var(--violet); color: #fff;
+      font-size: .6rem; font-weight: 700; border-radius: 99px;
+      padding: 2px 8px; min-width: 20px; text-align: center;
+    }
+
+    .nav-group { position: relative; }
+    .nav-group-toggle {
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 12px; border-radius: 12px;
+      color: var(--sb-text); font-size: .86rem; font-weight: 500;
+      cursor: pointer; text-decoration: none;
+      transition: all .22s; margin-bottom: 2px; position: relative;
+      border: none; background: none; width: 100%; text-align: left;
+      font-family: 'Outfit', sans-serif;
+    }
+    .nav-group-toggle svg { width: 17px; height: 17px; flex-shrink: 0; transition: transform .2s; }
+    .nav-group-toggle:hover { background: var(--sb-hover); color: var(--sb-text-act); }
+    .nav-group-toggle:hover svg { transform: scale(1.12); }
+    .nav-group-toggle .toggle-arrow {
+      width: 14px; height: 14px; margin-left: auto; display: flex; align-items: center; justify-content: center;
+      transition: transform .25s;
+    }
+    .nav-group.active .nav-group-toggle {
+      background: var(--sb-active); color: var(--sb-text-act); font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+    }
+    .nav-group.active .nav-group-toggle::before {
+      content: ''; position: absolute; left: 0; top: 22%; bottom: 22%;
+      width: 3px; border-radius: 0 3px 3px 0; background: var(--green-light);
+    }
+    .nav-group.active .toggle-arrow { transform: rotate(180deg); }
+
+    .nav-submenu {
+      max-height: 0; overflow: hidden;
+      transition: max-height .3s cubic-bezier(.22,1,.36,1);
+    }
+    .nav-group.active .nav-submenu { max-height: 500px; }
+    .nav-submenu-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 9px 12px 9px 32px; border-radius: 8px;
+      color: var(--sb-text); font-size: .8rem; font-weight: 400;
+      cursor: pointer; text-decoration: none;
+      transition: all .22s; margin-bottom: 1px; position: relative;
+      border: none; background: none; width: 100%; text-align: left;
+      font-family: 'Outfit', sans-serif;
+    }
+    .nav-submenu-item::before {
+      content: ''; position: absolute; left: 12px;
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--sb-text); transition: all .22s;
+    }
+    .nav-submenu-item:hover {
+      background: rgba(255,255,255,.08); color: var(--sb-text-act);
+      padding-left: 35px;
+    }
+    .nav-submenu-item:hover::before { background: var(--green-light); left: 12px; }
+    .nav-submenu-item.active {
+      background: rgba(255,255,255,.12); color: var(--sb-text-act); font-weight: 600;
+    }
+    .nav-submenu-item.active::before { background: var(--green-light); }
+
+    .sidebar-bottom {
+      padding: 10px;
+      border-top: 1px solid var(--sb-border);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 12px; cursor: default;
+      transition: background .2s;
+    }
+    .sidebar-user:hover { background: var(--sb-hover); }
+    .sidebar-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.25);
+      display: grid; place-items: center; font-size: .82rem; font-weight: 700; color: #fff;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .sidebar-user-name { font-size: .83rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-role { font-size: .65rem; color: var(--sb-label); margin-top: 1px; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 9px; width: 100%;
+      padding: 9px 12px; border-radius: 12px;
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,100,100,.8); font-family: 'Outfit', sans-serif; font-size: .84rem; font-weight: 500;
+      transition: all .2s; margin-top: 4px; text-decoration: none;
+    }
+    .logout-btn svg { width: 16px; height: 16px; }
+    .logout-btn:hover { background: rgba(220,38,38,.12); color: #ff8080; }
+
+    .main {
+      flex: 1;
+      display: flex; flex-direction: column;
+      gap: var(--gap);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .header {
+      height: var(--header-h);
+      flex-shrink: 0;
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; gap: 14px; padding: 0 24px;
+      box-shadow: 0 2px 12px rgba(27,67,50,.07);
+      animation: fadeDown .45s cubic-bezier(.22,1,.36,1) .1s both;
+      position: relative; z-index: 5;
+    }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+
+    .header-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--text-sec); }
+    .header-breadcrumb span { font-weight: 600; color: var(--text); transition: color .3s; }
+    .header-breadcrumb svg { width: 13px; height: 13px; }
+
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      display: grid; place-items: center; cursor: pointer; transition: all .2s; position: relative;
+    }
+    .icon-btn svg { width: 17px; height: 17px; color: var(--text-sec); }
+    .icon-btn:hover { background: var(--green-hover); border-color: var(--green-light); }
+    .icon-btn:hover svg { color: var(--green); }
+
+    .content-shell {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: 0 2px 16px rgba(27,67,50,.07);
+    }
+
+    .content {
+      position: absolute; inset: 0;
+      overflow-y: auto; padding: 28px 32px;
+      opacity: 1; transform: none;
+    }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+
+    @keyframes contentOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-18px) scale(.98); }
+    }
+    @keyframes contentIn {
+      from { opacity: 0; transform: translateY(22px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .content.is-leaving {
+      animation: contentOut .28s cubic-bezier(.4,0,.6,1) forwards;
+      pointer-events: none;
+    }
+    .content.is-entering {
+      animation: contentIn .38s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .page-loader {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; z-index: 100;
+      overflow: hidden; pointer-events: none;
+      opacity: 0; transition: opacity .15s;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .page-loader.active { opacity: 1; }
+    .page-loader-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--green-light), var(--violet));
+      border-radius: 0 99px 99px 0;
+      animation: loaderRun 1s cubic-bezier(.4,0,.2,1) infinite;
+    }
+    @keyframes loaderRun {
+      0%   { width: 0%; margin-left: 0%; }
+      50%  { width: 55%; margin-left: 20%; }
+      100% { width: 0%; margin-left: 100%; }
+    }
+
+    .flash {
+      border-radius: 12px; padding: 11px 16px; font-size: .84rem;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; font-weight: 500;
+      animation: flashIn .38s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes flashIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+    .flash-success { background: var(--green-pale); color: var(--green); border-left: 3px solid var(--green-light); }
+    .flash-error   { background: #FEF2F2; color: #991B1B; border-left: 3px solid #EF4444; }
+    .flash-warning { background: #FFFBEB; color: #92400E; border-left: 3px solid #F59E0B; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px;
+      animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+    }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.55rem; color: var(--text); }
+    .page-sub   { font-size: .83rem; color: var(--text-sec); margin-top: 4px; }
+    .page-actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 12px;
+      background: var(--green); color: #fff;
+      font-family: 'Outfit', sans-serif; font-size: .85rem; font-weight: 600;
+      border: none; cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .btn-primary svg { width: 15px; height: 15px; }
+    .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(27,67,50,.22); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 12px;
+      background: var(--bg); color: var(--text-sec);
+      font-family: 'Outfit', sans-serif; font-size: .85rem; font-weight: 600;
+      border: 1.5px solid var(--border); cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .btn-secondary svg { width: 15px; height: 15px; }
+    .btn-secondary:hover { border-color: var(--green-light); color: var(--green); background: var(--green-hover); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .7rem; font-weight: 700; border-radius: 99px; padding: 3px 10px;
+    }
+    .badge.green  { background: var(--green-pale); color: var(--green); }
+    .badge.violet { background: var(--violet-pale); color: var(--violet); }
+  </style>
+  {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+{% set adminUser = app.user %}
+
+<script>
+  window.__SPA__ = {
+    currentRoute: '{{ app.request.attributes.get("_route") }}',
+    breadcrumbLabel: '{{ block("page_label")|default("Dashboard")|e("js") }}',
+  };
+</script>
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <img src="{{ asset('images/logo.png') }}" alt="MindAura" onerror="this.style.display='none'"/>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">MindAura</span>
+        <span class="brand-sub">Administration</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-label">Tableau de bord</span>
+
+      <a href="{{ path('app_dashboard') }}"
+         class="nav-item {% if app.request.attributes.get('_route') == 'app_dashboard' %}active{% endif %}"
+         data-spa data-route="app_dashboard" data-label="Vue d'ensemble">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="3" y="3" width="6" height="6" rx="1.5"/>
+          <rect x="11" y="3" width="6" height="6" rx="1.5"/>
+          <rect x="3" y="11" width="6" height="6" rx="1.5"/>
+          <rect x="11" y="11" width="6" height="6" rx="1.5"/>
+        </svg>
+        Vue d'ensemble
+      </a>
+
+      <span class="nav-label">Gestion</span>
+
+      <a href="{{ path('app_admin_utilisateurs') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_utilisateurs' %}active{% endif %}"
+         data-spa data-route="app_admin_utilisateurs" data-label="Utilisateurs">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="10" cy="7" r="3.5"/>
+          <path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/>
+        </svg>
+        Utilisateurs
+      </a>
+
+      <a href="{{ path('app_admin_locaux') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_locaux' %}active{% endif %}"
+         data-spa data-route="app_admin_locaux" data-label="Locaux Psychiatrie">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M3 18V8l7-5 7 5v10H3z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 18v-5h4v5" stroke-linecap="round"/>
+        </svg>
+        Locaux Psychiatrie
+      </a>
+
+      <a href="{{ path('salle_index') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'salle_' %}active{% endif %}"
+         data-spa data-route="salle_index" data-label="Salles">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="3" y="3" width="14" height="14" rx="2"/>
+          <path d="M3 7h14" stroke-linecap="round"/>
+          <path d="M7 11h2M7 14h6" stroke-linecap="round"/>
+        </svg>
+        Salles
+      </a>
+
+      <a href="{{ path('reservation_local_index') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'reservation_local_' %}active{% endif %}"
+         data-spa data-route="reservation_local_index" data-label="Réservations">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="3" y="4" width="14" height="13" rx="2"/>
+          <path d="M3 8h14M7 2v4M13 2v4" stroke-linecap="round"/>
+        </svg>
+        Réservations
+      </a>
+
+      <a href="{{ path('app_admin_tests_index') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_tests_' %}active{% endif %}"
+         data-spa data-route="app_admin_tests_index" data-label="Tests Psychologiques">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M9 3H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9" stroke-linecap="round"/>
+          <path d="M15 3l2 2-6 6H9V9l6-6z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Tests Psychologiques
+      </a>
+
+      <a href="{{ path('admin_objectif_index') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'admin_objectif_' %}active{% endif %}"
+         data-spa data-route="admin_objectif_index" data-label="Objectifs">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M10 3l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V7l7-4z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 9v6M7 12h6" stroke-linecap="round"/>
+        </svg>
+        Objectifs
+      </a>
+
+      <!-- ========================================== -->
+      <!-- SECTION ÉVÉNEMENTS AVEC TYPES D'ÉVÉNEMENTS -->
+      <!-- ========================================== -->
+      
+      <a href="{{ path('app_admin_evenements') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_evenements' and not app.request.attributes.get('_route') starts with 'app_admin_type_evenement_' %}active{% endif %}"
+         data-spa data-route="app_admin_evenements" data-label="Événements">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="10" cy="10" r="8"/>
+          <path d="M10 6v4l3 2" stroke-linecap="round"/>
+        </svg>
+        Événements
+      </a>
+
+      <!-- ✅ NOUVEAU : Type Événement (juste après Événements) -->
+<a href="{{ path('app_admin_type_evenement_index') }}"
+   class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_type_evenement_' %}active{% endif %}"
+   data-spa data-route="app_admin_type_evenement_index" data-label="Types d'événements">
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+    <path d="M3 5h14M3 9h14M3 13h14M3 17h14" stroke-linecap="round"/>
+    <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+  </svg>
+  Types d'événements
+</a>
+
+      <!-- ========================================== -->
+      <!-- FIN SECTION ÉVÉNEMENTS                     -->
+      <!-- ========================================== -->
+
+      <a href="{{ path('app_admin_participations') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_participations' %}active{% endif %}"
+         data-spa data-route="app_admin_participations" data-label="Participations">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="7" cy="7" r="2.5"/>
+          <circle cx="14" cy="7" r="2.5"/>
+          <path d="M1 17c0-3 2.7-5 6-5M9 17c0-3 2.7-5 6-5" stroke-linecap="round"/>
+        </svg>
+        Participations
+      </a>
+
+      <a href="{{ path('admin_produit_index') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'admin_produit_' %}active{% endif %}"
+         data-spa data-route="admin_produit_index" data-label="Produits">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M5 3h10l2 4v10H3V7l2-4z"/>
+          <path d="M3 7h14" stroke-linecap="round"/>
+          <path d="M8 11h4" stroke-linecap="round"/>
+        </svg>
+        Produits
+      </a>
+
+      {# ✅ CORRIGÉ : pointe vers admin_ressources_index (indexR.html.twig) #}
+      <a href="{{ path('admin_ressources_index') }}"
+         class="nav-item {% if app.request.attributes.get('_route') starts with 'admin_ressources_' %}active{% endif %}"
+         data-spa
+         data-route="admin_ressources_index"
+         data-label="Ressources">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M4 4h12v12H4z M4 8h12M8 8v8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Ressources
+      </a>
+
+      <div class="nav-group {% if app.request.attributes.get('_route') starts with 'reclamation_' or app.request.attributes.get('_route') starts with 'reponse_' or app.request.attributes.get('_route') starts with 'categorie_' %}active{% endif %}">
+        <button class="nav-group-toggle" type="button" data-toggle="reclamations-menu">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M10 3l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11.8l-3.7 2.7 1.4-4.3L4 7.5h4.5L10 3z"/>
+          </svg>
+          Réclamations
+          <span class="toggle-arrow">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 8l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="nav-submenu" id="reclamations-menu">
+          <a href="{{ path('reclamation_index') }}"
+             class="nav-submenu-item {% if app.request.attributes.get('_route') starts with 'reclamation_' %}active{% endif %}"
+             data-spa data-route="reclamation_index" data-label="Liste des réclamations">
+            Liste des réclamations
+          </a>
+          <a href="{{ path('categorie_index') }}"
+             class="nav-submenu-item {% if app.request.attributes.get('_route') starts with 'categorie_' %}active{% endif %}"
+             data-spa data-route="categorie_index" data-label="Catégories">
+            Catégories
+          </a>
+        </div>
+      </div>
+
+      {% block extra_nav %}{% endblock %}
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">
+          {% if adminUser.photoProfilUtilisateur is defined and adminUser.photoProfilUtilisateur != 'default.png' %}
+            <img src="{{ asset('avatars/' ~ adminUser.photoProfilUtilisateur) }}" alt="avatar"/>
+          {% else %}
+            {{ adminUser.prenomUtilisateur|first|upper }}{{ adminUser.nomUtilisateur|first|upper }}
+          {% endif %}
+        </div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">{{ adminUser.prenomUtilisateur }} {{ adminUser.nomUtilisateur }}</div>
+          <div class="sidebar-user-role">Administrateur</div>
+        </div>
+      </div>
+      <a href="{{ path('app_logout') }}" class="logout-btn">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M13 3h4v14h-4M9 14l4-4-4-4M13 10H3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+    <header class="header">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Afficher / Masquer le menu" aria-label="Toggle sidebar">
+        <svg id="sidebarToggleIcon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="header-breadcrumb">
+        Administration
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M7 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="breadcrumb-label">{% block page_label %}Dashboard{% endblock %}</span>
+      </div>
+      <div class="header-actions">
+        {% block header_actions %}{% endblock %}
+      </div>
+    </header>
+
+    <div class="content-shell">
+      <div class="page-loader" id="pageLoader">
+        <div class="page-loader-bar"></div>
+      </div>
+      <main class="content" id="mainContent">
+        {% for type, messages in app.flashes %}
+          {% for message in messages %}
+            <div class="flash flash-{{ type }}">{{ message }}</div>
+          {% endfor %}
+        {% endfor %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const STORAGE_KEY = 'mindaura_sidebar_collapsed';
+  const layout      = document.querySelector('.layout');
+  const toggle      = document.getElementById('sidebarToggle');
+  const ICON_OPEN   = '<path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>';
+  const ICON_CLOSED = '<path d="M13 5l-6 5 6 5" stroke-linecap="round" stroke-linejoin="round"/>';
+
+  function applyState(collapsed, animate) {
+    if (!animate) layout.style.transition = 'none';
+    layout.classList.toggle('sidebar-collapsed', collapsed);
+    if (!animate) requestAnimationFrame(() => { layout.style.transition = ''; });
+    const icon = toggle.querySelector('svg');
+    icon.innerHTML = collapsed ? ICON_CLOSED : ICON_OPEN;
+    toggle.setAttribute('title', collapsed ? 'Afficher le menu' : 'Masquer le menu');
+  }
+
+  const saved = localStorage.getItem(STORAGE_KEY) === 'true';
+  applyState(saved, false);
+
+  toggle.addEventListener('click', function () {
+    const isNowCollapsed = !layout.classList.contains('sidebar-collapsed');
+    applyState(isNowCollapsed, true);
+    localStorage.setItem(STORAGE_KEY, isNowCollapsed);
+  });
+
+  const navGroupToggles = document.querySelectorAll('.nav-group-toggle');
+  const MENU_STATE_KEY = 'mindaura_menu_states';
+
+  function loadMenuStates() {
+    const saved = localStorage.getItem(MENU_STATE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  }
+  function saveMenuStates(states) {
+    localStorage.setItem(MENU_STATE_KEY, JSON.stringify(states));
+  }
+
+  const menuStates = loadMenuStates();
+  navGroupToggles.forEach(toggle => {
+    const menuId   = toggle.dataset.toggle;
+    const navGroup = toggle.closest('.nav-group');
+    const isActive = navGroup && navGroup.classList.contains('active');
+    if (isActive || menuStates[menuId]) {
+      navGroup.classList.add('active');
+      menuStates[menuId] = true;
+    } else {
+      menuStates[menuId] = false;
+    }
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      const isActive = navGroup.classList.toggle('active');
+      menuStates[menuId] = isActive;
+      saveMenuStates(menuStates);
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  const loader      = document.getElementById('pageLoader');
+  const mainContent = document.getElementById('mainContent');
+  const breadcrumb  = document.getElementById('breadcrumb-label');
+
+  function showLoader() { loader.classList.add('active'); }
+  function hideLoader() { loader.classList.remove('active'); }
+
+  function setActiveLink(href) {
+    document.querySelectorAll('.nav-item[data-spa]').forEach(link => {
+      const isActive = link.getAttribute('href') === href ||
+                       link.getAttribute('href').split('?')[0] === href.split('?')[0];
+      link.classList.toggle('active', isActive);
+    });
+  }
+
+  function extractContent(html) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(html, 'text/html');
+    const target = doc.getElementById('mainContent');
+    return target ? target.innerHTML : null;
+  }
+
+  function extractTitle(html) {
+    const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    return match ? match[1].trim() : document.title;
+  }
+
+  function extractBreadcrumb(html) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(html, 'text/html');
+    const el     = doc.getElementById('breadcrumb-label');
+    return el ? el.textContent.trim() : '';
+  }
+
+  function rehydrateScripts(container) {
+    container.querySelectorAll('script').forEach(oldScript => {
+      const s = document.createElement('script');
+      if (oldScript.src) { s.src = oldScript.src; s.async = false; }
+      else { s.textContent = oldScript.textContent; }
+      oldScript.parentNode.replaceChild(s, oldScript);
+    });
+  }
+
+  function animateOut(el) {
+    return new Promise(resolve => {
+      el.classList.add('is-leaving');
+      const timer = setTimeout(() => { el.classList.remove('is-leaving'); resolve(); }, 330);
+      el.addEventListener('animationend', () => { clearTimeout(timer); el.classList.remove('is-leaving'); resolve(); }, { once: true });
+    });
+  }
+
+  function animateIn(el) {
+    el.classList.add('is-entering');
+    const timer = setTimeout(() => { el.classList.remove('is-entering'); }, 430);
+    el.addEventListener('animationend', () => { clearTimeout(timer); el.classList.remove('is-entering'); }, { once: true });
+  }
+
+  async function navigate(url, pushState = true) {
+    showLoader();
+    mainContent.setAttribute('aria-busy', 'true');
+    try {
+      const [, response] = await Promise.all([
+        animateOut(mainContent),
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      ]);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const html = await response.text();
+      const newContent = extractContent(html);
+      if (newContent === null) { window.location.href = url; return; }
+      mainContent.innerHTML = newContent;
+      mainContent.scrollTop = 0;
+      const newTitle = extractTitle(html);
+      const newLabel = extractBreadcrumb(html);
+      document.title = newTitle;
+      if (breadcrumb && newLabel) breadcrumb.textContent = newLabel;
+      setActiveLink(url);
+      if (pushState) history.pushState({ url }, newTitle, url);
+      rehydrateScripts(mainContent);
+      animateIn(mainContent);
+    } catch (err) {
+      console.error('[SPA] Erreur :', err);
+      window.location.href = url;
+    } finally {
+      hideLoader();
+      mainContent.removeAttribute('aria-busy');
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('a[data-spa]');
+    if (!link) return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    if (link.target === '_blank') return;
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript')) return;
+    if (href === window.location.pathname) { e.preventDefault(); return; }
+    e.preventDefault();
+    navigate(href);
+  });
+
+  window.addEventListener('popstate', function (e) {
+    const url = e.state?.url || window.location.pathname;
+    navigate(url, false);
+  });
+
+  history.replaceState({ url: window.location.pathname }, document.title, window.location.pathname);
+})();
+</script>
+
+{% block javascripts %}{% endblock %}
+</body>
+</html>

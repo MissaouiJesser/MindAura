@@ -1,0 +1,31 @@
+# config/packages/knpu_oauth2_client.yaml
+#
+# Configuration des clients OAuth2 (Google & GitHub).
+# Les credentials sont lus depuis les variables d'environnement (.env.local).
+#
+# ► Variables requises dans .env.local :
+#   OAUTH_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+#   OAUTH_GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxx
+#   OAUTH_GITHUB_CLIENT_ID=Iv1.xxxxxxxx
+#   OAUTH_GITHUB_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx
+
+knpu_oauth2_client:
+    clients:
+
+        # ── Google ──────────────────────────────────────────────────────────
+        google:
+            type: google
+            client_id:     '%env(OAUTH_GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
+            redirect_route: app_oauth_check_google
+            redirect_params: {}
+            # Accès offline → permet de rafraîchir le token (optionnel)
+            # access_type: offline
+
+        # ── GitHub ──────────────────────────────────────────────────────────
+        github:
+            type: github
+            client_id:     '%env(OAUTH_GITHUB_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GITHUB_CLIENT_SECRET)%'
+            redirect_route: app_oauth_check_github
+            redirect_params: {}

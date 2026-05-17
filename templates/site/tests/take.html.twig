@@ -1,0 +1,625 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}{{ test.titreTest }}{% endblock %}
+{% block page_title %}Évaluation psychologique{% endblock %}
+
+{% block content %}
+<style>
+/* ── Variables ── */
+:root {
+  --green:        #22A06B;
+  --green-deep:   #0D5C3A;
+  --green-mid:    #1A7A4E;
+  --green-light:  #68d391;
+  --green-pale:   #EAF9F2;
+  --violet:       #7C3AED;
+  --violet-pale:  #EDE9FF;
+  --rose:         #E8538A;
+  --rose-pale:    #FFE8F2;
+  --yellow:       #F5C842;
+  --yellow-pale:  #FFF8DC;
+  --blue-pale:    #EFF6FF;
+  --blue:         #3B82F6;
+  --border:       #E2E8F0;
+  --shadow-card:  0 2px 8px rgba(0,0,0,.07);
+  --text:         #1a202c;
+  --text-sec:     #718096;
+}
+
+@keyframes fadeUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+@keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+@keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+@keyframes pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(13,92,58,.25)} 50%{box-shadow:0 0 0 8px rgba(13,92,58,0)} }
+
+/* ── Progress header ── */
+.take-progress-bar-wrap {
+  background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:18px 24px;
+  margin-bottom:22px; box-shadow:var(--shadow-card);
+  animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+  border-top:3px solid var(--green);
+}
+.progress-title { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--text); flex:1; min-width:200px; }
+.progress-meta  { display:flex; gap:12px; align-items:center; flex-shrink:0; }
+.progress-track { background:#F0F4F8; border-radius:99px; height:8px; position:relative; overflow:hidden; flex:1; min-width:160px; }
+.progress-fill  { height:100%; border-radius:99px; background:linear-gradient(90deg, var(--green), var(--yellow), var(--violet)); width:0; transition:width .5s cubic-bezier(.22,1,.36,1); }
+.progress-pct   { font-size:.78rem; font-weight:700; color:var(--green); white-space:nowrap; }
+.timer-pill {
+  display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px;
+  background:var(--green-pale); border:1.5px solid rgba(34,160,107,.3);
+  font-size:.82rem; font-weight:700; color:var(--green);
+}
+.timer-pill svg { width:13px; height:13px; }
+.timer-pill.warning { background:#FEF3C7; color:#D97706; border-color:#FDE68A; animation:pulse 1.5s ease-in-out infinite; }
+
+/* ── Test hero ── */
+.take-hero {
+  position:relative; overflow:hidden;
+  background:linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 55%, #7B5EA7 100%);
+  border-radius:20px; padding:28px 34px; margin-bottom:22px;
+  box-shadow:0 12px 38px rgba(13,92,58,.24);
+  animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .05s both;
+}
+.take-hero::before { content:''; position:absolute; width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,.055); top:-70px; right:-50px; pointer-events:none; }
+.hero-dots { position:absolute; top:16px; left:30px; display:flex; gap:6px; }
+.hero-dots span { width:7px; height:7px; border-radius:50%; animation:shimmer 2s ease-in-out infinite; }
+.hero-dots span:nth-child(1){ background:var(--yellow); }
+.hero-dots span:nth-child(2){ background:var(--rose); animation-delay:.3s; }
+.hero-dots span:nth-child(3){ background:#A07DF5; animation-delay:.6s; }
+.take-hero-inner { display:flex; align-items:flex-start; gap:20px; position:relative; z-index:1; margin-top:8px; }
+.take-hero-icon { width:60px; height:60px; border-radius:16px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.2); display:grid; place-items:center; flex-shrink:0; animation:float 4s ease-in-out infinite; }
+.take-hero-icon svg { width:28px; height:28px; color:#fff; }
+.take-hero-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; margin-bottom:5px; }
+.take-hero-desc  { font-size:.87rem; color:rgba(255,255,255,.78); line-height:1.6; max-width:580px; }
+.take-hero-meta  { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.take-hero-chip  { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:99px; padding:4px 12px; font-size:.74rem; font-weight:600; color:#fff; }
+.take-hero-chip svg { width:11px; height:11px; }
+
+/* ── Instructions block ── */
+.instructions-card {
+  background:linear-gradient(135deg,var(--blue-pale) 0%,#fff 100%);
+  border:1.5px solid #BFDBFE; border-radius:14px; padding:16px 20px; margin-bottom:20px;
+  display:flex; align-items:flex-start; gap:14px;
+  animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .1s both;
+}
+.instructions-icon { width:36px; height:36px; border-radius:10px; background:var(--blue-pale); border:1.5px solid #BFDBFE; display:grid; place-items:center; flex-shrink:0; }
+.instructions-icon svg { width:16px; height:16px; color:var(--blue); }
+.instructions-title { font-size:.75rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.7px; margin-bottom:5px; }
+.instructions-text  { font-size:.88rem; color:var(--text-sec); line-height:1.6; }
+
+/* ── Questions ── */
+.questions-list { display:flex; flex-direction:column; gap:14px; }
+.q-card {
+  background:#fff; border:1.5px solid var(--border); border-radius:16px; overflow:hidden;
+  box-shadow:var(--shadow-card); transition:all .25s; position:relative;
+  animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+}
+.q-card:hover { border-color:rgba(34,160,107,.35); box-shadow:0 6px 22px rgba(13,92,58,.1); }
+.q-card.answered {
+  border-color:rgba(34,160,107,.45);
+  background:linear-gradient(135deg,rgba(234,249,242,.4) 0%,#fff 100%);
+}
+/* Barre tricolore en haut de chaque carte répondue */
+.q-num-bar { height:4px; background:linear-gradient(90deg, var(--green), var(--yellow), var(--violet), var(--rose)); opacity:0; transition:opacity .4s; }
+.q-card.answered .q-num-bar { opacity:1; }
+.q-inner { padding:18px 22px; }
+.q-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
+.q-num {
+  min-width:30px; height:30px; border-radius:9px; background:var(--green-pale);
+  border:1.5px solid rgba(34,160,107,.3); display:grid; place-items:center;
+  font-size:.78rem; font-weight:700; color:var(--green); flex-shrink:0; transition:all .3s;
+}
+.q-card.answered .q-num { background:var(--green); color:#fff; border-color:var(--green); }
+.q-text { font-size:.95rem; font-weight:600; color:var(--text); line-height:1.5; flex:1; }
+.q-answered-mark { opacity:0; transform:scale(.5); transition:all .3s cubic-bezier(.34,1.56,.64,1); margin-left:auto; flex-shrink:0; }
+.q-answered-mark svg { width:18px; height:18px; color:var(--green); }
+.q-card.answered .q-answered-mark { opacity:1; transform:scale(1); }
+
+/* ──────────────────────────────────────────────
+   NOUVELLES OPTIONS — 3 modes auto-détectés
+   ────────────────────────────────────────────── */
+
+/* Conteneur global */
+.options-list { width:100%; }
+.options-list > div { display:flex; flex-direction:column; gap:10px; width:100%; }
+
+/* ── Mode A : 4 options max → grille 2 colonnes ── */
+.opt-grid-2 { display:grid !important; grid-template-columns:1fr 1fr; gap:10px; }
+.opt-grid-2.opt-has-3 { grid-template-columns:1fr 1fr 1fr; }
+
+/* Label option moderne */
+.option-label {
+  position:relative; display:flex; align-items:center; gap:12px;
+  width:100%; box-sizing:border-box; min-height:54px;
+  padding:13px 14px 13px 12px;
+  border:1.5px solid var(--border); border-radius:12px;
+  cursor:pointer; background:#fff;
+  transition:border-color .2s, background .2s, box-shadow .2s, transform .2s;
+}
+/* Accent gauche */
+.option-label::before {
+  content:''; position:absolute; left:0; top:8px; bottom:8px;
+  width:4px; border-radius:0 4px 4px 0;
+  background:transparent; transition:background .2s;
+}
+.option-label:hover { border-color:rgba(34,160,107,.45); background:#FAFDF9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(34,160,107,.1); }
+.option-label:hover::before { background:rgba(34,160,107,.3); }
+
+/* Sélectionné */
+.option-label:has(input:checked) {
+  border-color:var(--green); background:linear-gradient(135deg,rgba(34,160,107,.09) 0%,rgba(34,160,107,.03) 100%);
+  transform:translateY(-1px); box-shadow:0 4px 18px rgba(34,160,107,.18);
+}
+.option-label:has(input:checked)::before { background:linear-gradient(180deg, var(--green-light), var(--green)); }
+
+/* Radio natif masqué mais accessible */
+.option-label input[type="radio"] {
+  position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden;
+  clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* ── Lettre A B C D ── */
+.opt-letter-badge {
+  flex-shrink:0; width:28px; height:28px; border-radius:8px;
+  background:rgba(34,160,107,.1); border:1.5px solid rgba(34,160,107,.2);
+  display:grid; place-items:center;
+  font-size:.77rem; font-weight:700; color:var(--green);
+  transition:all .2s;
+}
+.option-label:has(input:checked) .opt-letter-badge {
+  background:var(--green); color:#fff; border-color:var(--green);
+  box-shadow:0 2px 8px rgba(34,160,107,.35);
+}
+
+/* ── Indicateur radio visuel ── */
+.option-radio-visual {
+  flex-shrink:0; width:20px; height:20px; border-radius:50%;
+  border:2px solid var(--border); background:#fff;
+  display:grid; place-items:center;
+  transition:border-color .2s, box-shadow .2s, transform .15s;
+}
+.option-radio-visual::after {
+  content:''; width:8px; height:8px; border-radius:50%;
+  background:var(--green); opacity:0; transform:scale(.3);
+  transition:opacity .2s, transform .22s cubic-bezier(.34,1.56,.64,1);
+}
+.option-label:has(input:checked) .option-radio-visual {
+  border-color:var(--green); box-shadow:0 0 0 3px rgba(34,160,107,.18); transform:scale(1.05);
+}
+.option-label:has(input:checked) .option-radio-visual::after { opacity:1; transform:scale(1); }
+
+/* ── Texte option ── */
+.option-text {
+  flex:1; font-size:.9rem; font-weight:500; color:var(--text-sec);
+  line-height:1.45; transition:color .2s, font-weight .15s; padding-top:1px;
+}
+.option-label:has(input:checked) .option-text { color:var(--green-deep); font-weight:600; }
+
+/* ── Icône check droite ── */
+.option-check-icon {
+  width:20px; height:20px; border-radius:50%; background:transparent;
+  display:grid; place-items:center; flex-shrink:0;
+  opacity:0; transform:scale(.4);
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+}
+.option-label:has(input:checked) .option-check-icon {
+  background:var(--green); opacity:1; transform:scale(1);
+}
+.option-check-icon svg { width:11px; height:11px; stroke:#fff; stroke-width:2.5; fill:none; }
+
+/* ── Sous-texte optionnel ── */
+.option-text small { display:block; font-size:.74rem; color:#94a3b8; margin-top:2px; font-weight:400; }
+
+/* ── Mode B : Likert / Échelle → pastilles colorées ── */
+.opt-scale-wrap {
+  display:flex; gap:8px; align-items:stretch; width:100%;
+}
+.opt-scale-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:12px 6px; border:1.5px solid var(--border); border-radius:12px;
+  cursor:pointer; transition:all .2s cubic-bezier(.22,1,.36,1);
+  background:#fff; position:relative; overflow:hidden;
+}
+.opt-scale-item::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+  background:transparent; transition:background .2s;
+}
+.opt-scale-item:hover { transform:translateY(-2px); border-color:rgba(34,160,107,.4); }
+.opt-scale-item.sel-1 { border-color:var(--rose); background:var(--rose-pale); }
+.opt-scale-item.sel-1::after { background:var(--rose); }
+.opt-scale-item.sel-2 { border-color:var(--yellow); background:var(--yellow-pale); }
+.opt-scale-item.sel-2::after { background:var(--yellow); }
+.opt-scale-item.sel-3 { border-color:var(--green); background:var(--green-pale); }
+.opt-scale-item.sel-3::after { background:var(--green); }
+.opt-scale-item.sel-4 { border-color:var(--violet); background:var(--violet-pale); }
+.opt-scale-item.sel-4::after { background:var(--violet); }
+.opt-scale-item.sel-5 { border-color:var(--blue); background:var(--blue-pale); }
+.opt-scale-item.sel-5::after { background:var(--blue); }
+.opt-scale-num {
+  font-size:1.05rem; font-weight:700; color:var(--text-sec);
+  transition:color .2s; line-height:1;
+}
+.opt-scale-item[class*="sel-"] .opt-scale-num { color:var(--text); }
+.opt-scale-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--border); transition:all .2s;
+}
+.opt-scale-item.sel-1 .opt-scale-dot { background:var(--rose); }
+.opt-scale-item.sel-2 .opt-scale-dot { background:var(--yellow); }
+.opt-scale-item.sel-3 .opt-scale-dot { background:var(--green); }
+.opt-scale-item.sel-4 .opt-scale-dot { background:var(--violet); }
+.opt-scale-item.sel-5 .opt-scale-dot { background:var(--blue); }
+.opt-scale-lbl {
+  font-size:.66rem; font-weight:600; text-align:center;
+  color:var(--text-sec); line-height:1.3; transition:color .2s;
+}
+.opt-scale-item[class*="sel-"] .opt-scale-lbl { color:var(--text); }
+
+/* ── Textarea ── */
+.take-textarea {
+  width:100%; min-height:96px; padding:12px 14px; border-radius:12px;
+  border:1.5px solid var(--border); font-family:'Outfit',sans-serif; font-size:.9rem;
+  resize:vertical; transition:border-color .2s, box-shadow .2s;
+}
+.take-textarea:focus {
+  outline:none; border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(34,160,107,.12);
+}
+
+/* Label de section */
+.opts-section-label {
+  font-size:.72rem; font-weight:700; color:var(--text-sec);
+  text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;
+  display:block;
+}
+
+/* ── Submit area ── */
+.submit-area {
+  background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:20px 24px;
+  margin-top:22px; box-shadow:var(--shadow-card);
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .2s both;
+  border-top:3px solid var(--green);
+}
+.submit-info { flex:1; }
+.submit-info-title { font-size:.88rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+.submit-info-sub   { font-size:.78rem; color:var(--text-sec); }
+.btn-submit {
+  display:inline-flex; align-items:center; gap:8px; padding:12px 28px; border-radius:12px; border:none;
+  background:linear-gradient(135deg, var(--green-deep), var(--green));
+  color:#fff; font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; cursor:pointer;
+  transition:all .2s; box-shadow:0 4px 14px rgba(13,92,58,.25);
+}
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(13,92,58,.32); }
+.btn-submit svg { width:16px; height:16px; }
+.btn-cancel {
+  display:inline-flex; align-items:center; gap:7px; padding:12px 20px; border-radius:12px;
+  border:1.5px solid var(--border); background:#fff; color:var(--text-sec);
+  font-family:'Outfit',sans-serif; font-size:.88rem; font-weight:600; text-decoration:none; transition:all .2s;
+}
+.btn-cancel:hover { border-color:var(--rose); color:var(--rose); }
+</style>
+
+{% set totalQ = test.questionReponses|length %}
+
+{# ── Progress header ── #}
+<div class="take-progress-bar-wrap">
+  <div class="progress-title">{{ test.titreTest }}</div>
+  <div class="progress-meta">
+    <span id="timerPill" class="timer-pill">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l2 2" stroke-linecap="round"/></svg>
+      <span id="timerDisplay">{{ test.dureeEstimee }}:00</span>
+    </span>
+    <span class="progress-pct" id="progressPct">0 / {{ totalQ }}</span>
+  </div>
+  <div class="progress-track" style="flex:1;min-width:120px;">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+{# ── Test hero ── #}
+<div class="take-hero">
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+  <div class="take-hero-inner">
+    <div class="take-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke-linecap="round"/>
+        <circle cx="10" cy="10" r="2.5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="take-hero-title">{{ test.titreTest }}</div>
+      <div class="take-hero-desc">{{ test.descriptionTest }}</div>
+      <div class="take-hero-meta">
+        <span class="take-hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="4"/><path d="M6 4v2l1 1" stroke-linecap="round"/></svg>
+          {{ test.dureeEstimee }} minutes
+        </span>
+        <span class="take-hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="4" r="2"/><path d="M2 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke-linecap="round"/></svg>
+          {{ test.typeTest|capitalize }}
+        </span>
+        <span class="take-hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4h8M2 7h6M2 10h4" stroke-linecap="round"/></svg>
+          {{ totalQ }} question{{ totalQ != 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── Instructions ── #}
+{% if test.instructionsTest %}
+<div class="instructions-card">
+  <div class="instructions-icon">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="10" cy="10" r="7"/><path d="M10 14v.5M10 7a2 2 0 011.8 2.9c-.3.5-1.8 1.6-1.8 2.1" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div>
+    <div class="instructions-title">Instructions</div>
+    <div class="instructions-text">{{ test.instructionsTest }}</div>
+  </div>
+</div>
+{% endif %}
+
+{# ── Form ── #}
+{{ form_start(form, {'attr': {'novalidate':'novalidate','id':'takeForm'}}) }}
+  {% if not form.vars.valid %}
+    <div class="flash flash-danger" style="margin-bottom:16px;">
+      {{ form_errors(form) }}
+      {% for child in form %}
+        {% if not child.vars.valid %}{{ form_errors(child) }}{% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="questions-list" id="questionsList">
+    {% for question in test.questionReponses %}
+      <div class="q-card" id="qCard{{ loop.index }}" style="animation-delay:{{ loop.index0 * 0.04 }}s">
+        <div class="q-num-bar"></div>
+        <div class="q-inner">
+          <div class="q-header">
+            <div class="q-num">{{ loop.index }}</div>
+            <div class="q-text">{{ question.texteQuestion }}</div>
+            <div class="q-answered-mark">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 10l4 4 8-8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="options-list">
+            {{ form_widget(form['question_' ~ question.idQuestionReponse]) }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="submit-area">
+    <div class="submit-info">
+      <div class="submit-info-title">Prêt à soumettre ?</div>
+      <div class="submit-info-sub">Répondez à toutes les questions avant de valider. Vos résultats seront disponibles immédiatement.</div>
+    </div>
+    {{ form_widget(form.submit, {'label': 'Valider le test', 'attr': {'class': 'btn-submit'}}) }}
+    <a href="{{ path('front_tests_index') }}" class="btn-cancel">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Annuler
+    </a>
+  </div>
+{{ form_end(form) }}
+
+<script>
+(function(){
+ 
+  /* ── Progress tracker ── */
+  const total = document.querySelectorAll('.q-card').length;
+  const fill  = document.getElementById('progressFill');
+  const pct   = document.getElementById('progressPct');
+ 
+  function updateProgress(){
+    let answered = 0;
+    document.querySelectorAll('.q-card').forEach(function(card){
+      const checked = card.querySelector('input[type="radio"]:checked');
+      const ta      = card.querySelector('textarea');
+      if(checked || (ta && ta.value.trim().length > 0)){
+        answered++;
+        card.classList.add('answered');
+      } else {
+        card.classList.remove('answered');
+      }
+    });
+    const p = total > 0 ? Math.round((answered / total) * 100) : 0;
+    fill.style.width = p + '%';
+    pct.textContent  = answered + ' / ' + total;
+  }
+ 
+  const takeForm = document.getElementById('takeForm');
+  takeForm.addEventListener('change', updateProgress);
+  takeForm.addEventListener('input', function(e){
+    if(e.target && e.target.tagName === 'TEXTAREA') updateProgress();
+  });
+  updateProgress();
+ 
+  /* ── Timer ── */
+  const dureeMins = parseInt(document.querySelector('[data-duree]')?.dataset.duree || '0', 10);
+  let remaining   = dureeMins * 60;
+  const display   = document.getElementById('timerDisplay');
+  const pill      = document.getElementById('timerPill');
+ 
+  if(remaining > 0){
+    const tick = setInterval(function(){
+      remaining--;
+      if(remaining <= 0){ clearInterval(tick); display.textContent = '0:00'; return; }
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      display.textContent = m + ':' + (s < 10 ? '0' + s : s);
+      pill.classList.toggle('warning', remaining <= 60);
+    }, 1000);
+  }
+ 
+  /* ───────────────────────────────────────────────────────────
+     TRANSFORMATION DES OPTIONS — compatible Symfony
+     
+     Symfony génère l'une de ces structures :
+     
+     Structure A (ul/li) :
+       <ul>
+         <li><label><input type="radio" ...> Texte</label></li>
+         ...
+       </ul>
+     
+     Structure B (div plat) :
+       <div>
+         <label><input type="radio" ...> Texte</label>
+         <label><input type="radio" ...> Texte</label>
+       </div>
+     
+     Structure C (div/div) :
+       <div>
+         <div><label for="...">Texte</label><input type="radio" ...></div>
+       </div>
+     
+     On normalise tout → tableau de {input, text}
+  ─────────────────────────────────────────────────────────── */
+ 
+  var LIKERT_LABELS = ['Pas du tout', 'Plutôt non', 'Neutre', 'Plutôt oui', 'Tout à fait'];
+  var SCALE_COLORS  = ['sel-1','sel-2','sel-3','sel-4','sel-5'];
+  var LETTERS       = ['A','B','C','D','E','F','G','H'];
+ 
+  document.querySelectorAll('.options-list').forEach(function(list){
+ 
+    /* Textarea → juste le style */
+    var ta = list.querySelector('textarea');
+    if(ta){ ta.classList.add('take-textarea'); return; }
+ 
+    /* Collecter tous les inputs radio dans ce widget */
+    var inputs = Array.prototype.slice.call(list.querySelectorAll('input[type="radio"]'));
+    if(inputs.length === 0) return;
+ 
+    var pairs = inputs.map(function(input){
+      /* Chercher le texte : soit dans le label parent, soit dans label[for=id] */
+      var text = '';
+      var parentLabel = input.closest('label');
+      if(parentLabel){
+        /* Cloner pour extraire le texte sans le input */
+        var clone = parentLabel.cloneNode(true);
+        var cloneInput = clone.querySelector('input');
+        if(cloneInput) cloneInput.remove();
+        text = clone.textContent.trim();
+      } else {
+        var associated = list.querySelector('label[for="' + input.id + '"]');
+        if(associated) text = associated.textContent.trim();
+      }
+      return { input: input, text: text };
+    });
+ 
+    var count = pairs.length;
+ 
+    /* ── Vider le contenu actuel ── */
+    list.innerHTML = '';
+ 
+    /* ── Mode Likert : exactement 5 options ── */
+    if(count === 5){
+      var scaleWrap = document.createElement('div');
+      scaleWrap.className = 'opt-scale-wrap';
+ 
+      pairs.forEach(function(p, i){
+        var item = document.createElement('label');
+        item.className = 'opt-scale-item';
+        item.style.cursor = 'pointer';
+ 
+        /* Radio caché mais fonctionnel */
+        p.input.style.cssText = 'position:absolute;opacity:0;pointer-events:none;';
+        item.appendChild(p.input);
+ 
+        var num = document.createElement('div');
+        num.className = 'opt-scale-num';
+        num.textContent = (i + 1);
+ 
+        var dot = document.createElement('div');
+        dot.className = 'opt-scale-dot';
+ 
+        var lbl = document.createElement('div');
+        lbl.className = 'opt-scale-lbl';
+        /* Utiliser le texte réel de l'option, sinon libellé par défaut */
+        lbl.textContent = p.text || LIKERT_LABELS[i];
+ 
+        item.appendChild(num);
+        item.appendChild(dot);
+        item.appendChild(lbl);
+ 
+        /* Sélection via clic sur le label */
+        item.addEventListener('click', function(){
+          /* Reset tous */
+          scaleWrap.querySelectorAll('.opt-scale-item').forEach(function(el){
+            el.className = 'opt-scale-item';
+            el.style.cursor = 'pointer';
+          });
+          item.classList.add(SCALE_COLORS[i]);
+          p.input.checked = true;
+          p.input.dispatchEvent(new Event('change', {bubbles:true}));
+        });
+ 
+        /* Restaurer si déjà coché */
+        if(p.input.checked) item.classList.add(SCALE_COLORS[i]);
+ 
+        scaleWrap.appendChild(item);
+      });
+ 
+      list.appendChild(scaleWrap);
+      return;
+    }
+ 
+    /* ── Mode grille 2 colonnes (2–4 options) ── */
+    var useGrid = count >= 2 && count <= 4;
+    var wrapper = document.createElement('div');
+ 
+    if(useGrid){
+      wrapper.style.cssText = 'display:grid;gap:10px;grid-template-columns:' + (count === 3 ? '1fr 1fr 1fr' : '1fr 1fr') + ';';
+    } else {
+      wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+    }
+ 
+    pairs.forEach(function(p, i){
+      var newLabel = document.createElement('label');
+      newLabel.className = 'option-label';
+ 
+      /* Radio caché mais accessible */
+      p.input.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      newLabel.appendChild(p.input);
+ 
+      if(useGrid){
+        /* Badge lettre A/B/C/D */
+        var badge = document.createElement('span');
+        badge.className = 'opt-letter-badge';
+        badge.textContent = LETTERS[i] || String(i + 1);
+        newLabel.appendChild(badge);
+      } else {
+        /* Indicateur radio visuel */
+        var radioVis = document.createElement('span');
+        radioVis.className = 'option-radio-visual';
+        radioVis.setAttribute('aria-hidden','true');
+        newLabel.appendChild(radioVis);
+      }
+ 
+      var txt = document.createElement('span');
+      txt.className = 'option-text';
+      txt.textContent = p.text;
+      newLabel.appendChild(txt);
+ 
+      var check = document.createElement('span');
+      check.className = 'option-check-icon';
+      check.setAttribute('aria-hidden','true');
+      check.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 10l4 4 8-8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      newLabel.appendChild(check);
+ 
+      wrapper.appendChild(newLabel);
+    });
+ 
+    list.appendChild(wrapper);
+  });
+ 
+})();
+</script>
+{% endblock %}

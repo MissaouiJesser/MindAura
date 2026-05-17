@@ -1,0 +1,101 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Détails — {{ test.titre_test }}{% endblock %}
+{% block page_label %}Détail du test{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{% set typeKey = test.type_test|replace({' ':'-','é':'e','è':'e','ê':'e'})|lower %}
+{% set badgeClass = {
+  'personnalite': 'ds-badge--violet',
+  'stress':       'ds-badge--orange',
+  'logique':      'ds-badge--blue',
+  'memoire':      'ds-badge--teal',
+  'autre':        'ds-badge--gray'
+} %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🧠</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">{{ test.titre_test }}</h1>
+      <p class="ds-hero-sub">Détails complets du test psychologique.</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+        <span class="ds-hero-chip">⏱ {{ test.duree_estimee }} min</span>
+        <span class="ds-hero-chip">
+          {% if test.est_actif %}✓ Actif{% else %}✕ Inactif{% endif %}
+        </span>
+        <span class="ds-hero-chip">❓ {{ test.questionReponses|length }} question{{ test.questionReponses|length != 1 ? 's' : '' }}</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ path('app_admin_tests_index') }}" class="ds-back-link" data-spa data-route="app_admin_tests_index" data-label="Tests psychologiques">← Retour</a>
+      <a href="{{ path('app_admin_tests_edit', {'id': test.idTest}) }}" class="ds-btn-primary" data-spa data-route="app_admin_tests_edit" data-label="Modifier le test">✏️ Modifier</a>
+    </div>
+  </div>
+</div>
+
+<div class="ds-form-page" style="max-width: 960px; margin: 0 auto;">
+  <div class="ds-form-card">
+
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">📋 Informations générales</h3>
+
+      <div class="ds-detail-grid">
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Type de test</div>
+          <div class="ds-detail-value">
+            <span class="ds-badge {{ badgeClass[typeKey] ?? 'ds-badge--gray' }}">{{ test.type_test }}</span>
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Durée estimée</div>
+          <div class="ds-detail-value">{{ test.duree_estimee }} minutes</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Statut</div>
+          <div class="ds-detail-value">
+            {% if test.est_actif %}
+              <span class="ds-badge ds-badge--green">Actif</span>
+            {% else %}
+              <span class="ds-badge ds-badge--gray">Inactif</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Nombre de questions</div>
+          <div class="ds-detail-value">{{ test.questionReponses|length }} question{{ test.questionReponses|length != 1 ? 's' : '' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Créé le</div>
+          <div class="ds-detail-value">{{ test.date_creation ? test.date_creation|date('d/m/Y à H:i') : '—' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Dernière modification</div>
+          <div class="ds-detail-value">{{ test.date_modification ? test.date_modification|date('d/m/Y à H:i') : '—' }}</div>
+        </div>
+      </div>
+
+      <div class="ds-detail-block" style="margin-top: 22px;">
+        <div class="ds-detail-label">Description</div>
+        <div style="background: #fafbfc; padding: 16px 18px; border-radius: 12px; border-left: 3px solid var(--green, #1B4332); margin-top: 8px; color: #1f2937; line-height: 1.6; white-space: pre-wrap;">{{ test.description_test }}</div>
+      </div>
+    </div>
+
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">📝 Instructions du test</h3>
+      <div style="background: var(--violet-pale, #EDE9F6); padding: 16px 18px; border-radius: 12px; border-left: 3px solid var(--violet, #7B5EA7); color: #1f2937; line-height: 1.6; white-space: pre-wrap;">{{ test.instructions_test }}</div>
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('app_admin_tests_index') }}" class="ds-btn-cancel" data-spa data-route="app_admin_tests_index" data-label="Tests psychologiques">← Retour à la liste</a>
+      <a href="{{ path('app_admin_tests_questions', {'id': test.idTest}) }}" class="ds-btn-cancel" data-spa data-route="app_admin_tests_questions" data-label="Gérer les questions" style="background: var(--violet-pale, #EDE9F6); color: var(--violet, #7B5EA7); border-color: var(--violet, #7B5EA7);">❓ Gérer les questions</a>
+      <a href="{{ path('app_admin_tests_edit', {'id': test.idTest}) }}" class="ds-btn-submit" data-spa data-route="app_admin_tests_edit" data-label="Modifier le test">✏️ Modifier</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

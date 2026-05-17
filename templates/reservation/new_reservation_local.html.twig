@@ -1,0 +1,210 @@
+{# templates/reservation/new_reservation_local.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Nouvelle Réservation{% endblock %}
+{% block page_label %}Nouvelle Réservation{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Ajouter une Réservation</div>
+    <div class="page-sub">Créez une nouvelle réservation de local psychiatrique.</div>
+  </div>
+  <div class="page-actions">
+    <a href="{{ path('reservation_local_index') }}" class="btn-secondary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 5l-6 5 6 5" stroke-linecap="round"/></svg>
+      Retour à la liste
+    </a>
+  </div>
+</div>
+
+{# Erreurs globales #}
+{% set allErrors = [] %}
+{% for field in ['local','salle','nomCl','prenomCl','dateReservation','heureDebutReservation','heureFinReservation','statusReservation','motifReservation','prixReservation'] %}
+  {% for error in attribute(form, field).vars.errors %}
+    {% set allErrors = allErrors|merge([error.message]) %}
+  {% endfor %}
+{% endfor %}
+{% if allErrors|length > 0 %}
+<div style="background:#FEF2F2;border-radius:12px;padding:14px 18px;margin-bottom:20px;border-left:3px solid #EF4444">
+  <div style="font-size:.85rem;font-weight:700;color:#991B1B;margin-bottom:8px">Erreurs à corriger :</div>
+  <ul style="margin:0;padding-left:18px">
+    {% for msg in allErrors %}<li style="font-size:.82rem;color:#991B1B;margin-bottom:3px">{{ msg }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start">
+
+  {# ── Panneau principal ── #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Identité client #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .07s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px;display:flex;align-items:center;gap:8px">
+        <span style="width:20px;height:20px;background:#EDE9FE;border-radius:6px;display:grid;place-items:center">
+          <svg style="width:11px;height:11px;color:#7C3AED" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke-linecap="round"/></svg>
+        </span>
+        Identité du client
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+        {# Local #}
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.local) }}</label>
+          {{ form_widget(form.local, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+          {% for error in form.local.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        {# ✅ Salle — juste après Local, même style #}
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.salle) }}</label>
+          {{ form_widget(form.salle, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+          {% for error in form.salle.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        {# Prénom #}
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.prenomCl) }}</label>
+          {{ form_widget(form.prenomCl, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.prenomCl.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'", placeholder: 'Ex: Mohamed'}}) }}
+          {% for error in form.prenomCl.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        {# Nom #}
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.nomCl) }}</label>
+          {{ form_widget(form.nomCl, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.nomCl.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'", placeholder: 'Ex: Ben Ali'}}) }}
+          {% for error in form.nomCl.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+      </div>
+    </div>
+
+    {# Date & Horaires #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .11s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px">Date & Horaires</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+
+        {# ✅ Date > aujourd'hui (min géré côté PHP via GreaterThan) #}
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.dateReservation) }}</label>
+          {{ form_widget(form.dateReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.dateReservation.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'", min: "now"|date_modify('+1 day')|date('Y-m-d')}}) }}
+          {% for error in form.dateReservation.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.heureDebutReservation) }}</label>
+          {{ form_widget(form.heureDebutReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.heureDebutReservation.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'", id: 'heure_debut'}}) }}
+          {% for error in form.heureDebutReservation.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.heureFinReservation) }}</label>
+          {{ form_widget(form.heureFinReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.heureFinReservation.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'", id: 'heure_fin'}}) }}
+          {% for error in form.heureFinReservation.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        {# ✅ Prix — readonly, calculé automatiquement par JS #}
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.prixReservation) }}</label>
+          {{ form_widget(form.prixReservation, {attr: {
+            style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:#F0FDF4;color:var(--green);font-weight:700;cursor:not-allowed',
+            readonly: 'readonly',
+            id: 'prix_reservation',
+            placeholder: 'Calculé automatiquement'
+          }}) }}
+          <div style="font-size:.72rem;color:var(--text-sec);margin-top:4px">80 DT/h · +20 DT par 30 min supplémentaires</div>
+          {% for error in form.prixReservation.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+      </div>
+    </div>
+
+    {# ✅ Motif — liste déroulante #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .15s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px">Motif de la réservation</div>
+      {{ form_widget(form.motifReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+      {% for error in form.motifReservation.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+    </div>
+
+  </div>
+
+  {# ── Panneau latéral ── #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Statut #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .1s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px">Statut de la réservation</div>
+      <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.statusReservation) }}</label>
+      {{ form_widget(form.statusReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+      {% for error in form.statusReservation.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+    </div>
+
+    {# Actions #}
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:10px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .18s both">
+      {{ form_widget(form.submit, {attr: {style: 'width:100%;padding:11px;border-radius:12px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.9rem;font-weight:700;border:none;cursor:pointer;transition:all .2s', onmouseover: "this.style.background='var(--green-mid)'", onmouseout: "this.style.background='var(--green)'"}}) }}
+      <a href="{{ path('reservation_local_index') }}" style="display:block;width:100%;padding:10px;border-radius:12px;background:var(--bg);color:var(--text-sec);font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;border:1.5px solid var(--border);text-align:center;text-decoration:none;transition:all .2s;box-sizing:border-box"
+        onmouseover="this.style.borderColor='var(--green-light)';this.style.color='var(--green)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sec)'">
+        Annuler
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}
+
+{# ✅ Script de calcul automatique du prix — APRÈS le block content #}
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  // Symfony génère des IDs préfixés par le nom du formulaire.
+  // On cherche d'abord par l'id custom défini dans le Type,
+  // puis en fallback par le sélecteur Symfony standard.
+  const heureDebut = document.getElementById('heure_debut')
+                  || document.querySelector('[id$="_heureDebutReservation"]');
+  const heureFin   = document.getElementById('heure_fin')
+                  || document.querySelector('[id$="_heureFinReservation"]');
+  const prix       = document.getElementById('prix_reservation')
+                  || document.querySelector('[id$="_prixReservation"]');
+
+  if (!heureDebut || !heureFin || !prix) return; // sécurité si éléments absents
+
+  const PRIX_BASE    = 80;  // 80 DT pour la 1re heure
+  const PRIX_TRANCHE = 20;  // +20 DT par tranche de 30 min supplémentaires
+
+  function calculerPrix() {
+    const debut = heureDebut.value;
+    const fin   = heureFin.value;
+
+    if (!debut || !fin) { prix.value = ''; return; }
+
+    const [hD, mD] = debut.split(':').map(Number);
+    const [hF, mF] = fin.split(':').map(Number);
+    const duree    = (hF * 60 + mF) - (hD * 60 + mD); // durée en minutes
+
+    if (duree <= 0) { prix.value = ''; return; }
+
+    let montant = PRIX_BASE; // 80 DT pour ≤ 60 min
+
+    if (duree > 60) {
+      // Chaque tranche de 30 min AU-DELÀ de la 1re heure ajoute 20 DT
+      const tranchesSupp = Math.ceil((duree - 60) / 30);
+      montant = PRIX_BASE + tranchesSupp * PRIX_TRANCHE;
+    }
+
+    prix.value = montant.toFixed(2);
+  }
+
+  heureDebut.addEventListener('change', calculerPrix);
+  heureFin.addEventListener('change', calculerPrix);
+});
+</script>
+{% endblock %}

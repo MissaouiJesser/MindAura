@@ -1,0 +1,217 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réponses{% endblock %}
+{% block page_label %}Réponses{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .rep-edit-row { display: none; background: #f8fbf9; }
+  .rep-edit-row td { padding: 18px 22px; }
+  .rep-edit-inline { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+  .rep-edit-inline label {
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .rep-edit-inline textarea,
+  .rep-edit-inline input[type="number"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-family: 'Outfit', sans-serif;
+    background: #fff;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .rep-edit-inline textarea:focus,
+  .rep-edit-inline input[type="number"]:focus {
+    outline: none;
+    border-color: var(--green-light, #52B788);
+    box-shadow: 0 0 0 4px rgba(82,183,136,.15);
+  }
+  .rep-edit-inline textarea { resize: vertical; min-height: 90px; }
+  .rep-edit-actions { display: flex; gap: 10px; margin-top: 4px; }
+</style>
+
+<div id="flash-zone"></div>
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">💬</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Réponses</h1>
+      <p class="ds-hero-sub">Liste des réponses associées aux réclamations — édition inline disponible.</p>
+      <span class="ds-hero-chip">{{ reponses|length }} réponse{{ reponses|length > 1 ? 's' : '' }}</span>
+    </div>
+    <a href="{{ path('reponse_new') }}" class="ds-btn-primary">+ Nouvelle réponse</a>
+  </div>
+</div>
+
+{# Table #}
+<div class="ds-table-card">
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>Réclamation</th>
+        <th>Contenu</th>
+        <th>Date</th>
+        <th style="text-align: center;">Note</th>
+        <th style="text-align: right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reponse in reponses %}
+
+        {# ── Ligne normale ── #}
+        <tr id="row-{{ reponse.id_reponse }}">
+          <td>
+            <span style="font-weight: 600; color: var(--green, #1B4332);">
+              {{ reponse.reclamation ? reponse.reclamation.sujet_reclamation : 'N/A' }}
+            </span>
+          </td>
+          <td style="max-width: 280px; color: #475569;">
+            {{ reponse.contenu_reponse|slice(0,80) }}{% if reponse.contenu_reponse|length > 80 %}…{% endif %}
+          </td>
+          <td style="white-space: nowrap; color: #6b7280; font-size: 12.5px;">
+            {{ reponse.date_reponse ? reponse.date_reponse|date('d/m/Y H:i') : '—' }}
+          </td>
+          <td style="text-align: center;">
+            {% if reponse.rate_reponse %}
+              <span class="ds-badge ds-badge--yellow">{{ reponse.rate_reponse }}/5</span>
+            {% else %}
+              <span style="color: #9ca3af;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="ds-actions">
+              <a href="{{ path('reponse_show', {id: reponse.id_reponse}) }}" class="ds-action-btn ds-action-btn--view" title="Voir">👁</a>
+              <button onclick="toggleEdit({{ reponse.id_reponse }})"
+                      id="btn-edit-{{ reponse.id_reponse }}"
+                      class="ds-action-btn ds-action-btn--edit" title="Modifier">
+                ✏️
+              </button>
+              <form action="{{ path('reponse_delete', {id: reponse.id_reponse}) }}" method="post" style="display: inline;"
+                    onsubmit="return confirm('Supprimer cette réponse ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_reponse_' ~ reponse.id_reponse) }}">
+                <button type="submit" class="ds-action-btn ds-action-btn--del" title="Supprimer">🗑</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+
+        {# ── Ligne d'édition inline (cachée par défaut) ── #}
+        <tr class="rep-edit-row" id="edit-row-{{ reponse.id_reponse }}">
+          <td colspan="5">
+            <div class="rep-edit-inline">
+              <div>
+                <label>Contenu de la réponse</label>
+                <textarea id="contenu-{{ reponse.id_reponse }}">{{ reponse.contenu_reponse }}</textarea>
+              </div>
+              <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 140px;">
+                  <label>Note (0–5)</label>
+                  <input type="number" id="rate-{{ reponse.id_reponse }}"
+                         value="{{ reponse.rate_reponse ?? '' }}" min="0" max="5" step="0.5">
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                  <label>Somme des notes</label>
+                  <input type="number" id="rate-sum-{{ reponse.id_reponse }}"
+                         value="{{ reponse.rate_sum ?? 0 }}" min="0">
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                  <label>Nombre de notes</label>
+                  <input type="number" id="rate-count-{{ reponse.id_reponse }}"
+                         value="{{ reponse.rate_count ?? 0 }}" min="0">
+                </div>
+              </div>
+              <div class="rep-edit-actions">
+                <button class="ds-btn-submit"
+                        data-id="{{ reponse.id_reponse }}"
+                        data-url="{{ path('reponse_edit', {id: reponse.id_reponse}) }}"
+                        data-token="{{ csrf_token('reponse' ~ reponse.id_reponse) }}"
+                        onclick="saveEdit(this)">
+                  💾 Enregistrer
+                </button>
+                <button class="ds-btn-cancel" onclick="toggleEdit({{ reponse.id_reponse }})">Annuler</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+      {% else %}
+        <tr>
+          <td colspan="5">
+            <div class="ds-empty">
+              <div style="font-size: 48px; margin-bottom: 12px;">💬</div>
+              <p style="font-weight: 600; color: var(--green, #1B4332);">Aucune réponse trouvée</p>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+function toggleEdit(id) {
+  const editRow = document.getElementById('edit-row-' + id);
+  const btn     = document.getElementById('btn-edit-' + id);
+  const isOpen  = editRow.style.display === 'table-row';
+
+  // Ferme tout
+  document.querySelectorAll('.rep-edit-row').forEach(r => r.style.display = 'none');
+  document.querySelectorAll('[id^="btn-edit-"]').forEach(b => b.textContent = '✏️');
+
+  if (!isOpen) {
+    editRow.style.display = 'table-row';
+    if (btn) btn.textContent = '✕';
+  }
+}
+
+async function saveEdit(btn) {
+  const id    = btn.dataset.id;
+  const url   = btn.dataset.url;
+  const token = btn.dataset.token;
+  const contenu   = document.getElementById('contenu-'    + id).value;
+  const rate      = document.getElementById('rate-'       + id).value;
+  const rateSum   = document.getElementById('rate-sum-'   + id).value;
+  const rateCount = document.getElementById('rate-count-' + id).value;
+
+  const body = new URLSearchParams();
+  body.append('reponse[contenu_reponse]', contenu);
+  body.append('reponse[rate_reponse]',    rate);
+  body.append('reponse[rate_sum]',        rateSum);
+  body.append('reponse[rate_count]',      rateCount);
+  body.append('reponse[_token]',          token);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: body.toString(),
+  });
+
+  const flash = document.getElementById('flash-zone');
+
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success) {
+      toggleEdit(id);
+      flash.innerHTML = '<div class="ds-flash ds-flash--success">✓ Réponse mise à jour avec succès.</div>';
+      setTimeout(() => flash.innerHTML = '', 3000);
+    }
+  } else {
+    flash.innerHTML = '<div class="ds-flash ds-flash--error">✗ Erreur lors de la mise à jour.</div>';
+  }
+}
+</script>
+{% endblock %}

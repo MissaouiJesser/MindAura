@@ -1,0 +1,75 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_label %}{{ title }}{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🏷️</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">{{ title }}</h1>
+      <p class="ds-hero-sub">Définissez un type d'événement : libellé, modalité, catégorie et tarification.</p>
+    </div>
+    <a href="{{ path('type_evenement_index') }}" class="ds-back-link">← Retour</a>
+  </div>
+</div>
+
+<div class="ds-form-page">
+  <div class="ds-form-card" style="max-width: 720px; margin: 0 auto;">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">Informations du type</h3>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          {{ form_label(form.libelle, 'Libellé', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.libelle, {'attr': {'class': 'ds-form-input', 'placeholder': 'Ex : Webinar bien-être'}}) }}
+          {% if form.libelle.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.libelle) }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ds-form-row">
+        <div class="ds-form-group">
+          {{ form_label(form.modalite, 'Modalité', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.modalite, {'attr': {'class': 'ds-form-select'}}) }}
+          {% if form.modalite.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.modalite) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ds-form-group">
+          {{ form_label(form.categorie, 'Catégorie', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.categorie, {'attr': {'class': 'ds-form-input'}}) }}
+          {% if form.categorie.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.categorie) }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          <label class="ds-form-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px 14px; background: var(--green-pale, #D8F3DC); border-radius: 12px; text-transform: none; letter-spacing: 0;">
+            {{ form_widget(form.estGratuit, {'attr': {'style': 'width:18px; height:18px; accent-color: var(--green, #1B4332);'}}) }}
+            <span style="font-weight: 600; color: var(--green, #1B4332); font-size: 14px;">Type gratuit (sans tarification)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('type_evenement_index') }}" class="ds-btn-cancel">Annuler</a>
+      <button type="submit" class="ds-btn-submit">💾 Enregistrer</button>
+    </div>
+
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

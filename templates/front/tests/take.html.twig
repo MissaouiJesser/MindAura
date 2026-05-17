@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passer le test: {{ test.titreTest }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>{{ test.titreTest }}</h1>
+    <p>{{ test.descriptionTest }}</p>
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        {% for question in test.questionReponses %}
+        <div class="mb-4">
+            <h4>{{question.texteQuestion }}</h4>
+            {{ form_widget(form['question_' ~ question.idQuestionReponse]) }}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success">Soumettre</button>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

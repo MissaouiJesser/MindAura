@@ -1,0 +1,70 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Nouvelle réclamation{% endblock %}
+{% block page_title %}Nouvelle réclamation{% endblock %}
+
+{% block header_actions %}
+  <div class="page-head-actions">
+    <a href="{{ path('front_reclamation_index') }}" class="btn-secondary">← Retour à la liste</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .form-shell { max-width:640px; margin:0 auto; }
+  .form-card {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:28px;
+    box-shadow:var(--shadow-card);
+  }
+  .form-group { margin-bottom:18px; }
+  .form-group label { display:block; font-weight:700; font-size:.88rem; color:var(--g1); margin-bottom:6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-family:'Outfit',sans-serif; font-size:.92rem;
+  }
+  .form-group textarea { min-height:160px; resize:vertical; line-height:1.55; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline:none; border-color:var(--g3); box-shadow:0 0 0 3px rgba(82,183,136,.15);
+  }
+  .form-hint { font-size:.78rem; color:var(--text-sec); margin-top:4px; }
+  .submit-row { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; flex-wrap:wrap; }
+</style>
+
+<div class="form-shell">
+  <div class="form-card">
+    <p style="font-size:.9rem;color:var(--text-sec);margin:0 0 20px;line-height:1.55;">
+      Votre prénom et nom seront associés à cette réclamation en tant qu’auteur (session connectée : <strong>{{ app.user.prenomUtilisateur }} {{ app.user.nomUtilisateur }}</strong>).
+    </p>
+
+    {{ form_start(form) }}
+      {% if not form.vars.valid %}
+        <div style="background:#FEE2E2;color:#B91C1C;padding:12px 14px;border-radius:12px;margin-bottom:16px;font-size:.88rem;">{{ form_errors(form) }}</div>
+      {% endif %}
+
+      <div class="form-group">
+        {{ form_row(form.categorie) }}
+      </div>
+
+      <div class="form-group">
+        {{ form_row(form.sujet_reclamation) }}
+      </div>
+
+      <div class="form-group">
+        {{ form_row(form.description_reclamation) }}
+        <div class="form-hint">Minimum 10 caractères.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date de création</label>
+        <div style="padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text-sec);font-size:.88rem;">
+          {{ form.vars.data.dateCreation_reclamation|date('d/m/Y H:i:s') }} — fixée automatiquement à l’envoi (non modifiable)
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <a href="{{ path('front_reclamation_index') }}" class="btn-secondary" style="text-decoration:none;">Annuler</a>
+        <button type="submit" class="btn-primary" style="border:none;cursor:pointer;">Envoyer la réclamation</button>
+      </div>
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

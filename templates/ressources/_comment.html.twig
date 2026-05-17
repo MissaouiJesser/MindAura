@@ -1,0 +1,175 @@
+<div class="comment" id="comment-{{ comment.id }}" style="margin-bottom: 1rem; padding-left: {{ level|default(0) * 20 }}px;">
+    <div class="comment-header" style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+        <strong>{{ comment.userName }}</strong>
+        <span style="font-size: 12px; color: #888;">{{ comment.datePublication|date('d/m/Y H:i') }}</span>
+        
+        {# Bouton Modifier (propriétaire uniquement) #}
+        {% if app.user and comment.idUser == app.user.idUtilisateur %}
+            <button class="edit-comment-btn" data-id="{{ comment.id }}" style="background: none; border: none; color: #534AB7; cursor: pointer; font-size: 12px;">
+                ✏️ Modifier
+            </button>
+        {% endif %}
+        
+        {# Suppression (propriétaire uniquement) #}
+        {% if app.user and comment.idUser == app.user.idUtilisateur %}
+            <form method="post" action="{{ path('commentaires_delete', {id: comment.id}) }}" style="display: inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                <button type="submit" class="btn-link" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 12px;" onclick="return confirm('Supprimer ce commentaire ?')">
+                    🗑️ Supprimer
+                </button>
+            </form>
+        {% endif %}
+        
+        {# Bouton pour afficher le formulaire de réponse (tout le monde) #}
+        <button class="reply-toggle" data-id="{{ comment.id }}" style="background: none; border: none; color: #534AB7; cursor: pointer; font-size: 12px;">
+            ↩️ Répondre
+        </button>
+    </div>
+    
+    {# Affichage du contenu (normal ou en mode édition) #}
+    <div class="comment-body" id="comment-body-{{ comment.id }}" style="margin-top: 4px; margin-bottom: 8px;">
+        {{ comment.contenu|nl2br }}
+    </div>
+    
+    {# Formulaire d'édition (caché par défaut) #}
+    <div id="edit-form-{{ comment.id }}" style="display: none; margin-top: 8px;">
+        <form method="post" action="{{ path('commentaires_edit', {id: comment.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ comment.id) }}">
+            <textarea name="contenu" rows="2" style="width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 8px;">{{ comment.contenu }}</textarea>
+            <button type="submit" class="btn-primary" style="margin-top: 5px;">Enregistrer</button>
+            <button type="button" class="cancel-edit" data-id="{{ comment.id }}">Annuler</button>
+        </form>
+    </div>
+    
+    {# Formulaire de réponse (caché par défaut) #}
+    <div class="reply-form-{{ comment.id }}" style="display: none; margin-top: 10px;">
+        <form method="post" action="{{ path('ressources_show', {id: ressource.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('comment_' ~ ressource.id) }}">
+            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+            <textarea name="contenu" rows="2" style="width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 8px;" placeholder="Votre réponse..."></textarea>
+            <button type="submit" style="margin-top: 5px; background: #534AB7; color: white; border: none; border-radius: 20px; padding: 4px 12px;">Répondre</button>
+        </form>
+    </div>
+    
+    {# Affichage des réponses existantes (enfants) – utilisation de 'reponses' #}
+    {% if comment.reponses is defined and comment.reponses|length %}
+        <div class="replies" style="margin-top: 8px;">
+            {% for child in comment.reponses %}
+                {# On ne montre que les réponses non supprimées #}
+                {% if child.status != 'SUPPRIME' %}
+                    {% include 'ressources/_comment.html.twig' with {comment: child, ressource: ressource, level: (level|default(0) + 1)} %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+(function () {
+
+    // ── Filtre mots interdits ──
+    const BAD_WORDS = [
+       'violence', 'connard','connasse','salope','pute','putain','merde','enculé',
+        'batard','bâtard','idiot','idiote','imbécile','imbecile','crétin',
+        'cretin','abruti','débile','debile','con','conne','nique','niquer',
+        'fdp','trouduc','cul','bordel',
+        'fuck','fucking','shit','bitch','asshole','bastard','cunt',
+        'dick','pussy','motherfucker','bullshit','whore','slut','retard'
+    ];
+
+    function normalizeBW(str) {
+        return str.toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s]/g, '')
+            .trim();
+    }
+
+    function hasBadWord(text) {
+        const norm = normalizeBW(text);
+        return BAD_WORDS.some(w => {
+            const escaped = normalizeBW(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return new RegExp('(?<![a-z0-9])' + escaped + '(?![a-z0-9])', 'i').test(norm);
+        });
+    }
+
+    function applyBadWordFeedback(textarea, feedbackId) {
+        let fb = document.getElementById(feedbackId);
+        if (!fb) {
+            fb = document.createElement('small');
+            fb.id = feedbackId;
+            fb.style.cssText = 'color:#ef4444;font-weight:600;margin-top:4px;display:block;';
+            textarea.parentNode.insertBefore(fb, textarea.nextSibling);
+        }
+        const bad = hasBadWord(textarea.value);
+        textarea.style.borderColor = bad ? '#ef4444' : '';
+        textarea.style.boxShadow   = bad ? '0 0 0 3px rgba(239,68,68,0.15)' : '';
+        fb.textContent             = bad ? '🚫 Terme inapproprié détecté — merci de reformuler.' : '';
+        return !bad;
+    }
+
+    // ── Attacher à tous les textarea du composant ──
+    // (réponse + édition — il peut y en avoir plusieurs par page)
+    function attachBadWordCheck(textarea, feedbackSuffix) {
+        if (!textarea) return;
+        textarea.addEventListener('input', () => applyBadWordFeedback(textarea, 'bw-' + feedbackSuffix));
+
+        // Bloquer la soumission du formulaire parent
+        const form = textarea.closest('form');
+        if (form && !form.dataset.bwBound) {
+            form.dataset.bwBound = '1'; // éviter double binding
+            form.addEventListener('submit', function (e) {
+                if (!applyBadWordFeedback(textarea, 'bw-' + feedbackSuffix)) {
+                    e.preventDefault();
+                    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, true);
+        }
+    }
+
+    // Formulaire de réponse
+    const replyTextarea = document.querySelector('.reply-form-{{ comment.id }} textarea');
+    attachBadWordCheck(replyTextarea, 'reply-{{ comment.id }}');
+
+    // Formulaire d'édition
+    const editTextarea = document.querySelector('#edit-form-{{ comment.id }} textarea');
+    attachBadWordCheck(editTextarea, 'edit-{{ comment.id }}');
+
+    // ── Affichage formulaire réponse ──
+    document.querySelectorAll('.reply-toggle').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const formDiv = document.querySelector(`.reply-form-${id}`);
+            if (formDiv) {
+                formDiv.style.display = formDiv.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // ── Affichage formulaire édition ──
+    document.querySelectorAll('.edit-comment-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const editForm = document.getElementById(`edit-form-${id}`);
+            const bodyDiv  = document.getElementById(`comment-body-${id}`);
+            if (editForm && bodyDiv) {
+                editForm.style.display = 'block';
+                bodyDiv.style.display  = 'none';
+            }
+        });
+    });
+
+    document.querySelectorAll('.cancel-edit').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const editForm = document.getElementById(`edit-form-${id}`);
+            const bodyDiv  = document.getElementById(`comment-body-${id}`);
+            if (editForm && bodyDiv) {
+                editForm.style.display = 'none';
+                bodyDiv.style.display  = 'block';
+            }
+        });
+    });
+
+})();
+</script>

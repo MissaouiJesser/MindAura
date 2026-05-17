@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background:#f3f4f6; margin:0; padding:0; }
+        .container { max-width:580px; margin:40px auto; background:white; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.08); }
+        .header { background:#1a1a2e; color:white; padding:32px; text-align:center; }
+        .header h1 { margin:0; font-size:1.6rem; }
+        .header p { margin:8px 0 0; opacity:.8; font-size:.95rem; }
+        .body { padding:32px; }
+        .body p { color:#374151; line-height:1.6; }
+        .order-box { background:#f9fafb; border-radius:12px; padding:20px; margin:24px 0; }
+        .order-box h3 { margin:0 0 16px; color:#1a1a2e; font-size:1rem; }
+        .item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #e5e7eb; color:#374151; font-size:.95rem; }
+        .item:last-child { border-bottom:none; }
+        .total { display:flex; justify-content:space-between; padding:12px 0 0; font-weight:800; font-size:1.05rem; color:#1a1a2e; }
+        .badge { display:inline-block; background:#d1fae5; color:#065f46; padding:4px 12px; border-radius:20px; font-size:.85rem; font-weight:700; margin-bottom:16px; }
+        .footer { background:#f9fafb; padding:20px 32px; text-align:center; color:#9ca3af; font-size:.82rem; border-top:1px solid #e5e7eb; }
+        .btn { display:inline-block; background:#8e44ad; color:white; padding:12px 28px; border-radius:10px; text-decoration:none; font-weight:700; margin-top:16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🛍️ MindAura Shop</h1>
+        <p>Confirmation de commande</p>
+    </div>
+    <div class="body">
+        <span class="badge">✅ Paiement confirmé</span>
+        <p>Bonjour,</p>
+        <p>Votre paiement a bien été reçu. Voici le récapitulatif de votre commande :</p>
+
+        <div class="order-box">
+            <h3>Commande #{{ commande.id }}</h3>
+            {% for item in commande.items %}
+            <div class="item">
+                <span>{{ item.produit.nom }} × {{ item.quantite }}</span>
+                <span>${{ item.sousTotal|number_format(2) }}</span>
+            </div>
+            {% endfor %}
+            <div class="total">
+                <span>Total payé</span>
+                <span>${{ commande.montantTotal }}</span>
+            </div>
+        </div>
+
+        <p style="color:#6b7280; font-size:.9rem;">
+            Date : {{ commande.dateCommande ? commande.dateCommande|date('d/m/Y à H:i') : 'N/A' }}<br>
+            Email : {{ commande.userEmail }}
+        </p>
+
+        <center>
+            <a href="https://mindaura.tn" class="btn">Retour à la boutique</a>
+        </center>
+    </div>
+    <div class="footer">
+        MindAura Events • Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+    </div>
+</div>
+</body>
+</html>

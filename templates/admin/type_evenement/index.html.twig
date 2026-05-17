@@ -1,0 +1,80 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Types d'événement{% endblock %}
+{% block page_label %}Types d'événement{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🏷️</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Types d'événement</h1>
+      <p class="ds-hero-sub">Gérez les différentes catégories d'événements (modalité, tarification et regroupement).</p>
+      <span class="ds-hero-chip">{{ types|length }} type{{ types|length > 1 ? 's' : '' }} défini{{ types|length > 1 ? 's' : '' }}</span>
+    </div>
+    <a href="{{ path('type_evenement_new') }}" class="ds-btn-primary">+ Nouveau type</a>
+  </div>
+</div>
+
+{# Table #}
+<div class="ds-table-card">
+  {% if types is empty %}
+    <div class="ds-empty">
+      <div style="font-size: 48px; margin-bottom: 12px;">🏷️</div>
+      <p>Aucun type d'événement trouvé.</p>
+      <a href="{{ path('type_evenement_new') }}" class="ds-btn-primary" style="margin-top: 14px;">Créer un type</a>
+    </div>
+  {% else %}
+    <div style="overflow-x: auto;">
+      <table class="ds-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Libellé</th>
+            <th>Modalité</th>
+            <th>Catégorie</th>
+            <th>Tarif</th>
+            <th style="text-align: center;">Nb événements</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for t in types %}
+          <tr>
+            <td style="color: #6b7280; font-weight: 600;">#{{ t.id }}</td>
+            <td><strong style="color: var(--green, #1B4332);">{{ t.libelle }}</strong></td>
+            <td><span class="ds-badge ds-badge--violet">{{ t.modalite }}</span></td>
+            <td><span class="ds-badge ds-badge--gray">{{ t.categorie }}</span></td>
+            <td>
+              {% if t.estGratuit %}
+                <span class="ds-badge ds-badge--green">Gratuit</span>
+              {% else %}
+                <span class="ds-badge ds-badge--orange">Payant</span>
+              {% endif %}
+            </td>
+            <td style="text-align: center; font-weight: 700; color: var(--green, #1B4332);">{{ t.evenements|length }}</td>
+            <td>
+              <div class="ds-actions">
+                <a href="{{ path('type_evenement_edit', {'id': t.id}) }}" class="ds-action-btn ds-action-btn--edit" title="Modifier">
+                  ✏️
+                </a>
+                <form method="post" action="{{ path('type_evenement_delete', {'id': t.id}) }}" onsubmit="return confirm('Supprimer ce type ?');" style="display:inline;">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ t.id) }}">
+                  <button type="submit" class="ds-action-btn ds-action-btn--del" title="Supprimer">
+                    🗑
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

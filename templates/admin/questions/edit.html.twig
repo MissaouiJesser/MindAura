@@ -1,0 +1,88 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Modifier question{% endblock %}
+{% block page_label %}Modifier la question{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">✏️</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Modifier la question</h1>
+      <p class="ds-hero-sub">Composez la question, choisissez son type et définissez les options & scores.</p>
+    </div>
+    <a href="{{ path('admin_question_index') }}" class="ds-back-link" data-spa>← Retour</a>
+  </div>
+</div>
+
+<div class="ds-form-page">
+  <div class="ds-form-card" style="max-width: 900px; margin: 0 auto;">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">Question</h3>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          {{ form_label(form.testPsychologique, 'Test associé', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.testPsychologique, {'attr': {'class': 'ds-form-select'}}) }}
+        </div>
+      </div>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          {{ form_label(form.texte_question, 'Texte de la question', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.texte_question, {'attr': {'class': 'ds-form-textarea', 'rows': 3}}) }}
+        </div>
+      </div>
+
+      <div class="ds-form-row ds-form-row--three">
+        <div class="ds-form-group">
+          {{ form_label(form.type_question, 'Type', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.type_question, {'attr': {'class': 'ds-form-select'}}) }}
+        </div>
+        <div class="ds-form-group">
+          {{ form_label(form.ordre_question, 'Ordre', {'label_attr': {'class': 'ds-form-label'}}) }}
+          {{ form_widget(form.ordre_question, {'attr': {'class': 'ds-form-input'}}) }}
+        </div>
+        <div class="ds-form-group">
+          <label class="ds-form-label">Obligatoire</label>
+          <label style="display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--green-pale, #D8F3DC); border-radius: 12px; cursor: pointer;">
+            {{ form_widget(form.est_obligatoire, {'attr': {'style': 'width: 18px; height: 18px; accent-color: var(--green, #1B4332);'}}) }}
+            <span style="font-weight: 600; color: var(--green, #1B4332); font-size: 13px;">Question obligatoire</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">Options & scores</h3>
+      <p style="font-size: 12.5px; color: #6b7280; margin-bottom: 16px;">Laissez vide les options non utilisées (jusqu'à 5).</p>
+
+      {% for n in 1..5 %}
+        <div class="ds-form-row" style="margin-bottom: 14px;">
+          <div class="ds-form-group" style="flex: 2;">
+            {{ form_label(attribute(form, 'option' ~ n), 'Option ' ~ n, {'label_attr': {'class': 'ds-form-label'}}) }}
+            {{ form_widget(attribute(form, 'option' ~ n), {'attr': {'class': 'ds-form-input', 'placeholder': 'Texte de l’option ' ~ n}}) }}
+          </div>
+          <div class="ds-form-group">
+            {{ form_label(attribute(form, 'score' ~ n), 'Score ' ~ n, {'label_attr': {'class': 'ds-form-label'}}) }}
+            {{ form_widget(attribute(form, 'score' ~ n), {'attr': {'class': 'ds-form-input', 'placeholder': '0'}}) }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('admin_question_index') }}" class="ds-btn-cancel" data-spa>Annuler</a>
+      <button type="submit" class="ds-btn-submit">💾 Enregistrer</button>
+    </div>
+
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: DejaVu Sans, Arial, sans-serif;
+      font-size: 9.5px; color: #1A1A2E;
+      background: #fff; padding: 28px 32px;
+    }
+
+    /* ── Page header ── */
+    .pdf-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 14px; border-bottom: 2px solid #1B4332; margin-bottom: 20px;
+    }
+    .brand-block { display: flex; align-items: center; gap: 10px; }
+    .brand-logo  {
+      width: 36px; height: 36px; border-radius: 9px; background: #1B4332;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 1.6; }
+    .brand-name  { font-size: 14px; font-weight: bold; color: #1B4332; }
+    .brand-sub   { font-size: 7px; color: #5A6475; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+    .doc-title   { text-align: right; }
+    .doc-title h1 { font-size: 13px; font-weight: bold; color: #1B4332; margin-bottom: 3px; }
+    .doc-title .doc-meta { font-size: 7.5px; color: #5A6475; }
+
+    /* ── Summary bar ── */
+    .summary-bar {
+      background: linear-gradient(135deg, #1B4332, #2D6A4F);
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 18px;
+      display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+    }
+    .summary-item { text-align: center; }
+    .summary-val  { font-size: 15px; font-weight: bold; color: #fff; line-height: 1; }
+    .summary-lbl  { font-size: 6.5px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-top: 2px; }
+    .summary-divider { width: 1px; height: 30px; background: rgba(255,255,255,.25); }
+
+    /* ── Filters info ── */
+    .filters-info {
+      background: #F0F4F8; border-radius: 6px; padding: 8px 12px; margin-bottom: 16px;
+      font-size: 8px; color: #5A6475;
+    }
+    .filters-info strong { color: #1B4332; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+    thead tr { background: linear-gradient(135deg, #1B4332, #2D6A4F); }
+    thead th {
+      padding: 8px 10px; text-align: left;
+      font-size: 7.5px; font-weight: bold; color: #fff;
+      text-transform: uppercase; letter-spacing: .6px;
+    }
+    tbody tr { border-bottom: 1px solid #E5EBF2; }
+    tbody tr:nth-child(even) { background: #F7FAFB; }
+    tbody tr:hover { background: #F0F4F8; }
+    tbody td { padding: 7px 10px; font-size: 8.5px; vertical-align: top; color: #1A1A2E; line-height: 1.4; }
+    .td-id    { color: #5A6475; font-weight: 600; width: 32px; }
+    .td-test  { font-weight: 600; color: #1B4332; max-width: 110px; }
+    .td-q     { max-width: 200px; }
+    .td-r     { max-width: 130px; }
+    .td-score { text-align: center; font-weight: 700; color: #1B4332; width: 45px; }
+    .td-score.zero { color: #9CA3AF; }
+    .td-date  { color: #5A6475; white-space: nowrap; width: 90px; }
+    .no-data  { text-align: center; padding: 20px; color: #9CA3AF; font-style: italic; }
+
+    /* ── Footer ── */
+    .pdf-footer {
+      border-top: 1px solid #D5DCE6; padding-top: 10px; margin-top: 6px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 7px; color: #9CA3AF;
+    }
+    .footer-brand { color: #1B4332; font-weight: bold; font-size: 7.5px; }
+
+    /* ── Score badge ── */
+    .score-chip {
+      display: inline-block; background: #D8F3DC; color: #1B4332;
+      border-radius: 99px; padding: 2px 7px; font-size: 7.5px; font-weight: bold;
+    }
+    .score-chip.zero { background: #F3F4F6; color: #6B7280; }
+  </style>
+</head>
+<body>
+
+  {# ── Header ── #}
+  <div class="pdf-header">
+    <div class="brand-block">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke-linecap="round"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">MindAura</div>
+        <div class="brand-sub">Bien-être &amp; Sérénité</div>
+      </div>
+    </div>
+    <div class="doc-title">
+      <h1>Export — Mes réponses</h1>
+      <div class="doc-meta">Généré le {{ exportedAt|date('d/m/Y à H:i') }}</div>
+    </div>
+  </div>
+
+  {# ── Summary ── #}
+  {% set totalScore = 0 %}
+  {% for r in reponses %}{% set totalScore = totalScore + (r.scoreObtenu ?? 0) %}{% endfor %}
+  <div class="summary-bar">
+    <div class="summary-item">
+      <div class="summary-val">{{ reponses|length }}</div>
+      <div class="summary-lbl">Réponses</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <div class="summary-val">{{ totalScore }}</div>
+      <div class="summary-lbl">Score total</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <div class="summary-val">{{ reponses|length > 0 ? (totalScore / reponses|length)|round(1) : 0 }}</div>
+      <div class="summary-lbl">Score moyen</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <div class="summary-val">{{ exportedAt|date('d/m/Y') }}</div>
+      <div class="summary-lbl">Date d'export</div>
+    </div>
+  </div>
+
+  {# ── Active filters ── #}
+  {% if (filters.q is defined and filters.q != '') or (filters.testId is defined and filters.testId > 0) %}
+  <div class="filters-info">
+    <strong>Filtres actifs :</strong>
+    {% if filters.q is defined and filters.q != '' %} Recherche : <strong>{{ filters.q }}</strong>{% endif %}
+    {% if filters.testId is defined and filters.testId > 0 %} · Test #{{ filters.testId }}{% endif %}
+  </div>
+  {% endif %}
+
+  {# ── Table ── #}
+  <table>
+    <thead>
+      <tr>
+        <th class="td-id">#</th>
+        <th class="td-test">Test</th>
+        <th class="td-q">Question</th>
+        <th class="td-r">Réponse</th>
+        <th class="td-score">Score</th>
+        <th class="td-date">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reponses %}
+        <tr>
+          <td class="td-id">{{ r.idReponseClient }}</td>
+          <td class="td-test">{{ r.testPsychologique ? r.testPsychologique.titreTest : '—' }}</td>
+          <td class="td-q">{{ r.questionReponse ? r.questionReponse.texteQuestion : '—' }}</td>
+          <td class="td-r">{{ r.reponseTexteLibre ?: (r.optionChoisie ?? '—') }}</td>
+          <td class="td-score {{ (r.scoreObtenu ?? 0) == 0 ? 'zero' : '' }}">
+            <span class="score-chip {{ (r.scoreObtenu ?? 0) == 0 ? 'zero' : '' }}">{{ r.scoreObtenu ?? '—' }}</span>
+          </td>
+          <td class="td-date">{{ r.dateReponse ? r.dateReponse|date('d/m/Y H:i') : '—' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="no-data">Aucune réponse dans cet export.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# ── Footer ── #}
+  <div class="pdf-footer">
+    <span class="footer-brand">MindAura — Bien-être &amp; Sérénité</span>
+    <span>Document confidentiel · Export personnel · {{ reponses|length }} entrée{{ reponses|length != 1 ? 's' : '' }}</span>
+    <span>{{ exportedAt|date('d/m/Y') }}</span>
+  </div>
+
+</body>
+</html>

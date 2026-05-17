@@ -1,0 +1,308 @@
+{# templates/admin/reservation/index_reservation_local.html.twig
+   Liste des réservations de locaux — Back-office
+   Design harmonisé avec admin/utilisateurs/ #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réservations Locaux{% endblock %}
+{% block page_label %}Réservations Locaux{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .res-client-cell { display:flex; align-items:center; gap:12px; }
+  .res-client-avatar {
+    width:38px; height:38px; border-radius:11px;
+    background:var(--violet-pale); display:grid; place-items:center; flex-shrink:0;
+    color:var(--violet);
+  }
+  .res-client-avatar svg { width:17px; height:17px; }
+  .res-client-name { font-weight:700; color:var(--text); font-size:.88rem; }
+  .res-client-motif { font-size:.74rem; color:var(--text-sec); margin-top:2px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .res-local-cell {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:.83rem; color:var(--text);
+  }
+  .res-local-cell svg { width:13px; height:13px; color:var(--green); flex-shrink:0; }
+  .res-time { font-size:.8rem; color:var(--text-sec); white-space:nowrap; }
+  .res-prix { font-size:.88rem; font-weight:700; color:var(--green); }
+
+  .count-label { font-size:.82rem; color:var(--text-sec); flex-shrink:0; }
+  .no-results { text-align:center; padding:40px; color:var(--text-sec); font-size:.88rem; display:none; }
+</style>
+
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"/>
+        <path d="M3 10h18"/>
+        <path d="M8 3v4M16 3v4"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">Réservations de Locaux</div>
+      <div class="ds-hero-sub">
+        Gestion de toutes les réservations de locaux psychiatriques
+        <span class="ds-hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="8" height="7" rx="1"/><path d="M2 5h8" stroke-linecap="round"/></svg>
+          {{ reservations|length }} réservation{{ reservations|length > 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;flex-wrap:wrap">
+      <a href="#" onclick="window.print();return false;" class="ds-btn-primary" style="background:rgba(255,255,255,.13);color:#fff;border:1.5px solid rgba(255,255,255,.3)">
+        <div class="ds-btn-primary-icon" style="background:rgba(255,255,255,.2)">
+          <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 16v1a1 1 0 001 1h10a1 1 0 001-1v-1M7 10l3 3 3-3M10 13V3"/>
+          </svg>
+        </div>
+        Export PDF
+      </a>
+      <a href="{{ path('reservation_local_new') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+        </div>
+        Nouvelle réservation
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="ds-filters-panel">
+  <div class="ds-filters-top">
+    <div class="ds-filter-search">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+      <input id="searchInput" type="text" placeholder="Rechercher un client, local ou salle…">
+    </div>
+    <select id="filterStatus" class="ds-filter-select">
+      <option value="">Tous les statuts</option>
+      <option value="En attente">En attente</option>
+      <option value="Confirmée">Confirmée</option>
+      <option value="Annulée">Annulée</option>
+      <option value="Terminée">Terminée</option>
+    </select>
+    <span class="count-label">
+      <strong id="countLabel" style="color:var(--green)">{{ reservations|length }}</strong>
+      résultat{{ reservations|length > 1 ? 's' : '' }}
+    </span>
+  </div>
+</div>
+
+{% if reservations is empty %}
+  <div class="ds-table-card">
+    <div class="ds-empty">
+      <div class="ds-empty-icon">📅</div>
+      <div class="ds-empty-title">Aucune réservation pour le moment</div>
+      <div class="ds-empty-sub">Créez votre première réservation pour commencer.</div>
+    </div>
+  </div>
+{% else %}
+  <div class="ds-table-card">
+    <table class="ds-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Local</th>
+          <th>Salle</th>
+          <th>Date</th>
+          <th style="text-align:center">Horaires</th>
+          <th style="text-align:center">Prix</th>
+          <th style="text-align:center">Statut</th>
+          <th style="text-align:center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for res in reservations %}
+        <tr class="table-row"
+            data-client="{{ (res.nomCl ~ ' ' ~ res.prenomCl)|lower }}"
+            data-local="{{ res.local ? res.local.nomLocal|lower : '' }}"
+            data-salle="{{ res.salle ? res.salle.nomSalle|lower : '' }}"
+            data-status="{{ res.statusReservation }}">
+
+          <td>
+            <div class="res-client-cell">
+              <div class="res-client-avatar">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="10" cy="7" r="3.5"/>
+                  <path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/>
+                </svg>
+              </div>
+              <div>
+                <div class="res-client-name">{{ res.prenomCl }} {{ res.nomCl }}</div>
+                {% if res.motifReservation %}
+                  <div class="res-client-motif">{{ res.motifReservation }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+
+          <td>
+            {% if res.local %}
+              <span class="res-local-cell">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V8l7-5 7 5v10H3z"/></svg>
+                {{ res.local.nomLocal }}
+              </span>
+            {% else %}
+              <span style="color:var(--text-sec);font-size:.82rem">—</span>
+            {% endif %}
+          </td>
+
+          <td>
+            {% if res.salle %}
+              <span class="ds-badge ds-badge-violet">{{ res.salle.nomSalle }}</span>
+            {% else %}
+              <span style="color:var(--text-sec);font-size:.82rem">—</span>
+            {% endif %}
+          </td>
+
+          <td style="font-size:.84rem;font-weight:600;color:var(--text)">
+            {{ res.dateReservation ? res.dateReservation|date('d/m/Y') : '—' }}
+          </td>
+
+          <td style="text-align:center">
+            <span class="res-time">
+              {{ res.heureDebutReservation ? res.heureDebutReservation|date('H:i') : '—' }}
+              &nbsp;→&nbsp;
+              {{ res.heureFinReservation ? res.heureFinReservation|date('H:i') : '—' }}
+            </span>
+          </td>
+
+          <td style="text-align:center">
+            {% if res.prixReservation %}
+              <span class="res-prix">{{ res.prixReservation }} TND</span>
+            {% else %}
+              <span style="color:var(--text-sec);font-size:.82rem">—</span>
+            {% endif %}
+          </td>
+
+          <td style="text-align:center">
+            {% if res.statusReservation == 'Confirmée' %}
+              <span class="ds-badge ds-badge-green">Confirmée</span>
+            {% elseif res.statusReservation == 'En attente' %}
+              <span class="ds-badge ds-badge-yellow">En attente</span>
+            {% elseif res.statusReservation == 'Annulée' %}
+              <span class="ds-badge ds-badge-red">Annulée</span>
+            {% elseif res.statusReservation == 'Terminée' %}
+              <span class="ds-badge ds-badge-gray">Terminée</span>
+            {% else %}
+              <span class="ds-badge ds-badge-gray">{{ res.statusReservation }}</span>
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="ds-actions">
+              <a href="{{ path('reservation_local_show', {id: res.idReservation}) }}" class="ds-action-btn view" title="Voir">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M1 10s3-7 9-7 9 7 9 7-3 7-9 7-9-7-9-7z" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="10" cy="10" r="2.5"/>
+                </svg>
+              </a>
+              <a href="{{ path('reservation_local_edit', {id: res.idReservation}) }}" class="ds-action-btn edit" title="Modifier">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13.5 3.5l3 3L8 15l-4 1 1-4z"/>
+                </svg>
+              </a>
+              <form method="post"
+                    action="{{ path('reservation_local_delete', {id: res.idReservation}) }}"
+                    style="display:inline;margin:0;padding:0;"
+                    data-name="{{ res.prenomCl }} {{ res.nomCl }}"
+                    onsubmit="return confirmDeleteRes(event, this);">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ res.idReservation) }}">
+                <button type="submit" class="ds-action-btn del" title="Supprimer">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 17 6"/>
+                    <path d="M8 6V3h4v3M6 6l1 11h6l1-11"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div id="noResults" class="no-results">
+      Aucune réservation ne correspond à votre recherche.
+    </div>
+  </div>
+{% endif %}
+
+<div class="ds-modal-overlay" id="deleteModalRes">
+  <div class="ds-modal-box">
+    <div class="ds-modal-icon danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+      </svg>
+    </div>
+    <div class="ds-modal-title">Supprimer cette réservation ?</div>
+    <div class="ds-modal-sub" id="deleteModalResSub">Cette action est irréversible.</div>
+    <div class="ds-modal-actions">
+      <button type="button" class="ds-modal-cancel" id="cancelDeleteRes">Annuler</button>
+      <button type="button" class="ds-modal-confirm-del" id="confirmDeleteRes">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function(){
+  const searchInput  = document.getElementById('searchInput');
+  const filterStatus = document.getElementById('filterStatus');
+  const countLabel   = document.getElementById('countLabel');
+  const noResults    = document.getElementById('noResults');
+
+  function applyFilters(){
+    const q      = (searchInput?.value  || '').toLowerCase();
+    const status = (filterStatus?.value || '').toLowerCase();
+    const rows   = document.querySelectorAll('.table-row');
+    let visible  = 0;
+    rows.forEach(row => {
+      const client = row.dataset.client || '';
+      const local  = row.dataset.local  || '';
+      const salle  = row.dataset.salle  || '';
+      const s      = (row.dataset.status || '').toLowerCase();
+      const matchQ = !q      || client.includes(q) || local.includes(q) || salle.includes(q);
+      const matchS = !status || s === status;
+      const show   = matchQ && matchS;
+      row.style.display = show ? '' : 'none';
+      if(show) visible++;
+    });
+    if(countLabel) countLabel.textContent = visible;
+    if(noResults)  noResults.style.display = visible === 0 ? '' : 'none';
+  }
+
+  searchInput?.addEventListener('input',  applyFilters);
+  filterStatus?.addEventListener('change', applyFilters);
+
+  let pendingDeleteRes = null;
+  window.confirmDeleteRes = function(e, form) {
+    e.preventDefault();
+    pendingDeleteRes = form;
+    const name = form.dataset.name || 'cette réservation';
+    document.getElementById('deleteModalResSub').textContent = 'La réservation de « ' + name + ' » sera définitivement supprimée.';
+    document.getElementById('deleteModalRes').classList.add('open');
+    return false;
+  };
+  document.getElementById('cancelDeleteRes')?.addEventListener('click', () => {
+    document.getElementById('deleteModalRes').classList.remove('open');
+    pendingDeleteRes = null;
+  });
+  document.getElementById('confirmDeleteRes')?.addEventListener('click', () => {
+    if (pendingDeleteRes) pendingDeleteRes.submit();
+  });
+  document.getElementById('deleteModalRes')?.addEventListener('click', e => {
+    if (e.target.id === 'deleteModalRes') {
+      document.getElementById('deleteModalRes').classList.remove('open');
+      pendingDeleteRes = null;
+    }
+  });
+})();
+</script>
+{% endblock %}

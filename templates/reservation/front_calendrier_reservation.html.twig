@@ -1,0 +1,936 @@
+{# templates/reservation/front_calendrier_reservation.html.twig
+   ─ FRONT OFFICE : Calendrier des réservations (FullCalendar v6)
+   ─ Route : reservation_local_front_calendrier
+   ─ Variables : reservations (array de ReservationLocal), user
+#}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon Calendrier — MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+
+  {# ── FullCalendar v6 CDN ── #}
+  <link  href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --g1: #1B4332; --g2: #2D6A4F; --g3: #52B788;
+      --g-pale: #D8F3DC; --g-hover: #E8F5EE;
+      --violet: #7B5EA7; --vio-pale: #EDE9F6;
+      --red: #DC2626;    --red-pale: #FEF2F2;
+      --orange: #D97706; --ora-pale: #FEF3C7;
+      --blue: #1D4ED8;   --blue-pale: #EFF6FF;
+      --teal: #0F766E;   --teal-pale: #F0FDFA;
+      --bg: #F0F4F8; --white: #FFFFFF;
+      --text: #1A1A2E; --text-sec: #5A6475; --border: #D5DCE6;
+      --radius-xl: 20px; --radius-lg: 14px; --radius-md: 10px;
+      --ease: cubic-bezier(.22,1,.36,1);
+      --shadow-card: 0 2px 14px rgba(27,67,50,.07), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover: 0 14px 38px rgba(27,67,50,.13);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
+
+    /* ══ NAVBAR ══ */
+    .nav {
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(255,255,255,.93);
+      backdrop-filter: blur(18px) saturate(150%);
+      border-bottom: 1px solid rgba(27,67,50,.09);
+      padding: 0 48px;
+      display: flex; align-items: center; gap: 20px;
+      height: 68px;
+      transition: box-shadow .3s;
+    }
+    .nav.scrolled { box-shadow: 0 4px 24px rgba(27,67,50,.11); }
+    .nav-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; }
+    .nav-brand-icon {
+      width: 42px; height: 42px; border-radius: 12px; background: var(--g1);
+      display: grid; place-items: center;
+      box-shadow: 0 4px 14px rgba(27,67,50,.28);
+      transition: transform .3s var(--ease); overflow: hidden;
+    }
+    .nav-brand:hover .nav-brand-icon { transform: rotate(-6deg) scale(1.05); }
+    .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.22rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .nav-brand-sub  { font-size: .59rem; color: var(--text-sec); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
+    .nav-links { flex: 1; display: flex; align-items: center; gap: 2px; justify-content: center; }
+    .nav-link {
+      padding: 7px 17px; border-radius: 99px;
+      font-size: .87rem; font-weight: 500; color: var(--text-sec);
+      text-decoration: none; transition: all .25s var(--ease);
+    }
+    .nav-link:hover  { background: var(--g-hover); color: var(--g1); }
+    .nav-link.active { background: var(--g-pale); color: var(--g1); font-weight: 700; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn-ia-nav {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: 99px;
+      background: linear-gradient(135deg, #0F172A, #1e1b4b);
+      color: #fff; font-size: .85rem; font-weight: 700;
+      text-decoration: none; border: 1.5px solid rgba(129,140,248,.35);
+      box-shadow: 0 4px 16px rgba(129,140,248,.2);
+      transition: all .25s cubic-bezier(.22,1,.36,1);
+      white-space: nowrap;
+    }
+    .btn-ia-nav:hover { background: linear-gradient(135deg, #1e1b4b, #312e81); color: #fff; transform: translateY(-1px); }
+    .btn-ia-nav .ia-dot { width: 7px; height: 7px; border-radius: 50%; background: #818CF8; box-shadow: 0 0 8px #818CF8; animation: ia-pulse 2s ease-in-out infinite; }
+    @keyframes ia-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
+    .nav-user-pill { display: flex; align-items: center; gap: 9px; padding: 5px 14px 5px 5px; border-radius: 99px; background: var(--bg); border: 1.5px solid rgba(27,67,50,.13); cursor: pointer; text-decoration: none; transition: all .25s var(--ease); }
+    .nav-user-pill:hover { background: var(--g-hover); border-color: var(--g3); }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g-pale); border: 2px solid var(--g3); display: grid; place-items: center; font-size: .77rem; font-weight: 700; color: var(--g1); overflow: hidden; flex-shrink: 0; }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .nav-user-name  { font-size: .83rem; font-weight: 600; color: var(--text); }
+
+    /* ══ PAGE HERO ══ */
+    .page-hero {
+      background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 60%, #1a5c3a 100%);
+      padding: 44px 48px 40px; position: relative; overflow: hidden;
+    }
+    .page-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:320px; height:320px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
+    .hero-inner { max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .hero-left h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem,2.8vw,2.2rem); color: #fff; line-height: 1.15; margin-bottom: 8px; }
+    .hero-left p  { font-size: .92rem; color: rgba(255,255,255,.72); max-width: 480px; line-height: 1.65; }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-hero {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 99px; font-size: .88rem; font-weight: 700;
+      text-decoration: none; transition: all .25s var(--ease); cursor: pointer; border: none;
+    }
+    .btn-hero-primary { background: #fff; color: var(--g1); box-shadow: 0 4px 18px rgba(0,0,0,.18); }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.22); }
+    .btn-hero-outline { background: rgba(255,255,255,.1); color: #fff; border: 1.5px solid rgba(255,255,255,.3); }
+    .btn-hero-outline:hover { background: rgba(255,255,255,.2); }
+    .btn-hero svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ══ STATS STRIP ══ */
+    .stats-strip {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 48px;
+    }
+    .stats-inner { max-width: 1280px; margin: 0 auto; display: flex; gap: 0; }
+    .stat-item {
+      flex: 1; display: flex; align-items: center; gap: 14px;
+      padding: 18px 24px;
+      border-right: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item:hover { background: var(--bg); }
+    .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0; }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-icon.green  { background: var(--g-pale);   }
+    .stat-icon.green  svg { stroke: var(--g1); }
+    .stat-icon.violet { background: var(--vio-pale); }
+    .stat-icon.violet svg { stroke: var(--violet); }
+    .stat-icon.orange { background: var(--ora-pale); }
+    .stat-icon.orange svg { stroke: var(--orange); }
+    .stat-icon.red    { background: var(--red-pale); }
+    .stat-icon.red    svg { stroke: var(--red); }
+    .stat-num   { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-label { font-size: .74rem; color: var(--text-sec); font-weight: 500; margin-top: 2px; }
+
+    /* ══ MAIN LAYOUT ══ */
+    .main-wrap { max-width: 1280px; margin: 0 auto; padding: 32px 48px 80px; display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+
+    /* ══ CALENDAR CARD ══ */
+    .cal-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+    .cal-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 18px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px; flex-wrap: wrap;
+    }
+    .cal-card-title { font-family: 'Playfair Display', serif; font-size: 1.12rem; color: var(--text); font-weight: 700; }
+    .cal-view-btns { display: flex; gap: 4px; }
+    .cal-view-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: .8rem; font-weight: 600;
+      border: 1.5px solid var(--border); background: var(--bg); color: var(--text-sec);
+      cursor: pointer; transition: all .2s; font-family: 'Outfit', sans-serif;
+    }
+    .cal-view-btn.active,
+    .cal-view-btn:hover { background: var(--g-pale); border-color: var(--g3); color: var(--g1); }
+    .cal-body { padding: 24px; }
+
+    /* ── FullCalendar overrides ── */
+    .fc {
+      --fc-border-color: var(--border);
+      --fc-today-bg-color: rgba(82,183,136,.08);
+      --fc-event-border-color: transparent;
+      --fc-page-bg-color: transparent;
+      font-family: 'Outfit', sans-serif;
+    }
+    .fc .fc-toolbar-title { font-family: 'Playfair Display', serif; font-size: 1.18rem; font-weight: 700; color: var(--text); }
+    .fc .fc-button {
+      background: var(--bg) !important; border: 1.5px solid var(--border) !important;
+      color: var(--text-sec) !important; font-family: 'Outfit', sans-serif !important;
+      font-size: .82rem !important; font-weight: 600 !important;
+      border-radius: 8px !important; padding: 5px 12px !important;
+      box-shadow: none !important; transition: all .2s !important;
+    }
+    .fc .fc-button:hover,
+    .fc .fc-button-active { background: var(--g-pale) !important; border-color: var(--g3) !important; color: var(--g1) !important; }
+    .fc .fc-button-primary:not(:disabled).fc-button-active { background: var(--g1) !important; border-color: var(--g1) !important; color: #fff !important; }
+    .fc .fc-col-header-cell-cushion { font-size: .78rem; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: .6px; text-decoration: none; }
+    .fc .fc-daygrid-day-number { font-size: .82rem; font-weight: 600; color: var(--text-sec); text-decoration: none; padding: 6px 8px; }
+    .fc .fc-day-today .fc-daygrid-day-number { background: var(--g1); color: #fff; border-radius: 8px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; margin: 4px; }
+    .fc .fc-daygrid-event { border-radius: 6px !important; font-size: .76rem !important; font-weight: 600 !important; padding: 2px 6px !important; margin: 1px 2px !important; cursor: pointer !important; }
+    .fc .fc-timegrid-event { border-radius: 6px !important; font-size: .76rem !important; font-weight: 600 !important; }
+    .fc .fc-event-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fc .fc-more-link { font-size: .72rem; font-weight: 700; color: var(--g2); text-decoration: none; }
+    .fc .fc-more-link:hover { color: var(--g1); }
+    .fc th { background: #FAFBFC; }
+    .fc .fc-scrollgrid { border-radius: 12px; overflow: hidden; border: 1px solid var(--border) !important; }
+    .fc .fc-scrollgrid-section-header th { border-bottom: 2px solid var(--border) !important; }
+    .fc .fc-toolbar { margin-bottom: 18px !important; }
+    .fc .fc-toolbar-chunk { display: flex; align-items: center; gap: 8px; }
+
+    /* Couleurs événements par statut */
+    .ev-attente   { background: #FEF3C7 !important; color: #92400E !important; border-left: 3px solid #D97706 !important; }
+    .ev-confirmee { background: #D1FAE5 !important; color: #065F46 !important; border-left: 3px solid #059669 !important; }
+    .ev-annulee   { background: #FEE2E2 !important; color: #991B1B !important; border-left: 3px solid #DC2626 !important; }
+    .ev-terminee  { background: #E0E7FF !important; color: #3730A3 !important; border-left: 3px solid #6366F1 !important; }
+
+    /* ══ SIDEBAR PANEL ══ */
+    .side-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── Légende statuts ── */
+    .legend-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card); padding: 20px 22px;
+    }
+    .legend-title { font-size: .72rem; font-weight: 700; color: var(--text-sec); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; display: block; }
+    .legend-list { display: flex; flex-direction: column; gap: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity .2s; }
+    .legend-item:hover { opacity: .75; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legend-dot.attente   { background: #D97706; }
+    .legend-dot.confirmee { background: #059669; }
+    .legend-dot.annulee   { background: #DC2626; }
+    .legend-dot.terminee  { background: #6366F1; }
+    .legend-label { font-size: .84rem; font-weight: 600; color: var(--text); flex: 1; }
+    .legend-count { font-size: .78rem; font-weight: 700; background: var(--bg); padding: 2px 9px; border-radius: 99px; color: var(--text-sec); }
+
+    /* ── Filtres rapides ── */
+    .filter-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card); padding: 20px 22px;
+    }
+    .filter-title { font-size: .72rem; font-weight: 700; color: var(--text-sec); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; display: block; }
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter-chip {
+      padding: 6px 13px; border-radius: 99px; font-size: .79rem; font-weight: 600;
+      border: 1.5px solid var(--border); background: var(--bg); color: var(--text-sec);
+      cursor: pointer; transition: all .2s; font-family: 'Outfit', sans-serif;
+    }
+    .filter-chip:hover         { border-color: var(--g3); color: var(--g1); background: var(--g-hover); }
+    .filter-chip.active        { background: var(--g1); border-color: var(--g1); color: #fff; }
+    .filter-chip[data-filter="attente"].active   { background: #D97706; border-color: #D97706; }
+    .filter-chip[data-filter="confirmee"].active { background: #059669; border-color: #059669; }
+    .filter-chip[data-filter="annulee"].active   { background: #DC2626; border-color: #DC2626; }
+    .filter-chip[data-filter="terminee"].active  { background: #6366F1; border-color: #6366F1; }
+
+    /* ── Prochaine réservation ── */
+    .next-card {
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+      border-radius: var(--radius-lg); padding: 22px;
+      color: #fff; position: relative; overflow: hidden;
+    }
+    .next-card::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.05); pointer-events:none; }
+    .next-label { font-size: .68rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.65); margin-bottom: 10px; display: block; }
+    .next-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+    .next-meta  { font-size: .82rem; color: rgba(255,255,255,.78); display: flex; flex-direction: column; gap: 4px; }
+    .next-meta-row { display: flex; align-items: center; gap: 7px; }
+    .next-meta-row svg { width: 13px; height: 13px; stroke: rgba(255,255,255,.65); fill: none; stroke-width: 2; flex-shrink: 0; }
+    .next-empty { text-align: center; padding: 8px 0; }
+    .next-empty-icon { font-size: 2rem; margin-bottom: 8px; opacity: .6; }
+    .next-empty p { font-size: .85rem; color: rgba(255,255,255,.7); }
+    .next-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .7rem; font-weight: 700; border-radius: 99px; padding: 3px 10px; margin-top: 10px;
+    }
+    .badge-confirmee { background: rgba(16,185,129,.2); color: #6EE7B7; border: 1px solid rgba(16,185,129,.3); }
+    .badge-attente   { background: rgba(217,119,6,.2);  color: #FCD34D; border: 1px solid rgba(217,119,6,.3); }
+    .badge-annulee   { background: rgba(239,68,68,.2);  color: #FCA5A5; border: 1px solid rgba(239,68,68,.3); }
+    .badge-terminee  { background: rgba(99,102,241,.2); color: #A5B4FC; border: 1px solid rgba(99,102,241,.3); }
+
+    /* ── Upcoming list ── */
+    .upcoming-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card); overflow: hidden;
+    }
+    .upcoming-header { padding: 16px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .upcoming-header-title { font-size: .88rem; font-weight: 700; color: var(--text); }
+    .upcoming-list { max-height: 340px; overflow-y: auto; }
+    .upcoming-list::-webkit-scrollbar { width: 4px; }
+    .upcoming-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    .upcoming-item {
+      display: flex; align-items: center; gap: 14px; padding: 14px 20px;
+      border-bottom: 1px solid rgba(213,220,230,.5);
+      transition: background .18s; cursor: pointer;
+    }
+    .upcoming-item:last-child { border-bottom: none; }
+    .upcoming-item:hover { background: var(--bg); }
+    .upcoming-day-badge {
+      width: 44px; height: 48px; border-radius: 10px;
+      background: var(--g-pale); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .upcoming-day-num  { font-size: 1.1rem; font-weight: 800; color: var(--g1); line-height: 1; }
+    .upcoming-day-name { font-size: .58rem; font-weight: 700; color: var(--g2); text-transform: uppercase; letter-spacing: .5px; }
+    .upcoming-info     { flex: 1; min-width: 0; }
+    .upcoming-info-name { font-size: .84rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .upcoming-info-meta { font-size: .75rem; color: var(--text-sec); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .upcoming-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .upcoming-dot.attente   { background: #D97706; }
+    .upcoming-dot.confirmee { background: #059669; }
+    .upcoming-dot.annulee   { background: #DC2626; }
+    .upcoming-dot.terminee  { background: #6366F1; }
+    .upcoming-empty { padding: 30px 20px; text-align: center; color: var(--text-sec); font-size: .86rem; }
+    .upcoming-empty-icon { font-size: 2rem; margin-bottom: 8px; opacity: .5; }
+
+    /* ══ MODAL DÉTAIL ══ */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); backdrop-filter: blur(4px);
+      z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity .3s var(--ease);
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--white); border-radius: var(--radius-xl);
+      box-shadow: 0 30px 80px rgba(0,0,0,.22), 0 0 0 1px var(--border);
+      width: 100%; max-width: 520px;
+      transform: translateY(20px) scale(.97); transition: transform .3s var(--ease);
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+    .modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 24px 24px 18px; gap: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-status-bar { width: 4px; height: 48px; border-radius: 99px; flex-shrink: 0; margin-top: 2px; }
+    .modal-header-info { flex: 1; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.14rem; font-weight: 700; color: var(--text); line-height: 1.25; }
+    .modal-subtitle { font-size: .82rem; color: var(--text-sec); margin-top: 4px; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px; background: var(--bg);
+      border: 1.5px solid var(--border); display: grid; place-items: center;
+      cursor: pointer; transition: all .2s; flex-shrink: 0;
+    }
+    .modal-close:hover { background: var(--red-pale); border-color: var(--red); }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--text-sec); fill: none; stroke-width: 2; }
+    .modal-close:hover svg { stroke: var(--red); }
+    .modal-body { padding: 22px 24px; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+    .modal-field { display: flex; flex-direction: column; gap: 4px; }
+    .modal-field-label { font-size: .68rem; font-weight: 700; color: var(--text-sec); letter-spacing: .8px; text-transform: uppercase; }
+    .modal-field-value { font-size: .9rem; font-weight: 600; color: var(--text); }
+    .modal-field.full  { grid-column: 1 / -1; }
+    .modal-status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .78rem; font-weight: 700; border-radius: 99px; padding: 4px 12px;
+    }
+    .modal-status-badge.attente   { background: var(--ora-pale);  color: #92400E; }
+    .modal-status-badge.confirmee { background: var(--g-pale);    color: #065F46; }
+    .modal-status-badge.annulee   { background: var(--red-pale);  color: #991B1B; }
+    .modal-status-badge.terminee  { background: #EDE9FE;          color: #3730A3; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--border); background: #FAFBFC; }
+    .modal-btn {
+      display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px;
+      border-radius: 10px; font-size: .85rem; font-weight: 600;
+      cursor: pointer; transition: all .2s; text-decoration: none; border: none; font-family: 'Outfit', sans-serif;
+    }
+    .modal-btn-primary { background: var(--g1); color: #fff; }
+    .modal-btn-primary:hover { background: var(--g2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(27,67,50,.22); }
+    .modal-btn-danger  { background: var(--red-pale); color: var(--red); }
+    .modal-btn-danger:hover  { background: var(--red); color: #fff; }
+    .modal-btn-ghost   { background: var(--bg); color: var(--text-sec); border: 1.5px solid var(--border); }
+    .modal-btn-ghost:hover   { border-color: var(--g3); color: var(--g1); background: var(--g-hover); }
+    .modal-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ══ FOOTER ══ */
+    .footer { background: var(--g1); padding: 40px 48px 28px; margin-top: 0; }
+    .footer-bottom { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .footer-copy  { font-size: .78rem; color: rgba(255,255,255,.37); }
+    .footer-heart { font-size: .72rem; color: rgba(255,255,255,.37); }
+    .footer-heart span { color: var(--g3); }
+
+    @media(max-width:1100px) {
+      .main-wrap { grid-template-columns: 1fr; padding: 24px 20px 60px; }
+      .side-panel { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); }
+    }
+    @media(max-width:768px) {
+      .nav  { padding: 0 20px; }
+      .nav-links { display: none; }
+      .page-hero { padding: 36px 20px 32px; }
+      .stats-strip { padding: 0 20px; }
+      .stats-inner { flex-wrap: wrap; }
+      .stat-item { flex: 1 1 calc(50% - 1px); border-right: none; border-bottom: 1px solid var(--border); padding: 14px 16px; }
+      .footer { padding: 32px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+{# ══ Variables rôle ══ #}
+{% set user      = app.user %}
+{% set roleRaw   = user.roleUtilisateur %}
+{% set roleSlug  = roleRaw|replace({'ROLE_': ''})|lower %}
+{% set roleLabel = {'patient':'Patient','medecin':'Médecin','coach':'Coach','psychologue':'Psychologue','user':'Utilisateur','admin':'Admin'}[roleSlug] ?? (roleSlug|capitalize) %}
+{% set roleEmoji = {'patient':'🧠','medecin':'🩺','coach':'💪','psychologue':'🧘','user':'👤','admin':'🛡️'}[roleSlug] ?? '👤' %}
+
+{# ── Calcul stats ── #}
+{% set cnt_total    = reservations|length %}
+{% set cnt_attente  = reservations|filter(r => r.statusReservation == 'En attente')|length %}
+{% set cnt_confirm  = reservations|filter(r => r.statusReservation == 'Confirmée')|length %}
+{% set cnt_annulee  = reservations|filter(r => r.statusReservation == 'Annulée')|length %}
+{% set cnt_terminee = reservations|filter(r => r.statusReservation == 'Terminée')|length %}
+
+{# ── Prochaine réservation (date future, non annulée) ── #}
+{% set next_resa = null %}
+{% for r in reservations %}
+  {% if r.dateReservation and r.statusReservation != 'Annulée' and r.statusReservation != 'Terminée' %}
+    {% if next_resa is null or r.dateReservation < next_resa.dateReservation %}
+      {% set next_resa = r %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{# ── JSON pour FullCalendar ── #}
+{% set cal_events = [] %}
+{% for r in reservations %}
+  {% set css_class = 'ev-attente' %}
+  {% if r.statusReservation == 'Confirmée'  %} {% set css_class = 'ev-confirmee' %} {% endif %}
+  {% if r.statusReservation == 'Annulée'    %} {% set css_class = 'ev-annulee'   %} {% endif %}
+  {% if r.statusReservation == 'Terminée'   %} {% set css_class = 'ev-terminee'  %} {% endif %}
+
+  {% set ev = {
+    id:         r.idReservation,
+    title:      (r.local ? r.local.nomLocal : 'Local'),
+    start:      r.dateReservation ? (r.dateReservation|date('Y-m-d') ~ (r.heureDebutReservation ? 'T' ~ r.heureDebutReservation|date('H:i:s') : '')) : '',
+    end:        r.dateReservation ? (r.dateReservation|date('Y-m-d') ~ (r.heureFinReservation ? 'T' ~ r.heureFinReservation|date('H:i:s') : '')) : '',
+    className:  css_class,
+    extendedProps: {
+      local:    r.local ? r.local.nomLocal : '—',
+      salle:    r.salle ? r.salle.nomSalle : '—',
+      status:   r.statusReservation ?? 'En attente',
+      motif:    r.motifReservation ?? '—',
+      prix:     r.prixReservation ?? '—',
+      nomCl:    r.prenomCl ~ ' ' ~ r.nomCl,
+      debut:    r.heureDebutReservation ? r.heureDebutReservation|date('H:i') : '—',
+      fin:      r.heureFinReservation   ? r.heureFinReservation|date('H:i')   : '—',
+      date:     r.dateReservation       ? r.dateReservation|date('d/m/Y')     : '—',
+      editUrl:  path('reservation_local_edit', {id: r.idReservation}),
+      showUrl:  path('reservation_local_show', {id: r.idReservation}),
+    }
+  } %}
+  {% set cal_events = cal_events|merge([ev]) %}
+{% endfor %}
+
+{# ══ NAVBAR ══ #}
+<nav class="nav" id="main-nav">
+  <a href="{{ path('app_home') }}" class="nav-brand">
+    <div class="nav-brand-icon">
+      <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width:100%;height:100%;object-fit:contain;border-radius:12px;">
+    </div>
+    <div>
+      <div class="nav-brand-name">MindAura</div>
+      <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}"  class="nav-link">Locaux</a>
+    <a href="{{ path('salle_front_salles_index') }}"               class="nav-link">Salles</a>
+    <a href="{{ path('reservation_local_front_index') }}"          class="nav-link">Mes réservations</a>
+    <a href="{{ path('reservation_local_front_calendrier') }}"     class="nav-link active">Calendrier</a>
+  </div>
+
+  <a href="{{ path('reservation_local_ai_recommend') }}" class="btn-ia-nav">
+    <span class="ia-dot"></span>
+    ✦ IA Recommandation
+  </a>
+
+  <div class="nav-right">
+    <a href="{{ path('app_profil') }}" class="nav-user-pill">
+      <div class="nav-avatar">
+        {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+          <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+        {% else %}
+          {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+        {% endif %}
+      </div>
+      <span class="nav-user-name">{{ user.prenomUtilisateur }}</span>
+    </a>
+  </div>
+</nav>
+
+{# ══ HERO ══ #}
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <h1>📅 Mon Calendrier</h1>
+      <p>Visualisez et gérez toutes vos réservations en un coup d'œil.</p>
+    </div>
+    <div class="hero-actions">
+      <a href="{{ path('reservation_local_front_new') }}" class="btn-hero btn-hero-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+        Nouvelle réservation
+      </a>
+      <a href="{{ path('reservation_local_front_index') }}" class="btn-hero btn-hero-outline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Vue liste
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ══ STATS STRIP ══ #}
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="stat-num">{{ cnt_total }}</div>
+        <div class="stat-label">Total réservations</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon violet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="stat-num">{{ cnt_attente }}</div>
+        <div class="stat-label">En attente</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="stat-num">{{ cnt_confirm }}</div>
+        <div class="stat-label">Confirmées</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="stat-num">{{ cnt_annulee }}</div>
+        <div class="stat-label">Annulées</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ MAIN CONTENT ══ #}
+<div class="main-wrap">
+
+  {# ── Calendrier ── #}
+  <div class="cal-card">
+    <div class="cal-card-header">
+      <span class="cal-card-title">Vue Calendrier</span>
+      <div class="cal-view-btns">
+        <button class="cal-view-btn active" data-view="dayGridMonth" onclick="switchView('dayGridMonth', this)">Mois</button>
+        <button class="cal-view-btn"        data-view="timeGridWeek" onclick="switchView('timeGridWeek', this)">Semaine</button>
+        <button class="cal-view-btn"        data-view="timeGridDay"  onclick="switchView('timeGridDay',  this)">Jour</button>
+        <button class="cal-view-btn"        data-view="listMonth"    onclick="switchView('listMonth',    this)">Liste</button>
+      </div>
+    </div>
+    <div class="cal-body">
+      <div id="fullcalendar"></div>
+    </div>
+  </div>
+
+  {# ── Sidebar ── #}
+  <div class="side-panel">
+
+    {# Prochaine réservation #}
+    <div class="next-card">
+      {% if next_resa %}
+        <span class="next-label">📌 Prochaine réservation</span>
+        <div class="next-title">{{ next_resa.local ? next_resa.local.nomLocal : 'Local non précisé' }}</div>
+        <div class="next-meta">
+          <div class="next-meta-row">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg>
+            {{ next_resa.dateReservation ? next_resa.dateReservation|date('d/m/Y') : '—' }}
+          </div>
+          {% if next_resa.heureDebutReservation %}
+          <div class="next-meta-row">
+            <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"/></svg>
+            {{ next_resa.heureDebutReservation|date('H:i') }}
+            {% if next_resa.heureFinReservation %} → {{ next_resa.heureFinReservation|date('H:i') }}{% endif %}
+          </div>
+          {% endif %}
+          {% if next_resa.salle %}
+          <div class="next-meta-row">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{ next_resa.salle.nomSalle }}
+          </div>
+          {% endif %}
+        </div>
+        {% set st = next_resa.statusReservation %}
+        <span class="next-badge badge-{{ st|lower|replace({' ':'-','é':'e','è':'e'}) }}">
+          {% if st == 'Confirmée' %}✅{% elseif st == 'En attente' %}⏳{% elseif st == 'Annulée' %}❌{% else %}✔️{% endif %}
+          {{ st }}
+        </span>
+      {% else %}
+        <span class="next-label">📌 Prochaine réservation</span>
+        <div class="next-empty">
+          <div class="next-empty-icon">📭</div>
+          <p>Aucune réservation à venir</p>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Légende #}
+    <div class="legend-card">
+      <span class="legend-title">Légende des statuts</span>
+      <div class="legend-list">
+        <div class="legend-item" onclick="filterByStatus('attente', this)">
+          <span class="legend-dot attente"></span>
+          <span class="legend-label">En attente</span>
+          <span class="legend-count">{{ cnt_attente }}</span>
+        </div>
+        <div class="legend-item" onclick="filterByStatus('confirmee', this)">
+          <span class="legend-dot confirmee"></span>
+          <span class="legend-label">Confirmée</span>
+          <span class="legend-count">{{ cnt_confirm }}</span>
+        </div>
+        <div class="legend-item" onclick="filterByStatus('annulee', this)">
+          <span class="legend-dot annulee"></span>
+          <span class="legend-label">Annulée</span>
+          <span class="legend-count">{{ cnt_annulee }}</span>
+        </div>
+        <div class="legend-item" onclick="filterByStatus('terminee', this)">
+          <span class="legend-dot terminee"></span>
+          <span class="legend-label">Terminée</span>
+          <span class="legend-count">{{ cnt_terminee }}</span>
+        </div>
+      </div>
+    </div>
+
+    {# Filtres rapides #}
+    <div class="filter-card">
+      <span class="filter-title">Filtres rapides</span>
+      <div class="filter-chips">
+        <button class="filter-chip active"       data-filter="all"       onclick="filterByStatus('all', this)">Tous</button>
+        <button class="filter-chip"              data-filter="attente"   onclick="filterByStatus('attente', this)">⏳ En attente</button>
+        <button class="filter-chip"              data-filter="confirmee" onclick="filterByStatus('confirmee', this)">✅ Confirmée</button>
+        <button class="filter-chip"              data-filter="annulee"   onclick="filterByStatus('annulee', this)">❌ Annulée</button>
+        <button class="filter-chip"              data-filter="terminee"  onclick="filterByStatus('terminee', this)">✔️ Terminée</button>
+      </div>
+    </div>
+
+    {# Prochaines réservations ─ mini liste #}
+    <div class="upcoming-card">
+      <div class="upcoming-header">
+        <span class="upcoming-header-title">📋 À venir</span>
+      </div>
+      <div class="upcoming-list" id="upcoming-list">
+        {# filled by JS #}
+        <div class="upcoming-empty">
+          <div class="upcoming-empty-icon">📅</div>
+          <p>Chargement…</p>
+        </div>
+      </div>
+    </div>
+
+  </div>{# /side-panel #}
+</div>{# /main-wrap #}
+
+{# ══ MODAL DÉTAIL ══ #}
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-label="Détail de la réservation">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-status-bar" id="modal-status-bar"></div>
+      <div class="modal-header-info">
+        <div class="modal-title" id="modal-title">—</div>
+        <div class="modal-subtitle" id="modal-subtitle">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field">
+          <span class="modal-field-label">Date</span>
+          <span class="modal-field-value" id="modal-date">—</span>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-label">Horaire</span>
+          <span class="modal-field-value" id="modal-horaire">—</span>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-label">Local</span>
+          <span class="modal-field-value" id="modal-local">—</span>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-label">Salle</span>
+          <span class="modal-field-value" id="modal-salle">—</span>
+        </div>
+        <div class="modal-field full">
+          <span class="modal-field-label">Statut</span>
+          <span id="modal-status-badge">—</span>
+        </div>
+        <div class="modal-field full">
+          <span class="modal-field-label">Motif</span>
+          <span class="modal-field-value" id="modal-motif">—</span>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-label">Prix</span>
+          <span class="modal-field-value" id="modal-prix">—</span>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-label">Patient</span>
+          <span class="modal-field-value" id="modal-patient">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-ghost" onclick="closeModal()">Fermer</button>
+      <a href="#" id="modal-btn-show" class="modal-btn modal-btn-ghost">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-linecap="round"/><circle cx="12" cy="12" r="3"/></svg>
+        Détails
+      </a>
+      <a href="#" id="modal-btn-edit" class="modal-btn modal-btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Modifier
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ══ FOOTER ══ #}
+<footer class="footer">
+  <div class="footer-bottom">
+    <div class="footer-copy">&copy; 2026 MindAura — Tous droits réservés.</div>
+    <div class="footer-heart">Fait avec <span>&hearts;</span> par MindAura</div>
+  </div>
+</footer>
+
+{# ── Données JSON injectées par Twig ── #}
+<script>
+const CALENDAR_EVENTS = {{ cal_events|json_encode|raw }};
+</script>
+
+<script>
+/* ══ FullCalendar init ════════════════════════════════════════════ */
+let calendar;
+let activeFilter = 'all';
+
+const STATUS_COLORS = {
+  'En attente': '#D97706',
+  'Confirmée':  '#059669',
+  'Annulée':    '#DC2626',
+  'Terminée':   '#6366F1',
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ── Initialisation FullCalendar ── */
+  const calEl = document.getElementById('fullcalendar');
+  calendar = new FullCalendar.Calendar(calEl, {
+    locale:         'fr',
+    initialView:    'dayGridMonth',
+    headerToolbar: {
+      left:   'prev,next today',
+      center: 'title',
+      right:  '',           // on gère la vue manuellement avec nos boutons
+    },
+    buttonText: {
+      today:    "Aujourd'hui",
+      month:    'Mois',
+      week:     'Semaine',
+      day:      'Jour',
+      list:     'Liste',
+    },
+    firstDay:        1,          // Lundi en premier
+    events:          CALENDAR_EVENTS,
+    dayMaxEvents:    3,          // "+N more" après 3 événements par jour
+    nowIndicator:    true,
+    height:          'auto',
+    slotMinTime:     '07:00:00',
+    slotMaxTime:     '22:00:00',
+    slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+
+    /* Tooltip au survol */
+    eventMouseEnter(info) {
+      const p = info.event.extendedProps;
+      info.el.setAttribute('title',
+        `${p.local} • ${p.date} • ${p.debut}–${p.fin}\n${p.status}`
+      );
+    },
+
+    /* Clic sur un événement → ouvre la modale */
+    eventClick(info) {
+      openModal(info.event);
+    },
+
+    /* Rendu personnalisé de l'événement (vue grille) */
+    eventContent(arg) {
+      const status = arg.event.extendedProps.status;
+      const color  = STATUS_COLORS[status] || '#6B7280';
+      const debut  = arg.event.extendedProps.debut;
+      return {
+        html: `
+          <div style="display:flex;align-items:center;gap:5px;padding:2px 6px;overflow:hidden;">
+            <span style="width:6px;height:6px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              ${debut !== '—' ? debut + ' · ' : ''}${arg.event.title}
+            </span>
+          </div>
+        `
+      };
+    },
+  });
+
+  calendar.render();
+  buildUpcomingList();
+
+  /* ── Navbar scroll ── */
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+});
+
+/* ── Changer de vue calendrier ── */
+function switchView(view, btn) {
+  calendar.changeView(view);
+  document.querySelectorAll('.cal-view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ── Filtrer par statut ── */
+function filterByStatus(status, el) {
+  activeFilter = status;
+
+  // Reset toutes les chips & items légende
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  if (el && el.classList.contains('filter-chip')) el.classList.add('active');
+
+  // Classes à afficher
+  const classMap = {
+    all:       null,
+    attente:   'ev-attente',
+    confirmee: 'ev-confirmee',
+    annulee:   'ev-annulee',
+    terminee:  'ev-terminee',
+  };
+
+  calendar.getEvents().forEach(ev => {
+    const cls = ev.classNames[0];
+    const show = (status === 'all') || (cls === classMap[status]);
+    if (show) { ev.setProp('display', 'auto'); }
+    else       { ev.setProp('display', 'none'); }
+  });
+}
+
+/* ── Ouvrir la modale de détail ── */
+function openModal(event) {
+  const p      = event.extendedProps;
+  const status = p.status;
+  const color  = STATUS_COLORS[status] || '#6B7280';
+  const slug   = statusSlug(status);
+
+  document.getElementById('modal-title').textContent    = event.title;
+  document.getElementById('modal-subtitle').textContent = `Réservation · ${p.date}`;
+  document.getElementById('modal-date').textContent     = p.date;
+  document.getElementById('modal-horaire').textContent  = `${p.debut} → ${p.fin}`;
+  document.getElementById('modal-local').textContent    = p.local;
+  document.getElementById('modal-salle').textContent    = p.salle;
+  document.getElementById('modal-motif').textContent    = p.motif;
+  document.getElementById('modal-prix').textContent     = p.prix !== '—' ? p.prix + ' TND' : '—';
+  document.getElementById('modal-patient').textContent  = p.nomCl;
+  document.getElementById('modal-status-bar').style.background = color;
+  document.getElementById('modal-status-badge').innerHTML =
+    `<span class="modal-status-badge ${slug}">${statusEmoji(status)} ${status}</span>`;
+  document.getElementById('modal-btn-edit').href = p.editUrl;
+  document.getElementById('modal-btn-show').href = p.showUrl;
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Fermer si clic en dehors
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ── Mini liste "à venir" ── */
+function buildUpcomingList() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const future = CALENDAR_EVENTS
+    .filter(ev => {
+      if (!ev.start) return false;
+      const d = new Date(ev.start); d.setHours(0,0,0,0);
+      return d >= today && ev.extendedProps.status !== 'Annulée';
+    })
+    .sort((a, b) => new Date(a.start) - new Date(b.start))
+    .slice(0, 8);
+
+  const container = document.getElementById('upcoming-list');
+  if (future.length === 0) {
+    container.innerHTML = `<div class="upcoming-empty"><div class="upcoming-empty-icon">📅</div><p>Aucune réservation à venir</p></div>`;
+    return;
+  }
+
+  const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  container.innerHTML = future.map(ev => {
+    const d    = new Date(ev.start);
+    const num  = String(d.getDate()).padStart(2,'0');
+    const day  = days[d.getDay()];
+    const slug = statusSlug(ev.extendedProps.status);
+    return `
+      <div class="upcoming-item" onclick="calendar.gotoDate('${ev.start.substring(0,10)}'); calendar.changeView('timeGridDay'); document.querySelectorAll('.cal-view-btn').forEach(b=>b.classList.remove('active')); document.querySelector('[data-view=timeGridDay]').classList.add('active');">
+        <div class="upcoming-day-badge">
+          <span class="upcoming-day-num">${num}</span>
+          <span class="upcoming-day-name">${day}</span>
+        </div>
+        <div class="upcoming-info">
+          <div class="upcoming-info-name">${ev.title}</div>
+          <div class="upcoming-info-meta">
+            <span class="upcoming-dot ${slug}"></span>
+            ${ev.extendedProps.debut !== '—' ? ev.extendedProps.debut + ' · ' : ''}
+            ${ev.extendedProps.status}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Helpers ── */
+function statusSlug(s) {
+  const m = {'En attente':'attente','Confirmée':'confirmee','Annulée':'annulee','Terminée':'terminee'};
+  return m[s] || 'attente';
+}
+function statusEmoji(s) {
+  const m = {'En attente':'⏳','Confirmée':'✅','Annulée':'❌','Terminée':'✔️'};
+  return m[s] || '';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Questions — {{ test.titre_test }}{% endblock %}
+{% block page_label %}Gérer les questions{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .add-card {
+    background: #fff;
+    border: 1.5px solid var(--border, #D5DCE6);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px -10px rgba(27,67,50,.18);
+    margin-bottom: 22px;
+    animation: fadeUp .55s ease both;
+  }
+  .add-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, var(--green-pale, #D8F3DC) 0%, var(--violet-pale, #EDE9F6) 100%);
+    border-bottom: 1.5px solid var(--border, #D5DCE6);
+  }
+  .add-header-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: #fff;
+    display: grid; place-items: center;
+    color: var(--green, #1B4332);
+    box-shadow: 0 4px 10px -4px rgba(27,67,50,.25);
+  }
+  .add-header-icon svg { width: 18px; height: 18px; }
+  .add-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--green, #1B4332);
+  }
+  .add-header-sub {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  .add-body { padding: 22px 24px; }
+
+  .add-body input[type="text"],
+  .add-body input[type="number"],
+  .add-body select,
+  .add-body textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    background: #fff;
+    color: #1f2937;
+    transition: border-color .2s ease, box-shadow .2s ease;
+    box-sizing: border-box;
+  }
+  .add-body input:focus,
+  .add-body select:focus,
+  .add-body textarea:focus {
+    outline: none;
+    border-color: var(--green-light, #52B788);
+    box-shadow: 0 0 0 4px rgba(82,183,136,.15);
+  }
+  .add-body textarea { resize: vertical; min-height: 80px; }
+  .add-body label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+
+  .three-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 720px) { .three-grid { grid-template-columns: 1fr; } }
+
+  .toggle-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: var(--green-pale, #D8F3DC);
+    border-radius: 12px;
+    margin-top: 28px;
+    cursor: pointer;
+  }
+  .toggle-inline input[type="checkbox"] {
+    width: 17px; height: 17px;
+    accent-color: var(--green, #1B4332);
+    cursor: pointer;
+  }
+  .toggle-inline label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    margin: 0;
+    text-transform: none;
+    letter-spacing: 0;
+    cursor: pointer;
+  }
+
+  .options-section {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1.5px solid var(--border, #D5DCE6);
+  }
+  .options-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green, #1B4332);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .options-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: var(--green-pale, #D8F3DC);
+  }
+  .option-row {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: end;
+  }
+
+  .add-actions {
+    padding: 16px 24px;
+    background: #fafbfc;
+    border-top: 1.5px solid var(--border, #D5DCE6);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* Detail panel pour bouton "voir" */
+  .detail-panel {
+    display: none;
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: var(--violet-pale, #EDE9F6);
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #1f2937;
+  }
+  .detail-panel.active { display: block; animation: fadeUp .3s ease; }
+  .detail-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 18px;
+  }
+  .detail-panel-grid div { padding: 4px 0; }
+  .detail-panel-grid strong { color: var(--green, #1B4332); margin-right: 6px; }
+
+  .q-text {
+    font-size: 13px;
+    color: #1f2937;
+    line-height: 1.5;
+    max-width: 360px;
+  }
+
+  .ordre-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 8px;
+    background: var(--violet-pale, #EDE9F6);
+    color: var(--violet, #7B5EA7);
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+</style>
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">❓</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Gérer les questions</h1>
+      <p class="ds-hero-sub">{{ test.titre_test }}</p>
+      <span class="ds-hero-chip">{{ questions|length }} question{{ questions|length != 1 ? 's' : '' }}</span>
+    </div>
+    <a href="{{ path('app_admin_tests_index') }}" class="ds-back-link" data-spa data-route="app_admin_tests_index" data-label="Tests psychologiques">← Retour</a>
+  </div>
+</div>
+
+{# Add/Edit form #}
+<div class="add-card">
+  <div class="add-card-header">
+    <div class="add-header-icon">
+      {% if editingQuestion %}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 2.5a2.12 2.12 0 013 3L6 17H3v-3L14.5 2.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      {% else %}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+      {% endif %}
+    </div>
+    <div>
+      <div class="add-header-title">{{ editingQuestion ? '✏️ Modifier la question' : '➕ Ajouter une nouvelle question' }}</div>
+      <div class="add-header-sub">Test : {{ test.titre_test }}</div>
+    </div>
+  </div>
+
+  {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+  <div class="add-body">
+    <div>{{ form_row(form.texte_question) }}</div>
+
+    <div class="three-grid">
+      <div>{{ form_row(form.type_question) }}</div>
+      <div>{{ form_row(form.ordre_question) }}</div>
+      <div class="toggle-inline">{{ form_row(form.est_obligatoire) }}</div>
+    </div>
+
+    <div class="options-section">
+      <div class="options-section-title">Options de réponse</div>
+      {% for i in 1..5 %}
+        <div class="option-row">
+          <div>{{ form_row(attribute(form, 'option' ~ i)) }}</div>
+          <div>{{ form_row(attribute(form, 'score' ~ i)) }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="add-actions">
+    <button type="submit" class="ds-btn-submit">
+      {{ editingQuestion ? '💾 Enregistrer les modifications' : '➕ Ajouter la question' }}
+    </button>
+    {% if editingQuestion %}
+      <a href="{{ path('app_admin_tests_questions', {'id': test.idTest}) }}" class="ds-btn-cancel" data-spa data-route="app_admin_tests_questions" data-label="Gérer les questions">Annuler l'édition</a>
+    {% endif %}
+  </div>
+  {{ form_end(form) }}
+</div>
+
+{# Questions list #}
+<div class="ds-table-card">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 16px 22px; background: #fafbfc; border-bottom: 1.5px solid var(--border, #D5DCE6);">
+    <div class="add-header-icon" style="background: var(--green-pale, #D8F3DC);">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h12M4 9h12M4 13h8" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <div class="add-header-title">Questions existantes</div>
+    </div>
+    <span class="ds-hero-chip" style="margin-left: auto; background: var(--green, #1B4332); color: #fff;">{{ questions|length }} au total</span>
+  </div>
+
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Question</th>
+        <th>Type</th>
+        <th style="text-align: center;">Ordre</th>
+        <th style="text-align: center;">Obligatoire</th>
+        <th style="text-align: right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for question in questions %}
+        <tr>
+          <td><span class="ordre-badge">{{ loop.index }}</span></td>
+          <td>
+            <div class="q-text">{{ question.texte_question|length > 80 ? question.texte_question|slice(0,80) ~ '…' : question.texte_question }}</div>
+            <div id="q-detail-{{ question.idQuestionReponse }}" class="detail-panel">
+              <div class="detail-panel-grid">
+                <div><strong>Type :</strong> {{ question.type_question ?? '—' }}</div>
+                <div><strong>Texte complet :</strong> {{ question.texte_question }}</div>
+                <div><strong>Option 1 :</strong> {{ question.option1 ?? '—' }} ({{ question.score1 ?? 0 }})</div>
+                <div><strong>Option 2 :</strong> {{ question.option2 ?? '—' }} ({{ question.score2 ?? 0 }})</div>
+                <div><strong>Option 3 :</strong> {{ question.option3 ?? '—' }} ({{ question.score3 ?? 0 }})</div>
+                <div><strong>Option 4 :</strong> {{ question.option4 ?? '—' }} ({{ question.score4 ?? 0 }})</div>
+                <div><strong>Option 5 :</strong> {{ question.option5 ?? '—' }} ({{ question.score5 ?? 0 }})</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="ds-badge ds-badge--violet">{{ question.type_question }}</span></td>
+          <td style="text-align: center;"><span class="ordre-badge">{{ question.ordre_question }}</span></td>
+          <td style="text-align: center;">
+            {% if question.est_obligatoire %}
+              <span class="ds-badge ds-badge--green">Oui</span>
+            {% else %}
+              <span class="ds-badge ds-badge--gray">Non</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="ds-actions">
+              <button type="button" class="ds-action-btn ds-action-btn--view js-toggle-detail" data-target="q-detail-{{ question.idQuestionReponse }}" title="Voir détails">👁</button>
+              <a href="{{ path('app_admin_tests_questions', {'id': test.idTest, 'edit': question.idQuestionReponse}) }}" class="ds-action-btn ds-action-btn--edit" data-spa data-route="app_admin_tests_questions" data-label="Gérer les questions" title="Modifier">✏️</a>
+              <form method="post" action="{{ path('app_admin_tests_question_delete', {'id': test.idTest, 'questionId': question.idQuestionReponse}) }}" style="display:contents" onsubmit="return confirm('Supprimer cette question ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_question_' ~ question.idQuestionReponse) }}">
+                <button type="submit" class="ds-action-btn ds-action-btn--del" title="Supprimer">🗑</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="6">
+            <div class="ds-empty">
+              <div style="font-size: 48px; margin-bottom: 12px;">🧩</div>
+              <p style="font-weight: 600; color: var(--green, #1B4332);">Aucune question pour ce test</p>
+              <p style="font-size: 13px; color: #6b7280; margin-top: 6px;">Utilisez le formulaire ci-dessus pour ajouter votre première question.</p>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="display: flex; gap: 10px; padding: 16px 22px; background: #fafbfc; border-top: 1.5px solid var(--border, #D5DCE6); flex-wrap: wrap;">
+    <a href="{{ path('app_admin_tests_index') }}" class="ds-btn-cancel" data-spa data-route="app_admin_tests_index" data-label="Tests psychologiques">← Retour à la liste</a>
+    <a href="{{ path('app_admin_tests_show', {'id': test.idTest}) }}" class="ds-btn-cancel" data-spa data-route="app_admin_tests_show" data-label="Détail du test" style="background: var(--violet-pale, #EDE9F6); color: var(--violet, #7B5EA7); border-color: var(--violet, #7B5EA7);">👁 Voir les détails du test</a>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.js-toggle-detail').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = btn.getAttribute('data-target');
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('active');
+    });
+  });
+</script>
+{% endblock %}

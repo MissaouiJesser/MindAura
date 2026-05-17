@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    /* ══ Reset & base ═════════════════════════════════════════════════════ */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DejaVu Sans', Arial, sans-serif;
+      font-size: 9.5pt;
+      color: #1A1A2E;
+      background: #ffffff;
+    }
+
+    /* ══ Couleurs palette MindAura ════════════════════════════════════════ */
+    /* --green:        #1B4332  */
+    /* --green-mid:    #2D6A4F  */
+    /* --green-light:  #52B788  */
+    /* --green-pale:   #D8F3DC  */
+    /* --violet:       #7B5EA7  */
+    /* --violet-pale:  #EDE9F6  */
+
+    /* ══ PAGE ═════════════════════════════════════════════════════════════ */
+    @page {
+      size: A4 landscape;
+      margin: 12mm 14mm 14mm 14mm;
+    }
+
+    /* ══ HEADER ═══════════════════════════════════════════════════════════ */
+    .header {
+      background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 55%, #7B5EA7 100%);
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Cercle décoratif */
+    .header::after {
+      content: '';
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      top: -30px; right: -20px;
+    }
+
+    .header-inner {
+      display: table;
+      width: 100%;
+    }
+    .header-left  { display: table-cell; vertical-align: middle; }
+    .header-right { display: table-cell; vertical-align: middle; text-align: right; width: 200px; }
+
+    .header-brand {
+      font-size: 7pt;
+      font-weight: bold;
+      color: rgba(255,255,255,.55);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .header-title {
+      font-size: 17pt;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+      line-height: 1.15;
+    }
+    .header-sub {
+      font-size: 8pt;
+      color: rgba(255,255,255,.65);
+      margin-top: 5px;
+    }
+
+    .header-chip {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 7.5pt;
+      color: rgba(255,255,255,.9);
+      font-weight: bold;
+      margin-top: 3px;
+    }
+
+    .meta-block {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: right;
+    }
+    .meta-label { font-size: 6.5pt; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: 1px; }
+    .meta-value { font-size: 8pt;   color: #fff; font-weight: bold; margin-top: 2px; }
+
+    /* ══ BARRE FILTRES ACTIFS ═════════════════════════════════════════════ */
+    .filters-bar {
+      background: #F0F9F4;
+      border: 1.5px solid #B7DFC8;
+      border-radius: 8px;
+      padding: 7px 14px;
+      margin-bottom: 12px;
+      font-size: 7.5pt;
+      color: #1B4332;
+    }
+    .filters-bar strong { font-weight: bold; color: #1B4332; }
+    .filter-chip {
+      display: inline-block;
+      background: #D8F3DC;
+      color: #1B4332;
+      border-radius: 99px;
+      padding: 2px 9px;
+      font-size: 7pt;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
+    /* ══ STATS ROW ════════════════════════════════════════════════════════ */
+    .stats-row {
+      display: table;
+      width: 100%;
+      margin-bottom: 14px;
+      border-spacing: 0;
+    }
+    .stat-cell {
+      display: table-cell;
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: 8px;
+    }
+    .stat-cell + .stat-cell { padding-left: 8px; }
+
+    .stat-val   { font-size: 16pt; font-weight: bold; line-height: 1; }
+    .stat-label { font-size: 7pt; font-weight: bold; margin-top: 3px; letter-spacing: .3px; }
+
+    /* ══ TABLE ════════════════════════════════════════════════════════════ */
+    .table-wrap {
+      border: 1.5px solid #D5DCE6;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: #1B4332;
+    }
+    thead th {
+      padding: 9px 11px;
+      text-align: left;
+      font-size: 7pt;
+      font-weight: bold;
+      color: rgba(255,255,255,.85);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border: none;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even)  { background: #F8FAFB; }
+    tbody tr:nth-child(odd)   { background: #FFFFFF; }
+    tbody tr:last-child td    { border-bottom: none; }
+
+    td {
+      padding: 7px 11px;
+      font-size: 8.5pt;
+      color: #1A1A2E;
+      border-bottom: 1px solid #EDF0F3;
+      vertical-align: middle;
+    }
+
+    .td-id {
+      font-size: 7.5pt;
+      color: #8A929E;
+      font-weight: bold;
+      width: 28px;
+    }
+
+    .td-user { }
+    .td-name  { font-weight: bold; color: #1A1A2E; font-size: 8.5pt; }
+    .td-email { font-size: 7pt; color: #5A6475; margin-top: 1px; }
+
+    /* Badges rôle */
+    .badge {
+      display: inline-block;
+      font-size: 6.8pt;
+      font-weight: bold;
+      border-radius: 99px;
+      padding: 3px 9px;
+      white-space: nowrap;
+    }
+    .badge-PATIENT     { background: #EDE9F6; color: #7B5EA7; }
+    .badge-PSYCHOLOGUE { background: #E0F2F1; color: #00897B; }
+    .badge-COACH       { background: #FFF3E0; color: #E65100; }
+    .badge-ADMIN       { background: #D8F3DC; color: #1B4332; }
+    .badge-USER        { background: #E3F2FD; color: #1565C0; }
+
+    /* Badges statut */
+    .badge-actif   { background: #D8F3DC; color: #1B4332; }
+    .badge-inactif { background: #FEE2E2; color: #991B1B; }
+
+    /* ══ FOOTER ═══════════════════════════════════════════════════════════ */
+    .footer {
+      margin-top: 14px;
+      display: table;
+      width: 100%;
+    }
+    .footer-left  { display: table-cell; vertical-align: middle; }
+    .footer-right { display: table-cell; vertical-align: middle; text-align: right; width: 200px; }
+
+    .footer-text {
+      font-size: 6.5pt;
+      color: #8A929E;
+    }
+    .footer-brand {
+      font-size: 7pt;
+      font-weight: bold;
+      color: #1B4332;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1.5px solid #D5DCE6;
+      margin: 10px 0;
+    }
+
+    /* ══ DOT indicateur statut ════════════════════════════════════════════ */
+    .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .dot-actif   { background: #1B4332; }
+    .dot-inactif { background: #991B1B; }
+  </style>
+</head>
+<body>
+
+  {# ══ HEADER ══════════════════════════════════════════════════════════════ #}
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="header-brand">MindAura — Back-office</div>
+        <div class="header-title">Liste des utilisateurs</div>
+        <div class="header-sub">
+          Rapport généré par {{ adminUser.prenomUtilisateur }} {{ adminUser.nomUtilisateur }}
+          &nbsp;·&nbsp; {{ exportedAt|date('d/m/Y à H:i') }}
+        </div>
+        <div class="header-chip">
+          {{ utilisateurs|length }} utilisateur{{ utilisateurs|length != 1 ? 's' : '' }}
+          {% if filters.search or filters.role or filters.statut or filters.dateDebut or filters.dateFin %}
+            (vue filtrée)
+          {% else %}
+            (export complet)
+          {% endif %}
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="meta-block">
+          <div class="meta-label">Date d'export</div>
+          <div class="meta-value">{{ exportedAt|date('d/m/Y') }}</div>
+          <div class="meta-label" style="margin-top:5px">Heure</div>
+          <div class="meta-value">{{ exportedAt|date('H:i:s') }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ══ FILTRES ACTIFS ═══════════════════════════════════════════════════════ #}
+  {% set roleLabels = {
+    'ROLE_PATIENT':     'Patient',
+    'ROLE_PSYCHOLOGUE': 'Psychologue',
+    'ROLE_COACH':       'Coach',
+    'ROLE_ADMIN':       'Administrateur',
+    'ROLE_USER':        'Utilisateur',
+  } %}
+  {% if filters.search or filters.role or filters.statut or filters.dateDebut or filters.dateFin %}
+    <div class="filters-bar">
+      <strong>Filtres appliqués :</strong>
+      {% if filters.search %}
+        <span class="filter-chip">🔍 "{{ filters.search }}"</span>
+      {% endif %}
+      {% if filters.role %}
+        <span class="filter-chip">Rôle : {{ roleLabels[filters.role] ?? filters.role }}</span>
+      {% endif %}
+      {% if filters.statut != '' %}
+        <span class="filter-chip">{{ filters.statut == '1' ? '✅ Actifs' : '🔴 Inactifs' }}</span>
+      {% endif %}
+      {% if filters.dateDebut %}
+        <span class="filter-chip">Après le {{ filters.dateDebut }}</span>
+      {% endif %}
+      {% if filters.dateFin %}
+        <span class="filter-chip">Avant le {{ filters.dateFin }}</span>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {# ══ STATS RAPIDES ════════════════════════════════════════════════════════ #}
+  {% set nbActifs   = utilisateurs|filter(u => u.estActifUtilisateur)|length %}
+  {% set nbInactifs = utilisateurs|length - nbActifs %}
+  {% set nbPatients = utilisateurs|filter(u => u.roleUtilisateur == 'ROLE_PATIENT')|length %}
+  {% set nbPsychos  = utilisateurs|filter(u => u.roleUtilisateur == 'ROLE_PSYCHOLOGUE')|length %}
+  {% set nbCoachs   = utilisateurs|filter(u => u.roleUtilisateur == 'ROLE_COACH')|length %}
+  {% set nbAdmins   = utilisateurs|filter(u => u.roleUtilisateur == 'ROLE_ADMIN')|length %}
+
+  <table style="width:100%;margin-bottom:14px;border-collapse:separate;border-spacing:6px 0">
+    <tr>
+      <td style="background:#D8F3DC;border-radius:8px;padding:9px 12px;text-align:center;width:16%">
+        <div style="font-size:15pt;font-weight:bold;color:#1B4332;line-height:1">{{ utilisateurs|length }}</div>
+        <div style="font-size:6.8pt;font-weight:bold;color:#2D6A4F;margin-top:3px;letter-spacing:.3px">TOTAL</div>
+      </td>
+      <td style="background:#D1FAE5;border-radius:8px;padding:9px 12px;text-align:center;width:16%">
+        <div style="font-size:15pt;font-weight:bold;color:#059669;line-height:1">{{ nbActifs }}</div>
+        <div style="font-size:6.8pt;font-weight:bold;color:#059669;margin-top:3px;letter-spacing:.3px">ACTIFS</div>
+      </td>
+      <td style="background:#FEE2E2;border-radius:8px;padding:9px 12px;text-align:center;width:16%">
+        <div style="font-size:15pt;font-weight:bold;color:#991B1B;line-height:1">{{ nbInactifs }}</div>
+        <div style="font-size:6.8pt;font-weight:bold;color:#991B1B;margin-top:3px;letter-spacing:.3px">INACTIFS</div>
+      </td>
+      <td style="background:#EDE9F6;border-radius:8px;padding:9px 12px;text-align:center;width:16%">
+        <div style="font-size:15pt;font-weight:bold;color:#7B5EA7;line-height:1">{{ nbPatients }}</div>
+        <div style="font-size:6.8pt;font-weight:bold;color:#7B5EA7;margin-top:3px;letter-spacing:.3px">PATIENTS</div>
+      </td>
+      <td style="background:#E0F2F1;border-radius:8px;padding:9px 12px;text-align:center;width:16%">
+        <div style="font-size:15pt;font-weight:bold;color:#00897B;line-height:1">{{ nbPsychos }}</div>
+        <div style="font-size:6.8pt;font-weight:bold;color:#00897B;margin-top:3px;letter-spacing:.3px">PSYCHOLOGUES</div>
+      </td>
+      <td style="background:#FFF3E0;border-radius:8px;padding:9px 12px;text-align:center;width:16%">
+        <div style="font-size:15pt;font-weight:bold;color:#E65100;line-height:1">{{ nbCoachs }}</div>
+        <div style="font-size:6.8pt;font-weight:bold;color:#E65100;margin-top:3px;letter-spacing:.3px">COACHS</div>
+      </td>
+    </tr>
+  </table>
+
+  {# ══ TABLEAU PRINCIPAL ════════════════════════════════════════════════════ #}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px">#</th>
+          <th>Utilisateur</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Rôle</th>
+          <th>Date de naissance</th>
+          <th>Inscription</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in utilisateurs %}
+          {% set roleKey = u.roleUtilisateur|replace({'ROLE_': ''}) %}
+          <tr>
+            <td class="td-id">{{ u.idUtilisateur }}</td>
+
+            <td class="td-user">
+              <div class="td-name">{{ u.prenomUtilisateur }} {{ u.nomUtilisateur }}</div>
+            </td>
+
+            <td style="font-size:7.8pt;color:#3D4A5C">{{ u.emailUtilisateur }}</td>
+
+            <td style="font-size:8pt;color:#5A6475">{{ u.telephoneUtilisateur }}</td>
+
+            <td>
+              <span class="badge badge-{{ roleKey }}">
+                {{ roleLabels[u.roleUtilisateur] ?? roleKey }}
+              </span>
+            </td>
+
+            <td style="font-size:7.8pt;color:#5A6475">
+              {{ u.dateNaissanceUtilisateur ? u.dateNaissanceUtilisateur|date('d/m/Y') : '—' }}
+            </td>
+
+            <td style="font-size:7.8pt;color:#5A6475">
+              {{ u.dateInscriptionUtilisateur|date('d/m/Y') }}
+            </td>
+
+            <td>
+              {% if u.estActifUtilisateur %}
+                <span class="dot dot-actif"></span>
+                <span class="badge badge-actif">Actif</span>
+              {% else %}
+                <span class="dot dot-inactif"></span>
+                <span class="badge badge-inactif">Inactif</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;padding:20px;color:#8A929E;font-style:italic">
+              Aucun utilisateur trouvé.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ══ FOOTER ═══════════════════════════════════════════════════════════════ #}
+  <hr class="divider"/>
+  <div class="footer">
+    <div class="footer-left">
+      <div class="footer-text">
+        Document confidentiel — usage interne uniquement — MindAura Administration
+      </div>
+      <div class="footer-text" style="margin-top:2px">
+        Exporté par {{ adminUser.prenomUtilisateur }} {{ adminUser.nomUtilisateur }}
+        ({{ adminUser.emailUtilisateur }}) le {{ exportedAt|date('d/m/Y à H:i:s') }}
+      </div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-brand">🌿 MindAura</div>
+      <div class="footer-text">Psychologie &amp; Développement Personnel</div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réponse{% endblock %}
+
+{% block body %}
+<h1>Réponse</h1>
+<a href="{{ path('reponse_index') }}">Retour à la liste</a>
+<p><strong>ID :</strong> {{ reponse.id_reponse }}</p>
+<p><strong>Réclamation :</strong> {{ reponse.reclamation ? reponse.reclamation.sujet_reclamation : 'N/A' }}</p>
+<p><strong>Contenu :</strong> {{ reponse.contenu_reponse }}</p>
+<p><strong>Date réponse :</strong> {{ reponse.date_reponse ? reponse.date_reponse|date('Y-m-d H:i') : '' }}</p>
+<p><strong>Utilisateur :</strong> {{ reponse.id_utilisateur }}</p>
+<p><strong>Note :</strong> {{ reponse.rate_reponse }}</p>
+<p><strong>Somme des notes :</strong> {{ reponse.rate_sum }}</p>
+<p><strong>Nombre de notes :</strong> {{ reponse.rate_count }}</p>
+{% endblock %}

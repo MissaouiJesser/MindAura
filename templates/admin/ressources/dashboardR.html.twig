@@ -1,0 +1,401 @@
+{# templates/admin/ressources/dashboardR.html.twig
+   Tableau de bord des ressources — Back-office
+   Design harmonisé avec admin/utilisateurs/
+   Graphiques Chart.js (type doughnut, bar, pie) préservés #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Tableau de bord — Ressources{% endblock %}
+{% block page_label %}Tableau de bord{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .stats-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:16px; margin-bottom:24px;
+  }
+  .stat-card {
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:16px; padding:20px;
+    box-shadow:var(--shadow-card);
+    transition:transform .25s, box-shadow .25s, border-color .25s;
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .stat-card:hover {
+    transform:translateY(-3px);
+    box-shadow:0 10px 24px rgba(27,67,50,.12);
+    border-color:var(--green-light);
+  }
+  .stat-card-header {
+    display:flex; align-items:center; gap:10px; margin-bottom:10px;
+  }
+  .stat-card-icon {
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    display:grid; place-items:center; font-size:1.2rem;
+  }
+  .stat-card-icon.violet { background:var(--violet-pale); color:var(--violet); }
+  .stat-card-icon.green  { background:var(--green-pale); color:var(--green); }
+  .stat-card-icon.orange { background:#FFF3E0; color:#E65100; }
+  .stat-card-icon.red    { background:#FEE2E2; color:#991B1B; }
+  .stat-value {
+    font-size:1.9rem; font-weight:800; color:var(--text);
+    line-height:1.1; font-family:'Playfair Display',serif;
+  }
+  .stat-label {
+    font-size:.78rem; color:var(--text-sec); margin-top:6px;
+    font-weight:500;
+  }
+
+  .dashboard-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));
+    gap:18px; margin-bottom:24px;
+  }
+  .dashboard-card {
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:18px; padding:22px;
+    box-shadow:var(--shadow-card);
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .dashboard-card-title {
+    font-size:.96rem; font-weight:700; color:var(--text);
+    margin:0 0 14px 0; padding-bottom:10px;
+    border-bottom:1.5px solid var(--border);
+    display:flex; align-items:center; gap:8px;
+    font-family:'Playfair Display',serif;
+  }
+  .chart-container { position:relative; height:300px; width:100%; margin:0 auto; }
+  canvas { max-height:300px; width:100%; }
+
+  .ranking-list { list-style:none; padding:0; margin:0; }
+  .ranking-item {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid var(--border);
+    gap:10px;
+  }
+  .ranking-item:last-child { border-bottom:none; }
+  .ranking-title {
+    font-size:.86rem; font-weight:500; color:var(--text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:65%;
+  }
+  .ranking-value {
+    font-size:.74rem; font-weight:700; color:var(--green);
+    background:var(--green-pale); padding:3px 10px; border-radius:99px;
+    flex-shrink:0;
+  }
+
+  .btn-link {
+    color:var(--green); text-decoration:none; font-size:.82rem; font-weight:600;
+    display:inline-flex; align-items:center; gap:4px;
+    transition:color .2s;
+  }
+  .btn-link:hover { color:var(--green-mid); }
+
+  .signale-item {
+    padding:12px 0; border-bottom:1px solid var(--border);
+  }
+  .signale-item:last-child { border-bottom:none; }
+  .signale-comment {
+    font-size:.86rem; color:var(--text); margin-bottom:6px; line-height:1.5;
+  }
+  .signale-meta {
+    display:flex; flex-wrap:wrap; gap:10px; font-size:.74rem;
+    color:var(--text-sec); align-items:center;
+  }
+  .badge-danger {
+    background:#FEE2E2; color:#991B1B; font-size:.7rem; font-weight:700;
+    padding:2px 8px; border-radius:99px;
+  }
+
+  .empty-message {
+    text-align:center; padding:24px; color:var(--text-sec); font-size:.86rem;
+  }
+
+  @media (max-width:768px) {
+    .chart-container { height:220px; }
+  }
+</style>
+
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/>
+        <rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">Tableau de bord — Ressources</div>
+      <div class="ds-hero-sub">
+        Statistiques globales, top performers et modération des commentaires
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;flex-wrap:wrap">
+      <a href="{{ path('admin_ressources_index') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h14M3 10h14M3 13h14"/></svg>
+        </div>
+        Voir la liste
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ── Statistiques globales ── #}
+<div class="stats-grid">
+  <div class="stat-card" style="animation-delay:.05s">
+    <div class="stat-card-header">
+      <div class="stat-card-icon violet">📚</div>
+      <div>
+        <div class="stat-value">{{ total|default(0) }}</div>
+      </div>
+    </div>
+    <div class="stat-label">Ressources totales</div>
+  </div>
+
+  <div class="stat-card" style="animation-delay:.08s">
+    <div class="stat-card-header">
+      <div class="stat-card-icon red">💬</div>
+      <div>
+        <div class="stat-value">{{ signales|length|default(0) }}</div>
+      </div>
+    </div>
+    <div class="stat-label">Commentaires signalés</div>
+  </div>
+
+  <div class="stat-card" style="animation-delay:.11s">
+    <div class="stat-card-header">
+      <div class="stat-card-icon orange">❤️</div>
+      <div>
+        <div class="stat-value">{{ topLikes|first.likes|default(0) }}</div>
+      </div>
+    </div>
+    <div class="stat-label">Max likes (une ressource)</div>
+  </div>
+
+  <div class="stat-card" style="animation-delay:.14s">
+    <div class="stat-card-header">
+      <div class="stat-card-icon green">👁️</div>
+      <div>
+        <div class="stat-value">{{ topVues|first.nbrVues|default(0) }}</div>
+      </div>
+    </div>
+    <div class="stat-label">Max vues (une ressource)</div>
+  </div>
+</div>
+
+{# ── Graphiques ── #}
+<div class="dashboard-grid">
+  <div class="dashboard-card" style="animation-delay:.15s">
+    <h3 class="dashboard-card-title">📊 Répartition par type</h3>
+    <div class="chart-container"><canvas id="typeChart"></canvas></div>
+  </div>
+  <div class="dashboard-card" style="animation-delay:.18s">
+    <h3 class="dashboard-card-title">🏷️ Répartition par catégorie</h3>
+    <div class="chart-container"><canvas id="categorieChart"></canvas></div>
+  </div>
+  <div class="dashboard-card" style="animation-delay:.21s">
+    <h3 class="dashboard-card-title">📈 Répartition par niveau</h3>
+    <div class="chart-container"><canvas id="niveauChart"></canvas></div>
+  </div>
+</div>
+
+{# ── Top ressources ── #}
+<div class="dashboard-grid">
+  <div class="dashboard-card" style="animation-delay:.24s">
+    <h3 class="dashboard-card-title">🔥 Les plus vues</h3>
+    {% if topVues is defined and topVues|length %}
+      <ul class="ranking-list">
+        {% for res in topVues %}
+          <li class="ranking-item">
+            <span class="ranking-title" title="{{ res.titre }}">{{ res.titre|slice(0, 40) }}{% if res.titre|length > 40 %}…{% endif %}</span>
+            <span class="ranking-value">{{ res.nbrVues }} vues</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div style="margin-top:14px; text-align:right;">
+        <a href="{{ path('admin_ressources_index', {sort: 'vues_desc'}) }}" class="btn-link">Voir tout →</a>
+      </div>
+    {% else %}
+      <div class="empty-message">Aucune ressource</div>
+    {% endif %}
+  </div>
+
+  <div class="dashboard-card" style="animation-delay:.27s">
+    <h3 class="dashboard-card-title">❤️ Les plus likées</h3>
+    {% if topLikes is defined and topLikes|length %}
+      <ul class="ranking-list">
+        {% for res in topLikes %}
+          <li class="ranking-item">
+            <span class="ranking-title" title="{{ res.titre }}">{{ res.titre|slice(0, 40) }}{% if res.titre|length > 40 %}…{% endif %}</span>
+            <span class="ranking-value">{{ res.likes }} likes</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div style="margin-top:14px; text-align:right;">
+        <a href="{{ path('admin_ressources_index', {sort: 'likes_desc'}) }}" class="btn-link">Voir tout →</a>
+      </div>
+    {% else %}
+      <div class="empty-message">Aucune ressource</div>
+    {% endif %}
+  </div>
+</div>
+
+{# ── Commentaires signalés ── #}
+<div class="dashboard-card" style="animation-delay:.3s; margin-bottom:18px">
+  <h3 class="dashboard-card-title">⚠️ Commentaires signalés</h3>
+  {% if signales is defined and signales|length %}
+    {% for comment in signales %}
+      <div class="signale-item">
+        <div class="signale-comment"><strong>{{ comment.userName }}</strong> : {{ comment.contenu|slice(0, 100) }}{% if comment.contenu|length > 100 %}…{% endif %}</div>
+        <div class="signale-meta">
+          <span>📅 {{ comment.datePublication|date('d/m/Y') }}</span>
+          <span>🔗 Ressource : <a href="{{ path('admin_ressources_edit', {id: comment.ressource.id}) }}" class="btn-link">{{ comment.ressource.titre|slice(0, 30) }}</a></span>
+          <span class="badge-danger">Signalé</span>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-message">Aucun commentaire signalé ✅</div>
+  {% endif %}
+</div>
+
+{# ── Analyse IA des commentaires ── #}
+{% if sentiments is defined %}
+<div class="dashboard-card" style="animation-delay:.33s">
+  <h3 class="dashboard-card-title">🤖 Analyse IA des commentaires</h3>
+
+  <h4 style="font-size:.86rem; font-weight:700; color:var(--text); margin:6px 0 12px">Sentiments globaux</h4>
+  <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap">
+    <span class="ds-badge ds-badge-green" style="padding:6px 14px; font-size:.84rem">
+      ✅ Positifs : {{ sentiments.positif }}
+    </span>
+    <span class="ds-badge ds-badge-red" style="padding:6px 14px; font-size:.84rem">
+      ❌ Négatifs : {{ sentiments.negatif }}
+    </span>
+    <span class="ds-badge ds-badge-gray" style="padding:6px 14px; font-size:.84rem">
+      ⚪ Neutres : {{ sentiments.neutre }}
+    </span>
+  </div>
+
+  {% if topThemes is defined and topThemes|length %}
+    <h4 style="font-size:.86rem; font-weight:700; color:var(--text); margin:6px 0 12px">Thèmes les plus fréquents</h4>
+    <ul class="ranking-list">
+      {% for theme in topThemes %}
+        <li class="ranking-item">
+          <span class="ranking-title">{{ theme.themes_raw }}</span>
+          <span class="ranking-value" style="background:var(--violet-pale); color:var(--violet)">{{ theme.freq }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js non chargé');
+        return;
+    }
+
+    const byType = {{ byType|json_encode|raw }};
+    const byCategorie = {{ byCategorie|json_encode|raw }};
+    const byNiveau = {{ byNiveau|json_encode|raw }};
+
+    const typeLabels = byType.map(item => item.contenu || item.type || 'Indéfini');
+    const typeCounts = byType.map(item => item.total || 0);
+
+    const categorieLabels = byCategorie.map(item => {
+        let cat = item.categorie || 'Autre';
+        return cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    });
+    const categorieCounts = byCategorie.map(item => item.total || 0);
+
+    const niveauLabels = byNiveau.map(item => item.niveau || 'Indéfini');
+    const niveauCounts = byNiveau.map(item => item.total || 0);
+
+    // Palette harmonisée (vert / violet / orange / rouge)
+    const colorPalette = ['#7B5EA7', '#52B788', '#F59E0B', '#EF4444', '#3B82F6', '#10B981', '#8B5CF6', '#EC4899'];
+
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11, family: 'Outfit' } } },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.raw;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percent = total ? ((value / total) * 100).toFixed(1) : 0;
+                        return `${label}: ${value} (${percent}%)`;
+                    }
+                }
+            }
+        }
+    };
+
+    if (typeLabels.length && typeCounts.some(v => v > 0)) {
+        new Chart(document.getElementById('typeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: typeLabels,
+                datasets: [{ data: typeCounts, backgroundColor: colorPalette.slice(0, typeLabels.length), borderWidth: 0, hoverOffset: 8 }]
+            },
+            options: { ...commonOptions, cutout: '60%' }
+        });
+    } else {
+        document.getElementById('typeChart').style.display = 'none';
+        document.getElementById('typeChart').insertAdjacentHTML('afterend', '<div class="empty-message">Aucune donnée de type</div>');
+    }
+
+    if (categorieLabels.length && categorieCounts.some(v => v > 0)) {
+        new Chart(document.getElementById('categorieChart'), {
+            type: 'bar',
+            data: {
+                labels: categorieLabels,
+                datasets: [{ data: categorieCounts, backgroundColor: '#7B5EA7', borderRadius: 8, barPercentage: 0.7, categoryPercentage: 0.8 }]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, grid: { display: false }, title: { display: true, text: 'Nombre de ressources', font: { size: 10 } } },
+                    y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                },
+                plugins: { legend: { display: false }, tooltip: commonOptions.plugins.tooltip }
+            }
+        });
+    } else {
+        document.getElementById('categorieChart').style.display = 'none';
+        document.getElementById('categorieChart').insertAdjacentHTML('afterend', '<div class="empty-message">Aucune donnée de catégorie</div>');
+    }
+
+    if (niveauLabels.length && niveauCounts.some(v => v > 0)) {
+        new Chart(document.getElementById('niveauChart'), {
+            type: 'pie',
+            data: {
+                labels: niveauLabels,
+                datasets: [{ data: niveauCounts, backgroundColor: ['#1B4332', '#52B788', '#7B5EA7', '#F59E0B'], borderWidth: 0, hoverOffset: 8 }]
+            },
+            options: commonOptions
+        });
+    } else {
+        document.getElementById('niveauChart').style.display = 'none';
+        document.getElementById('niveauChart').insertAdjacentHTML('afterend', '<div class="empty-message">Aucune donnée de niveau</div>');
+    }
+});
+</script>
+{% endblock %}

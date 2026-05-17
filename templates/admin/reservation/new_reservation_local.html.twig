@@ -1,0 +1,275 @@
+{# templates/admin/reservation/new_reservation_local.html.twig
+   Nouvelle réservation — Back-office
+   Design harmonisé avec admin/utilisateurs/
+   JS de calcul automatique du prix préservé #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Nouvelle Réservation{% endblock %}
+{% block page_label %}Nouvelle Réservation{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  /* Surcharge des champs Symfony rendus auto */
+  .res-form-card input[type="text"],
+  .res-form-card input[type="number"],
+  .res-form-card input[type="date"],
+  .res-form-card input[type="time"],
+  .res-form-card select,
+  .res-form-card textarea {
+    padding:10px 14px; border:1.5px solid var(--border); border-radius:10px;
+    background:var(--bg); font-family:'Outfit',sans-serif; font-size:.88rem;
+    color:var(--text); outline:none;
+    transition:border-color .2s, box-shadow .2s, background .2s;
+    width:100%; box-sizing:border-box;
+  }
+  .res-form-card textarea { resize:vertical; min-height:80px; }
+  .res-form-card input:focus,
+  .res-form-card select:focus,
+  .res-form-card textarea:focus {
+    border-color:var(--green-light); background:var(--white);
+    box-shadow:0 0 0 3px rgba(82,183,136,.1);
+  }
+  .res-form-card label {
+    font-size:.78rem !important; font-weight:600 !important; color:var(--text) !important;
+    display:block !important; margin-bottom:6px !important;
+  }
+  .res-form-card input[readonly] {
+    background:var(--green-pale) !important; color:var(--green) !important;
+    font-weight:700 !important; cursor:not-allowed !important;
+  }
+  .form-err { color:#DC2626; font-size:.75rem; margin-top:4px; }
+  .form-hint { color:var(--text-sec); font-size:.72rem; margin-top:4px; }
+
+  .new-res-grid { display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start; }
+  @media (max-width:900px) { .new-res-grid { grid-template-columns:1fr; } }
+
+  .card-block {
+    background:var(--white); border:1.5px solid var(--border); border-radius:16px;
+    padding:22px; box-shadow:var(--shadow-card);
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .card-title {
+    font-size:.74rem; font-weight:700; color:var(--text-sec);
+    text-transform:uppercase; letter-spacing:.9px; margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title-icon {
+    width:22px; height:22px; border-radius:7px;
+    background:var(--green-pale); color:var(--green);
+    display:grid; place-items:center;
+  }
+  .card-title-icon svg { width:12px; height:12px; }
+  .card-title-icon.violet { background:var(--violet-pale); color:var(--violet); }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .full { grid-column:1/-1; }
+
+  .global-errors {
+    background:#FEF2F2; border-left:3px solid #EF4444; border-radius:12px;
+    padding:14px 18px; margin-bottom:20px;
+  }
+  .global-errors-title { font-size:.85rem; font-weight:700; color:#991B1B; margin-bottom:8px; }
+  .global-errors ul { margin:0; padding-left:18px; }
+  .global-errors li { font-size:.82rem; color:#991B1B; margin-bottom:3px; }
+</style>
+
+<div class="ds-form-header" style="max-width:none">
+  <div class="ds-form-header-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2"/>
+      <path d="M3 10h18"/>
+      <path d="M8 3v4M16 3v4"/>
+      <path d="M12 14v3M10.5 15.5h3" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div>
+    <div class="ds-form-header-title">Ajouter une Réservation</div>
+    <div class="ds-form-header-sub">Créez une nouvelle réservation de local psychiatrique</div>
+  </div>
+  <a href="{{ path('reservation_local_index') }}" class="ds-back-link">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4l-6 6 6 6"/>
+    </svg>
+    Retour à la liste
+  </a>
+</div>
+
+{# Erreurs globales #}
+{% set allErrors = [] %}
+{% for field in ['local','salle','nomCl','prenomCl','dateReservation','heureDebutReservation','heureFinReservation','statusReservation','motifReservation','prixReservation'] %}
+  {% for error in attribute(form, field).vars.errors %}
+    {% set allErrors = allErrors|merge([error.message]) %}
+  {% endfor %}
+{% endfor %}
+{% if allErrors|length > 0 %}
+<div class="global-errors">
+  <div class="global-errors-title">⚠ Erreurs à corriger :</div>
+  <ul>
+    {% for msg in allErrors %}<li>{{ msg }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{{ form_start(form, {attr: {novalidate: 'novalidate', class: 'res-form-card'}}) }}
+
+<div class="new-res-grid">
+
+  {# ── Colonne principale ── #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Identité client #}
+    <div class="card-block" style="animation-delay:.07s">
+      <div class="card-title">
+        <span class="card-title-icon violet">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2"/><path d="M2 10c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5"/></svg>
+        </span>
+        Identité du client & Local
+      </div>
+      <div class="grid-2">
+        <div class="full">
+          {{ form_label(form.local) }}
+          {{ form_widget(form.local) }}
+          {% for error in form.local.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+        <div class="full">
+          {{ form_label(form.salle) }}
+          {{ form_widget(form.salle) }}
+          {% for error in form.salle.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form_label(form.prenomCl) }}
+          {{ form_widget(form.prenomCl, {attr: {placeholder: 'Ex: Mohamed'}}) }}
+          {% for error in form.prenomCl.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form_label(form.nomCl) }}
+          {{ form_widget(form.nomCl, {attr: {placeholder: 'Ex: Ben Ali'}}) }}
+          {% for error in form.nomCl.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {# Date & horaires #}
+    <div class="card-block" style="animation-delay:.11s">
+      <div class="card-title">
+        <span class="card-title-icon">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4.5"/><path d="M6 4v2.5l1.5 1"/></svg>
+        </span>
+        Date & Horaires
+      </div>
+      <div class="grid-3">
+        <div class="full">
+          {{ form_label(form.dateReservation) }}
+          {{ form_widget(form.dateReservation, {attr: {min: "now"|date_modify('+1 day')|date('Y-m-d')}}) }}
+          {% for error in form.dateReservation.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form_label(form.heureDebutReservation) }}
+          {{ form_widget(form.heureDebutReservation, {attr: {id: 'heure_debut'}}) }}
+          {% for error in form.heureDebutReservation.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form_label(form.heureFinReservation) }}
+          {{ form_widget(form.heureFinReservation, {attr: {id: 'heure_fin'}}) }}
+          {% for error in form.heureFinReservation.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form_label(form.prixReservation) }}
+          {{ form_widget(form.prixReservation, {attr: {readonly: 'readonly', id: 'prix_reservation', placeholder: 'Calculé auto.'}}) }}
+          <div class="form-hint">💡 80 DT/h · +20 DT par 30 min supplémentaires</div>
+          {% for error in form.prixReservation.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {# Motif #}
+    <div class="card-block" style="animation-delay:.15s">
+      <div class="card-title">
+        <span class="card-title-icon">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="1"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7" x2="7" y2="7"/></svg>
+        </span>
+        Motif de la réservation
+      </div>
+      {{ form_widget(form.motifReservation) }}
+      {% for error in form.motifReservation.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+    </div>
+
+  </div>
+
+  {# ── Colonne latérale ── #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <div class="card-block" style="animation-delay:.1s">
+      <div class="card-title">
+        <span class="card-title-icon">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4.5"/><circle cx="6" cy="6" r="1.5"/></svg>
+        </span>
+        Statut
+      </div>
+      {{ form_label(form.statusReservation) }}
+      {{ form_widget(form.statusReservation) }}
+      {% for error in form.statusReservation.vars.errors %}<div class="form-err">{{ error.message }}</div>{% endfor %}
+    </div>
+
+    <div class="card-block" style="animation-delay:.18s;display:flex;flex-direction:column;gap:10px">
+      <div class="card-title" style="margin-bottom:4px">Actions</div>
+      {{ form_widget(form.submit, {attr: {
+        class: 'ds-btn-submit',
+        style: 'width:100%;padding:12px;border-radius:11px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.9rem;font-weight:700;border:none;cursor:pointer;'
+      }}) }}
+      <a href="{{ path('reservation_local_index') }}"
+         class="ds-btn-cancel"
+         style="justify-content:center;width:100%;padding:11px;border-radius:11px;text-align:center;display:flex">
+        Annuler
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// ── JS de calcul automatique du prix — d'origine, préservé ──
+document.addEventListener('DOMContentLoaded', function () {
+  const heureDebut = document.getElementById('heure_debut')
+                  || document.querySelector('[id$="_heureDebutReservation"]');
+  const heureFin   = document.getElementById('heure_fin')
+                  || document.querySelector('[id$="_heureFinReservation"]');
+  const prix       = document.getElementById('prix_reservation')
+                  || document.querySelector('[id$="_prixReservation"]');
+
+  if (!heureDebut || !heureFin || !prix) return;
+
+  const PRIX_BASE    = 80;
+  const PRIX_TRANCHE = 20;
+
+  function calculerPrix() {
+    const debut = heureDebut.value;
+    const fin   = heureFin.value;
+    if (!debut || !fin) { prix.value = ''; return; }
+    const [hD, mD] = debut.split(':').map(Number);
+    const [hF, mF] = fin.split(':').map(Number);
+    const duree    = (hF * 60 + mF) - (hD * 60 + mD);
+    if (duree <= 0) { prix.value = ''; return; }
+    let montant = PRIX_BASE;
+    if (duree > 60) {
+      const tranchesSupp = Math.ceil((duree - 60) / 30);
+      montant = PRIX_BASE + tranchesSupp * PRIX_TRANCHE;
+    }
+    prix.value = montant.toFixed(2);
+  }
+
+  heureDebut.addEventListener('change', calculerPrix);
+  heureFin.addEventListener('change', calculerPrix);
+});
+</script>
+{% endblock %}

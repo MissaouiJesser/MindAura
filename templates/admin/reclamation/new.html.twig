@@ -1,0 +1,121 @@
+{# templates/admin/reclamation/new.html.twig
+   Nouvelle réclamation — Back-office
+   Design harmonisé avec admin/utilisateurs/ #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Nouvelle réclamation{% endblock %}
+{% block page_label %}Nouvelle réclamation{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<div class="ds-form-page">
+
+  {# ── Header ── #}
+  <div class="ds-form-header">
+    <div class="ds-form-header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+    <div>
+      <div class="ds-form-header-title">Créer une réclamation</div>
+      <div class="ds-form-header-sub">Saisissez les informations pour enregistrer une nouvelle réclamation</div>
+    </div>
+    <a href="{{ path('reclamation_index') }}" class="ds-back-link">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4l-6 6 6 6"/>
+      </svg>
+      Retour à la liste
+    </a>
+  </div>
+
+  {# ── Carte formulaire ── #}
+  <form method="post" class="ds-form-card">
+
+    <div class="ds-form-body">
+
+      <div class="ds-form-section-title">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 1v12M1 7h12" stroke-linecap="round"/></svg>
+        Informations principales
+      </div>
+
+      <div class="ds-form-row">
+        <div class="ds-form-group">
+          <label class="ds-form-label">Catégorie <span class="required">*</span></label>
+          <select name="categorie_id" class="ds-form-select" required>
+            <option value="">— Choisir une catégorie —</option>
+            {% for categorie in categories %}
+              <option value="{{ categorie.id_categorie }}">{{ categorie.nom_categorie }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="ds-form-group">
+          <label class="ds-form-label">Statut</label>
+          <select name="statut_reclamation" class="ds-form-select">
+            <option value="nouvelle" selected>Nouvelle</option>
+            <option value="en cours">En cours</option>
+            <option value="résolue">Résolue</option>
+            <option value="rejetée">Rejetée</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ds-form-row full">
+        <div class="ds-form-group">
+          <label class="ds-form-label">Sujet <span class="required">*</span></label>
+          <input type="text" name="sujet_reclamation" class="ds-form-input" placeholder="Ex: Problème avec ma réservation" required>
+        </div>
+      </div>
+
+      <div class="ds-form-row full">
+        <div class="ds-form-group">
+          <label class="ds-form-label">Description</label>
+          <textarea name="description_reclamation" class="ds-form-textarea" rows="5" placeholder="Décrivez la réclamation en détail…"></textarea>
+        </div>
+      </div>
+
+      <div class="ds-form-section-title" style="margin-top:22px">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="5" r="2.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+        Utilisateur & Évaluation
+      </div>
+
+      <div class="ds-form-row three">
+        <div class="ds-form-group">
+          <label class="ds-form-label">ID utilisateur</label>
+          <input type="number" name="id_utilisateur" class="ds-form-input" value="0" min="0">
+        </div>
+        <div class="ds-form-group">
+          <label class="ds-form-label">Note</label>
+          <input type="number" name="rate_Reclamation" class="ds-form-input" step="0.1" value="0" min="0" max="5">
+        </div>
+        <div class="ds-form-group">
+          <label class="ds-form-label">Somme des notes</label>
+          <input type="number" name="rate_sum" class="ds-form-input" value="0" min="0">
+        </div>
+      </div>
+
+      <div class="ds-form-row">
+        <div class="ds-form-group">
+          <label class="ds-form-label">Nombre de notes</label>
+          <input type="number" name="rate_count" class="ds-form-input" value="0" min="0">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('reclamation_index') }}" class="ds-btn-cancel">Annuler</a>
+      <button type="submit" class="ds-btn-submit">
+        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 8 6 11 12 4"/>
+        </svg>
+        Créer la réclamation
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Catégories{% endblock %}
+{% block page_label %}Catégories{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  
+  .page-hero {
+    position:relative;
+    background:linear-gradient(135deg,#1B4332 0%,#1A3A5C 55%,#0F2447 100%);
+    border-radius:20px; padding:28px 34px; margin-bottom:20px;
+    overflow:hidden; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+    box-shadow:0 8px 32px rgba(27,67,50,.22);
+  }
+  .page-hero::before { content:''; position:absolute; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.055); top:-80px; right:-60px; pointer-events:none; }
+  .hero-inner { display:flex; align-items:center; gap:20px; position:relative; z-index:1; margin-top:8px; }
+  .hero-icon-box { width:58px; height:58px; border-radius:16px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.2); display:grid; place-items:center; flex-shrink:0; }
+  .hero-icon-box svg { width:26px; height:26px; color:#fff; }
+  .hero-text { flex:1; }
+  .hero-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; margin-bottom:4px; }
+  .hero-sub { font-size:.82rem; color:rgba(255,255,255,.7); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .hero-chip { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:99px; padding:3px 10px; font-size:.73rem; font-weight:600; color:rgba(255,255,255,.9); }
+  .btn-new { display:inline-flex; align-items:center; gap:9px; padding:12px 22px; border-radius:13px; background:#fff; color:var(--green); font-family:'Outfit',sans-serif; font-size:.87rem; font-weight:700; text-decoration:none; white-space:nowrap; flex-shrink:0; box-shadow:0 4px 18px rgba(0,0,0,.14); transition:transform .2s, box-shadow .2s; }
+  .btn-new:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.22); }
+  .btn-new-icon { width:27px; height:27px; border-radius:8px; background:var(--green-pale); display:grid; place-items:center; flex-shrink:0; }
+  .btn-new-icon svg { width:14px; height:14px; color:var(--green); }
+
+  .filters-section { background:var(--white); border:1.5px solid var(--border); border-radius:18px; padding:20px; margin-bottom:20px; box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .08s both; }
+  .filters-form { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .filter-group { display:flex; flex-direction:column; gap:6px; }
+  .filter-label { font-size:.75rem; font-weight:600; color:var(--text-sec); text-transform:uppercase; letter-spacing:.8px; }
+  .filter-input { padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:.845rem; background:var(--bg); transition:border-color .18s; }
+  .filter-input:focus { outline:none; border-color:var(--green); }
+  .btn-filter { display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; background:var(--green); color:#fff; font-family:'Outfit',sans-serif; font-size:.845rem; font-weight:600; border:none; cursor:pointer; transition:background .18s; }
+  .btn-filter:hover { background:var(--green-dark); }
+  .btn-filter svg { width:14px; height:14px; }
+  .export-buttons { display:flex; gap:10px; margin-left:auto; }
+  .btn-export { display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:10px; font-family:'Outfit',sans-serif; font-size:.8rem; font-weight:600; text-decoration:none; border:1.5px solid var(--border); background:var(--bg); color:var(--text); transition:all .18s; }
+  .btn-export:hover { background:var(--green); color:#fff; border-color:var(--green); }
+  .btn-export svg { width:14px; height:14px; }
+
+  .pagination { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:20px; }
+  .page-link { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:8px; font-family:'Outfit',sans-serif; font-size:.8rem; font-weight:600; text-decoration:none; border:1.5px solid var(--border); background:var(--bg); color:var(--text); transition:all .18s; }
+  .page-link:hover, .page-link.active { background:var(--green); color:#fff; border-color:var(--green); }
+  .page-link.disabled { opacity:.5; pointer-events:none; }
+
+  .table-card { background:var(--white); border:1.5px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg); }
+  thead th { padding:12px 16px; text-align:left; font-size:.69rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.9px; border-bottom:1.5px solid var(--border); white-space:nowrap; }
+  tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+  tbody tr:hover { background:var(--green-hover); }
+  td { padding:13px 16px; vertical-align:middle; font-size:.845rem; }
+  td.title { font-weight:600; color:var(--text); }
+
+  .actions-cell { display:flex; align-items:center; gap:5px; }
+  .btn-action { display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:8px; font-family:'Outfit',sans-serif; font-size:.75rem; font-weight:600; text-decoration:none; cursor:pointer; border:1.5px solid transparent; transition:all .18s; white-space:nowrap; }
+  .btn-action svg { width:12px; height:12px; }
+  .btn-show   { background:#EFF6FF; border-color:#BFDBFE; color:#1565C0; }
+  .btn-show:hover { background:#DBEAFE; }
+  .btn-edit { background:#FEF3C7; border-color:#FDE68A; color:#B45309; }
+  .btn-edit:hover { background:#FDE68A; }
+  .btn-delete { background:#FEF2F2; border-color:#FECACA; color:#DC2626; }
+  .btn-delete:hover { background:#FEE2E2; }
+
+  .empty-state { text-align:center; padding:56px 20px; }
+  .empty-icon { width:60px; height:60px; border-radius:16px; background:var(--green-pale); display:grid; place-items:center; margin:0 auto 16px; }
+  .empty-icon svg { width:26px; height:26px; color:var(--green); }
+  .empty-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+</style>
+
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="hero-icon-box">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M3 4h14v14H3z" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 8h14" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">Catégories</div>
+      <div class="hero-sub">
+        <span>Gérez les catégories de réclamations</span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1l5 4v6H1V5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ categories|length }} catégorie{{ categories|length != 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+    <a class="btn-new" href="{{ path('categorie_new') }}">
+      <div class="btn-new-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+      </div>
+      Nouvelle catégorie
+    </a>
+  </div>
+</div>
+
+<div class="filters-section">
+  <form method="GET" class="filters-form">
+    <div class="filter-group">
+      <label class="filter-label">Recherche</label>
+      <input type="text" name="search" value="{{ search }}" placeholder="Nom ou description..." class="filter-input">
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Par page</label>
+      <select name="perPage" class="filter-input" id="perPage">
+        {% for n in [5, 10, 20, 50] %}
+          <option value="{{ n }}" {% if perPage == n %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="export-buttons">
+      <a href="{{ path('categorie_export_pdf', app.request.query.all) }}" class="btn-export">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        PDF
+      </a>
+      <a href="{{ path('categorie_export_excel', app.request.query.all) }}" class="btn-export">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Excel
+      </a>
+    </div>
+  </form>
+</div>
+
+<div class="table-card">
+  {% if categories %}
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Date de création</th>
+          <th style="text-align:right; width:150px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for categorie in categories %}
+          <tr>
+            <td class="title">{{ categorie.nom_categorie }}</td>
+            <td>{{ categorie.description[:50] }}{% if categorie.description|length > 50 %}...{% endif %}</td>
+            <td>{{ categorie.date_creation|date('d/m/Y H:i') }}</td>
+            <td>
+              <div class="actions-cell">
+                <a href="{{ path('categorie_show', {id: categorie.id_categorie}) }}" class="btn-action btn-show" title="Voir">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3C5.5 3 2 7 2 10s3.5 7 8 7 8-4 8-7-3.5-7-8-7zm0 5c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z" stroke-linecap="round"/></svg>
+                </a>
+                <a href="{{ path('categorie_edit', {id: categorie.id_categorie}) }}" class="btn-action btn-edit" title="Modifier">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17.25V21h3.75L17.81 9.94m-2.85-2.85L21 4.25M13 13l-4-4" stroke-linecap="round" stroke-linejoin="round" transform="translate(-1 -1)"/></svg>
+                </a>
+                <button type="button" class="btn-action btn-delete" onclick="if(confirm('Êtes-vous sûr?')) { fetch('{{ path('categorie_delete', {id: categorie.id_categorie}) }}', {method:'POST'}).then(() => location.reload()); }" title="Supprimer">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3v14a1 1 0 001 1h8a1 1 0 001-1V3m-4 0V2m-4 0v1m8 0v1M3 7h14" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1)"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if pages > 1 %}
+    <div class="pagination">
+      {% set baseQuery = app.request.query.all %}
+      {% if page > 1 %}
+        <a href="{{ path('categorie_index', baseQuery|merge({'page': page - 1})) }}" class="page-link">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Précédent
+        </a>
+      {% else %}
+        <span class="page-link disabled">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Précédent
+        </span>
+      {% endif %}
+      {% for i in 1..pages %}
+        <a href="{{ path('categorie_index', baseQuery|merge({'page': i})) }}" class="page-link {% if i == page %}active{% endif %}">{{ i }}</a>
+      {% endfor %}
+      {% if page < pages %}
+        <a href="{{ path('categorie_index', baseQuery|merge({'page': page + 1})) }}" class="page-link">
+          Suivant
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      {% else %}
+        <span class="page-link disabled">
+          Suivant
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      {% endif %}
+    </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 12h6m0 0h-6m6 0V6m0 0V6m0 6v6m0 0v6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="empty-title">Aucune catégorie</div>
+      <p style="font-size:.8rem; color:var(--text-sec); margin-bottom:16px;">Créez votre première catégorie pour commencer.</p>
+      <a href="{{ path('categorie_new') }}" class="btn-new" style="margin:0 auto 0;">
+        <div class="btn-new-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+        </div>
+        Créer une catégorie
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+//  RECHERCHE DYNAMIQUE AVEC DEBOUNCE
+// ══════════════════════════════════════════════════════════════════════
+let searchTimer;
+const searchInput = document.querySelector('input[name="search"]');
+const perPageSelect = document.getElementById('perPage');
+const filterForm = document.querySelector('.filters-form');
+
+searchInput?.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    filterForm.submit();
+  }, 420); // Délai de 420ms après la dernière saisie
+});
+perPageSelect?.addEventListener('change', () => filterForm.submit());
+
+// ══════════════════════════════════════════════════════════════════════
+//  ANIMATION EN CASCADE des lignes du tableau
+// ══════════════════════════════════════════════════════════════════════
+document.querySelectorAll('tbody tr').forEach((tr, i) => {
+  tr.style.opacity = '0';
+  tr.style.transform = 'translateX(-6px)';
+  setTimeout(() => {
+    tr.style.transition = 'opacity .25s ease, transform .25s cubic-bezier(.22,1,.36,1)';
+    tr.style.opacity = '1';
+    tr.style.transform = 'none';
+  }, 60 + i * 35);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,419 @@
+{# templates/locaux_psychiatrie/index.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Locaux Psychiatrie{% endblock %}
+{% block page_label %}Locaux Psychiatrie{% endblock %}
+
+{% block content %}
+
+{# ══════════════════════════════════════════════════════════════════
+   HERO BANNER
+══════════════════════════════════════════════════════════════════ #}
+<div style="
+  background: linear-gradient(120deg, #1a3c2e 0%, #2d6a4f 45%, #c45c00 100%);
+  border-radius: 20px; padding: 28px 32px; margin-bottom: 26px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  box-shadow: 0 8px 32px rgba(26,60,46,.22);
+  animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+  position: relative; overflow: hidden;">
+  <div style="position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.04);top:-60px;right:260px;pointer-events:none"></div>
+  <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05);bottom:-50px;right:180px;pointer-events:none"></div>
+  <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.06);top:10px;right:400px;pointer-events:none"></div>
+
+  <div style="display:flex;align-items:center;gap:18px;z-index:1">
+    <div style="width:56px;height:56px;background:rgba(255,255,255,.12);border-radius:16px;display:grid;place-items:center;flex-shrink:0;backdrop-filter:blur(4px)">
+      <svg style="width:28px;height:28px;color:#fff" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M3 18V8l7-5 7 5v10H3z" stroke-linecap="round"/>
+        <path d="M8 18v-5h4v5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1.2">Locaux Psychiatriques</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.7);margin-top:4px">Gestion de tous les établissements et locaux de soins</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:rgba(255,255,255,.15);border-radius:99px;padding:3px 12px;backdrop-filter:blur(4px)">
+        <svg style="width:12px;height:12px;color:rgba(255,255,255,.85)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 16c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="10" cy="7" r="3"/>
+        </svg>
+        <span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.9)">
+          {{ locaux|length }} local{% if locaux|length > 1 %}aux{% endif %} au total
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px;z-index:1;flex-wrap:wrap">
+    <a href="#" onclick="window.print();return false;" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff;font-family:Outfit,sans-serif;font-size:.85rem;font-weight:600;text-decoration:none;transition:all .2s;backdrop-filter:blur(4px)"
+      onmouseover="this.style.background='rgba(255,255,255,.22)';this.style.borderColor='rgba(255,255,255,.45)'"
+      onmouseout="this.style.background='rgba(255,255,255,.12)';this.style.borderColor='rgba(255,255,255,.25)'">
+      <svg style="width:16px;height:16px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 4h8l4 4v8a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" stroke-linecap="round"/>
+        <path d="M14 4v4h-4" stroke-linecap="round"/><path d="M7 13h6M7 10h3" stroke-linecap="round"/>
+      </svg>
+      Export PDF
+    </a>
+    <a href="{{ path('locaux_psychiatrie_new') }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;background:#fff;border:1.5px solid #fff;color:#1a3c2e;font-family:Outfit,sans-serif;font-size:.88rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.12)"
+      onmouseover="this.style.background='#f0fdf4';this.style.boxShadow='0 4px 16px rgba(0,0,0,.18)'"
+      onmouseout="this.style.background='#fff';this.style.boxShadow='0 2px 8px rgba(0,0,0,.12)'">
+      <svg style="width:16px;height:16px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M10 4v12M4 10h12" stroke-linecap="round"/>
+      </svg>
+      Nouveau local
+    </a>
+  </div>
+</div>
+
+{# ── Barre de recherche / filtres / tri ── #}
+<div style="background:#fff;border-radius:16px;padding:18px 22px;box-shadow:var(--shadow-card);margin-bottom:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .08s both">
+  <div style="position:relative;flex:1;min-width:200px">
+    <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-sec)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+    <input id="searchInput" type="text" placeholder="Rechercher un local, ville..."
+      style="width:100%;padding:9px 12px 9px 36px;border-radius:10px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s;background:var(--bg)"
+      onfocus="this.style.borderColor='var(--green-light)'" onblur="this.style.borderColor='var(--border)'">
+  </div>
+  <select id="filterType" style="padding:9px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:.84rem;background:var(--bg);color:var(--text);outline:none;cursor:pointer">
+    <option value="">Tous les types</option>
+    <option value="Cabinet">Cabinet</option>
+    <option value="Clinique">Clinique</option>
+    <option value="Hôpital">Hôpital</option>
+    <option value="Centre de bien-être">Centre de bien-être</option>
+    <option value="Salle de thérapie">Salle de thérapie</option>
+    <option value="Autre">Autre</option>
+  </select>
+  <select id="filterDispo" style="padding:9px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:.84rem;background:var(--bg);color:var(--text);outline:none;cursor:pointer">
+    <option value="">Toutes disponibilités</option>
+    <option value="Disponible">Disponible</option>
+    <option value="Indisponible">Indisponible</option>
+  </select>
+
+  {# ── Sélecteur de tri ── #}
+  <select id="sortSelect" style="padding:9px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:.84rem;background:var(--bg);color:var(--text);outline:none;cursor:pointer">
+    <option value="nom-asc">Nom A→Z</option>
+    <option value="nom-desc">Nom Z→A</option>
+    <option value="ville-asc">Ville A→Z</option>
+    <option value="ville-desc">Ville Z→A</option>
+    <option value="capacite-asc">Capacité ↑</option>
+    <option value="capacite-desc">Capacité ↓</option>
+  </select>
+
+  {# ── Sélecteur lignes par page ── #}
+  <select id="perPageSelect" style="padding:9px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:.84rem;background:var(--bg);color:var(--text);outline:none;cursor:pointer">
+    <option value="5">5 / page</option>
+    <option value="10" selected>10 / page</option>
+    <option value="20">20 / page</option>
+    <option value="50">50 / page</option>
+  </select>
+
+  <div style="font-size:.82rem;color:var(--text-sec);white-space:nowrap">
+    <span id="countLabel">{{ locaux|length }}</span> résultat{% if locaux|length > 1 %}s{% endif %}
+  </div>
+</div>
+
+{# ── Tableau ── #}
+{% if locaux is empty %}
+<div style="background:#fff;border-radius:16px;padding:60px 24px;text-align:center;box-shadow:var(--shadow-card);animation:fadeUp .4s both">
+  <svg style="width:48px;height:48px;color:var(--border);margin:0 auto 14px;display:block" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3">
+    <path d="M3 18V8l7-5 7 5v10H3z"/>
+  </svg>
+  <div style="font-size:.95rem;font-weight:600;color:var(--text-sec);margin-bottom:10px">Aucun local pour le moment</div>
+  <a href="{{ path('locaux_psychiatrie_new') }}" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.85rem;font-weight:600;text-decoration:none">
+    <svg style="width:14px;height:14px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+    Créer un local
+  </a>
+</div>
+{% else %}
+<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both">
+  <table style="width:100%;border-collapse:collapse" id="mainTable">
+    <thead>
+      <tr style="background:var(--bg);border-bottom:1.5px solid var(--border)">
+        {# En-têtes cliquables pour tri ── #}
+        <th class="sortable" data-col="nom"       style="padding:14px 20px;font-size:.72rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap">
+          Local <span class="sort-arrow" id="arr-nom"></span>
+        </th>
+        <th class="sortable" data-col="ville"     style="padding:14px 16px;font-size:.72rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap">
+          Ville <span class="sort-arrow" id="arr-ville"></span>
+        </th>
+        <th class="sortable" data-col="type"      style="padding:14px 16px;font-size:.72rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap">
+          Type <span class="sort-arrow" id="arr-type"></span>
+        </th>
+        <th class="sortable" data-col="capacite"  style="padding:14px 16px;font-size:.72rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;text-align:center;cursor:pointer;user-select:none;white-space:nowrap">
+          Capacité <span class="sort-arrow" id="arr-capacite"></span>
+        </th>
+        <th style="padding:14px 16px;font-size:.72rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;text-align:center">Disponibilité</th>
+        <th style="padding:14px 20px;font-size:.72rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;text-align:center">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      {% for local in locaux %}
+      <tr class="table-row"
+          data-nom="{{ local.nomLocal|lower }}"
+          data-ville="{{ local.villeLocal|lower }}"
+          data-type="{{ local.typeLocal }}"
+          data-dispo="{{ local.disponibiliteLocal }}"
+          data-capacite="{{ local.capaciteLocal }}"
+          style="border-bottom:1px solid var(--bg);transition:background .18s">
+
+        <td style="padding:14px 20px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:46px;height:46px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--green-pale);display:grid;place-items:center">
+              {% if local.imageURL %}
+                <img src="{{ asset('uploads/locaux/' ~ local.imageURL) }}" alt="{{ local.nomLocal }}" style="width:100%;height:100%;object-fit:cover">
+              {% else %}
+                <svg style="width:20px;height:20px;color:var(--green)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18V8l7-5 7 5v10H3z" stroke-linecap="round"/><path d="M8 18v-5h4v5" stroke-linecap="round"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <div style="font-size:.87rem;font-weight:600;color:var(--text)">{{ local.nomLocal }}</div>
+              <div style="font-size:.73rem;color:var(--text-sec);margin-top:1px">{{ local.adresseLocal }}</div>
+            </div>
+          </div>
+        </td>
+        <td style="padding:14px 16px;font-size:.84rem;color:var(--text)">{{ local.villeLocal }}</td>
+        <td style="padding:14px 16px">
+          <span style="background:#FFF3E0;color:#C45C00;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px">{{ local.typeLocal }}</span>
+        </td>
+        <td style="padding:14px 16px;text-align:center;font-size:.84rem;font-weight:600;color:var(--text)">
+          <span style="display:inline-flex;align-items:center;gap:4px">
+            <svg style="width:13px;height:13px;color:var(--text-sec)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 16c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="10" cy="7" r="3"/></svg>
+            {{ local.capaciteLocal }}
+          </span>
+        </td>
+        <td style="padding:14px 16px;text-align:center">
+          {% if local.disponibiliteLocal == 'Disponible' %}
+            <span style="background:#D8F3DC;color:#1B4332;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#52B788;border-radius:50%"></span>Disponible
+            </span>
+          {% else %}
+            <span style="background:#FEF2F2;color:#991B1B;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#EF4444;border-radius:50%"></span>Indisponible
+            </span>
+          {% endif %}
+        </td>
+        <td style="padding:14px 20px;text-align:center">
+          <div style="display:inline-flex;align-items:center;gap:6px">
+            <a href="{{ path('locaux_psychiatrie_show', {id: local.idLocal}) }}" title="Voir"
+               style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:grid;place-items:center;transition:all .18s;text-decoration:none"
+               onmouseover="this.style.background='var(--green-hover)';this.style.borderColor='var(--green-light)'"
+               onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">
+              <svg style="width:14px;height:14px;color:var(--green)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="3"/><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/></svg>
+            </a>
+            <a href="{{ path('locaux_psychiatrie_edit', {id: local.idLocal}) }}" title="Modifier"
+               style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:grid;place-items:center;transition:all .18s;text-decoration:none"
+               onmouseover="this.style.background='#FFFBEB';this.style.borderColor='#F59E0B'"
+               onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">
+              <svg style="width:14px;height:14px;color:#D97706" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 4.3a1 1 0 011.4 1.4L6.4 15.4 3 16.7l1.3-3.4 10-10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <form method="post" action="{{ path('locaux_psychiatrie_delete', {id: local.idLocal}) }}" style="display:inline" onsubmit="return confirm('Supprimer ce local ?')">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ local.idLocal) }}">
+              <button type="submit" title="Supprimer"
+                style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:grid;place-items:center;cursor:pointer;transition:all .18s"
+                onmouseover="this.style.background='#FEF2F2';this.style.borderColor='#EF4444'"
+                onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">
+                <svg style="width:14px;height:14px;color:#EF4444" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h10M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div id="noResults" style="display:none;text-align:center;padding:40px;color:var(--text-sec);font-size:.88rem">
+    Aucun local ne correspond à votre recherche.
+  </div>
+</div>
+
+{# ── Pagination ── #}
+<div id="paginationWrap" style="display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:18px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .18s both">
+  <div style="font-size:.82rem;color:var(--text-sec)" id="paginationInfo"></div>
+  <div id="paginationBtns" style="display:flex;align-items:center;gap:6px"></div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<style>
+  .sort-arrow { display:inline-block;margin-left:4px;opacity:.4;font-size:.75rem; }
+  .sortable:hover .sort-arrow { opacity:.8; }
+  .sortable.active-sort { color:var(--green)!important; }
+  .sortable.active-sort .sort-arrow { opacity:1;color:var(--green); }
+  .page-btn {
+    min-width:34px;height:34px;border-radius:10px;
+    background:var(--bg);border:1.5px solid var(--border);
+    font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;
+    color:var(--text-sec);cursor:pointer;transition:all .18s;
+    display:grid;place-items:center;padding:0 8px;
+  }
+  .page-btn:hover { background:var(--green-hover);border-color:var(--green-light);color:var(--green); }
+  .page-btn.active { background:var(--green);border-color:var(--green);color:#fff; }
+  .page-btn:disabled { opacity:.35;cursor:default;pointer-events:none; }
+</style>
+<script>
+(function(){
+  /* ── Références DOM ── */
+  const searchInput  = document.getElementById('searchInput');
+  const filterType   = document.getElementById('filterType');
+  const filterDispo  = document.getElementById('filterDispo');
+  const sortSelect   = document.getElementById('sortSelect');
+  const perPageSel   = document.getElementById('perPageSelect');
+  const countLabel   = document.getElementById('countLabel');
+  const noResults    = document.getElementById('noResults');
+  const paginInfo    = document.getElementById('paginationInfo');
+  const paginBtns    = document.getElementById('paginationBtns');
+  const tbody        = document.getElementById('tableBody');
+
+  /* ── État ── */
+  let currentPage = 1;
+  let sortCol  = 'nom';
+  let sortDir  = 'asc';
+  let userHasInteracted = false;
+  // Snapshot immuable de l'ordre original du DOM
+  const allRows = Array.from(document.querySelectorAll('.table-row'));
+
+  /* ── Tri par clic sur en-tête ── */
+  document.querySelectorAll('.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      userHasInteracted = true;
+      const col = th.dataset.col;
+      sortDir = (sortCol === col && sortDir === 'asc') ? 'desc' : 'asc';
+      sortCol = col;
+      /* Synchroniser le <select> */
+      const key = col + '-' + sortDir;
+      if (sortSelect.querySelector(`option[value="${key}"]`)) sortSelect.value = key;
+      currentPage = 1;
+      render();
+    });
+  });
+
+  /* ── Tri via <select> : split sur le dernier '-' ── */
+  sortSelect.addEventListener('change', () => {
+    userHasInteracted = true;
+    const val = sortSelect.value;
+    const idx = val.lastIndexOf('-');
+    sortCol = val.slice(0, idx);
+    sortDir = val.slice(idx + 1);
+    currentPage = 1;
+    render();
+  });
+
+  /* ── Filtres ── */
+  [searchInput, filterType, filterDispo].forEach(el => {
+    el?.addEventListener('input',  () => { userHasInteracted = true; currentPage = 1; render(); });
+    el?.addEventListener('change', () => { userHasInteracted = true; currentPage = 1; render(); });
+  });
+
+  /* ── Lignes par page ── */
+  perPageSel.addEventListener('change', () => { userHasInteracted = true; currentPage = 1; render(); });
+
+  /* ── Logique principale ── */
+  function render() {
+    const q     = (searchInput?.value || '').toLowerCase().trim();
+    const type  =  filterType?.value  || '';   // comparaison exacte, même casse que data-type
+    const dispo =  filterDispo?.value || '';   // comparaison exacte, même casse que data-dispo
+    const perPage = parseInt(perPageSel.value) || 10;
+
+    /* 1 — Filtrage */
+    let filtered = allRows.filter(row => {
+      const nom   = (row.dataset.nom   || '').toLowerCase();
+      const ville = (row.dataset.ville || '').toLowerCase();
+      const t     =  row.dataset.type  || '';
+      const d     =  row.dataset.dispo || '';
+      return (!q     || nom.includes(q) || ville.includes(q))
+          && (!type  || t === type)
+          && (!dispo || d === dispo);
+    });
+
+    /* 2 — Tri */
+    filtered.sort((a, b) => {
+      let va = a.dataset[sortCol] || '';
+      let vb = b.dataset[sortCol] || '';
+      if (sortCol === 'capacite') {
+        va = parseFloat(va) || 0;
+        vb = parseFloat(vb) || 0;
+        return sortDir === 'asc' ? va - vb : vb - va;
+      }
+      return sortDir === 'asc'
+        ? va.localeCompare(vb, 'fr', {sensitivity:'base'})
+        : vb.localeCompare(va, 'fr', {sensitivity:'base'});
+    });
+
+    /* 3 — Mise à jour compteur */
+    if (countLabel) countLabel.textContent = filtered.length;
+    if (noResults)  noResults.style.display = filtered.length === 0 ? '' : 'none';
+
+    /* 4 — Pagination */
+    const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+    currentPage = Math.min(currentPage, totalPages);
+    const start    = (currentPage - 1) * perPage;
+    const pageRows = filtered.slice(start, start + perPage);
+
+    /* 5 — Affichage via fragment (préserve l'ordre trié sans muter allRows) */
+    allRows.forEach(r => { r.style.display = 'none'; });
+    const frag = document.createDocumentFragment();
+    pageRows.forEach(r => { r.style.display = ''; frag.appendChild(r); });
+    tbody.appendChild(frag);
+
+    /* 6 — Info pagination */
+    const from = filtered.length ? start + 1 : 0;
+    const to   = Math.min(start + perPage, filtered.length);
+    if (paginInfo) paginInfo.textContent =
+      `Affichage ${from}–${to} sur ${filtered.length} résultat${filtered.length !== 1 ? 's' : ''}`;
+
+    /* 7 — Boutons pagination */
+    if (userHasInteracted) {
+      const paginWrap = document.getElementById('paginationWrap');
+      if (paginWrap) paginWrap.style.display = 'flex';
+      renderPagination(totalPages);
+    }
+
+    /* 8 — Flèches de tri dans les en-têtes */
+    document.querySelectorAll('.sortable').forEach(th => {
+      const col   = th.dataset.col;
+      const arrow = th.querySelector('.sort-arrow');
+      th.classList.toggle('active-sort', userHasInteracted && col === sortCol);
+      if (arrow) arrow.textContent = (userHasInteracted && col === sortCol) ? (sortDir === 'asc' ? '↑' : '↓') : '↕';
+    });
+  }
+
+  function renderPagination(total) {
+    if (!paginBtns) return;
+    paginBtns.innerHTML = '';
+
+    const mkBtn = (label, page, disabled = false, active = false) => {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (active ? ' active' : '');
+      btn.innerHTML = label;
+      btn.disabled  = disabled;
+      btn.onclick   = () => { currentPage = page; render(); };
+      paginBtns.appendChild(btn);
+    };
+
+    mkBtn('‹', currentPage - 1, currentPage <= 1);
+    paginPages(currentPage, total).forEach(p => {
+      if (p === '…') {
+        const span = document.createElement('span');
+        span.textContent = '…';
+        span.style.cssText = 'padding:0 4px;color:var(--text-sec);font-size:.82rem;display:grid;place-items:center;height:34px';
+        paginBtns.appendChild(span);
+      } else {
+        mkBtn(p, p, false, p === currentPage);
+      }
+    });
+
+    mkBtn('›', currentPage + 1, currentPage >= total);
+  }
+
+  function paginPages(cur, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    if (cur <= 4)   return [1,2,3,4,5,'…',total];
+    if (cur >= total - 3) return [1,'…',total-4,total-3,total-2,total-1,total];
+    return [1,'…',cur-1,cur,cur+1,'…',total];
+  }
+
+  /* Init */
+  render();
+})();
+</script>
+{% endblock %}

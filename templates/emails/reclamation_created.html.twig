@@ -1,0 +1,33 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block subject %}Nouvelle réclamation #{{ reclamation.id_reclamation }}{% endblock %}
+
+{% block body %}
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #1B4332;">Nouvelle réclamation reçue</h2>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3>Réclamation #{{ reclamation.id_reclamation }}</h3>
+        <p><strong>Sujet:</strong> {{ reclamation.sujet_reclamation }}</p>
+        <p><strong>Description:</strong> {{ reclamation.description_reclamation }}</p>
+        <p><strong>Catégorie:</strong> {{ reclamation.categorie.nom_categorie }}</p>
+        <p><strong>Statut:</strong> {{ reclamation.statut_reclamation }}</p>
+        <p><strong>Date:</strong> {{ reclamation.dateCreation_reclamation|date('d/m/Y H:i') }}</p>
+
+        {% if submitter %}
+        <p><strong>Utilisateur:</strong> {{ submitter.prenomUtilisateur }} {{ submitter.nomUtilisateur }} ({{ submitter.emailUtilisateur }})</p>
+        {% endif %}
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ url('reclamation_show', {'id': reclamation.id_reclamation}) }}"
+           style="background: #52B788; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            Voir la réclamation
+        </a>
+    </div>
+
+    <p style="color: #666; font-size: 12px;">
+        Cet email a été envoyé automatiquement par le système MindAura.
+    </p>
+</div>
+{% endblock %}

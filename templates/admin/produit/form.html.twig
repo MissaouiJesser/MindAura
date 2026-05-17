@@ -1,0 +1,210 @@
+{# templates/admin/produit/form.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ titre }}{% endblock %}
+{% block page_label %}{{ titre }}{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .prod-file-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 18px;
+    border: 2px dashed var(--border, #D5DCE6);
+    border-radius: 14px;
+    background: #fafbfc;
+    cursor: pointer;
+    transition: border-color .25s ease, background .25s ease;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .prod-file-zone:hover {
+    border-color: var(--green-light, #52B788);
+    background: #f3faf6;
+  }
+  .prod-file-icon { font-size: 30px; margin-bottom: 8px; }
+  .prod-file-text {
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    font-size: 13.5px;
+    margin-bottom: 4px;
+  }
+  .prod-file-sub {
+    font-size: 11.5px;
+    color: #6b7280;
+  }
+  .prod-file-zone input[type="file"] {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #475569;
+  }
+
+  .prod-img-preview {
+    margin-top: 14px;
+    padding: 12px;
+    background: var(--green-pale, #D8F3DC);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .prod-img-preview img {
+    max-width: 180px;
+    max-height: 180px;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px -4px rgba(27,67,50,.25);
+  }
+  .prod-img-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .prod-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: var(--green-pale, #D8F3DC);
+    border-radius: 12px;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    color: var(--green, #1B4332);
+    font-weight: 600;
+  }
+  .prod-checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--green, #1B4332);
+    cursor: pointer;
+  }
+</style>
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🛍️</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">{{ titre }}</h1>
+      <p class="ds-hero-sub">Configurez les informations du produit, son prix et son stock.</p>
+    </div>
+    <a href="{{ path('admin_produit_index') }}" class="ds-back-link">← Retour</a>
+  </div>
+</div>
+
+{# Flash messages #}
+{% for label, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="ds-flash ds-flash--{{ label == 'success' ? 'success' : 'error' }}">
+      {{ label == 'success' ? '✅' : '⚠️' }} {{ message }}
+    </div>
+  {% endfor %}
+{% endfor %}
+
+<div class="ds-form-page">
+  <div class="ds-form-card" style="max-width: 900px; margin: 0 auto;">
+    {{ form_start(form, {attr: {novalidate: 'novalidate', enctype: 'multipart/form-data'}}) }}
+
+    {# Description (champ caché ou hors-grille selon le form) #}
+    <div style="display: none;">{{ form_widget(form.description) }}</div>
+
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">📋 Informations du produit</h3>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          <label class="ds-form-label">🏷️ Nom du produit <span style="color: #ef4444;">*</span></label>
+          {{ form_widget(form.nom, {'attr': {'class': 'ds-form-input', 'placeholder': 'Ex : Guide CBT'}}) }}
+          {% if form.nom.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.nom) }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ds-form-row">
+        <div class="ds-form-group">
+          <label class="ds-form-label">💰 Prix (TND) <span style="color: #ef4444;">*</span></label>
+          {{ form_widget(form.prix, {'attr': {'class': 'ds-form-input', 'placeholder': '0.000'}}) }}
+          {% if form.prix.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.prix) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ds-form-group">
+          <label class="ds-form-label">📦 Stock</label>
+          {{ form_widget(form.stock, {'attr': {'class': 'ds-form-input', 'placeholder': 'Laisser vide = illimité'}}) }}
+          {% if form.stock.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.stock) }}</div>
+          {% endif %}
+          <div style="font-size: 11.5px; color: #6b7280; margin-top: 4px;">ℹ️ Laisser vide pour un stock illimité</div>
+        </div>
+      </div>
+
+      <div class="ds-form-row">
+        <div class="ds-form-group">
+          <label class="ds-form-label">📅 Événement associé <span style="font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11px; color: #6b7280;">(optionnel)</span></label>
+          {{ form_widget(form.evenement, {'attr': {'class': 'ds-form-select'}}) }}
+          {% if form.evenement.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.evenement) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ds-form-group">
+          <label class="ds-form-label">⚙️ Statut</label>
+          <label class="prod-checkbox-row">
+            {{ form_widget(form.estActif) }}
+            <span>Produit actif (visible en boutique)</span>
+          </label>
+          {% if form.estActif.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.estActif) }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">🖼️ Image du produit</h3>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          <label class="prod-file-zone">
+            <div class="prod-file-icon">🖼️</div>
+            <div class="prod-file-text">Cliquez pour choisir une image</div>
+            <div class="prod-file-sub">PNG, JPG, WEBP — max 2 Mo</div>
+            {{ form_widget(form.imageFile) }}
+          </label>
+
+          {% if produit.image %}
+            <div class="prod-img-preview">
+              <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="Image actuelle">
+              <div class="prod-img-label">Image actuelle</div>
+            </div>
+          {% endif %}
+
+          {% if form.imageFile.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.imageFile) }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('admin_produit_index') }}" class="ds-btn-cancel">✕ Annuler</a>
+      <button type="submit" class="ds-btn-submit">💾 Enregistrer</button>
+    </div>
+
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

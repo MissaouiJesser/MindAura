@@ -1,0 +1,177 @@
+{# templates/salle/editSalle.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Modifier : {{ salle.nomSalle }}{% endblock %}
+{% block page_label %}Modifier une Salle{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Modifier la salle</div>
+    <div class="page-sub">Mise à jour de <strong>{{ salle.nomSalle }}</strong></div>
+  </div>
+  <div class="page-actions">
+    <a href="{{ path('salle_show', {id: salle.idSalle}) }}" class="btn-secondary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="3"/><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/></svg>
+      Voir la salle
+    </a>
+    <a href="{{ path('salle_index') }}" class="btn-secondary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 5l-6 5 6 5" stroke-linecap="round"/></svg>
+      Retour
+    </a>
+  </div>
+</div>
+
+{% set allErrors = [] %}
+{% for field in ['local','nomSalle','typeSalle','capaciteSalle','equipements','disponibiliteSalle','etage','imageFile','statutSalle'] %}
+  {% for error in attribute(form, field).vars.errors %}
+    {% set allErrors = allErrors|merge([error.message]) %}
+  {% endfor %}
+{% endfor %}
+{% if allErrors|length > 0 %}
+<div style="background:#FEF2F2;border-radius:12px;padding:14px 18px;margin-bottom:20px;border-left:3px solid #EF4444">
+  <div style="font-size:.85rem;font-weight:700;color:#991B1B;margin-bottom:8px">Erreurs à corriger :</div>
+  <ul style="margin:0;padding-left:18px">
+    {% for msg in allErrors %}<li style="font-size:.82rem;color:#991B1B;margin-bottom:3px">{{ msg }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{{ form_start(form, {attr: {enctype: 'multipart/form-data', novalidate: 'novalidate'}}) }}
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .07s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px">Identité de la salle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.local) }}</label>
+          {{ form_widget(form.local, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.nomSalle) }}</label>
+          {{ form_widget(form.nomSalle, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.nomSalle.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+          {% for error in form.nomSalle.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.typeSalle) }}</label>
+          {{ form_widget(form.typeSalle, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.capaciteSalle) }}</label>
+          {{ form_widget(form.capaciteSalle, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.capaciteSalle.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+          {% for error in form.capaciteSalle.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.etage) }}</label>
+          {{ form_widget(form.etage, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+        </div>
+
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .13s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px">État de la salle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.disponibiliteSalle) }}</label>
+          {{ form_widget(form.disponibiliteSalle, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.statutSalle) }}</label>
+          {{ form_widget(form.statutSalle, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+        </div>
+
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .18s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px">Équipements</div>
+      {{ form_widget(form.equipements, {attr: {style: 'width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;resize:vertical;background:var(--bg)', rows: 3, onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+    </div>
+
+  </div>
+
+  {# Panneau latéral #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .1s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:16px">Image de la salle</div>
+      <div style="width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;margin-bottom:14px;background:var(--bg);border:2px dashed var(--border)">
+        {% if salle.imageURL %}
+          <img id="imgPreview" src="{{ asset('uploads/salles/' ~ salle.imageURL) }}" alt="{{ salle.nomSalle }}" style="width:100%;height:100%;object-fit:cover">
+        {% else %}
+          <div id="imgPreview" style="width:100%;height:100%;display:grid;place-items:center;color:var(--text-sec)">
+            <div style="text-align:center">
+              <svg style="width:32px;height:32px;opacity:.4;display:block;margin:0 auto 6px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="16" height="14" rx="2"/><circle cx="7" cy="8" r="1.5"/><path d="M2 14l4-4 3 3 3-4 4 5" stroke-linecap="round"/></svg>
+              <div style="font-size:.75rem">Aucune image</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      {{ form_widget(form.imageFile, {attr: {id: 'imageFileInput', style: 'width:100%;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.8rem;background:var(--bg);cursor:pointer', accept: 'image/*'}}) }}
+      <div style="font-size:.73rem;color:var(--text-sec);margin-top:7px">Laisser vide pour conserver l'image actuelle.</div>
+    </div>
+
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:10px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .2s both">
+      {{ form_widget(form.submit, {attr: {style: 'width:100%;padding:11px;border-radius:12px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.9rem;font-weight:700;border:none;cursor:pointer;transition:all .2s', onmouseover: "this.style.background='var(--green-mid)'", onmouseout: "this.style.background='var(--green)'"}}) }}
+      <a href="{{ path('salle_index') }}" style="display:block;width:100%;padding:10px;border-radius:12px;background:var(--bg);color:var(--text-sec);font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;border:1.5px solid var(--border);text-align:center;text-decoration:none;transition:all .2s;box-sizing:border-box"
+         onmouseover="this.style.borderColor='var(--green-light)';this.style.color='var(--green)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sec)'">
+        Annuler
+      </a>
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:2px">
+        <button type="submit" form="deleteSalleForm"
+          onclick="return confirm('Supprimer définitivement cette salle ?')"
+          style="width:100%;padding:10px;border-radius:12px;background:#FEF2F2;color:#EF4444;font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;border:1.5px solid #FECACA;cursor:pointer;transition:all .2s"
+          onmouseover="this.style.background='#EF4444';this.style.color='#fff'"
+          onmouseout="this.style.background='#FEF2F2';this.style.color='#EF4444'">
+          Supprimer cette salle
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{{ form_end(form) }}
+
+{# ── Formulaire de suppression (hors du form principal pour éviter l'imbrication HTML interdite) ── #}
+<form id="deleteSalleForm" method="post" action="{{ path('salle_delete', {id: salle.idSalle}) }}" style="display:none">
+  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ salle.idSalle) }}">
+</form>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.getElementById('imageFileInput')?.addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const el = document.getElementById('imgPreview');
+    if(el.tagName === 'IMG'){
+      el.src = ev.target.result;
+    } else {
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.id = 'imgPreview';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+      el.replaceWith(img);
+    }
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+{% endblock %}

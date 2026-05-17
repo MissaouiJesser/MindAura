@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Accueil — MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --g1:          #1B4332;
+      --g2:          #2D6A4F;
+      --g3:          #52B788;
+      --g-pale:      #D8F3DC;
+      --g-hover:     #E8F5EE;
+      --violet:      #7B5EA7;
+      --vio-pale:    #EDE9F6;
+      --bg:          #F0F4F8;
+      --white:       #FFFFFF;
+      --text:        #1A1A2E;
+      --text-sec:    #5A6475;
+      --border:      #D5DCE6;
+      --radius-xl:   20px;
+      --radius-lg:   14px;
+      --radius-md:   10px;
+      --ease:        cubic-bezier(.22,1,.36,1);
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+      --shadow-card: 0 2px 14px rgba(27,67,50,.07), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover:0 14px 38px rgba(27,67,50,.18);
+      /* Gradient tokens */
+      --grad-emerald: linear-gradient(135deg, #1B4332 0%, #2D6A4F 40%, #52B788 100%);
+      --grad-aurora:  linear-gradient(135deg, #1B4332 0%, #2D6A4F 35%, #7B5EA7 100%);
+      --grad-sage:    linear-gradient(160deg, #D8F3DC 0%, #EDE9F6 100%);
+      --grad-glass:   linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.05) 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    {# ══ Cursor glow ══ #}
+<div class="cursor-glow" id="cursorGlow"></div>
+
+{# ══ Variables rôle (avec gestion anonyme) ══ #}
+{% set user = app.user %}
+{% if user is not null %}
+    {% set roleRaw   = user.roleUtilisateur %}
+    {% set roleSlug  = roleRaw|replace({'ROLE_': ''})|lower %}
+    {% set roleLabel = {'patient':'Patient','medecin':'Médecin','coach':'Coach','psychologue':'Psychologue','user':'Utilisateur','admin':'Admin'}[roleSlug] ?? (roleSlug|capitalize) %}
+    {% set roleEmoji = {'patient':'🧠','medecin':'🩺','coach':'💪','psychologue':'🧘','user':'👤','admin':'🛡️'}[roleSlug] ?? '👤' %}
+{% else %}
+    {% set roleSlug  = 'guest' %}
+    {% set roleLabel = 'Invité' %}
+    {% set roleEmoji = '👤' %}
+{% endif %}
+
+{# ══ NAVBAR ══ #}
+<nav class="nav" id="main-nav">
+  <a href="#hero" class="nav-brand">
+    <div class="nav-brand-logo-wrap">
+      <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" class="nav-brand-img"/>
+    </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-name">MindAura</div>
+      <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    <a href="#services" class="nav-link"><span>Services</span></a>
+    <a href="#equipe"   class="nav-link"><span>Équipe</span></a>
+    <a href="#faq"      class="nav-link"><span>FAQ</span></a>
+    <a href="#map"      class="nav-link"><span>Localisation</span></a>
+    <a href="#contact"  class="nav-link"><span>Contact</span></a>
+  </div>
+
+  <div class="nav-right">
+    {% if user is not null %}
+      {# Utilisateur connecté : afficher le menu déroulant #}
+      <div class="nav-user-pill-wrapper" id="userPillWrapper">
+        <button class="nav-user-pill" id="userPillBtn" type="button"
+                aria-haspopup="true" aria-expanded="false">
+          <div class="nav-avatar">
+            {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+              <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+            {% else %}
+              {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+            {% endif %}
+          </div>
+          <span class="nav-user-name">{{ user.prenomUtilisateur }}</span>
+          <span class="nav-role-badge">{{ roleEmoji }} {{ roleLabel }}</span>
+          <svg class="pill-chevron" viewBox="0 0 16 16">
+            <path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown" role="menu">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">
+              {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+                <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+              {% else %}
+                {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+              {% endif %}
+            </div>
+            <div>
+              <div class="dropdown-user-name">{{ user.prenomUtilisateur }} {{ user.nomUtilisateur }}</div>
+              <div class="dropdown-user-email">{{ user.emailUtilisateur }}</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="{{ path('app_profil') }}" class="dropdown-item" role="menuitem">
+            <span class="dropdown-item-icon">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="7" r="3.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/></svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Voir mon profil</span>
+              <span class="dropdown-item-sub">Consulter mes informations</span>
+            </span>
+            <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+          </a>
+          <a href="{{ path('app_profil_edit') }}" class="dropdown-item" role="menuitem">
+            <span class="dropdown-item-icon dropdown-item-icon--violet">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.586 3.586a2 2 0 112.828 2.828l-8.5 8.5L4 16l1.086-3.914 8.5-8.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Modifier mon profil</span>
+              <span class="dropdown-item-sub">Changer mes informations</span>
+            </span>
+            <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger" role="menuitem">
+            <span class="dropdown-item-icon dropdown-item-icon--red">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3h4v14h-4M9 14l4-4-4-4M13 10H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Se déconnecter</span>
+              <span class="dropdown-item-sub">Quitter la session</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    {% else %}
+      {# Utilisateur non connecté : afficher les boutons de connexion / inscription #}
+      <div style="display: flex; gap: 12px;">
+        <a href="{{ path('app_login') }}" class="btn-glass" style="padding: 8px 20px;">Se connecter</a>
+        <a href="{{ path('app_register') }}" class="btn-white" style="padding: 8px 20px;">S'inscrire</a>
+      </div>
+    {% endif %}
+  </div>
+</nav>
+
+{# ══ HERO ══ #}
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  {# Floating particles #}
+  <div class="particle" style="width:5px;height:5px;background:#52B788;left:15%;top:80%;animation-duration:18s;animation-delay:0s"></div>
+  <div class="particle" style="width:3px;height:3px;background:#95D5B2;left:25%;top:90%;animation-duration:22s;animation-delay:-6s"></div>
+  <div class="particle" style="width:4px;height:4px;background:#b7e4c7;left:70%;top:85%;animation-duration:16s;animation-delay:-3s"></div>
+  <div class="particle" style="width:6px;height:6px;background:#7B5EA7;left:85%;top:75%;animation-duration:20s;animation-delay:-10s"></div>
+  <div class="particle" style="width:3px;height:3px;background:#d8b4fe;left:50%;top:95%;animation-duration:14s;animation-delay:-7s"></div>
+  <div class="particle" style="width:5px;height:5px;background:#52B788;left:40%;top:88%;animation-duration:25s;animation-delay:-2s"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Plateforme de Psychologie &amp; Développement Personnel
+    </div>
+    <h1 class="hero-title">
+      Bienvenue sur <em>MindAura</em>,<br>votre espace de bien-être
+    </h1>
+    <p class="hero-desc">
+      Une plateforme dédiée à votre santé mentale et votre épanouissement personnel.
+      Connectez-vous avec des psychologues, coachs et thérapeutes qualifiés
+      pour un accompagnement sur-mesure et confidentiel.
+    </p>
+    <div class="hero-actions">
+      <a href="#services" class="btn-white">
+        <span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;vertical-align:middle;margin-right:4px"><path d="M5 10h10M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Découvrir nos services
+        </span>
+      </a>
+      <a href="#contact" class="btn-glass">&#128222; Nous contacter</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">500+</div>
+        <div class="hero-stat-lbl">Patients accompagnés</div>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">30+</div>
+        <div class="hero-stat-lbl">Professionnels certifiés</div>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">98%</div>
+        <div class="hero-stat-lbl">Taux de satisfaction</div>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">5 ans</div>
+        <div class="hero-stat-lbl">D'expertise</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
+    <div class="scroll-mouse"></div>
+    <span>défiler</span>
+  </div>
+</section>
+
+{# wave #}
+<div class="wave" style="background:linear-gradient(180deg,rgba(15,35,25,.9) 0%,var(--g1) 100%)">
+  <svg viewBox="0 0 1440 58" preserveAspectRatio="none" fill="#F0F4F8" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,38 C400,72 1040,4 1440,38 L1440,58 L0,58 Z"/>
+  </svg>
+</div>
+
+{# ══ CITATIONS MOTIVATIONNELLES ══ #}
+<section class="section quotes-section" id="citations">
+  <div class="section-inner">
+
+    <div class="sec-center sr">
+      <div class="sec-label">✦ Sagesse &amp; Inspiration</div>
+      <h2 class="sec-title">Citations du <span>Moment</span></h2>
+      <p class="sec-desc">Des paroles de sagesse soigneusement sélectionnées pour nourrir votre réflexion et illuminer votre chemin vers le bien-être.</p>
+    </div>
+
+    {# ── Carousel de citations ── #}
+    <div class="quotes-carousel-wrap sr">
+
+      {# Orbe décoratif #}
+      <div class="quotes-orb quotes-orb-1"></div>
+      <div class="quotes-orb quotes-orb-2"></div>
+
+      {# Slide principal #}
+      <div class="quotes-stage" id="quotesStage">
+
+        {# Skeleton loader #}
+        <div class="quote-skeleton" id="quoteSkeleton">
+          <div class="sk-line sk-wide"></div>
+          <div class="sk-line sk-medium"></div>
+          <div class="sk-line sk-narrow"></div>
+          <div class="sk-author"></div>
+        </div>
+
+        {# Contenu réel #}
+        <div class="quote-display" id="quoteDisplay" style="opacity:0">
+          <div class="quote-ornament-top">
+            <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 50 Q10 20 35 20 Q20 20 20 38 Q20 50 35 50 Q20 50 10 50Z" fill="currentColor" opacity=".18"/>
+              <path d="M45 50 Q45 20 70 20 Q55 20 55 38 Q55 50 70 50 Q55 50 45 50Z" fill="currentColor" opacity=".18"/>
+            </svg>
+          </div>
+
+          <blockquote class="quote-text" id="quoteText">
+            &ldquo;La vie est ce que nos pensées en font.&rdquo;
+          </blockquote>
+
+          <div class="quote-meta">
+            <div class="quote-author-line">
+              <div class="quote-author-avatar" id="quoteAvatar">M</div>
+              <div>
+                <div class="quote-author-name" id="quoteAuthor">Marc Aurèle</div>
+                <div class="quote-author-tag">Philosophe &amp; Sage</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="quote-ornament-bottom">
+            <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 10 Q10 40 35 40 Q20 40 20 22 Q20 10 35 10 Q20 10 10 10Z" fill="currentColor" opacity=".14"/>
+              <path d="M45 10 Q45 40 70 40 Q55 40 55 22 Q55 10 70 10 Q55 10 45 10Z" fill="currentColor" opacity=".14"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {# Contrôles #}
+      <div class="quotes-controls">
+        <button class="quotes-btn" id="quotePrev" title="Citation précédente" aria-label="Précédente">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="quotes-dots" id="quotesDots"></div>
+
+        <button class="quotes-btn" id="quoteNext" title="Citation suivante" aria-label="Suivante">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      {# Badge source + refresh #}
+      <div class="quotes-footer">
+        <button class="quotes-refresh-btn" id="quotesRefreshBtn" title="Nouvelles citations">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" id="refreshIcon"><path d="M4 4a8 8 0 0113.6 3.4M16 16a8 8 0 01-13.6-3.4M4 17v-4h4M16 3v4h-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Nouvelles citations
+        </button>
+      </div>
+
+    </div>{# /quotes-carousel-wrap #}
+
+  </div>
+</section>
+
+{# ══ SERVICES ══ #}
+<section class="section" id="services">
+  <div class="section-shape" style="width:500px;height:500px;top:-180px;right:-150px;"></div>
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#127807; Ce que nous offrons</div>
+      <h2 class="sec-title">Nos <span>Services</span></h2>
+      <p class="sec-desc">
+        Une gamme complète de services conçus pour soutenir votre parcours
+        vers le bien-être mental et le développement personnel.
+      </p>
+    </div>
+    <div class="grid-3">
+      <a href="{{ path('reservation_local_front_index') }}" class="svc-card sr" style="transition-delay:.05s; text-decoration:none; display:block; cursor:pointer;">
+        <div class="svc-icon g">&#129504;</div>
+        <div class="svc-title">Suivi Psychologique</div>
+        <div class="svc-desc">Consultations individuelles avec des psychologues diplômés pour un accompagnement thérapeutique personnalisé et confidentiel.</div>
+        <span class="svc-tag">Psychologie</span>
+      </a>
+      <a href="{{ path('front_tests_index') }}" class="svc-card sr" style="transition-delay:.1s; text-decoration:none; display:block; color:inherit;">
+        <div class="svc-icon v">&#127919;</div>
+        <div class="svc-title">Coaching Personnel</div>
+        <div class="svc-desc">Séances de coaching pour vous aider à définir et atteindre vos objectifs de vie, professionnels et personnels.</div>
+        <span class="svc-tag">Développement</span>
+      </a>
+      <a href="{{ path('evenement_liste') }}" class="svc-card sr" style="transition-delay:.15s; text-decoration:none; display:block; color:inherit;">
+        <div class="svc-icon t">&#129336;</div>
+        <div class="svc-title">Séances de Thérapie</div>
+        <div class="svc-desc">Thérapies cognitivo-comportementales, pleine conscience et techniques de gestion du stress adaptées à vos besoins.</div>
+        <span class="svc-tag">Thérapie</span>
+      </a>
+      <a href="{{ path('front_reclamation_index') }}" class="svc-card sr" style="transition-delay:.2s; text-decoration:none; display:block; color:inherit;">
+        <div class="svc-icon o">&#128203;</div>
+        <div class="svc-title">Réclamation</div>
+        <div class="svc-desc">Soumettez et suivez vos réclamations en toute simplicité. Notre équipe traite chaque demande avec attention et vous tient informé à chaque étape.</div>
+        <span class="svc-tag">Réclamation</span>
+      </a>
+      <div class="svc-card sr" style="transition-delay:.25s">
+        <div class="svc-icon g">&#128197;</div>
+        <div class="svc-title">Prise de Rendez-vous</div>
+        <div class="svc-desc">Système de réservation en ligne intuitif pour planifier vos consultations à votre convenance, 24h/24.</div>
+        <span class="svc-tag">Pratique</span>
+      </div>
+      <a href="{{ path('ressources_index') }}" class="svc-card sr" style="transition-delay:.3s; text-decoration: none; display: block; color: inherit;">
+        <div class="svc-icon v">&#128218;</div>
+        <div class="svc-title">Ressources &amp; Exercices</div>
+        <div class="svc-desc">Bibliothèque de ressources, exercices pratiques et outils d'auto-assistance pour soutenir votre parcours au quotidien.</div>
+        <span class="svc-tag">Ressources</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+{# ══ ANALYSE D'ÉMOTIONS PAR IA ══ #}
+<section class="emotion-wrap" id="emotion-analyzer">
+  <div class="emotion-card sr">
+
+    <div class="emotion-header">
+      <div class="emotion-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a9 9 0 0 0-9 9c0 3.5 2 6.5 5 8v3l4-2 4 2v-3c3-1.5 5-4.5 5-8a9 9 0 0 0-9-9z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Nouvelle expérience IA
+      </div>
+
+      <h2 class="emotion-title">Analysez vos <span>sentiments</span></h2>
+      <p class="emotion-subtitle">
+        Notre intelligence artificielle analyse votre expression faciale en temps réel
+        et vous suggère des pistes personnalisées pour mieux vivre vos émotions.
+      </p>
+
+      <div class="emotion-features">
+        <span class="emotion-feature-badge">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          100% privé — aucune image stockée
+        </span>
+        <span class="emotion-feature-badge">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Résultat en 2 à 10 secondes
+        </span>
+        <span class="emotion-feature-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+          7 émotions détectées
+        </span>
+      </div>
+    </div>
+
+    <div class="emotion-body" id="emotionBody">
+
+      <!-- PANEL CAMÉRA -->
+      <div class="emotion-cam-panel">
+
+        <!-- État initial : avant activation webcam -->
+        <div class="cam-initial" id="camInitial">
+          <div class="cam-initial-icon">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7l-7 5 7 5V7z"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+          </div>
+          <div class="cam-initial-title">Prêt à commencer&nbsp;?</div>
+          <div class="cam-initial-desc">
+            Autorisez l'accès à votre caméra, regardez l'objectif, puis capturez une photo pour lancer l'analyse.
+          </div>
+          <button class="btn-emotion-start" id="btnEmotionStart" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            Analyser mes sentiments
+          </button>
+        </div>
+
+        <!-- État actif : webcam visible -->
+        <div class="cam-live" id="camLive">
+          <div class="cam-video-wrap">
+            <video id="camVideo" autoplay playsinline muted></video>
+            <span class="cam-corner tl"></span>
+            <span class="cam-corner tr"></span>
+            <span class="cam-corner bl"></span>
+            <span class="cam-corner br"></span>
+            <span class="cam-scan-line"></span>
+            <div class="cam-rec-badge">
+              <span class="cam-rec-dot"></span>
+              EN DIRECT
+            </div>
+          </div>
+          <div class="cam-actions">
+            <button class="btn-cam btn-cam-capture" id="btnCapture" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              Capturer et analyser
+            </button>
+            <button class="btn-cam btn-cam-cancel" id="btnCamCancel" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              Annuler
+            </button>
+          </div>
+        </div>
+
+        <!-- État analyse en cours -->
+        <div class="cam-analyzing" id="camAnalyzing">
+          <div class="analyzing-orb"></div>
+          <div class="analyzing-title">L'IA analyse votre visage<span class="analyzing-dots"></span></div>
+          <div class="analyzing-text">
+            Le premier lancement peut prendre jusqu'à 20 secondes
+            (le modèle d'IA se réveille).
+          </div>
+        </div>
+
+        <canvas id="camCanvas" style="display:none;"></canvas>
+      </div>
+
+      <!-- PANEL RÉSULTATS -->
+      <div class="emotion-result-panel" id="resultPanel">
+
+        <div class="result-hero" id="resultHero">
+          <div class="result-emoji" id="resultEmoji">🤔</div>
+          <div class="result-main">
+            <div class="result-sub">Émotion dominante</div>
+            <div class="result-label-row">
+              <span class="result-french" id="resultFrench">—</span>
+              <span class="result-score-big" id="resultScore">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-advice">
+          <span class="result-advice-icon">💡</span>
+          <span id="resultAdvice">—</span>
+        </div>
+
+        <div class="result-all-title">Répartition détaillée</div>
+        <div class="result-bars" id="resultBars">
+          {# Rempli dynamiquement par JS #}
+        </div>
+
+        <div class="result-actions">
+          <button class="btn-result btn-result-primary" id="btnRetry" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Nouvelle analyse
+          </button>
+          <a href="#services" class="btn-result btn-result-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Consulter un professionnel
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Zone d'erreur globale -->
+    <div class="emotion-error" id="emotionError">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="emotionErrorMsg"></span>
+    </div>
+
+  </div>
+</section>
+
+{# wave #}
+<div class="wave" style="background:var(--bg)">
+  <svg viewBox="0 0 1440 58" preserveAspectRatio="none" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,18 C480,58 960,0 1440,28 L1440,58 L0,58 Z"/>
+  </svg>
+</div>
+
+{# ══ EQUIPE ══ #}
+<section class="section section-alt" id="equipe">
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#128101; Les développeurs</div>
+      <h2 class="sec-title">Notre <span>Équipe</span></h2>
+      <p class="sec-desc">
+        Des passionnés du développement web réunis pour créer une expérience
+        digitale au service du bien-être mental.
+      </p>
+    </div>
+
+    <div class="grid-team">
+
+      <div class="team-card sr" style="transition-delay:.05s">
+        <div class="team-avatar">
+          <img src="{{ asset('equipe/azer.png') }}" alt="Laifi Azer"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Laifi Azer</div>
+        <span class="team-role">Full-Stack Dev</span>
+        <div class="team-bio">Spécialisé en Symfony &amp; Java, passionné par les interfaces modernes et performantes.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/laifi_azer1/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/laifiazer2/" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="team-card sr" style="transition-delay:.1s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#7B5EA7,#a78bda)">
+          <img src="{{ asset('equipe/Ichrak.jpg') }}" alt="Chaffai Ichrak"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Chaffai Ichrak</div>
+        <span class="team-role">UI/UX Designer</span>
+        <div class="team-bio">Créatrice d'expériences utilisateurs intuitives et accessibles avec un sens aigu du design.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/ichrakchaffai/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/ichrak.chaffai" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="team-card sr" style="transition-delay:.15s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#1B4332,#40916c)">
+          <img src="{{ asset('equipe/jasser.png') }}" alt="Missaoui Jasser"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Missaoui Jasser</div>
+        <span class="team-role">Backend Dev</span>
+        <div class="team-bio">Expert en bases de données, sécurité et architecture applicative robuste et scalable.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/jassermiss/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/jasser.missaoui.2025" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="team-card sr" style="transition-delay:.2s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#0d7377,#14a085)">
+          <img src="{{ asset('equipe/yassine.png') }}" alt="BenRabeh Yassine"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">BenRabeh Yassine</div>
+        <span class="team-role">Frontend Dev</span>
+        <div class="team-bio">Développeur front passionné par les animations CSS et les interfaces réactives et élégantes.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/yassine_ben_rabeh/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/yassine.benrabeh.3" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="team-card sr" style="transition-delay:.25s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#c77dff,#9b5de5)">
+          <img src="{{ asset('equipe/menyar.png') }}" alt="Guesmi Menyar"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Guesmi Menyar</div>
+        <span class="team-role">DevOps Engineer</span>
+        <div class="team-bio">Spécialiste en déploiement continu, Docker &amp; CI/CD pour des livraisons rapides et fiables.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/guesmi.menyar" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/guesmi.menyar" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="team-card sr" style="transition-delay:.3s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#f77f00,#fcbf49)">
+          <img src="{{ asset('equipe/rania.png') }}" alt="Zairi Rania"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Zairi Rania</div>
+        <span class="team-role">Mobile Dev</span>
+        <div class="team-bio">Développeuse React Native &amp; Flutter, créatrice d'applications mobiles fluides et accessibles.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/zairi.rania" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/zairi.rania" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{# wave #}
+<div class="wave" style="background:white">
+  <svg viewBox="0 0 1440 58" preserveAspectRatio="none" fill="#F0F4F8" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,28 C600,66 840,0 1440,32 L1440,58 L0,58 Z"/>
+  </svg>
+</div>
+
+{# ══ FAQ ══ #}
+<section class="section" id="faq">
+  <div class="section-shape" style="width:400px;height:400px;bottom:-100px;left:-120px;background:var(--violet);"></div>
+  <div class="section-inner">
+    <div class="faq-layout">
+      <div class="sr-l">
+        <div class="sec-label">&#10067; Questions fréquentes</div>
+        <h2 class="sec-title">Foire aux<br><span>Questions</span></h2>
+        <p class="sec-desc" style="margin-bottom:30px">
+          Trouvez rapidement des réponses sur notre plateforme,
+          nos services et nos professionnels.
+        </p>
+        <a href="#contact" class="btn-solid">Poser une question &rarr;</a>
+      </div>
+      <div class="sr-r">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Comment prendre rendez-vous avec un professionnel ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Rendez-vous dans la section "Réservations" de votre espace personnel. Vous pouvez filtrer par spécialité, date et horaire disponible, puis confirmer votre consultation en quelques clics.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Mes données et consultations sont-elles confidentielles ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Absolument. MindAura respecte strictement le secret médical et les normes RGPD. Toutes vos informations et échanges sont chiffrés et accessibles uniquement à vous et votre professionnel.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Puis-je changer de psychologue ou de coach ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Oui, à tout moment. Vous êtes libre de modifier votre suivi et d'être redirigé vers un autre professionnel selon vos besoins et affinités, sans aucune contrainte.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Les séances sont-elles disponibles en ligne ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Oui, nous proposons des consultations en présentiel dans nos locaux ainsi que des séances en visioconférence sécurisée, selon les préférences du professionnel et du patient.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Comment signaler un problème ou déposer une réclamation ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">La rubrique "Réclamations" dans votre espace vous permet de soumettre toute demande ou signalement. Notre équipe s'engage à vous répondre sous 48h ouvrées.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ══ MAP ══ #}
+<section class="section section-alt" id="map">
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#128205; Nous trouver</div>
+      <h2 class="sec-title">Notre <span>Localisation</span></h2>
+      <p class="sec-desc">Retrouvez-nous au coeur de Tunis pour vos consultations en présentiel.</p>
+    </div>
+    <div class="map-wrap sr">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3190.6284785091943!2d10.186870075470237!3d36.89923517221909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12e2cb1651c504af%3A0x320100dac38457e3!2sEsprit%20Bloc%20I%2CJ%2CK!5e0!3m2!1sen!2stn!4v1775420709621!5m2!1sen!2stn" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-pin">
+        <div class="map-pin-name">&#127973; Centre MindAura</div>
+        <div class="map-pin-addr">Tunis, Tunisie</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ══ CONTACT ══ #}
+<section class="section" id="contact">
+  <div class="section-shape" style="width:450px;height:450px;top:-100px;right:-130px;"></div>
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#9993; Écrivez-nous</div>
+      <h2 class="sec-title">Contactez-<span>nous</span></h2>
+      <p class="sec-desc">Une question ou besoin d'aide ? Notre équipe vous répond dans les plus brefs délais.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-form sr-l">
+        <div class="contact-form-title">Envoyer un message</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input type="text" class="form-control" placeholder="Votre prénom" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" placeholder="Votre nom" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Adresse e-mail</label>
+          <input type="email" class="form-control" placeholder="votre.email@exemple.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sujet</label>
+          <input type="text" class="form-control" placeholder="Ex : Demande de renseignements"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Votre message</label>
+          <textarea class="form-control" placeholder="Décrivez votre demande..."></textarea>
+        </div>
+        <button type="button" class="btn-send" id="sendBtn" onclick="sendMsg(this)">
+          <svg viewBox="0 0 20 20"><path d="M2 10l16-8-8 16v-8L2 10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Envoyer le message
+        </button>
+      </div>
+
+      <div class="contact-info sr-r">
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">Adresse</div>
+            <div class="citem-val">1,2 Rue André Ampère, Ariana Essoghra, Tunisie</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">Téléphone</div>
+            <div class="citem-val">+216 29269297 &middot; +216 29867695</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">E-mail</div>
+            <div class="citem-val">contact@mindaura.tn &middot; support@mindaura.tn</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">Horaires</div>
+            <div class="citem-val">Lun&ndash;Ven : 8h00&ndash;18h00 &middot; Sam : 9h00&ndash;13h00</div>
+          </div>
+        </div>
+        <div class="contact-cta">
+          <div class="ccta-title">&#128172; Besoin d'aide urgente ?</div>
+          <div class="ccta-desc">Notre équipe de support est disponible pour vous accompagner immédiatement.</div>
+          <a href="tel:+21629269297" class="btn-call">&#128222; Appeler maintenant</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ══ FOOTER ══ #}
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+          <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(82,183,136,.3);box-shadow:0 4px 14px rgba(0,0,0,.25)">
+            <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+          </div>
+          <div>
+            <div class="footer-brand-name">MindAura</div>
+            <div class="footer-brand-sub">Bien-être &amp; Sérénité</div>
+          </div>
+        </div>
+        <p class="footer-tagline">Une plateforme dédiée à la santé mentale et au développement personnel, conçue avec passion par des étudiants engagés.</p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/profile.php?id=61587275842434" class="f-social"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+          <a href="https://www.instagram.com/mindaura3/" class="f-social"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="https://github.com/LaifiAzer3/Esprit-PIDEV-3A3-2526-MindAuraWeb" class="f-social"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <a href="#services" class="footer-link">Services</a>
+        <a href="#equipe"   class="footer-link">Notre équipe</a>
+        <a href="#faq"      class="footer-link">FAQ</a>
+        <a href="#contact"  class="footer-link">Contact</a>
+        <a href="#map"      class="footer-link">Nous trouver</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Mon Espace</div>
+        {% if user is not null %}
+          <a href="{{ path('app_profil') }}" class="footer-link">Mon profil</a>
+          <a href="#" class="footer-link">Mes réclamations</a>
+          <a href="#" class="footer-link">Mes rendez-vous</a>
+          <a href="#" class="footer-link">Mes objectifs</a>
+          <a href="{{ path('app_logout') }}" class="footer-link" style="color:rgba(220,38,38,.5)">Déconnexion</a>
+        {% else %}
+          <a href="{{ path('app_login') }}" class="footer-link">Se connecter</a>
+          <a href="{{ path('app_register') }}" class="footer-link">Créer un compte</a>
+        {% endif %}
+      </div>
+      <div>
+        <div class="footer-col-title">Légal</div>
+        <a href="#" class="footer-link">Politique de confidentialité</a>
+        <a href="#" class="footer-link">Conditions d'utilisation</a>
+        <a href="#" class="footer-link">Mentions légales</a>
+        <a href="#" class="footer-link">RGPD &amp; Cookies</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 MindAura &mdash; Projet Intégré Développement Web. Tous droits réservés.</div>
+      <div class="footer-heart">Fait avec <span>&hearts;</span> par &middot; Laifi Azer &middot;</div>
+    </div>
+  </div>
+</footer>
+
+{# ══ TOAST ══ #}
+<div class="toast" id="toast">
+  <span>&#10003;</span><span id="toast-msg">Message envoyé !</span>
+</div>
+
+<script>
+  /* ── Cursor glow ── */
+  (function() {
+    var glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', function(e) {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top  = e.clientY + 'px';
+    });
+  })();
+
+  /* ── Navbar scroll ── */
+  var nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  /* ── Smooth scroll ── */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var href = a.getAttribute('href');
+      if (href.length > 1) {
+        var t = document.querySelector(href);
+        if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
+  });
+
+  /* ── Scroll reveal ── */
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.sr, .sr-l, .sr-r').forEach(function(el) { obs.observe(el); });
+
+  /* ── FAQ ── */
+  function toggleFaq(btn) {
+    var item = btn.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+  }
+
+  /* ── Contact send ── */
+  function sendMsg(btn) {
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours...';
+    setTimeout(function() {
+      btn.textContent = 'Message envoyé !';
+      btn.style.background = 'linear-gradient(135deg,#22C55E,#16a34a)';
+      showToast('Votre message a bien été envoyé !');
+      setTimeout(function() {
+        btn.innerHTML = '<svg viewBox="0 0 20 20" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.9"><path d="M2 10l16-8-8 16v-8L2 10z" stroke-linecap="round" stroke-linejoin="round"/></svg> Envoyer le message';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 3500);
+    }, 1600);
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 4200);
+  }
+
+  /* ── User pill dropdown (uniquement si connecté) ── */
+  (function() {
+    var pillBtn  = document.getElementById('userPillBtn');
+    var dropdown = document.getElementById('userDropdown');
+    var wrapper  = document.getElementById('userPillWrapper');
+    if (!pillBtn || !dropdown) return;
+    function openDropdown()  { dropdown.classList.add('open'); pillBtn.setAttribute('aria-expanded','true'); }
+    function closeDropdown() { dropdown.classList.remove('open'); pillBtn.setAttribute('aria-expanded','false'); }
+    function toggleDropdown(){ dropdown.classList.contains('open') ? closeDropdown() : openDropdown(); }
+    pillBtn.addEventListener('click', function(e) { e.stopPropagation(); toggleDropdown(); });
+    document.addEventListener('click', function(e) { if (!wrapper.contains(e.target)) closeDropdown(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDropdown(); });
+  })();
+
+  /* ══════════════════════════════════════
+     CITATIONS MOTIVATIONNELLES — ZenQuotes
+  ══════════════════════════════════════ */
+  (function() {
+    /* ─── Pool de citations psychologiques de secours ─── */
+    var fallbackQuotes = [
+      { q: "La vie est ce que nos pensées en font.", a: "Marc Aurèle" },
+      { q: "Nous souffrons plus en imagination qu'en réalité.", a: "Sénèque" },
+      { q: "Connais-toi toi-même.", a: "Socrate" },
+      { q: "Le bonheur n'est pas quelque chose de tout fait. Il vient de vos propres actions.", a: "Dalaï Lama" },
+      { q: "Ce n'est pas ce qui nous arrive qui nous affecte, mais l'idée que nous nous en faisons.", a: "Épictète" },
+      { q: "L'âme qui contemple la beauté est elle-même belle.", a: "Plotin" },
+      { q: "La vraie sagesse consiste à ne pas s'écarter de la nature.", a: "Sénèque" },
+      { q: "Prenez soin de votre corps, c'est le seul endroit où vous devez vivre.", a: "Jim Rohn" },
+      { q: "Votre vie s'améliore uniquement quand vous vous améliorez.", a: "Brian Tracy" },
+      { q: "La résilience, c'est accepter votre nouvelle réalité, même si elle est moins bonne que celle d'avant.", a: "Elizabeth Edwards" },
+      { q: "La santé mentale n'est pas l'absence de maladie, c'est la présence de paix.", a: "Anonyme" },
+      { q: "Parler de soi-même est également un moyen de se cacher.", a: "Friedrich Nietzsche" },
+      { q: "L'esprit est tout. Tu deviens ce que tu penses.", a: "Bouddha" },
+      { q: "Si vous ne pouvez pas voler, courez. Si vous ne pouvez pas courir, marchez. Avancez toujours.", a: "Martin Luther King Jr." },
+      { q: "Osez vous connaître vous-même. C'est la leçon la plus difficile et la plus belle.", a: "Carl Gustav Jung" },
+    ];
+
+    /* ─── Couleurs de fond pour les avatars ─── */
+    var avatarColors = [
+      'linear-gradient(135deg,#1B4332,#52B788)',
+      'linear-gradient(135deg,#7B5EA7,#a78bda)',
+      'linear-gradient(135deg,#0d7377,#14a085)',
+      'linear-gradient(135deg,#c77dff,#9b5de5)',
+      'linear-gradient(135deg,#f77f00,#fcbf49)',
+      'linear-gradient(135deg,#1B4332,#2D6A4F)',
+      'linear-gradient(135deg,#e63946,#f4a261)',
+    ];
+
+    var quotes = [];
+    var currentIdx = 0;
+    var total = 0;
+
+    /* ─── Éléments DOM ─── */
+    var skeleton    = document.getElementById('quoteSkeleton');
+    var display     = document.getElementById('quoteDisplay');
+    var textEl      = document.getElementById('quoteText');
+    var authorEl    = document.getElementById('quoteAuthor');
+    var avatarEl    = document.getElementById('quoteAvatar');
+    var dotsEl      = document.getElementById('quotesDots');
+    var prevBtn     = document.getElementById('quotePrev');
+    var nextBtn     = document.getElementById('quoteNext');
+    var refreshBtn  = document.getElementById('quotesRefreshBtn');
+    var refreshIcon = document.getElementById('refreshIcon');
+
+    /* ─── Proxy CORS (évite les erreurs CORS depuis le navigateur) ─── */
+    /* ZenQuotes est accessible directement depuis le serveur Symfony,
+       mais depuis le front on passe par allorigins */
+    function buildUrl() {
+      return 'https://api.allorigins.win/get?url=' +
+             encodeURIComponent('https://zenquotes.io/api/quotes');
+    }
+
+    /* ─── Charger les citations ─── */
+    function loadQuotes(callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', buildUrl(), true);
+      xhr.timeout = 7000;
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status === 200) {
+          try {
+            var wrapper = JSON.parse(xhr.responseText);
+            var raw     = JSON.parse(wrapper.contents);
+            /* Filtrer: on garde les citations < 200 chars (plus lisibles) */
+            var filtered = raw.filter(function(item) {
+              return item.q && item.a && item.q.length < 200 && item.a !== 'zenquotes.io';
+            });
+            if (filtered.length > 0) {
+              quotes = filtered.slice(0, 10); /* max 10 par batch */
+            } else {
+              quotes = fallbackQuotes;
+            }
+          } catch(e) {
+            quotes = fallbackQuotes;
+          }
+        } else {
+          quotes = fallbackQuotes;
+        }
+        if (typeof callback === 'function') callback();
+      };
+      xhr.ontimeout = xhr.onerror = function() {
+        quotes = fallbackQuotes;
+        if (typeof callback === 'function') callback();
+      };
+      xhr.send();
+    }
+
+    /* ─── Construire les dots ─── */
+    function buildDots() {
+      dotsEl.innerHTML = '';
+      total = quotes.length;
+      for (var i = 0; i < total; i++) {
+        (function(idx) {
+          var dot = document.createElement('button');
+          dot.className = 'q-dot' + (idx === currentIdx ? ' active' : '');
+          dot.setAttribute('aria-label', 'Citation ' + (idx + 1));
+          dot.addEventListener('click', function() { goTo(idx); });
+          dotsEl.appendChild(dot);
+        })(i);
+      }
+    }
+
+    function updateDots() {
+      var dots = dotsEl.querySelectorAll('.q-dot');
+      dots.forEach(function(d, i) {
+        d.classList.toggle('active', i === currentIdx);
+      });
+    }
+
+    /* ─── Afficher une citation ─── */
+    function showQuote(idx, animate) {
+      if (!quotes.length) return;
+      var item   = quotes[idx];
+      var text   = item.q;
+      var author = item.a;
+      var initials = author.split(' ').slice(0,2).map(function(w){ return w[0]||''; }).join('').toUpperCase() || '?';
+      var colorIdx = idx % avatarColors.length;
+
+      if (animate && display.style.opacity !== '0') {
+        display.classList.add('animating-out');
+        setTimeout(function() {
+          updateContent(text, author, initials, colorIdx);
+          display.classList.remove('animating-out');
+          display.classList.add('animating-in');
+          setTimeout(function() { display.classList.remove('animating-in'); }, 600);
+        }, 300);
+      } else {
+        updateContent(text, author, initials, colorIdx);
+        display.classList.add('animating-in');
+        setTimeout(function() { display.classList.remove('animating-in'); }, 600);
+      }
+
+      updateDots();
+      prevBtn.disabled = (idx === 0);
+      nextBtn.disabled = (idx === quotes.length - 1);
+    }
+
+    function updateContent(text, author, initials, colorIdx) {
+      textEl.textContent = '\u201c' + text + '\u201d';
+      authorEl.textContent = author;
+      avatarEl.textContent  = initials;
+      avatarEl.style.background = avatarColors[colorIdx];
+    }
+
+    /* ─── Navigation ─── */
+    function goTo(idx) {
+      if (idx < 0 || idx >= quotes.length) return;
+      currentIdx = idx;
+      showQuote(currentIdx, true);
+    }
+
+    prevBtn.addEventListener('click', function() { goTo(currentIdx - 1); });
+    nextBtn.addEventListener('click', function() { goTo(currentIdx + 1); });
+
+    /* Raccourcis clavier */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowLeft')  goTo(currentIdx - 1);
+      if (e.key === 'ArrowRight') goTo(currentIdx + 1);
+    });
+
+    /* Swipe mobile */
+    var touchStartX = null;
+    var stage = document.getElementById('quotesStage');
+    stage.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', function(e) {
+      if (touchStartX === null) return;
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      touchStartX = null;
+      if (Math.abs(dx) > 50) { dx < 0 ? goTo(currentIdx + 1) : goTo(currentIdx - 1); }
+    }, { passive: true });
+
+    /* ─── Refresh : nouvelles citations depuis l'API ─── */
+    refreshBtn.addEventListener('click', function() {
+      refreshBtn.classList.add('spinning');
+      refreshBtn.disabled = true;
+      display.style.opacity = '0';
+      skeleton.style.display = 'flex';
+      currentIdx = 0;
+
+      loadQuotes(function() {
+        skeleton.style.display = 'none';
+        display.style.opacity  = '1';
+        buildDots();
+        showQuote(0, false);
+        refreshBtn.classList.remove('spinning');
+        refreshBtn.disabled = false;
+      });
+    });
+
+    /* ─── Auto-avance toutes les 8 s ─── */
+    var autoTimer = null;
+    function startAuto() {
+      autoTimer = setInterval(function() {
+        var next = (currentIdx + 1) % quotes.length;
+        goTo(next);
+      }, 8000);
+    }
+    /* Pause si l'utilisateur interagit */
+    [prevBtn, nextBtn, refreshBtn].forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        clearInterval(autoTimer);
+        startAuto();
+      });
+    });
+    dotsEl.addEventListener('click', function() {
+      clearInterval(autoTimer);
+      startAuto();
+    });
+
+    /* ─── Initialisation ─── */
+    loadQuotes(function() {
+      skeleton.style.display = 'none';
+      display.style.opacity  = '1';
+      buildDots();
+      showQuote(0, false);
+      startAuto();
+    });
+
+  })();
+
+  /* ── Hero stat counter animation ── */
+  (function() {
+    var stats = document.querySelectorAll('.hero-stat-num');
+    var started = false;
+    function animateCounters() {
+      if (started) return; started = true;
+      stats.forEach(function(el) {
+        var raw = el.textContent.trim();
+        var match = raw.match(/^(\d+)(.*)$/);
+        if (!match) return;
+        var target = parseInt(match[1]);
+        var suffix = match[2];
+        var start = 0;
+        var duration = 1800;
+        var startTime = null;
+        function step(ts) {
+          if (!startTime) startTime = ts;
+          var progress = Math.min((ts - startTime) / duration, 1);
+          var ease = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.floor(ease * target) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      });
+    }
+    var heroObs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) { animateCounters(); heroObs.disconnect(); }
+    }, { threshold: 0.3 });
+    var heroStats = document.querySelector('.hero-stats');
+    if (heroStats) heroObs.observe(heroStats);
+  })();
+
+  /* ═══════════════════════════════════════════════════════════════
+     ANALYSEUR D'ÉMOTIONS PAR IA (webcam + Hugging Face)
+  ═══════════════════════════════════════════════════════════════ */
+  (function() {
+    var body       = document.getElementById('emotionBody');
+    var video      = document.getElementById('camVideo');
+    var canvas     = document.getElementById('camCanvas');
+    var btnStart   = document.getElementById('btnEmotionStart');
+    var btnCapture = document.getElementById('btnCapture');
+    var btnCancel  = document.getElementById('btnCamCancel');
+    var btnRetry   = document.getElementById('btnRetry');
+    var errorBox   = document.getElementById('emotionError');
+    var errorMsg   = document.getElementById('emotionErrorMsg');
+
+    if (!body || !btnStart) return; // Section non présente sur cette page
+
+    var resultHero   = document.getElementById('resultHero');
+    var resultEmoji  = document.getElementById('resultEmoji');
+    var resultFrench = document.getElementById('resultFrench');
+    var resultScore  = document.getElementById('resultScore');
+    var resultAdvice = document.getElementById('resultAdvice');
+    var resultBars   = document.getElementById('resultBars');
+
+    var stream = null;
+
+    /* ── Ouvrir la webcam ─────────────────────────────────────── */
+    function openWebcam() {
+      hideError();
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showError('Votre navigateur ne supporte pas l\'accès à la caméra.');
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false
+      }).then(function(s) {
+        stream = s;
+        video.srcObject = stream;
+        body.classList.add('cam-active');
+      }).catch(function(err) {
+        console.error('Erreur webcam:', err);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          showError('Accès à la caméra refusé. Autorisez MindAura dans les paramètres de votre navigateur puis réessayez.');
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          showError('Aucune caméra détectée sur votre appareil.');
+        } else {
+          showError('Impossible d\'accéder à la caméra : ' + err.message);
+        }
+      });
+    }
+
+    /* ── Fermer la webcam ─────────────────────────────────────── */
+    function closeWebcam() {
+      if (stream) {
+        stream.getTracks().forEach(function(t) { t.stop(); });
+        stream = null;
+      }
+      video.srcObject = null;
+    }
+
+    /* ── Capturer une image et l'envoyer à l'API ──────────────── */
+    function captureAndAnalyze() {
+      if (!stream) return;
+      hideError();
+
+      var w = video.videoWidth  || 640;
+      var h = video.videoHeight || 480;
+      canvas.width  = w;
+      canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.translate(w, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, w, h);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+      closeWebcam();
+      body.classList.remove('cam-active');
+      body.classList.add('analyzing');
+
+      fetch('{{ path('app_emotion_analyze') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: dataUrl }),
+        credentials: 'same-origin'
+      }).then(function(response) {
+        return response.json().then(function(data) {
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Erreur serveur (' + response.status + ')');
+          }
+          displayResults(data);
+        });
+      }).catch(function(err) {
+        console.error('Erreur analyse:', err);
+        body.classList.remove('analyzing');
+        showError(err.message || 'Une erreur est survenue lors de l\'analyse.');
+        // Ne pas relancer la webcam automatiquement — laisser l'utilisateur cliquer Réessayer
+      });
+    }
+
+    /* ── Afficher les résultats ──────────────────────────────── */
+    function displayResults(data) {
+      body.classList.remove('analyzing');
+      body.classList.add('has-result');
+
+      var dom = data.dominant;
+
+      resultEmoji.textContent   = dom.emoji;
+      resultFrench.textContent  = dom.french;
+      resultScore.textContent   = dom.score + '%';
+      resultAdvice.textContent  = dom.advice;
+
+      resultHero.style.background = dom.color.bg;
+      resultHero.style.color      = dom.color.fg;
+
+      resultBars.innerHTML = '';
+      data.all.forEach(function(emotion, idx) {
+        var row = document.createElement('div');
+        row.className = 'result-bar';
+        row.innerHTML =
+          '<span class="result-bar-emoji">' + emotion.emoji + '</span>' +
+          '<span class="result-bar-label">' + emotion.french + '</span>' +
+          '<span class="result-bar-track">' +
+            '<span class="result-bar-fill" style="background:linear-gradient(90deg,' + emotion.color.accent + ',' + emotion.color.accent + 'cc)"></span>' +
+          '</span>' +
+          '<span class="result-bar-pct">' + emotion.score + '%</span>';
+        resultBars.appendChild(row);
+
+        var fill = row.querySelector('.result-bar-fill');
+        setTimeout(function() { fill.style.width = emotion.score + '%'; }, 100 + idx * 80);
+      });
+    }
+
+    /* ── Réinitialiser ───────────────────────────────────────── */
+    function reset() {
+      closeWebcam();
+      body.classList.remove('cam-active', 'analyzing', 'has-result');
+      hideError();
+    }
+
+    /* ── Erreurs ─────────────────────────────────────────────── */
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorBox.classList.add('show');
+    }
+    function hideError() {
+      errorBox.classList.remove('show');
+    }
+
+    /* ── Events ──────────────────────────────────────────────── */
+    btnStart.addEventListener('click', openWebcam);
+    btnCapture.addEventListener('click', captureAndAnalyze);
+    btnCancel.addEventListener('click', function() {
+      closeWebcam();
+      body.classList.remove('cam-active');
+    });
+    btnRetry.addEventListener('click', function() {
+      reset();
+      openWebcam();
+    });
+
+    window.addEventListener('beforeunload', closeWebcam);
+  })();
+</script>
+</body>
+</html>

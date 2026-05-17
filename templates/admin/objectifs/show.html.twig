@@ -1,0 +1,157 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ objectif.titre }} — Détail{% endblock %}
+{% block page_label %}Détail objectif{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{% set statutVal = (objectif.statut ?? 'inactif')|lower %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🎯</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">{{ objectif.titre }}</h1>
+      <p class="ds-hero-sub">Détail complet de l'objectif et de ses paramètres d'évaluation.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ path('admin_objectif_index') }}" class="ds-back-link" data-spa>← Retour</a>
+      <a href="{{ path('admin_objectif_edit', {'id': objectif.idObjectif}) }}" class="ds-btn-primary" data-spa>✏️ Modifier</a>
+    </div>
+  </div>
+</div>
+
+<div class="ds-form-page" style="max-width: 980px; margin: 0 auto;">
+  <div class="ds-form-card">
+
+    {# Section 1 — Informations générales #}
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">📋 Informations générales</h3>
+
+      <div class="ds-detail-grid">
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Type d'objectif</div>
+          <div class="ds-detail-value">
+            {% if objectif.typeObjectif %}
+              <span class="ds-badge ds-badge--violet">{{ objectif.typeObjectif }}</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Source</div>
+          <div class="ds-detail-value">{{ objectif.source ?? '—' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Type de test</div>
+          <div class="ds-detail-value">{{ objectif.typeTest ?? '—' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Catégorie</div>
+          <div class="ds-detail-value">
+            {% if objectif.categorie %}
+              <span class="ds-badge ds-badge--blue">{{ objectif.categorie }}</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Niveau recommandé</div>
+          <div class="ds-detail-value">
+            {% if objectif.niveauRecommande %}
+              <span class="ds-badge ds-badge--teal">{{ objectif.niveauRecommande }}</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Statut</div>
+          <div class="ds-detail-value">
+            {% if statutVal == 'actif' %}
+              <span class="ds-badge ds-badge--green">Actif</span>
+            {% elseif statutVal == 'brouillon' %}
+              <span class="ds-badge ds-badge--yellow">Brouillon</span>
+            {% else %}
+              <span class="ds-badge ds-badge--gray">Inactif</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Visibilité</div>
+          <div class="ds-detail-value">
+            {% if objectif.estPublic %}
+              <span class="ds-badge ds-badge--green">✓ Public</span>
+            {% else %}
+              <span class="ds-badge ds-badge--gray">✕ Privé</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Date de création</div>
+          <div class="ds-detail-value">{{ objectif.dateCreation ? objectif.dateCreation|date('d/m/Y à H:i') : '—' }}</div>
+        </div>
+      </div>
+
+      <div class="ds-detail-block" style="margin-top: 22px;">
+        <div class="ds-detail-label">Description</div>
+        <div style="background: #fafbfc; padding: 16px 18px; border-radius: 12px; border-left: 3px solid var(--green, #1B4332); margin-top: 8px; color: #1f2937; line-height: 1.6; white-space: pre-wrap;">{{ objectif.description }}</div>
+      </div>
+    </div>
+
+    {# Section 2 — Évaluation #}
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">📊 Paramètres d'évaluation</h3>
+      <div class="ds-detail-grid">
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Score minimum</div>
+          <div class="ds-detail-value">{{ objectif.scoreMin ?? '—' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Score maximum</div>
+          <div class="ds-detail-value">{{ objectif.scoreMax ?? '—' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Difficulté</div>
+          <div class="ds-detail-value">
+            {% if objectif.difficule %}
+              <span class="ds-badge ds-badge--orange">{{ objectif.difficule }}</span>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if objectif.scoreMin is not null and objectif.scoreMax is not null and objectif.scoreMax > 0 %}
+        <div style="margin-top: 18px;">
+          <div style="height: 10px; background: #eef0f5; border-radius: 999px; overflow: hidden; position: relative;">
+            <div style="height: 100%; background: linear-gradient(90deg, var(--green-light, #52B788), var(--violet, #7B5EA7)); width: {{ ((objectif.scoreMax / 100) * 100)|round }}%; border-radius: 999px;"></div>
+          </div>
+          <div style="font-size: 12.5px; color: #6b7280; margin-top: 8px; font-weight: 500;">
+            Plage : <strong style="color: var(--green, #1B4332);">{{ objectif.scoreMin }} → {{ objectif.scoreMax }}</strong>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Section 3 — Délai #}
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">⏱️ Délai</h3>
+      <div class="ds-detail-grid">
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Durée estimée</div>
+          <div class="ds-detail-value">{{ objectif.dureeEstimee ? objectif.dureeEstimee ~ ' jours' : '—' }}</div>
+        </div>
+        <div class="ds-detail-item">
+          <div class="ds-detail-label">Date d'échéance</div>
+          <div class="ds-detail-value">{{ objectif.dateEcheance ? objectif.dateEcheance|date('d/m/Y') : '—' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('admin_objectif_index') }}" class="ds-btn-cancel" data-spa>← Retour à la liste</a>
+      <a href="{{ path('admin_objectif_edit', {'id': objectif.idObjectif}) }}" class="ds-btn-submit" data-spa>✏️ Modifier</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

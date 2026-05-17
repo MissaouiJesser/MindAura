@@ -1,0 +1,208 @@
+{# templates/admin/produit/index.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Liste des produits{% endblock %}
+{% block page_label %}Produits{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .prod-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .prod-stat {
+    background: #fff;
+    border-radius: 18px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 6px 18px -10px rgba(27,67,50,.18);
+    transition: transform .25s ease, box-shadow .25s ease;
+    animation: fadeUp .55s ease both;
+  }
+  .prod-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px -14px rgba(27,67,50,.28);
+  }
+  .prod-stat-icon { font-size: 22px; margin-bottom: 4px; }
+  .prod-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green, #1B4332);
+    line-height: 1;
+  }
+  .prod-stat-lbl {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  .prod-cell { display: flex; align-items: center; gap: 12px; }
+  .prod-thumb {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--green-pale, #D8F3DC), var(--violet-pale, #EDE9F6));
+    display: grid; place-items: center;
+    overflow: hidden;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 1.5px solid var(--border, #D5DCE6);
+  }
+  .prod-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .prod-name { font-weight: 600; color: var(--green, #1B4332); font-size: 13.5px; }
+  .prod-id { font-size: 11.5px; color: #9ca3af; margin-top: 2px; }
+
+  .prod-price {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--green, #1B4332);
+    font-size: 15px;
+  }
+  .prod-price span {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 600;
+    margin-left: 2px;
+    text-transform: uppercase;
+  }
+
+  .prod-stock-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .prod-stock-inf {
+    font-size: 18px;
+    color: var(--green-light, #52B788);
+    font-weight: 700;
+  }
+</style>
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🛍️</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Produits</h1>
+      <p class="ds-hero-sub">Gestion du catalogue de produits — stock, prix et statut d'activation.</p>
+      <span class="ds-hero-chip">{{ produits|length }} produit{{ produits|length > 1 ? 's' : '' }}</span>
+    </div>
+    <a href="{{ path('admin_produit_new') }}" class="ds-btn-primary">+ Nouveau produit</a>
+  </div>
+</div>
+
+{# Stats #}
+<div class="prod-stats">
+  <div class="prod-stat">
+    <div class="prod-stat-icon">📦</div>
+    <div class="prod-stat-val">{{ produits|length }}</div>
+    <div class="prod-stat-lbl">Total produits</div>
+  </div>
+  <div class="prod-stat">
+    <div class="prod-stat-icon">✅</div>
+    <div class="prod-stat-val">{{ produits|filter(p => p.estActif)|length }}</div>
+    <div class="prod-stat-lbl">Actifs</div>
+  </div>
+  <div class="prod-stat">
+    <div class="prod-stat-icon">❌</div>
+    <div class="prod-stat-val">{{ produits|filter(p => not p.estActif)|length }}</div>
+    <div class="prod-stat-lbl">Inactifs</div>
+  </div>
+  <div class="prod-stat">
+    <div class="prod-stat-icon">🚫</div>
+    <div class="prod-stat-val">{{ produits|filter(p => p.stock is not null and p.stock == 0)|length }}</div>
+    <div class="prod-stat-lbl">Rupture</div>
+  </div>
+</div>
+
+{# Table #}
+<div class="ds-table-card">
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>Produit</th>
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Statut</th>
+        <th style="text-align: right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for produit in produits %}
+      <tr>
+        <td>
+          <div class="prod-cell">
+            <div class="prod-thumb">
+              {% if produit.image %}
+                <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
+              {% else %}
+                🛍️
+              {% endif %}
+            </div>
+            <div>
+              <div class="prod-name">{{ produit.nom }}</div>
+              <div class="prod-id">#{{ produit.id }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="prod-price">{{ produit.prix }} <span>TND</span></div>
+        </td>
+        <td>
+          {% if produit.stock is not null %}
+            <div class="prod-stock-bar">
+              {% if produit.stock == 0 %}
+                <span class="ds-badge ds-badge--red">{{ produit.stock }} — Rupture</span>
+              {% elseif produit.stock <= 5 %}
+                <span class="ds-badge ds-badge--yellow">{{ produit.stock }} ⚠ Faible</span>
+              {% else %}
+                <span class="ds-badge ds-badge--green">{{ produit.stock }} en stock</span>
+              {% endif %}
+            </div>
+          {% else %}
+            <span class="prod-stock-inf" title="Stock illimité">∞</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if produit.estActif %}
+            <span class="ds-badge ds-badge--green">Actif</span>
+          {% else %}
+            <span class="ds-badge ds-badge--gray">Inactif</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="ds-actions">
+            <a href="{{ path('admin_produit_edit', {id: produit.id}) }}" class="ds-action-btn ds-action-btn--edit" title="Modifier">✏️</a>
+            <form method="post" action="{{ path('admin_produit_delete', {id: produit.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer « {{ produit.nom }} » ?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+              <button type="submit" class="ds-action-btn ds-action-btn--del" title="Supprimer">🗑</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="5">
+          <div class="ds-empty">
+            <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+            <p style="font-weight: 600; color: var(--green, #1B4332);">Aucun produit trouvé</p>
+            <a href="{{ path('admin_produit_new') }}" class="ds-btn-primary" style="margin-top: 14px;">+ Créer le premier produit</a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if produits|length > 0 %}
+    <div style="padding: 12px 22px; background: #fafbfc; border-top: 1px solid var(--border, #D5DCE6); font-size: 12.5px; color: #6b7280; font-weight: 500; text-align: right;">
+      {{ produits|length }} produit{{ produits|length > 1 ? 's' : '' }} au total
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

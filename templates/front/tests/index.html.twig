@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tests Disponibles{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Choisissez un test</h1>
+    <div class="row">
+        {% for test in tests %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ test.titreTest }}</h5>
+                    <p class="card-text">{{ test.descriptionTest }}</p>
+                    <p><strong>Type:</strong> {{ test.typeTest }}</p>
+                    <p><strong>Durée estimée:</strong> {{ test.dureeEstimee }} minutes</p>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a href="{{ path('front_tests_take', {'id': test.idTest}) }}"
+                           class="btn btn-primary">
+                            Passer le test
+                        </a>
+                        <a href="{{ path('front_tests_responses', {'id': test.idTest}) }}"
+                           class="btn btn-outline-secondary">
+                            Voir les réponses
+                        </a>
+                        <a href="{{ path('front_objectifs_index') }}"
+                           class="btn btn-outline-success">
+                            Mes objectifs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

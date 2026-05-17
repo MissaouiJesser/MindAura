@@ -1,0 +1,1250 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Modifier mon Profil{% endblock %}
+{% block page_title %}Modifier mon Profil{% endblock %}
+
+{# ─────────────────────────────────────────────────────────────────────────────
+   templates/site/profil/edit.html.twig
+   Formulaire de modification du profil — hérite de base_frontoffice.html.twig
+   Palette : vert forêt / violet / blanc  (identique à home.html.twig)
+   v2 : intègre le widget IA de génération de bio
+───────────────────────────────────────────────────────────────────────────── #}
+
+{% block header_actions %}
+  <a href="{{ path('app_profil') }}" class="profil-back-btn">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px">
+      <path d="M12 4l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Voir mon profil
+  </a>
+{% endblock %}
+
+{% block content %}
+
+<style>
+  /* ── Palette locale ── */
+  :root {
+    --e-g1:      #1B4332;
+    --e-g2:      #2D6A4F;
+    --e-g3:      #52B788;
+    --e-gpale:   #D8F3DC;
+    --e-ghover:  #E8F5EE;
+    --e-vio:     #7B5EA7;
+    --e-viopale: #EDE9F6;
+    --e-bg:      #F0F4F8;
+    --e-white:   #FFFFFF;
+    --e-text:    #1A1A2E;
+    --e-tsec:    #5A6475;
+    --e-border:  #D5DCE6;
+    --e-danger:  #DC2626;
+    --e-ease:    cubic-bezier(.22,1,.36,1);
+  }
+
+  /* ── Bouton back ── */
+  .profil-back-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 18px; border-radius: 99px;
+    background: var(--e-bg); color: var(--e-text);
+    border: 1.5px solid var(--e-border);
+    font-size: .83rem; font-weight: 600; text-decoration: none;
+    transition: all .25s var(--e-ease);
+  }
+  .profil-back-btn:hover { background: var(--e-ghover); border-color: var(--e-g3); color: var(--e-g1); }
+
+  /* ── Page ── */
+  .edit-page {
+    max-width: 860px; margin: 0 auto; padding: 32px 24px 56px;
+    animation: editFadeIn .5s var(--e-ease) both;
+  }
+  @keyframes editFadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+  /* ── Top strip ── */
+  .edit-hero-strip {
+    background: linear-gradient(130deg, var(--e-g1) 0%, var(--e-g2) 60%, #1a5c3a 100%);
+    border-radius: 20px; padding: 28px 36px;
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 28px; position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(27,67,50,.2);
+  }
+  .edit-hero-strip::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 90% 50%, rgba(82,183,136,.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .edit-hero-avatar {
+    width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--e-g3), #95D5B2);
+    border: 3px solid rgba(255,255,255,.3);
+    display: grid; place-items: center;
+    font-family: 'Playfair Display', serif; font-size: 1.6rem;
+    font-weight: 700; color: #fff; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    position: relative; z-index: 1;
+  }
+  .edit-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .edit-hero-text { position: relative; z-index: 1; }
+  .edit-hero-title {
+    font-family: 'Playfair Display', serif; font-size: 1.45rem; color: #fff; font-weight: 700;
+  }
+  .edit-hero-sub { font-size: .82rem; color: rgba(255,255,255,.65); margin-top: 4px; }
+
+  /* ── Form card ── */
+  .edit-card {
+    background: var(--e-white); border-radius: 18px;
+    border: 1.5px solid var(--e-border);
+    box-shadow: 0 2px 12px rgba(27,67,50,.07);
+    overflow: hidden; margin-bottom: 20px;
+    animation: cardSlide .5s var(--e-ease) both;
+  }
+  @keyframes cardSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .edit-card:nth-child(1) { animation-delay:.08s }
+  .edit-card:nth-child(2) { animation-delay:.16s }
+  .edit-card:nth-child(3) { animation-delay:.24s }
+
+  .edit-card-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 24px 14px;
+    background: linear-gradient(to right, var(--e-ghover), transparent);
+    border-bottom: 1.5px solid var(--e-border);
+  }
+  .edit-card-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .edit-card-icon.green { background: var(--e-gpale); }
+  .edit-card-icon.green svg { stroke: var(--e-g1); }
+  .edit-card-icon.violet { background: var(--e-viopale); }
+  .edit-card-icon.violet svg { stroke: var(--e-vio); }
+  .edit-card-icon.ai { background: linear-gradient(135deg,#EDE9F6,#D8F3DC); }
+  .edit-card-icon.ai svg { stroke: url(#aiGrad); }
+  .edit-card-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 1.8; }
+  .edit-card-title    { font-size: .92rem; font-weight: 700; color: var(--e-text); }
+  .edit-card-subtitle { font-size: .72rem; color: var(--e-tsec); margin-top: 1px; }
+
+  .edit-card-body { padding: 22px 24px; }
+
+  /* ── Form grid ── */
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .form-span-2 { grid-column: 1 / -1; }
+
+  /* ── Field ── */
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-label {
+    font-size: .74rem; font-weight: 700; color: var(--e-tsec);
+    letter-spacing: .7px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .form-label .required { color: var(--e-danger); }
+  .form-label .optional  { color: var(--e-tsec); font-weight: 500; font-size: .68rem; text-transform: none; letter-spacing: 0; background: var(--e-bg); padding: 1px 7px; border-radius: 99px; }
+
+  .form-control {
+    width: 100%; padding: 11px 14px; border-radius: 10px;
+    background: var(--e-bg); border: 1.5px solid var(--e-border);
+    font-family: 'Outfit', sans-serif; font-size: .9rem; color: var(--e-text);
+    transition: border-color .22s var(--e-ease), box-shadow .22s var(--e-ease), background .22s;
+    outline: none; box-sizing: border-box;
+  }
+  .form-control:focus {
+    border-color: var(--e-g3); background: #fff;
+    box-shadow: 0 0 0 3px rgba(82,183,136,.14);
+  }
+  .form-control.error {
+    border-color: var(--e-danger);
+    box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+  }
+  textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+  /* ── Photo upload zone ── */
+  .photo-upload-zone {
+    border: 2px dashed var(--e-border); border-radius: 14px;
+    padding: 28px 20px; text-align: center; cursor: pointer;
+    transition: all .25s var(--e-ease); background: var(--e-bg);
+    position: relative;
+  }
+  .photo-upload-zone:hover { border-color: var(--e-g3); background: var(--e-ghover); }
+  .photo-upload-zone.dragging { border-color: var(--e-g3); background: var(--e-ghover); transform: scale(1.01); }
+  .photo-upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .photo-upload-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--e-gpale); display: grid; place-items: center;
+    margin: 0 auto 12px;
+  }
+  .photo-upload-icon svg { width: 24px; height: 24px; stroke: var(--e-g1); fill: none; stroke-width: 1.7; }
+  .photo-upload-title { font-size: .9rem; font-weight: 700; color: var(--e-text); margin-bottom: 4px; }
+  .photo-upload-sub   { font-size: .78rem; color: var(--e-tsec); }
+  .photo-preview-wrap { display: none; flex-direction: column; align-items: center; gap: 10px; }
+  .photo-preview {
+    width: 80px; height: 80px; border-radius: 50%;
+    object-fit: cover; border: 3px solid var(--e-g3);
+    box-shadow: 0 4px 14px rgba(27,67,50,.16);
+  }
+  .photo-preview-name { font-size: .82rem; color: var(--e-tsec); }
+
+  /* current avatar preview */
+  .current-avatar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border-radius: 12px;
+    background: var(--e-ghover); border: 1.5px solid var(--e-gpale);
+    margin-bottom: 14px;
+  }
+  .current-avatar-img {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--e-g2), var(--e-g3));
+    border: 2px solid var(--e-g3); display: grid; place-items: center;
+    font-size: 1.1rem; font-weight: 700; color: #fff;
+    overflow: hidden; flex-shrink: 0;
+  }
+  .current-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+  .current-avatar-info { font-size: .83rem; color: var(--e-tsec); }
+  .current-avatar-info strong { color: var(--e-text); font-size: .9rem; display: block; margin-bottom: 2px; }
+
+  /* ── Field error ── */
+  .field-error {
+    font-size: .77rem; color: var(--e-danger);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .field-error svg { width: 13px; height: 13px; stroke: var(--e-danger); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+  /* ── Strength bar ── */
+  .pwd-strength { margin-top: 6px; }
+  .strength-bar { height: 4px; border-radius: 99px; background: var(--e-border); overflow: hidden; margin-bottom: 4px; }
+  .strength-fill { height: 100%; border-radius: 99px; width: 0; transition: width .4s var(--e-ease), background .4s; }
+  .strength-label { font-size: .72rem; color: var(--e-tsec); }
+
+  /* ── Actions ── */
+  .edit-actions {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding-top: 8px; animation: cardSlide .5s var(--e-ease) .32s both;
+  }
+  .btn-save {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; border-radius: 99px;
+    background: var(--e-g1); color: #fff; border: none;
+    font-family: 'Outfit', sans-serif; font-size: .9rem; font-weight: 700;
+    cursor: pointer; transition: all .25s var(--e-ease);
+    box-shadow: 0 4px 16px rgba(27,67,50,.24);
+  }
+  .btn-save:hover { background: var(--e-g2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,67,50,.3); }
+  .btn-save:active { transform: translateY(0); }
+  .btn-save svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; }
+
+  .btn-cancel {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: 99px;
+    background: transparent; color: var(--e-text);
+    border: 1.5px solid var(--e-border);
+    font-family: 'Outfit', sans-serif; font-size: .88rem; font-weight: 600;
+    text-decoration: none; transition: all .25s var(--e-ease);
+  }
+  .btn-cancel:hover { background: var(--e-bg); border-color: var(--e-g3); }
+
+  /* ── Flash ── */
+  .edit-flash {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px; border-radius: 12px; margin-bottom: 20px;
+    font-size: .88rem; font-weight: 500;
+    animation: cardSlide .4s var(--e-ease) both;
+  }
+  .edit-flash.success { background: var(--e-gpale); color: var(--e-g1); border: 1.5px solid #95D5B2; }
+  .edit-flash.error   { background: #FEF2F2; color: var(--e-danger); border: 1.5px solid #FECACA; }
+  .edit-flash svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; flex-shrink: 0; }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     WIDGET IA — GÉNÉRATION DE BIO
+  ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Keyframes ─────────────────────────────────────────────────────── */
+  @keyframes aiFadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+  @keyframes aiPulse    { 0%,100%{opacity:.5;transform:scale(.94)} 50%{opacity:1;transform:scale(1)} }
+  @keyframes aiSpin     { to{transform:rotate(360deg)} }
+  @keyframes aiGlow     { 0%,100%{box-shadow:0 0 0 0 rgba(82,183,136,.3)} 50%{box-shadow:0 0 0 8px rgba(82,183,136,0)} }
+  @keyframes aiTyping   { from{opacity:0;transform:translateX(-4px)} to{opacity:1;transform:none} }
+  @keyframes aiShimmer  {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  @keyframes aiSlideIn  {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes aiCheckPop {
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60%  { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes aiStarSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes aiWave {
+    0%,100% { transform: scaleY(.5); }
+    50%     { transform: scaleY(1); }
+  }
+
+  /* ── Bouton déclencheur ─────────────────────────────────────────────── */
+  .ai-trigger-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 10px;
+  }
+  .btn-ai-trigger {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 10px 20px; border-radius: 99px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--e-g1) 0%, var(--e-g2) 50%, var(--e-vio) 100%);
+    color: #fff; font-family: 'Outfit', sans-serif; font-size: .84rem; font-weight: 700;
+    box-shadow: 0 4px 18px rgba(27,67,50,.28);
+    transition: transform .25s var(--e-ease), box-shadow .25s var(--e-ease), opacity .2s;
+    position: relative; overflow: hidden;
+    animation: aiGlow 2.5s ease-in-out infinite;
+  }
+  .btn-ai-trigger::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: 99px;
+    background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .btn-ai-trigger:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(27,67,50,.36); }
+  .btn-ai-trigger:active { transform: translateY(0); }
+  .btn-ai-trigger .ai-icon-wrap {
+    width: 24px; height: 24px; border-radius: 8px;
+    background: rgba(255,255,255,.18); display: grid; place-items: center; flex-shrink: 0;
+  }
+  .btn-ai-trigger .ai-icon-wrap svg { width: 13px; height: 13px; }
+  .ai-trigger-hint {
+    font-size: .75rem; color: var(--e-tsec);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .ai-trigger-hint::before {
+    content: '✨'; font-size: .8rem;
+  }
+
+  /* ── Panel principal ─────────────────────────────────────────────────── */
+  .ai-bio-panel {
+    display: none; margin-top: 14px;
+    border-radius: 16px; overflow: hidden;
+    border: 1.5px solid transparent;
+    background: linear-gradient(#fff, #fff) padding-box,
+                linear-gradient(135deg, #52B788, #7B5EA7) border-box;
+    box-shadow: 0 8px 32px rgba(27,67,50,.12);
+    animation: aiSlideIn .35s var(--e-ease) both;
+  }
+  .ai-bio-panel.open { display: block; }
+
+  /* En-tête du panel */
+  .ai-panel-header {
+    background: linear-gradient(130deg, var(--e-g1) 0%, var(--e-g2) 55%, #4A3F7A 100%);
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .ai-panel-header::after {
+    content: '';
+    position: absolute; width: 180px; height: 180px; border-radius: 50%;
+    background: rgba(255,255,255,.04); right: -40px; top: -60px; pointer-events: none;
+  }
+  .ai-panel-header-left { display: flex; align-items: center; gap: 12px; z-index: 1; }
+  .ai-panel-header-icon {
+    width: 38px; height: 38px; border-radius: 11px;
+    background: rgba(255,255,255,.15); display: grid; place-items: center;
+    border: 1px solid rgba(255,255,255,.2);
+  }
+  .ai-panel-header-icon svg { width: 18px; height: 18px; }
+
+  /* Étoiles animées dans l'icône */
+  .ai-stars { display: flex; gap: 3px; align-items: center; }
+  .ai-star {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #fff; animation: aiPulse 1.4s ease-in-out infinite;
+  }
+  .ai-star:nth-child(2) { animation-delay: .2s; }
+  .ai-star:nth-child(3) { animation-delay: .4s; }
+
+  .ai-panel-title { font-family: 'Outfit', sans-serif; font-size: .92rem; font-weight: 700; color: #fff; }
+  .ai-panel-sub   { font-size: .71rem; color: rgba(255,255,255,.6); margin-top: 1px; }
+  .ai-panel-close {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.8); display: grid; place-items: center;
+    cursor: pointer; transition: background .18s; z-index: 1; flex-shrink: 0;
+  }
+  .ai-panel-close:hover { background: rgba(255,255,255,.22); }
+  .ai-panel-close svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+  /* Corps du panel */
+  .ai-panel-body { padding: 20px; }
+
+  /* ── Sélecteur de style ─────────────────────────────────────────────── */
+  .ai-style-label {
+    font-size: .71rem; font-weight: 700; color: var(--e-tsec);
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ai-style-label::before { content: ''; width: 14px; height: 2px; background: var(--e-g3); border-radius: 99px; }
+
+  .ai-style-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px;
+  }
+  .ai-style-card {
+    position: relative; cursor: pointer;
+  }
+  .ai-style-card input[type="radio"] {
+    position: absolute; opacity: 0; pointer-events: none;
+  }
+  .ai-style-card-inner {
+    border: 2px solid var(--e-border); border-radius: 12px; padding: 13px 10px;
+    text-align: center; transition: all .22s var(--e-ease);
+    background: var(--e-bg);
+  }
+  .ai-style-card:hover .ai-style-card-inner {
+    border-color: var(--e-g3); background: var(--e-ghover);
+  }
+  .ai-style-card input:checked + .ai-style-card-inner {
+    border-color: var(--e-g2); background: var(--e-gpale);
+    box-shadow: 0 0 0 3px rgba(82,183,136,.15);
+  }
+  .ai-style-emoji { font-size: 1.4rem; margin-bottom: 5px; display: block; }
+  .ai-style-name  {
+    font-size: .78rem; font-weight: 700; color: var(--e-text); display: block; margin-bottom: 2px;
+  }
+  .ai-style-desc  { font-size: .67rem; color: var(--e-tsec); display: block; line-height: 1.4; }
+  .ai-style-card input:checked + .ai-style-card-inner .ai-style-name { color: var(--e-g1); }
+  .ai-style-card input:checked + .ai-style-card-inner .ai-style-desc { color: var(--e-g2); }
+
+  /* Checkmark sur la carte sélectionnée */
+  .ai-style-card input:checked + .ai-style-card-inner::after {
+    content: '✓';
+    position: absolute; top: -8px; right: -8px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--e-g2); color: #fff;
+    font-size: .65rem; font-weight: 900; display: grid; place-items: center;
+    animation: aiCheckPop .3s var(--e-ease) both;
+  }
+  .ai-style-card-inner { position: relative; }
+
+  /* ── Bouton générer ─────────────────────────────────────────────────── */
+  .ai-generate-btn {
+    width: 100%; padding: 12px; border-radius: 12px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--e-g1) 0%, var(--e-g2) 60%, var(--e-vio) 100%);
+    color: #fff; font-family: 'Outfit', sans-serif; font-size: .88rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: opacity .2s, transform .2s var(--e-ease), box-shadow .2s;
+    box-shadow: 0 4px 16px rgba(27,67,50,.24); position: relative; overflow: hidden;
+  }
+  .ai-generate-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+    transform: translateX(-100%);
+    transition: transform .5s;
+  }
+  .ai-generate-btn:hover::before { transform: translateX(100%); }
+  .ai-generate-btn:hover { opacity: .93; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(27,67,50,.32); }
+  .ai-generate-btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+  .ai-generate-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+  /* ── Loader (ondes sonores style AI) ────────────────────────────────── */
+  .ai-loader {
+    display: none; flex-direction: column; align-items: center; padding: 28px 20px; gap: 14px;
+  }
+  .ai-loader.active { display: flex; animation: aiFadeUp .3s var(--e-ease) both; }
+  .ai-loader-waves {
+    display: flex; align-items: center; gap: 5px; height: 32px;
+  }
+  .ai-wave-bar {
+    width: 5px; border-radius: 99px;
+    background: linear-gradient(to top, var(--e-g3), var(--e-vio));
+    animation: aiWave .9s ease-in-out infinite;
+  }
+  .ai-wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+  .ai-wave-bar:nth-child(2) { height: 22px; animation-delay: .1s; }
+  .ai-wave-bar:nth-child(3) { height: 28px; animation-delay: .2s; }
+  .ai-wave-bar:nth-child(4) { height: 22px; animation-delay: .3s; }
+  .ai-wave-bar:nth-child(5) { height: 14px; animation-delay: .4s; }
+  .ai-wave-bar:nth-child(6) { height: 22px; animation-delay: .5s; }
+  .ai-wave-bar:nth-child(7) { height: 28px; animation-delay: .3s; }
+  .ai-wave-bar:nth-child(8) { height: 16px; animation-delay: .15s; }
+  .ai-loader-text {
+    font-size: .83rem; color: var(--e-tsec); font-family: 'Outfit', sans-serif;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ai-loader-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--e-g3); animation: aiPulse .9s ease-in-out infinite;
+  }
+  .ai-loader-dot:nth-child(2) { animation-delay: .2s; background: #74A7D0; }
+  .ai-loader-dot:nth-child(3) { animation-delay: .4s; background: var(--e-vio); }
+
+  /* ── Zone résultat ──────────────────────────────────────────────────── */
+  .ai-result-zone {
+    display: none; margin-top: 16px;
+    animation: aiFadeUp .35s var(--e-ease) both;
+  }
+  .ai-result-zone.visible { display: block; }
+
+  .ai-result-label {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--e-tsec); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .ai-result-label .ai-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: linear-gradient(135deg, var(--e-gpale), var(--e-viopale));
+    border: 1px solid var(--e-gpale); border-radius: 99px;
+    padding: 2px 8px; font-size: .65rem; color: var(--e-g1); font-weight: 700; text-transform: none;
+    letter-spacing: 0;
+  }
+  .ai-result-label .ai-badge svg { width: 10px; height: 10px; stroke: var(--e-g2); fill: none; stroke-width: 2; }
+
+  .ai-result-preview {
+    background: linear-gradient(135deg, var(--e-ghover), #F3EFF9);
+    border: 1.5px solid var(--e-gpale); border-radius: 14px;
+    padding: 18px 20px; position: relative; overflow: hidden;
+  }
+  .ai-result-preview::before {
+    content: '✦';
+    position: absolute; top: 10px; right: 14px;
+    font-size: 1rem; color: var(--e-g3); opacity: .4;
+    animation: aiStarSpin 6s linear infinite;
+  }
+  .ai-result-text {
+    font-family: 'Outfit', sans-serif; font-size: .92rem; color: var(--e-text);
+    line-height: 1.7; font-style: italic;
+    animation: aiTyping .4s var(--e-ease) both;
+  }
+
+  /* Shimmer en cours de chargement */
+  .ai-result-shimmer {
+    height: 16px; border-radius: 8px; margin-bottom: 10px;
+    background: linear-gradient(90deg, var(--e-border) 25%, #e8ecf0 50%, var(--e-border) 75%);
+    background-size: 400px 100%;
+    animation: aiShimmer 1.2s ease-in-out infinite;
+  }
+  .ai-result-shimmer:last-child { width: 60%; margin-bottom: 0; }
+
+  /* ── Barre d'actions résultat ────────────────────────────────────────── */
+  .ai-result-actions {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .btn-ai-apply {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 20px; border-radius: 99px; border: none; cursor: pointer;
+    background: var(--e-g1); color: #fff;
+    font-family: 'Outfit', sans-serif; font-size: .82rem; font-weight: 700;
+    transition: all .22s var(--e-ease);
+    box-shadow: 0 3px 12px rgba(27,67,50,.22);
+  }
+  .btn-ai-apply:hover { background: var(--e-g2); transform: translateY(-1px); box-shadow: 0 5px 18px rgba(27,67,50,.3); }
+  .btn-ai-apply svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.2; }
+
+  .btn-ai-regen {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 99px; cursor: pointer;
+    background: transparent; color: var(--e-g2);
+    border: 1.5px solid var(--e-g3);
+    font-family: 'Outfit', sans-serif; font-size: .82rem; font-weight: 700;
+    transition: all .22s var(--e-ease);
+  }
+  .btn-ai-regen:hover { background: var(--e-gpale); }
+  .btn-ai-regen svg { width: 14px; height: 14px; stroke: var(--e-g2); fill: none; stroke-width: 2; transition: transform .4s; }
+  .btn-ai-regen:hover svg { transform: rotate(180deg); }
+
+  .btn-ai-discard {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 14px; border-radius: 99px; cursor: pointer;
+    background: transparent; color: var(--e-tsec);
+    border: 1.5px solid var(--e-border);
+    font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 600;
+    transition: all .22s var(--e-ease); margin-left: auto;
+  }
+  .btn-ai-discard:hover { background: #FEF2F2; border-color: #FECACA; color: var(--e-danger); }
+  .btn-ai-discard svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  /* ── Toast de confirmation sauvegarde ────────────────────────────────── */
+  .ai-save-toast {
+    display: none; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: 10px; margin-top: 10px;
+    background: var(--e-gpale); border: 1.5px solid #95D5B2;
+    font-size: .82rem; font-weight: 600; color: var(--e-g1);
+    animation: aiFadeUp .3s var(--e-ease) both;
+  }
+  .ai-save-toast.visible { display: flex; }
+  .ai-save-toast svg { width: 15px; height: 15px; stroke: var(--e-g1); fill: none; stroke-width: 2.2; flex-shrink: 0; }
+
+  /* ── Message d'erreur ────────────────────────────────────────────────── */
+  .ai-error-msg {
+    display: none; align-items: center; gap: 8px;
+    padding: 11px 15px; border-radius: 10px; margin-top: 10px;
+    background: #FEF2F2; border: 1.5px solid #FECACA;
+    font-size: .82rem; color: var(--e-danger); font-weight: 500;
+  }
+  .ai-error-msg.visible { display: flex; }
+  .ai-error-msg svg { width: 15px; height: 15px; stroke: var(--e-danger); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+  @media (max-width: 620px) {
+    .form-grid-2 { grid-template-columns: 1fr; }
+    .form-span-2 { grid-column: 1; }
+    .edit-hero-strip { flex-direction: column; text-align: center; padding: 24px 20px; }
+    .ai-style-grid { grid-template-columns: 1fr; }
+    .ai-result-actions { flex-direction: column; }
+    .btn-ai-discard { margin-left: 0; }
+  }
+</style>
+
+{# Gradient SVG pour l'icône AI #}
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#52B788"/>
+      <stop offset="100%" stop-color="#7B5EA7"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="edit-page">
+
+  {# ── Flash messages ── #}
+  {% for type, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="edit-flash {{ type }}">
+        <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 4v4m0 3v1" stroke-linecap="round"/></svg>
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  {# ── Strip haut ── #}
+  <div class="edit-hero-strip">
+    <div class="edit-hero-avatar">
+      {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+        <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="Photo de profil"/>
+      {% else %}
+        {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+      {% endif %}
+    </div>
+    <div class="edit-hero-text">
+      <div class="edit-hero-title">Modifier mon profil</div>
+      <div class="edit-hero-sub">{{ roleEmoji }} {{ roleLabel }} &mdash; {{ user.emailUtilisateur }}</div>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" novalidate>
+
+    {# ════════════════════════════════════════
+       CARD 1 — Informations personnelles
+    ════════════════════════════════════════ #}
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <div class="edit-card-icon green">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="10" cy="7" r="3.5"/>
+            <path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="edit-card-title">Informations personnelles</div>
+          <div class="edit-card-subtitle">Modifiez vos données d'identité</div>
+        </div>
+      </div>
+      <div class="edit-card-body">
+        <div class="form-grid-2">
+
+          {# Prénom #}
+          <div class="form-field">
+            <label class="form-label" for="prenom_utilisateur">Prénom <span class="required">*</span></label>
+            <input type="text" id="prenom_utilisateur" name="prenom_utilisateur"
+                   class="form-control {{ fieldErrors.prenom_utilisateur is defined ? 'error' : '' }}"
+                   value="{{ user.prenomUtilisateur }}" required autocomplete="given-name"/>
+            {% if fieldErrors.prenom_utilisateur is defined %}
+              <span class="field-error"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>{{ fieldErrors.prenom_utilisateur }}</span>
+            {% endif %}
+          </div>
+
+          {# Nom #}
+          <div class="form-field">
+            <label class="form-label" for="nom_utilisateur">Nom <span class="required">*</span></label>
+            <input type="text" id="nom_utilisateur" name="nom_utilisateur"
+                   class="form-control {{ fieldErrors.nom_utilisateur is defined ? 'error' : '' }}"
+                   value="{{ user.nomUtilisateur }}" required autocomplete="family-name"/>
+            {% if fieldErrors.nom_utilisateur is defined %}
+              <span class="field-error"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>{{ fieldErrors.nom_utilisateur }}</span>
+            {% endif %}
+          </div>
+
+          {# Date de naissance #}
+          <div class="form-field">
+            <label class="form-label" for="date_naissance_utilisateur">Date de naissance <span class="required">*</span></label>
+            <input type="date" id="date_naissance_utilisateur" name="date_naissance_utilisateur"
+                   class="form-control {{ fieldErrors.date_naissance_utilisateur is defined ? 'error' : '' }}"
+                   value="{{ user.dateNaissanceUtilisateur ? user.dateNaissanceUtilisateur|date('Y-m-d') : '' }}"
+                   max="{{ 'now'|date('Y-m-d') }}"/>
+            {% if fieldErrors.date_naissance_utilisateur is defined %}
+              <span class="field-error"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>{{ fieldErrors.date_naissance_utilisateur }}</span>
+            {% endif %}
+          </div>
+
+          {# Téléphone #}
+          <div class="form-field">
+            <label class="form-label" for="telephone_utilisateur">Téléphone <span class="required">*</span></label>
+            <input type="tel" id="telephone_utilisateur" name="telephone_utilisateur"
+                   class="form-control {{ fieldErrors.telephone_utilisateur is defined ? 'error' : '' }}"
+                   value="{{ user.telephoneUtilisateur }}" placeholder="+216 XX XXX XXX"/>
+            {% if fieldErrors.telephone_utilisateur is defined %}
+              <span class="field-error"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>{{ fieldErrors.telephone_utilisateur }}</span>
+            {% endif %}
+          </div>
+
+          {# ══════════════════════════════════════════════════════════════
+             Bio pleine largeur + bouton IA
+          ══════════════════════════════════════════════════════════════ #}
+          <div class="form-field form-span-2">
+            <label class="form-label" for="bio_utilisateur">
+              Biographie
+              <span class="optional">optionnel</span>
+            </label>
+            <textarea id="bio_utilisateur" name="bio_utilisateur"
+                      class="form-control" placeholder="Quelques mots sur vous, votre parcours, vos centres d'intérêt…"
+                      rows="4">{{ user.bioUtilisateur }}</textarea>
+
+            {# ── Bouton déclencheur IA ── #}
+            <div class="ai-trigger-row">
+              <button type="button" class="btn-ai-trigger" id="btnAiTrigger">
+                <div class="ai-icon-wrap">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9.5 2L12 8l6 .5-4.5 3.9 1.5 6L9.5 15l-5.5 3.4 1.5-6L1 8.5 7 8z"/>
+                  </svg>
+                </div>
+                Générer ma bio avec l'IA
+              </button>
+              <span class="ai-trigger-hint">Basé sur votre profil MindAura</span>
+            </div>
+
+            {# ══════════════════════════════════════════════════════════════
+               PANEL IA
+            ══════════════════════════════════════════════════════════════ #}
+            <div class="ai-bio-panel" id="aiPanel">
+
+              {# En-tête #}
+              <div class="ai-panel-header">
+                <div class="ai-panel-header-left">
+                  <div class="ai-panel-header-icon">
+                    <div class="ai-stars">
+                      <div class="ai-star"></div>
+                      <div class="ai-star"></div>
+                      <div class="ai-star"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="ai-panel-title">Générateur de Bio IA</div>
+                    <div class="ai-panel-sub">Propulsé par GPT-4o-mini · MindAura</div>
+                  </div>
+                </div>
+                <button type="button" class="ai-panel-close" id="btnAiClose" title="Fermer">
+                  <svg viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                </button>
+              </div>
+
+              {# Corps #}
+              <div class="ai-panel-body">
+
+                {# Sélecteur de style #}
+                <div class="ai-style-label">Choisissez un style</div>
+                <div class="ai-style-grid">
+
+                  <label class="ai-style-card">
+                    <input type="radio" name="ai_style" value="professionnel" checked/>
+                    <div class="ai-style-card-inner">
+                      <span class="ai-style-emoji">💼</span>
+                      <span class="ai-style-name">Professionnel</span>
+                      <span class="ai-style-desc">Formel, axé résultats</span>
+                    </div>
+                  </label>
+
+                  <label class="ai-style-card">
+                    <input type="radio" name="ai_style" value="inspirant"/>
+                    <div class="ai-style-card-inner">
+                      <span class="ai-style-emoji">🌟</span>
+                      <span class="ai-style-name">Inspirant</span>
+                      <span class="ai-style-desc">Humain, émotionnel</span>
+                    </div>
+                  </label>
+
+                  <label class="ai-style-card">
+                    <input type="radio" name="ai_style" value="minimaliste"/>
+                    <div class="ai-style-card-inner">
+                      <span class="ai-style-emoji">🎯</span>
+                      <span class="ai-style-name">Minimaliste</span>
+                      <span class="ai-style-desc">Court, percutant</span>
+                    </div>
+                  </label>
+
+                </div>{# /ai-style-grid #}
+
+                {# Bouton générer #}
+                <button type="button" class="ai-generate-btn" id="btnAiGenerate">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 10a4 4 0 00-4-4M9 6V4M3 10H1m4.2-4.8L3.8 3.8M14.8 5.2l1.4-1.4M17 10h2" stroke-linecap="round"/>
+                    <path d="M9 14a4 4 0 004-4" stroke-linecap="round"/>
+                    <path d="M9 14v2m-4.8-1.2l-1.4 1.4" stroke-linecap="round"/>
+                  </svg>
+                  Générer ma bio
+                </button>
+
+                {# Loader IA #}
+                <div class="ai-loader" id="aiLoader">
+                  <div class="ai-loader-waves">
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                    <div class="ai-wave-bar"></div>
+                  </div>
+                  <div class="ai-loader-text">
+                    <span id="aiLoaderText">L'IA analyse votre profil</span>
+                    <div class="ai-loader-dot"></div>
+                    <div class="ai-loader-dot"></div>
+                    <div class="ai-loader-dot"></div>
+                  </div>
+                </div>
+
+                {# Zone résultat #}
+                <div class="ai-result-zone" id="aiResultZone">
+                  <div class="ai-result-label">
+                    Bio générée
+                    <span class="ai-badge">
+                      <svg viewBox="0 0 12 12"><path d="M5 2L6.5 5l3 .3-2.2 1.9.7 3L5 8.7 2.5 10.2l.7-3L1 5.3 4 5z"/></svg>
+                      IA
+                    </span>
+                  </div>
+                  <div class="ai-result-preview" id="aiResultPreview">
+                    <div class="ai-result-text" id="aiResultText"></div>
+                  </div>
+                  <div class="ai-result-actions">
+                    <button type="button" class="btn-ai-apply" id="btnAiApply">
+                      <svg viewBox="0 0 20 20"><path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Appliquer
+                    </button>
+                    <button type="button" class="btn-ai-regen" id="btnAiRegen">
+                      <svg viewBox="0 0 20 20"><path d="M4 12a6 6 0 1011.3-2.7" stroke-linecap="round"/><path d="M15 6l.3 3.3-3.3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Régénérer
+                    </button>
+                    <button type="button" class="btn-ai-discard" id="btnAiDiscard">
+                      <svg viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                      Ignorer
+                    </button>
+                  </div>
+                </div>
+
+                {# Toast succès sauvegarde #}
+                <div class="ai-save-toast" id="aiSaveToast">
+                  <svg viewBox="0 0 20 20"><path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="8"/></svg>
+                  Bio sauvegardée avec succès ! Elle est visible sur votre profil.
+                </div>
+
+                {# Message d'erreur #}
+                <div class="ai-error-msg" id="aiErrorMsg">
+                  <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>
+                  <span id="aiErrorText">Une erreur est survenue.</span>
+                </div>
+
+              </div>{# /ai-panel-body #}
+            </div>{# /ai-bio-panel #}
+
+          </div>{# /form-field bio #}
+
+        </div>
+      </div>
+    </div>
+
+    {# ════════════════════════════════════════
+       CARD 2 — Photo de profil
+    ════════════════════════════════════════ #}
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <div class="edit-card-icon violet">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="2" y="4" width="16" height="13" rx="2"/>
+            <circle cx="10" cy="10" r="3"/>
+            <path d="M16 4l-3-2H7L4 4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="edit-card-title">Photo de profil</div>
+          <div class="edit-card-subtitle">JPG, PNG, WEBP — max 2 Mo</div>
+        </div>
+      </div>
+      <div class="edit-card-body">
+        <div class="current-avatar">
+          <div class="current-avatar-img">
+            {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+              <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="Photo actuelle"/>
+            {% else %}
+              {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+            {% endif %}
+          </div>
+          <div class="current-avatar-info">
+            <strong>Photo actuelle</strong>
+            {{ user.photoProfilUtilisateur == 'default.png' ? 'Avatar par défaut' : user.photoProfilUtilisateur }}
+          </div>
+        </div>
+
+        <div class="photo-upload-zone" id="uploadZone">
+          <input type="file" name="photo_profil" id="photoInput" accept="image/jpeg,image/png,image/webp,image/gif"/>
+          <div id="uploadPlaceholder">
+            <div class="photo-upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="photo-upload-title">Cliquer ou glisser-déposer une image</div>
+            <div class="photo-upload-sub">JPG, PNG, WEBP, GIF — max 2 Mo</div>
+          </div>
+          <div class="photo-preview-wrap" id="photoPreviewWrap">
+            <img src="" alt="Aperçu" class="photo-preview" id="photoPreview"/>
+            <div class="photo-preview-name" id="photoPreviewName"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ════════════════════════════════════════
+       CARD 3 — Mot de passe
+    ════════════════════════════════════════ #}
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <div class="edit-card-icon green">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="5" y="9" width="10" height="8" rx="2"/>
+            <path d="M8 9V6a4 4 0 018 0v3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="edit-card-title">Mot de passe</div>
+          <div class="edit-card-subtitle">Laisser vide pour ne pas modifier</div>
+        </div>
+      </div>
+      <div class="edit-card-body">
+        <div class="form-grid-2">
+
+          <div class="form-field">
+            <label class="form-label" for="mdp_utilisateur">
+              Nouveau mot de passe <span class="optional">optionnel</span>
+            </label>
+            <input type="password" id="mdp_utilisateur" name="mdp_utilisateur"
+                   class="form-control {{ fieldErrors.mdp_utilisateur is defined ? 'error' : '' }}"
+                   placeholder="Min. 8 car., 1 majuscule, 1 chiffre"
+                   autocomplete="new-password"/>
+            {% if fieldErrors.mdp_utilisateur is defined %}
+              <span class="field-error"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>{{ fieldErrors.mdp_utilisateur }}</span>
+            {% endif %}
+            <div class="pwd-strength">
+              <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+              <div class="strength-label" id="strengthLabel"></div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="mdp_confirm">
+              Confirmer le mot de passe <span class="optional">optionnel</span>
+            </label>
+            <input type="password" id="mdp_confirm" name="mdp_confirm"
+                   class="form-control {{ fieldErrors.mdp_confirm is defined ? 'error' : '' }}"
+                   placeholder="Répéter le mot de passe"
+                   autocomplete="new-password"/>
+            {% if fieldErrors.mdp_confirm is defined %}
+              <span class="field-error"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10 6v4m0 3v1" stroke-linecap="round"/></svg>{{ fieldErrors.mdp_confirm }}</span>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    {# ── Boutons ── #}
+    <div class="edit-actions">
+      <button type="submit" class="btn-save">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 3H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7l-4-4z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 3v4h6V3M7 13l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sauvegarder les modifications
+      </button>
+      <a href="{{ path('app_profil') }}" class="btn-cancel">Annuler</a>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   PHOTO UPLOAD PREVIEW
+═══════════════════════════════════════════════════════════════════════ */
+const photoInput  = document.getElementById('photoInput');
+const uploadZone  = document.getElementById('uploadZone');
+const placeholder = document.getElementById('uploadPlaceholder');
+const previewWrap = document.getElementById('photoPreviewWrap');
+const previewImg  = document.getElementById('photoPreview');
+const previewName = document.getElementById('photoPreviewName');
+
+function showPreview(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewImg.src             = e.target.result;
+    previewName.textContent    = file.name + ' (' + (file.size / 1024).toFixed(0) + ' Ko)';
+    placeholder.style.display  = 'none';
+    previewWrap.style.display  = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+photoInput.addEventListener('change', function() { if (this.files[0]) showPreview(this.files[0]); });
+uploadZone.addEventListener('dragover',  function(e){ e.preventDefault(); this.classList.add('dragging'); });
+uploadZone.addEventListener('dragleave', function()  { this.classList.remove('dragging'); });
+uploadZone.addEventListener('drop', function(e) {
+  e.preventDefault(); this.classList.remove('dragging');
+  const file = e.dataTransfer.files[0];
+  if (file) { photoInput.files = e.dataTransfer.files; showPreview(file); }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PASSWORD STRENGTH
+═══════════════════════════════════════════════════════════════════════ */
+const pwdInput      = document.getElementById('mdp_utilisateur');
+const strengthFill  = document.getElementById('strengthFill');
+const strengthLabel = document.getElementById('strengthLabel');
+
+pwdInput.addEventListener('input', function() {
+  const val = this.value;
+  if (!val) { strengthFill.style.width = '0'; strengthLabel.textContent = ''; return; }
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const configs = [
+    { w:'15%',  bg:'#EF4444', lbl:'Très faible' },
+    { w:'35%',  bg:'#F97316', lbl:'Faible'      },
+    { w:'60%',  bg:'#EAB308', lbl:'Moyen'       },
+    { w:'80%',  bg:'#84CC16', lbl:'Fort'        },
+    { w:'100%', bg:'#22C55E', lbl:'Très fort'   },
+  ];
+  const c = configs[score] || configs[0];
+  strengthFill.style.width      = c.w;
+  strengthFill.style.background = c.bg;
+  strengthLabel.textContent     = c.lbl;
+  strengthLabel.style.color     = c.bg;
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   WIDGET IA — GÉNÉRATEUR DE BIO
+═══════════════════════════════════════════════════════════════════════ */
+
+// Sélecteurs DOM
+const bioTextarea    = document.getElementById('bio_utilisateur');
+const btnTrigger     = document.getElementById('btnAiTrigger');
+const aiPanel        = document.getElementById('aiPanel');
+const btnClose       = document.getElementById('btnAiClose');
+const btnGenerate    = document.getElementById('btnAiGenerate');
+const aiLoader       = document.getElementById('aiLoader');
+const aiLoaderText   = document.getElementById('aiLoaderText');
+const aiResultZone   = document.getElementById('aiResultZone');
+const aiResultText   = document.getElementById('aiResultText');
+const btnApply       = document.getElementById('btnAiApply');
+const btnRegen       = document.getElementById('btnAiRegen');
+const btnDiscard     = document.getElementById('btnAiDiscard');
+const aiSaveToast    = document.getElementById('aiSaveToast');
+const aiErrorMsg     = document.getElementById('aiErrorMsg');
+const aiErrorText    = document.getElementById('aiErrorText');
+
+// URL des endpoints Symfony (injectées depuis Twig)
+const URL_GENERATE = '{{ path("app_profil_bio_generate") }}';
+const URL_SAVE     = '{{ path("app_profil_bio_save") }}';
+
+// État interne
+let generatedBio = '';
+let isGenerating = false;
+
+// ── Messages de loader rotatifs ─────────────────────────────────────
+const LOADER_MSGS = [
+  'L\'IA analyse votre profil…',
+  'Rédaction en cours…',
+  'Optimisation du style…',
+  'Finalisation de la bio…',
+];
+let loaderMsgIdx = 0;
+let loaderInterval;
+
+function startLoaderAnimation() {
+  loaderMsgIdx = 0;
+  aiLoaderText.textContent = LOADER_MSGS[0];
+  loaderInterval = setInterval(() => {
+    loaderMsgIdx = (loaderMsgIdx + 1) % LOADER_MSGS.length;
+    aiLoaderText.style.opacity = '0';
+    setTimeout(() => {
+      aiLoaderText.textContent = LOADER_MSGS[loaderMsgIdx];
+      aiLoaderText.style.transition = 'opacity .3s';
+      aiLoaderText.style.opacity = '1';
+    }, 200);
+  }, 2000);
+}
+function stopLoaderAnimation() { clearInterval(loaderInterval); }
+
+// ── Afficher / masquer le panel ─────────────────────────────────────
+function openPanel() {
+  aiPanel.classList.add('open');
+  aiPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  resetResult();
+}
+function closePanel() {
+  aiPanel.classList.remove('open');
+  resetResult();
+}
+function resetResult() {
+  aiLoader.classList.remove('active');
+  aiResultZone.classList.remove('visible');
+  aiSaveToast.classList.remove('visible');
+  aiErrorMsg.classList.remove('visible');
+  btnGenerate.disabled = false;
+  generatedBio = '';
+}
+
+// ── Masquer messages erreur/succès ───────────────────────────────────
+function clearMessages() {
+  aiSaveToast.classList.remove('visible');
+  aiErrorMsg.classList.remove('visible');
+}
+
+// ── Afficher erreur ─────────────────────────────────────────────────
+function showError(msg) {
+  aiErrorText.textContent = msg;
+  aiErrorMsg.classList.add('visible');
+  aiLoader.classList.remove('active');
+  btnGenerate.disabled = false;
+  stopLoaderAnimation();
+}
+
+// ── Obtenir le style sélectionné ─────────────────────────────────────
+function getSelectedStyle() {
+  return document.querySelector('input[name="ai_style"]:checked')?.value ?? 'professionnel';
+}
+
+// ── GÉNÉRER ─────────────────────────────────────────────────────────
+async function generateBio() {
+  if (isGenerating) return;
+  isGenerating = true;
+
+  clearMessages();
+  aiResultZone.classList.remove('visible');
+  aiLoader.classList.add('active');
+  btnGenerate.disabled = true;
+
+  startLoaderAnimation();
+
+  try {
+    const response = await fetch(URL_GENERATE, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body:    JSON.stringify({ style: getSelectedStyle() }),
+    });
+
+    const data = await response.json();
+
+    stopLoaderAnimation();
+    aiLoader.classList.remove('active');
+
+    if (data.success && data.bio) {
+      generatedBio = data.bio;
+      // Afficher le résultat avec effet de frappe
+      aiResultText.textContent = '';
+      aiResultZone.classList.add('visible');
+      await typewriterEffect(aiResultText, generatedBio, 18);
+      btnGenerate.disabled = false;
+    } else {
+      showError(data.error ?? 'Erreur inconnue lors de la génération.');
+    }
+
+  } catch (err) {
+    stopLoaderAnimation();
+    showError('Erreur réseau. Vérifiez votre connexion et réessayez.');
+  } finally {
+    isGenerating = false;
+    btnGenerate.disabled = false;
+  }
+}
+
+// ── Effet machine à écrire ────────────────────────────────────────────
+function typewriterEffect(el, text, delayMs = 20) {
+  return new Promise(resolve => {
+    let i = 0;
+    el.textContent = '';
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i++;
+      } else {
+        clearInterval(interval);
+        resolve();
+      }
+    }, delayMs);
+  });
+}
+
+// ── APPLIQUER — injecter dans le textarea ────────────────────────────
+async function applyBio() {
+  if (!generatedBio) return;
+
+  clearMessages();
+
+  // 1. Mettre à jour le textarea immédiatement
+  bioTextarea.value = generatedBio;
+  bioTextarea.style.transition = 'box-shadow .3s, border-color .3s';
+  bioTextarea.style.borderColor = 'var(--e-g3)';
+  bioTextarea.style.boxShadow   = '0 0 0 3px rgba(82,183,136,.2)';
+  setTimeout(() => {
+    bioTextarea.style.borderColor = '';
+    bioTextarea.style.boxShadow   = '';
+  }, 1800);
+
+  // 2. Sauvegarder en BDD via AJAX
+  try {
+    const response = await fetch(URL_SAVE, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body:    JSON.stringify({ bio: generatedBio }),
+    });
+    const data = await response.json();
+    if (data.success) {
+      aiSaveToast.classList.add('visible');
+      setTimeout(() => aiSaveToast.classList.remove('visible'), 4000);
+    } else {
+      showError(data.error ?? 'Erreur lors de la sauvegarde.');
+    }
+  } catch {
+    showError('Erreur réseau lors de la sauvegarde.');
+  }
+}
+
+// ── Listeners ────────────────────────────────────────────────────────
+btnTrigger.addEventListener('click', () => {
+  aiPanel.classList.contains('open') ? closePanel() : openPanel();
+});
+btnClose.addEventListener('click', closePanel);
+btnGenerate.addEventListener('click', generateBio);
+btnApply.addEventListener('click', applyBio);
+btnRegen.addEventListener('click', generateBio);
+btnDiscard.addEventListener('click', resetResult);
+
+// Fermer avec Échap
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && aiPanel.classList.contains('open')) closePanel();
+});
+</script>
+{% endblock %}

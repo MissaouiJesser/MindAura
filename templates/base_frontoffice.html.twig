@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Mon espace{% endblock %} - MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --g1:#1B4332; --g2:#2D6A4F; --g3:#52B788; --g-pale:#D8F3DC; --g-hover:#E8F5EE;
+      --violet:#7B5EA7; --vio-pale:#EDE9F6; --bg:#F0F4F8; --white:#fff;
+      --text:#1A1A2E; --text-sec:#5A6475; --border:#D5DCE6;
+      --shadow-card:0 2px 14px rgba(27,67,50,.07), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover:0 14px 38px rgba(27,67,50,.13);
+    }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); }
+    .nav {
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(255,255,255,.93);
+      backdrop-filter: blur(18px) saturate(150%);
+      border-bottom: 1px solid rgba(27,67,50,.09);
+      padding: 0 48px;
+      display: flex; align-items: center; gap: 20px;
+      height: 68px;
+      transition: box-shadow .3s;
+    }
+    .nav.scrolled { box-shadow: 0 4px 24px rgba(27,67,50,.11); }
+    .nav-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; }
+    .nav-brand-icon {
+      width: 42px; height: 42px; border-radius: 12px; background: var(--g1);
+      display: grid; place-items: center;
+      box-shadow: 0 4px 14px rgba(27,67,50,.28);
+      transition: transform .3s ease;
+    }
+    .nav-brand:hover .nav-brand-icon { transform: rotate(-6deg) scale(1.05); }
+    .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.22rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .nav-brand-sub  { font-size: .59rem; color: var(--text-sec); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
+    .nav-links { flex: 1; display: flex; align-items: center; gap: 2px; justify-content: center; }
+    .nav-link {
+      padding: 7px 17px; border-radius: 99px;
+      font-size: .87rem; font-weight: 500; color: var(--text-sec);
+      text-decoration: none; transition: all .25s ease;
+    }
+    .nav-link:hover { background: var(--g-hover); color: var(--g1); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-user-pill-wrapper { position: relative; }
+    .nav-user-pill {
+      display: flex; align-items: center; gap: 9px;
+      padding: 5px 14px 5px 5px; border-radius: 99px;
+      background: var(--bg); border: 1.5px solid rgba(27,67,50,.13);
+      cursor: pointer; font-family: 'Outfit', sans-serif;
+      transition: all .25s ease;
+    }
+    .nav-user-pill:hover,
+    .nav-user-pill[aria-expanded="true"] {
+      background: var(--g-hover);
+      border-color: var(--g3);
+      box-shadow: 0 0 0 3px rgba(82,183,136,.12);
+    }
+    .nav-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--g-pale); border: 2px solid var(--g3);
+      display: grid; place-items: center;
+      font-size: .77rem; font-weight: 700; color: var(--g1);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .nav-user-name { font-size: .83rem; font-weight: 600; color: var(--text); }
+    .nav-role-badge { font-size: .7rem; color: var(--text-sec); background: var(--g-pale); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+    .pill-chevron { width: 14px; height: 14px; stroke: var(--text-sec); transition: transform .3s ease; margin-left: 2px; fill: none; stroke-width: 2; }
+    .nav-user-pill[aria-expanded="true"] .pill-chevron { transform: rotate(180deg); }
+    .user-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0; width: 290px;
+      background: var(--white); border: 1.5px solid var(--border); border-radius: 14px;
+      box-shadow: 0 20px 48px rgba(27,67,50,.14), 0 4px 12px rgba(27,67,50,.07);
+      z-index: 1000; opacity: 0; visibility: hidden;
+      transform: translateY(-8px) scale(.97); transform-origin: top right;
+      transition: opacity .22s ease, transform .22s ease, visibility .22s;
+      overflow: hidden;
+    }
+    .user-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .dropdown-header { display: flex; align-items: center; gap: 12px; padding: 16px 18px 14px; background: linear-gradient(135deg, var(--g-pale) 0%, rgba(255,255,255,0) 100%); }
+    .dropdown-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--g2), var(--g3)); border: 2.5px solid var(--g3);
+      display: grid; place-items: center; font-size: .9rem; font-weight: 700; color: #fff;
+      overflow: hidden; flex-shrink: 0; box-shadow: 0 3px 10px rgba(27,67,50,.2);
+    }
+    .dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .dropdown-user-name { font-size: .9rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .dropdown-user-email { font-size: .74rem; color: var(--text-sec); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 11px 18px; text-decoration: none; color: var(--text); transition: background .18s ease; cursor: pointer; border: none; width: 100%; background: none; font-family: 'Outfit', sans-serif; }
+    .dropdown-item:hover { background: var(--g-hover); }
+    .dropdown-item-icon { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; background: var(--g-pale); display: grid; place-items: center; transition: transform .2s ease; }
+    .dropdown-item-icon svg { width: 17px; height: 17px; stroke: var(--g1); fill: none; stroke-width: 1.8; }
+    .dropdown-item:hover .dropdown-item-icon { transform: scale(1.08); }
+    .dropdown-item-icon--violet { background: var(--vio-pale); }
+    .dropdown-item-icon--violet svg { stroke: var(--violet); }
+    .dropdown-item-icon--red { background: #FEF2F2; }
+    .dropdown-item-icon--red svg { stroke: #DC2626; }
+    .dropdown-item-icon--blue { background: #EFF6FF; }
+    .dropdown-item-icon--blue svg { stroke: #2563EB; }
+    .dropdown-item-text { flex: 1; display: flex; flex-direction: column; gap: 1px; text-align: left; }
+    .dropdown-item-label { font-size: .87rem; font-weight: 600; }
+    .dropdown-item-sub { font-size: .73rem; color: var(--text-sec); }
+    .dropdown-item-arrow { width: 14px; height: 14px; fill: none; stroke: var(--border); stroke-width: 2; transition: stroke .2s, transform .2s ease; flex-shrink: 0; }
+    .dropdown-item:hover .dropdown-item-arrow { stroke: var(--g3); transform: translateX(3px); }
+    .dropdown-item--danger .dropdown-item-label { color: #DC2626; }
+    .dropdown-item--danger:hover { background: #FEF2F2; }
+
+    .lang-chevron { width: 14px; height: 14px; fill: none; stroke: var(--text-sec); stroke-width: 2; flex-shrink: 0; transition: transform .25s ease; }
+    .lang-toggle-row.open .lang-chevron { transform: rotate(90deg); }
+
+    #langSubMenu { display: none; background: #f4faf6; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    #langSubMenu.open { display: block; }
+    .tr-sub-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 9px 18px 9px 30px;
+      background: none; border: none; text-align: left;
+      cursor: pointer; font-size: .84rem; font-weight: 500;
+      color: var(--text); transition: background .15s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .tr-sub-btn:hover { background: var(--g-hover); color: var(--g1); }
+    .tr-sub-btn.active { background: var(--g-pale); color: var(--g1); font-weight: 700; }
+
+    #tr-spinner-bar {
+      display: none; padding: 7px 18px;
+      font-size: .79rem; color: #92400e;
+      background: #fffbeb; border-top: 1px solid #fde68a;
+      align-items: center; gap: 8px;
+    }
+    #tr-spinner-bar.show { display: flex; }
+
+    .btn-primary {
+      display:inline-flex; align-items:center; gap:6px; text-decoration:none; cursor:pointer;
+      padding:9px 16px; border-radius:10px; border:1px solid var(--g1); background:var(--g1); color:#fff;
+      font-size:.84rem; font-weight:600;
+    }
+    .btn-primary:hover { background:var(--g2); border-color:var(--g2); }
+    .btn-secondary {
+      display:inline-flex; align-items:center; gap:6px; text-decoration:none; cursor:pointer;
+      padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:#fff; color:var(--text-sec);
+      font-size:.84rem; font-weight:600;
+    }
+    .btn-secondary:hover { background:var(--g-hover); color:var(--g1); border-color:var(--g3); }
+    .section-title { font-size:.75rem; color:var(--text-sec); text-transform:uppercase; letter-spacing:1px; font-weight:700; }
+    .page-shell { max-width: 1180px; margin: 24px auto; padding: 0 18px 24px; }
+    .page-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; gap:14px 18px; flex-wrap:wrap; }
+    .page-head-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:10px; flex:1 1 auto; min-width:min(100%, 240px); }
+    .page-head-actions .btn-primary, .page-head-actions .btn-secondary { text-decoration:none; white-space:nowrap; }
+    @media (max-width: 560px) {
+      .page-head { flex-direction:column; align-items:stretch; }
+      .page-head-actions { justify-content:stretch; width:100%; order:3; border-top:1px solid var(--border); padding-top:14px; margin-top:2px; }
+      .page-head-actions .btn-primary, .page-head-actions .btn-secondary { flex:1 1 calc(50% - 5px); justify-content:center; min-width:0; }
+    }
+    .page-title { font-family:'Playfair Display',serif; font-size:1.55rem; color:var(--g1); }
+    .flash { padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; font-size: .88rem; }
+    .flash-success { background: var(--g-pale); color: var(--g1); }
+    .flash-danger, .flash-error { background: #FEE2E2; color: #B91C1C; }
+    .flash-warning { background: #FFF3E0; color: #E65100; }
+  </style>
+  {% block stylesheets %}{% endblock %}
+</head>
+
+<body>
+  {% set user      = app.user %}
+  {% set roleRaw   = user.roleUtilisateur %}
+  {% set roleSlug  = roleRaw|replace({'ROLE_': ''})|lower %}
+  {% set roleLabel = {'patient':'Patient','medecin':'Médecin','coach':'Coach','psychologue':'Psychologue','user':'Utilisateur','admin':'Admin'}[roleSlug] ?? (roleSlug|capitalize) %}
+  {% set roleEmoji = {'patient':'🧠','medecin':'🩺','coach':'💪','psychologue':'🧘','user':'👤','admin':'🛡️'}[roleSlug] ?? '👤' %}
+
+  <nav class="nav" id="main-nav">
+    <a href="{{ path('app_home') }}#hero" class="nav-brand">
+      <div class="nav-brand-icon">
+        <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+      </div>
+      <div>
+        <div class="nav-brand-name">MindAura</div>
+        <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="{{ path('app_home') }}#services" class="nav-link">Services</a>
+      <a href="{{ path('app_home') }}#equipe" class="nav-link">Équipe</a>
+      <a href="{{ path('app_home') }}#faq" class="nav-link">FAQ</a>
+      <a href="{{ path('app_home') }}#map" class="nav-link">Localisation</a>
+      <a href="{{ path('app_home') }}#contact" class="nav-link">Contact</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-user-pill-wrapper" id="userPillWrapper">
+        <button class="nav-user-pill" id="userPillBtn" type="button" aria-haspopup="true" aria-expanded="false">
+          <div class="nav-avatar">
+            {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+              <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+            {% else %}
+              {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+            {% endif %}
+          </div>
+          <span class="nav-user-name">{{ user.prenomUtilisateur }}</span>
+          <span class="nav-role-badge">{{ roleEmoji }} {{ roleLabel }}</span>
+          <svg class="pill-chevron" viewBox="0 0 16 16">
+            <path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown" role="menu">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">
+              {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+                <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+              {% else %}
+                {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+              {% endif %}
+            </div>
+            <div>
+              <div class="dropdown-user-name">{{ user.prenomUtilisateur }} {{ user.nomUtilisateur }}</div>
+              <div class="dropdown-user-email">{{ user.emailUtilisateur }}</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <a href="{{ path('app_profil') }}" class="dropdown-item" role="menuitem">
+            <span class="dropdown-item-icon">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="10" cy="7" r="3.5"/>
+                <path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Voir mon profil</span>
+              <span class="dropdown-item-sub">Consulter mes informations</span>
+            </span>
+            <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+          </a>
+
+          <a href="{{ path('app_profil_edit') }}" class="dropdown-item" role="menuitem">
+            <span class="dropdown-item-icon dropdown-item-icon--violet">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-8.5 8.5L4 16l1.086-3.914 8.5-8.5z" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Modifier mon profil</span>
+              <span class="dropdown-item-sub">Mettre à jour vos informations</span>
+            </span>
+            <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+          </a>
+
+          <a href="{{ path('front_reclamation_index') }}" class="dropdown-item" role="menuitem">
+            <span class="dropdown-item-icon">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M10 3l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11.8l-3.7 2.7 1.4-4.3L4 7.5h4.5L10 3z"/>
+              </svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Mes réclamations</span>
+              <span class="dropdown-item-sub">Créer, suivre et répondre</span>
+            </span>
+            <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+          </a>
+
+          <div class="dropdown-divider"></div>
+
+          <button class="dropdown-item lang-toggle-row" id="langToggleRow" type="button">
+            <span class="dropdown-item-icon dropdown-item-icon--blue">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="10" cy="10" r="7"/>
+                <path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Langue — <span id="currentLangLabel">🇫🇷 Français</span></span>
+              <span class="dropdown-item-sub" id="tr-status">Choisir la langue d'affichage</span>
+            </span>
+            <svg class="lang-chevron" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div id="langSubMenu">
+            <button class="tr-sub-btn active" id="tr-restore" type="button">🔄 Original (Français)</button>
+            <button class="tr-sub-btn" type="button" data-lang="en" data-label="🇬🇧 English">🇬🇧 English</button>
+            <button class="tr-sub-btn" type="button" data-lang="ar" data-label="🇸🇦 العربية">🇸🇦 العربية</button>
+            <button class="tr-sub-btn" type="button" data-lang="de" data-label="🇩🇪 Deutsch">🇩🇪 Deutsch</button>
+            <button class="tr-sub-btn" type="button" data-lang="es" data-label="🇪🇸 Español">🇪🇸 Español</button>
+            <button class="tr-sub-btn" type="button" data-lang="it" data-label="🇮🇹 Italiano">🇮🇹 Italiano</button>
+            <button class="tr-sub-btn" type="button" data-lang="tr" data-label="🇹🇷 Türkçe">🇹🇷 Türkçe</button>
+          </div>
+          <div id="tr-spinner-bar">⏳ Traduction en cours…</div>
+
+          <div class="dropdown-divider"></div>
+          <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger" role="menuitem">
+            <span class="dropdown-item-icon dropdown-item-icon--red">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M13 3h4v14h-4M9 14l4-4-4-4M13 10H3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="dropdown-item-text">
+              <span class="dropdown-item-label">Déconnexion</span>
+              <span class="dropdown-item-sub">Quitter votre session</span>
+            </span>
+            <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-shell">
+    <div class="page-head">
+      <h1 class="page-title">{% block page_title %}Mon espace{% endblock %}</h1>
+      {% block header_actions %}{% endblock %}
+    </div>
+    {% for type, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="flash flash-{{ type }}">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    // ── Nav scroll shadow ────────────────────────────────────────────────────
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // ── User dropdown ────────────────────────────────────────────────────────
+    (function () {
+      var pillBtn  = document.getElementById('userPillBtn');
+      var dropdown = document.getElementById('userDropdown');
+      var wrapper  = document.getElementById('userPillWrapper');
+      if (!pillBtn || !dropdown) return;
+      function openDropdown()  { dropdown.classList.add('open');    pillBtn.setAttribute('aria-expanded', 'true');  }
+      function closeDropdown() { dropdown.classList.remove('open'); pillBtn.setAttribute('aria-expanded', 'false'); }
+      pillBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+      });
+      document.addEventListener('click',   function (e) { if (!wrapper.contains(e.target)) closeDropdown(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDropdown(); });
+    })();
+
+    // ── Translator ───────────────────────────────────────────────────────────
+    (function () {
+      const PAGE_LANG     = 'fr';
+      const originalTexts = new Map();
+      let   currentLang   = PAGE_LANG;
+      let   isTranslating = false;
+      let   activeLabel   = '🇫🇷 Français';
+
+      const toggleRow  = document.getElementById('langToggleRow');
+      const subMenu    = document.getElementById('langSubMenu');
+      const restoreBtn = document.getElementById('tr-restore');
+      const statusEl   = document.getElementById('tr-status');
+      const labelEl    = document.getElementById('currentLangLabel');
+      const spinnerBar = document.getElementById('tr-spinner-bar');
+
+      // ── Toggle sous-menu ──────────────────────────────────────────────────
+      toggleRow.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = subMenu.classList.contains('open');
+        subMenu.classList.toggle('open', !isOpen);
+        toggleRow.classList.toggle('open', !isOpen);
+      });
+
+      // ── Restaurer original ────────────────────────────────────────────────
+      restoreBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        originalTexts.forEach((text, node) => { node.textContent = text; });
+        originalTexts.clear();
+        currentLang          = PAGE_LANG;
+        activeLabel          = '🇫🇷 Français';
+        labelEl.textContent  = activeLabel;
+        statusEl.textContent = "Choisir la langue d'affichage";
+        subMenu.querySelectorAll('.tr-sub-btn').forEach(b => b.classList.remove('active'));
+        restoreBtn.classList.add('active');
+        subMenu.classList.remove('open');
+        toggleRow.classList.remove('open');
+      });
+
+      // ── Clic sur une langue ───────────────────────────────────────────────
+      subMenu.querySelectorAll('[data-lang]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (isTranslating) return;
+          currentLang = PAGE_LANG; // reset pour forcer re-traduction
+          originalTexts.clear();  // reset les originaux pour re-collecter
+          translatePage(btn.dataset.lang, btn.dataset.label);
+          subMenu.classList.remove('open');
+          toggleRow.classList.remove('open');
+        });
+      });
+
+      // ── Collecte nœuds texte (hors nav) ──────────────────────────────────
+      function collectTextNodes(root) {
+        const container = root || document.body;
+        const walker = document.createTreeWalker(
+          container,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode(node) {
+              const p = node.parentElement;
+              if (!p) return NodeFilter.FILTER_REJECT;
+              if (p.closest('#main-nav')) return NodeFilter.FILTER_REJECT;
+              if (p.closest('#tr-spinner-bar')) return NodeFilter.FILTER_REJECT;
+              const tag = p.tagName.toLowerCase();
+              if (['script','style','noscript','input','textarea','select'].includes(tag)) return NodeFilter.FILTER_REJECT;
+              if (node.textContent.trim() === '') return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }
+        );
+        const nodes = [];
+        let n;
+        while ((n = walker.nextNode())) nodes.push(n);
+        return nodes;
+      }
+
+      // ── Traduction par batch ──────────────────────────────────────────────
+      async function translateNodes(nodes, target) {
+        const SEP   = ' ||| ';
+        const BATCH = 20;
+
+        for (let i = 0; i < nodes.length; i += BATCH) {
+          const batch    = nodes.slice(i, i + BATCH);
+          const combined = batch.map(n => originalTexts.get(n) || n.textContent).join(SEP);
+
+          const res = await fetch('/api/translate', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ text: combined, target, source: 'fr' }),
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+
+          const data = await res.json();
+          // Compat: certains contrôleurs renvoient {"translated": "..."}
+          // et d'autres renvoient directement une string JSON.
+          const translatedText = typeof data === 'string'
+            ? data
+            : (data?.translated ?? combined);
+          const parts = translatedText.split(SEP);
+          batch.forEach((node, idx) => {
+            if (parts[idx] !== undefined) node.textContent = parts[idx];
+          });
+        }
+      }
+
+      async function translatePage(target, label) {
+        if (target === currentLang || isTranslating) return;
+        isTranslating        = true;
+        activeLabel          = label;
+        spinnerBar.classList.add('show');
+        statusEl.textContent = 'Traduction en cours…';
+
+        // Collecter et sauvegarder les originaux
+        const nodes = collectTextNodes();
+        nodes.forEach(node => {
+          if (!originalTexts.has(node)) originalTexts.set(node, node.textContent);
+        });
+
+        try {
+          await translateNodes(nodes, target);
+
+          currentLang          = target;
+          labelEl.textContent  = label;
+          statusEl.textContent = 'Page traduite ✓';
+          subMenu.querySelectorAll('.tr-sub-btn').forEach(b => b.classList.remove('active'));
+          subMenu.querySelector('[data-lang="' + target + '"]')?.classList.add('active');
+          restoreBtn.classList.remove('active');
+
+        } catch (err) {
+          console.error('Erreur traduction :', err);
+          statusEl.textContent = 'Erreur — réessayez';
+        } finally {
+          isTranslating = false;
+          spinnerBar.classList.remove('show');
+        }
+      }
+
+      // ── Ré-traduire le contenu dynamique injecté ──────────────────────────
+      // Déclenché par les pages qui injectent du contenu via innerHTML
+      document.addEventListener('dynamicContentLoaded', async function (e) {
+        if (currentLang === PAGE_LANG || isTranslating) return;
+
+        // La zone injectée est passée en detail, sinon on retraduit tout
+        const root  = e.detail?.container || document.body;
+        const nodes = collectTextNodes(root);
+
+        // Sauvegarder les nouveaux originaux
+        nodes.forEach(node => {
+          if (!originalTexts.has(node)) originalTexts.set(node, node.textContent);
+        });
+
+        if (nodes.length === 0) return;
+
+        isTranslating = true;
+        spinnerBar.classList.add('show');
+        statusEl.textContent = 'Traduction en cours…';
+
+        try {
+          await translateNodes(nodes, currentLang);
+          statusEl.textContent = 'Page traduite ✓';
+        } catch (err) {
+          console.error('Erreur traduction contenu dynamique :', err);
+          statusEl.textContent = 'Erreur — réessayez';
+        } finally {
+          isTranslating = false;
+          spinnerBar.classList.remove('show');
+        }
+      });
+
+      // Exposer translatePage globalement pour usage externe si besoin
+      window.__translator = { translatePage, currentLang: () => currentLang, PAGE_LANG };
+
+    })();
+  </script>
+
+  {% block javascripts %}{% endblock %}
+</body>
+</html>

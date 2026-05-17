@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    /* ══ Reset & base ═════════════════════════════════════════════════════ */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DejaVu Sans', Arial, sans-serif;
+      font-size: 9pt;
+      color: #1A1A2E;
+      background: #ffffff;
+    }
+
+    /* ══ PAGE ═════════════════════════════════════════════════════════════ */
+    @page {
+      size: A4 landscape;
+      margin: 15mm 15mm 15mm 15mm;
+    }
+
+    /* ══ HEADER ═══════════════════════════════════════════════════════════ */
+    .header {
+      background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 55%, #7B5EA7 100%);
+      border-radius: 10px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      color: white;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      top: -30px; right: -20px;
+    }
+
+    .header h1 {
+      font-size: 18pt;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .header .meta {
+      font-size: 9pt;
+      opacity: 0.9;
+    }
+
+    /* ══ FILTRES ══════════════════════════════════════════════════════════ */
+    .filters {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 9pt;
+    }
+
+    .filters-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #1B4332;
+    }
+
+    .filter-item {
+      display: inline-block;
+      margin-right: 16px;
+      margin-bottom: 4px;
+    }
+
+    .filter-label {
+      font-weight: bold;
+      margin-right: 6px;
+    }
+
+    /* ══ TABLE ════════════════════════════════════════════════════════════ */
+    .table-container {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #1B4332, #2D6A4F);
+      color: white;
+    }
+
+    thead th {
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: bold;
+      border-bottom: 2px solid #1B4332;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    tbody td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #dee2e6;
+      vertical-align: top;
+    }
+
+    .id-cell {
+      font-weight: bold;
+      color: #1B4332;
+      width: 50px;
+    }
+
+    .sujet-cell {
+      font-weight: bold;
+      max-width: 200px;
+    }
+
+    .categorie-cell {
+      width: 120px;
+    }
+
+    .status-cell {
+      width: 100px;
+    }
+
+    .date-cell {
+      width: 120px;
+      font-size: 7.5pt;
+      color: #6c757d;
+    }
+
+    .note-cell {
+      width: 60px;
+      text-align: center;
+    }
+
+    /* ══ STATUS BADGES ════════════════════════════════════════════════════ */
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      color: white;
+      font-size: 7pt;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .status-attente { background: #fbbf24; color: #1a1a1a; }
+    .status-cours { background: #3b82f6; }
+    .status-resolu { background: #10b981; }
+    .status-rejete { background: #ef4444; }
+    .status-defaut { background: #64748b; }
+
+    /* ══ SUMMARY ══════════════════════════════════════════════════════════ */
+    .summary {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #e8f5e8;
+      border: 1px solid #c3e6c3;
+      border-radius: 8px;
+      font-size: 9pt;
+    }
+
+    .summary strong {
+      color: #1B4332;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>Liste des réclamations</h1>
+    <div class="meta">
+      Exporté le {{ exportedAt|date('d/m/Y à H:i') }}
+    </div>
+  </div>
+
+  <!-- Filtres actifs -->
+  {% set hasFilters = filters.search or filters.statut or filters.categorie or filters.dateFrom or filters.dateTo %}
+  {% if hasFilters %}
+  <div class="filters">
+    <div class="filters-title">Filtres appliqués :</div>
+    {% if filters.search %}
+    <div class="filter-item">
+      <span class="filter-label">Recherche :</span>
+      "{{ filters.search }}"
+    </div>
+    {% endif %}
+    {% if filters.statut %}
+    <div class="filter-item">
+      <span class="filter-label">Statut :</span>
+      {{ filters.statut }}
+    </div>
+    {% endif %}
+    {% if filters.categorie %}
+    <div class="filter-item">
+      <span class="filter-label">Catégorie :</span>
+      ID {{ filters.categorie }}
+    </div>
+    {% endif %}
+    {% if filters.dateFrom %}
+    <div class="filter-item">
+      <span class="filter-label">Du :</span>
+      {{ filters.dateFrom }}
+    </div>
+    {% endif %}
+    {% if filters.dateTo %}
+    <div class="filter-item">
+      <span class="filter-label">Au :</span>
+      {{ filters.dateTo }}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Sujet</th>
+          <th>Catégorie</th>
+          <th>Statut</th>
+          <th>Date de création</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td class="id-cell">{{ row.id }}</td>
+          <td class="sujet-cell">{{ row.sujet }}</td>
+          <td class="categorie-cell">{{ row.categorie }}</td>
+          <td class="status-cell">
+            <span class="status-badge {{ row.statut_class }}">{{ row.statut }}</span>
+          </td>
+          <td class="date-cell">{{ row.date }}</td>
+          <td class="note-cell">{{ row.note }}/5</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <strong>{{ rows|length }}</strong> réclamation{{ rows|length != 1 ? 's' : '' }} au total
+  </div>
+</body>
+</html>

@@ -1,0 +1,211 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Réponses — {{ test.titreTest }}{% endblock %}
+{% block page_title %}Mes réponses au test{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+  @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+  @keyframes fillBar { from{width:0} to{width:var(--w)} }
+
+  /* ── Hero ── */
+  .resp-hero {
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 55%,#7B5EA7 100%);
+    border-radius:20px; padding:30px 36px; margin-bottom:22px;
+    box-shadow:0 12px 40px rgba(27,67,50,.24);
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .resp-hero::before { content:''; position:absolute; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.055); top:-80px; right:-50px; pointer-events:none; }
+  .hero-dots { position:absolute; top:16px; left:32px; display:flex; gap:7px; }
+  .hero-dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.32); animation:shimmer 2s ease-in-out infinite; }
+  .hero-dots span:nth-child(2){animation-delay:.3s} .hero-dots span:nth-child(3){animation-delay:.6s}
+  .hero-inner { display:flex; align-items:center; gap:20px; position:relative; z-index:1; margin-top:8px; flex-wrap:wrap; }
+  .hero-icon  { width:58px; height:58px; border-radius:16px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.2); display:grid; place-items:center; flex-shrink:0; }
+  .hero-icon svg { width:26px; height:26px; color:#fff; }
+  .hero-info  { flex:1; min-width:200px; }
+  .hero-title { font-family:'Playfair Display',serif; font-size:1.45rem; font-weight:700; color:#fff; margin-bottom:4px; }
+  .hero-sub   { font-size:.85rem; color:rgba(255,255,255,.72); }
+  .hero-chips { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .hero-chip  { display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:99px; padding:4px 12px; font-size:.74rem; font-weight:600; color:#fff; }
+  .hero-chip svg { width:10px; height:10px; }
+  .hero-score {
+    background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.25); border-radius:14px;
+    padding:14px 22px; text-align:center; flex-shrink:0;
+  }
+  .hero-score-val { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:#fff; line-height:1; }
+  .hero-score-lbl { font-size:.67rem; color:rgba(255,255,255,.65); font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-top:4px; }
+  .hero-btn-back { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:11px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.25); color:#fff; font-family:'Outfit',sans-serif; font-size:.83rem; font-weight:600; text-decoration:none; transition:all .2s; white-space:nowrap; flex-shrink:0; }
+  .hero-btn-back:hover { background:rgba(255,255,255,.22); }
+  .hero-btn-back svg { width:13px; height:13px; }
+
+  /* ── Score breakdown ── */
+  .score-breakdown {
+    background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:20px 24px; margin-bottom:22px;
+    box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .06s both;
+    display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+  }
+  .breakdown-icon { width:44px; height:44px; border-radius:12px; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; flex-shrink:0; }
+  .breakdown-icon svg { width:20px; height:20px; color:var(--green); }
+  .breakdown-info { flex:1; }
+  .breakdown-title { font-size:.75rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.7px; margin-bottom:8px; }
+  .breakdown-track { background:var(--bg); border-radius:99px; height:10px; overflow:hidden; position:relative; }
+  .breakdown-fill  { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--green),var(--green-light),var(--violet)); --w:0; width:0; animation:fillBar 1.2s cubic-bezier(.22,1,.36,1) .3s forwards; }
+  .breakdown-stats { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; }
+  .breakdown-stat  { font-size:.8rem; color:var(--text-sec); font-weight:500; }
+  .breakdown-stat strong { color:var(--text); font-weight:700; }
+
+  /* ── Table card ── */
+  .resp-table-card {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; overflow:hidden;
+    box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .1s both;
+  }
+  .resp-table-head {
+    padding:14px 20px; border-bottom:1.5px solid var(--border); background:var(--bg);
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .resp-table-head-title { font-size:.78rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.7px; flex:1; }
+  .resp-table { width:100%; border-collapse:collapse; }
+  .resp-table thead tr { background:var(--bg); border-bottom:1.5px solid var(--border); }
+  .resp-table th { padding:11px 18px; font-size:.7rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.7px; text-align:left; white-space:nowrap; }
+  .resp-table tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+  .resp-table tbody tr:last-child { border-bottom:none; }
+  .resp-table tbody tr:hover { background:#F9FAFB; }
+  .resp-table td { padding:13px 18px; vertical-align:middle; }
+  .td-question { font-size:.88rem; font-weight:500; color:var(--text); line-height:1.4; max-width:360px; }
+  .td-answer   { font-size:.87rem; color:var(--text-sec); font-weight:500; }
+  .td-score    { font-size:.85rem; font-weight:700; }
+  .td-score-positive { color:var(--green); }
+  .td-score-zero     { color:var(--text-sec); }
+  .td-date     { font-size:.78rem; color:var(--text-sec); white-space:nowrap; }
+  .td-num      { font-size:.75rem; font-weight:700; color:var(--text-sec); }
+  .table-footer-bar { padding:12px 18px; background:var(--bg); border-top:1.5px solid var(--border); font-size:.75rem; color:var(--text-sec); font-weight:500; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+
+  /* ── Empty ── */
+  .empty-state { display:flex; flex-direction:column; align-items:center; padding:56px 20px; text-align:center; gap:14px; }
+  .empty-icon  { width:60px; height:60px; border-radius:18px; background:var(--orange-pale); border:1.5px solid rgba(230,81,0,.2); display:grid; place-items:center; }
+  .empty-icon svg { width:26px; height:26px; color:var(--orange); }
+  .empty-title { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--text); }
+  .empty-sub   { font-size:.87rem; color:var(--text-sec); max-width:280px; line-height:1.6; }
+</style>
+
+{% set totalScore = 0 %}
+{% for r in reponses %}{% set totalScore = totalScore + (r.scoreObtenu ?? 0) %}{% endfor %}
+{% set maxPossible = reponses|length * 5 %}
+{% set pct = maxPossible > 0 ? ((totalScore / maxPossible) * 100)|round : 0 %}
+
+{# ── Hero ── #}
+<div class="resp-hero">
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+  <div class="hero-inner">
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke-linecap="round"/><circle cx="10" cy="10" r="2.5"/>
+      </svg>
+    </div>
+    <div class="hero-info">
+      <div class="hero-title">{{ test.titreTest }}</div>
+      <div class="hero-sub">Détail de vos réponses à ce test psychologique</div>
+      <div class="hero-chips">
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="2" width="10" height="9" rx="1.5"/><path d="M1 5h10" stroke-linecap="round"/></svg>
+          {{ reponses|length }} réponse{{ reponses|length != 1 ? 's' : '' }}
+        </span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="4" r="2"/><path d="M2 10c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke-linecap="round"/></svg>
+          {{ test.typeTest|capitalize }}
+        </span>
+      </div>
+    </div>
+    {% if reponses is not empty %}
+    <div class="hero-score">
+      <div class="hero-score-val">{{ totalScore }}</div>
+      <div class="hero-score-lbl">Score cumulé</div>
+    </div>
+    {% endif %}
+    <a href="{{ path('front_tests_index') }}" class="hero-btn-back">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Retour aux tests
+    </a>
+  </div>
+</div>
+
+{% if reponses is empty %}
+  <div class="resp-table-card">
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 8h18M7 13h3M7 17h5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="empty-title">Aucune réponse enregistrée</div>
+      <div class="empty-sub">Vous n'avez pas encore répondu à ce test. Passez-le dès maintenant !</div>
+      <a href="{{ path('front_tests_take', {'id': test.idTest}) }}" style="margin-top:4px;display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green-mid));color:#fff;font-family:'Outfit',sans-serif;font-size:.86rem;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(27,67,50,.22);">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M8 5l7 5-7 5V5z" stroke-linecap="round"/></svg>
+        Passer le test
+      </a>
+    </div>
+  </div>
+{% else %}
+
+  {# ── Score bar ── #}
+  <div class="score-breakdown">
+    <div class="breakdown-icon">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 15l4-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="breakdown-info">
+      <div class="breakdown-title">Performance globale</div>
+      <div class="breakdown-track">
+        <div class="breakdown-fill" style="--w:{{ pct }}%;"></div>
+      </div>
+      <div class="breakdown-stats">
+        <div class="breakdown-stat">Score total : <strong>{{ totalScore }}</strong></div>
+        <div class="breakdown-stat">Réponses : <strong>{{ reponses|length }}</strong></div>
+        <div class="breakdown-stat">Score moyen : <strong>{{ reponses|length > 0 ? (totalScore / reponses|length)|round(1) : 0 }}</strong></div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Table ── #}
+  <div class="resp-table-card">
+    <div class="resp-table-head">
+      <span class="resp-table-head-title">Détail des réponses</span>
+      <span class="badge green">Score cumulé : {{ totalScore }}</span>
+    </div>
+    <table class="resp-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>Réponse choisie</th>
+          <th>Score</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reponse in reponses %}
+          <tr>
+            <td><span class="td-num">{{ loop.index }}</span></td>
+            <td><div class="td-question">{{ reponse.questionReponse.texteQuestion }}</div></td>
+            <td><span class="td-answer">{{ reponse.optionChoisie ?? '—' }}</span></td>
+            <td>
+              <span class="td-score {{ (reponse.scoreObtenu ?? 0) > 0 ? 'td-score-positive' : 'td-score-zero' }}">
+                {{ reponse.scoreObtenu ?? 0 }} pts
+              </span>
+            </td>
+            <td><span class="td-date">{{ reponse.dateReponse ? reponse.dateReponse|date('d/m/Y H:i') : '—' }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="table-footer-bar">
+      <span>{{ reponses|length }} réponse{{ reponses|length != 1 ? 's' : '' }} au total</span>
+      <div style="display:flex;gap:8px;">
+        <a href="{{ path('front_tests_take', {'id': test.idTest}) }}" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;background:linear-gradient(135deg,var(--green),var(--green-mid));color:#fff;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;text-decoration:none;">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M8 5l7 5-7 5V5z" stroke-linecap="round"/></svg>
+          Repasser
+        </a>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

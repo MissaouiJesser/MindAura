@@ -1,0 +1,91 @@
+{# templates/admin/participation/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail participation #{{ participation.id }}{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-id-card me-2 text-primary"></i>Participation #{{ participation.id }}</h2>
+    <div class="d-flex gap-2">
+        <a href="{{ path('admin_participation_edit', {id: participation.id}) }}" class="btn btn-warning">
+            <i class="fas fa-edit me-1"></i> Modifier
+        </a>
+        <a href="{{ path('admin_participation_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {# Infos participant #}
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-user me-2"></i>Informations du participant
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <th class="text-muted" style="width:35%">Nom complet</th>
+                        <td><strong>{{ participation.prenom }} {{ participation.nom }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Email</th>
+                        <td>{{ participation.email }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Téléphone</th>
+                        <td>{{ participation.telephone ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Date d'inscription</th>
+                        <td>{{ participation.dateInscription|date('d/m/Y à H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Statut</th>
+                        <td>
+                            {% if participation.statut == 'confirmee' %}
+                                <span class="badge bg-success fs-6">✅ Confirmée</span>
+                            {% elseif participation.statut == 'annulee' %}
+                                <span class="badge bg-danger fs-6">❌ Annulée</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark fs-6">⏳ En attente</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Événement + QR #}
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-calendar-alt me-2"></i>Événement associé
+            </div>
+            <div class="card-body">
+                <p><strong>{{ participation.evenement.titreEvenement }}</strong></p>
+                <p class="text-muted small mb-1">
+                    📅 Du {{ participation.evenement.datedebutEvenemnt|date('d/m/Y') }}
+                    au {{ participation.evenement.datefinEvenemnt|date('d/m/Y') }}
+                </p>
+                <p class="text-muted small mb-3">
+                    📍 {{ participation.evenement.lieuEvenement }}
+                </p>
+
+                {% if participation.codeQr %}
+                    <p class="fw-semibold mb-2"><i class="fas fa-qrcode me-1"></i>QR Code :</p>
+                    <img src="{{ asset('qrcodes/' ~ participation.codeQr) }}"
+                         alt="QR Code" class="img-thumbnail mb-2" style="width:180px;">
+                    <br>
+                    <a href="{{ path('admin_participation_download_qr', {id: participation.id}) }}"
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-download me-1"></i> Télécharger le QR
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

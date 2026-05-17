@@ -1,0 +1,563 @@
+{% block title %}Participation{% endblock %}{# templates/evenement/participer.html.twig — REDESIGN PROFESSIONNEL v2 #}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --forest:  #0d2318;
+  --pine:    #14532d;
+  --emerald: #15803d;
+  --leaf:    #22c55e;
+  --mint:    #4ade80;
+  --mist:    #f0fdf4;
+  --ink:     #060e08;
+  --slate:   #374151;
+  --cloud:   #f8fafc;
+  --border:  #e2e8f0;
+  --muted:   #6b7280;
+  --error:   #dc2626;
+  --amber:   #f59e0b;
+  --radius:  14px;
+  --shadow:  0 20px 60px rgba(13,35,24,.15), 0 4px 16px rgba(13,35,24,.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--cloud);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 52% 48%;
+}
+
+/* ─ LEFT ─ */
+.panel-event {
+  position: relative;
+  background: var(--forest);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 3.5rem;
+  min-height: 100vh;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+}
+.orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(34,197,94,.2) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation: drift1 12s ease-in-out infinite alternate;
+}
+.orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(74,222,128,.12) 0%, transparent 70%);
+  bottom: -80px; right: -60px;
+  animation: drift2 15s ease-in-out infinite alternate;
+}
+@keyframes drift1 { to { transform: translate(40px,60px); } }
+@keyframes drift2 { to { transform: translate(-50px,-40px); } }
+.dot-grid {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(74,222,128,.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.back-link {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: .5rem;
+  color: rgba(255,255,255,.4); text-decoration: none;
+  font-size: .76rem; font-weight: 600; letter-spacing: .04em;
+  margin-bottom: auto; transition: color .2s;
+}
+.back-link:hover { color: var(--mint); }
+.event-content {
+  position: relative; z-index: 2;
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: flex-end; padding-top: 2rem;
+}
+.event-img-wrap {
+  width: 100%; height: 210px;
+  border-radius: 16px; overflow: hidden;
+  margin-bottom: 1.75rem; position: relative;
+  border: 1px solid rgba(74,222,128,.12);
+}
+.event-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.event-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(21,128,61,.3), rgba(34,197,94,.1));
+  font-size: 3.5rem;
+}
+.event-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(13,35,24,.65) 0%, transparent 55%);
+}
+.badge-row { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+.badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .28rem .7rem; border-radius: 100px;
+  font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+.badge-type { background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.22); color: var(--mint); }
+.badge-free { background: rgba(34,197,94,.14); border: 1px solid rgba(34,197,94,.22); color: #86efac; }
+.badge-paid { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.22); color: #fcd34d; }
+.waitlist-tag {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.22);
+  color: #fcd34d; border-radius: 10px;
+  padding: .55rem .9rem; font-size: .76rem; font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+.ev-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  font-weight: 800; color: #fff; line-height: 1.15;
+  letter-spacing: -.4px; margin-bottom: 1.4rem;
+}
+.meta-list { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.75rem; }
+.meta-row { display: flex; align-items: center; gap: .7rem; font-size: .81rem; color: rgba(255,255,255,.58); }
+.meta-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--mint); font-size: .73rem;
+}
+.meta-row strong { color: rgba(255,255,255,.88); }
+.cap-block { margin-bottom: 2rem; }
+.cap-head { display: flex; justify-content: space-between; font-size: .72rem; color: rgba(255,255,255,.38); margin-bottom: .5rem; }
+.cap-bar { height: 4px; border-radius: 99px; background: rgba(255,255,255,.07); overflow: hidden; }
+.cap-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--leaf), var(--mint)); transition: width 1s ease; }
+.panel-brand { font-size: .66rem; color: rgba(255,255,255,.18); letter-spacing: .1em; text-transform: uppercase; margin-top: 2rem; }
+
+/* ─ RIGHT ─ */
+.panel-form {
+  background: var(--cloud);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3.5rem 3rem; min-height: 100vh;
+}
+.form-card {
+  width: 100%; max-width: 450px;
+  background: white; border-radius: 24px;
+  box-shadow: var(--shadow); padding: 2.25rem 2.5rem;
+  animation: slideUp .45s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.form-eyebrow {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--emerald); background: var(--mist);
+  border: 1px solid rgba(34,197,94,.14);
+  padding: .28rem .7rem; border-radius: 100px; margin-bottom: .9rem;
+}
+.form-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.65rem; font-weight: 800;
+  color: var(--ink); letter-spacing: -.4px;
+  line-height: 1.2; margin-bottom: .45rem;
+}
+.form-sub { font-size: .81rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+/* Session strip */
+.session-strip {
+  display: flex; align-items: center; gap: .7rem;
+  background: linear-gradient(135deg, #eff6ff, var(--mist));
+  border: 1px solid #bfdbfe; border-radius: 12px;
+  padding: .8rem .95rem; margin-bottom: 1rem;
+}
+.session-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pine), var(--emerald));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: .82rem; font-weight: 700;
+  flex-shrink: 0; overflow: hidden;
+}
+.session-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.session-info { flex: 1; min-width: 0; }
+.session-name { font-weight: 700; font-size: .81rem; color: var(--ink); }
+.session-email { font-size: .71rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.session-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--emerald);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.session-check svg { width: 11px; height: 11px; stroke: white; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Email lock notice */
+.email-lock-notice {
+  display: flex; align-items: flex-start; gap: .55rem;
+  background: #fefce8; border: 1px solid #fde68a;
+  border-radius: 10px; padding: .65rem .9rem;
+  font-size: .74rem; color: #92400e;
+  margin-bottom: 1.5rem; line-height: 1.5;
+}
+.email-lock-notice i { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
+
+/* Alerts */
+.alert-box {
+  border-radius: 10px; padding: .75rem .95rem;
+  margin-bottom: 1.1rem; font-size: .8rem;
+  display: flex; align-items: flex-start; gap: .5rem; line-height: 1.5;
+}
+.alert-box.danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+.alert-box.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.alert-box i { flex-shrink: 0; margin-top: 1px; }
+
+/* Steps */
+.steps { display: flex; align-items: center; margin-bottom: 1.75rem; }
+.step { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 800; transition: all .3s;
+}
+.step-dot.active { background: var(--ink); color: #fff; }
+.step-dot.idle   { background: #f1f5f9; color: var(--muted); }
+.step-label { font-size: .6rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.step-connector { flex: 1; height: 2px; background: var(--border); margin: 0 4px 16px; }
+
+/* Fields */
+.fields-2col { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+.field-group { margin-bottom: 1.1rem; }
+.field-label {
+  display: flex; align-items: center; gap: .3rem;
+  font-size: .74rem; font-weight: 700; color: #374151;
+  margin-bottom: .4rem; letter-spacing: .01em;
+}
+.field-label .req { color: var(--error); }
+.field-label .opt { color: var(--muted); font-weight: 400; font-size: .7rem; }
+.input-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: .88rem; top: 50%;
+  transform: translateY(-50%);
+  color: #c4cad4; font-size: .75rem; pointer-events: none; transition: color .2s;
+}
+.input-wrap:focus-within .input-icon { color: var(--emerald); }
+.field-input {
+  width: 100%;
+  padding: .7rem .88rem .7rem 2.3rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: .86rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--ink); background: #fafafa;
+  outline: none; transition: all .2s;
+}
+.field-input::placeholder { color: #d1d5db; }
+.field-input:focus {
+  border-color: var(--emerald); background: #fff;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.11);
+}
+.field-input.locked {
+  background: var(--mist); border-color: rgba(34,197,94,.28);
+  color: var(--pine); font-weight: 600; cursor: not-allowed;
+}
+.lock-icon {
+  position: absolute; right: .88rem; top: 50%;
+  transform: translateY(-50%); color: var(--emerald); font-size: .7rem;
+}
+.field-error {
+  font-size: .71rem; color: var(--error);
+  margin-top: .28rem; display: flex; align-items: center; gap: .28rem;
+}
+
+/* Submit */
+.btn-submit {
+  width: 100%; padding: .88rem 1.5rem;
+  border: none; border-radius: 12px;
+  background: var(--forest); color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: .96rem; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .55rem;
+  transition: all .25s; position: relative; overflow: hidden;
+  margin-top: 1.5rem; letter-spacing: .01em;
+}
+.btn-submit::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--pine), var(--emerald));
+  opacity: 0; transition: opacity .25s;
+}
+.btn-submit:hover::before { opacity: 1; }
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(13,35,24,.28); }
+.btn-submit:active { transform: translateY(0); }
+.btn-submit > * { position: relative; z-index: 1; }
+.submit-arrow { transition: transform .2s; }
+.btn-submit:hover .submit-arrow { transform: translateX(4px); }
+.btn-submit.waitlist-variant { background: #a16207; }
+.btn-submit.waitlist-variant::before { background: linear-gradient(135deg, #d97706, var(--amber)); }
+
+/* Footer */
+.form-footer {
+  margin-top: 1.25rem; padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: .65rem;
+}
+.privacy-row {
+  display: flex; align-items: center; gap: .4rem;
+  font-size: .69rem; color: #9ca3af;
+}
+.privacy-row i { color: var(--leaf); flex-shrink: 0; }
+.cancel-link {
+  display: flex; align-items: center; justify-content: center; gap: .35rem;
+  font-size: .76rem; color: var(--muted); text-decoration: none; transition: color .2s;
+}
+.cancel-link:hover { color: var(--ink); }
+
+@media (max-width: 860px) {
+  .page-shell { grid-template-columns: 1fr; }
+  .panel-event { min-height: 300px; padding: 2rem; }
+  .panel-form { padding: 2rem 1.25rem; min-height: auto; align-items: flex-start; }
+  .fields-2col { grid-template-columns: 1fr; gap: 0; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-shell">
+
+  {# ═══════════════════════ LEFT — Event Info ═══════════════════════ #}
+  <div class="panel-event">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="dot-grid"></div>
+
+    <a href="{{ path('evenement_liste') }}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Retour aux événements
+    </a>
+
+    <div class="event-content">
+
+      <div class="event-img-wrap">
+        {% if evenement.image %}
+          <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titreEvenement }}">
+        {% else %}
+          <div class="event-img-placeholder">📅</div>
+        {% endif %}
+        <div class="event-img-overlay"></div>
+      </div>
+
+      <div class="badge-row">
+        {% if evenement.typeEvenement %}
+          <span class="badge badge-type"><i class="fas fa-tag"></i>{{ evenement.typeEvenement.libelle }}</span>
+          {% if evenement.typeEvenement.estGratuit %}
+            <span class="badge badge-free"><i class="fas fa-check-circle"></i>Gratuit</span>
+          {% else %}
+            <span class="badge badge-paid"><i class="fas fa-coins"></i>Payant</span>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      {% if modeAttente is defined and modeAttente %}
+        <div class="waitlist-tag">
+          <i class="fas fa-hourglass-half"></i>
+          Événement complet — liste d'attente
+        </div>
+      {% endif %}
+
+      <h1 class="ev-title">{{ evenement.titreEvenement }}</h1>
+
+      <ul class="meta-list">
+        <li class="meta-row">
+          <span class="meta-icon"><i class="fas fa-map-marker-alt"></i></span>
+          <div><strong>{{ evenement.lieuEvenement }}</strong></div>
+        </li>
+        <li class="meta-row">
+          <span class="meta-icon"><i class="fas fa-calendar-alt"></i></span>
+          <div>Du <strong>{{ evenement.datedebutEvenemnt|date('d/m/Y') }}</strong> au <strong>{{ evenement.datefinEvenemnt|date('d/m/Y') }}</strong></div>
+        </li>
+        {% if evenement.capaciteEvenement %}
+        <li class="meta-row">
+          <span class="meta-icon"><i class="fas fa-users"></i></span>
+          <div><strong>{{ evenement.nbParticipants }} / {{ evenement.capaciteEvenement }}</strong> participants</div>
+        </li>
+        {% endif %}
+      </ul>
+
+      {% if evenement.capaciteEvenement and evenement.capaciteEvenement > 0 %}
+        {% set pct = ((evenement.nbParticipants / evenement.capaciteEvenement) * 100)|round %}
+        <div class="cap-block">
+          <div class="cap-head"><span>Taux de remplissage</span><span>{{ pct }}%</span></div>
+          <div class="cap-bar"><div class="cap-fill" style="width:{{ min(pct,100) }}%"></div></div>
+        </div>
+      {% endif %}
+
+      <div class="panel-brand">MindAura · Bien-être &amp; Sérénité</div>
+    </div>
+  </div>
+
+  {# ═══════════════════════ RIGHT — Form ═══════════════════════ #}
+  <div class="panel-form">
+    <div class="form-card">
+
+      <div class="form-eyebrow">
+        <i class="fas fa-ticket-alt"></i>
+        {% if modeAttente is defined and modeAttente %}Liste d'attente{% else %}Inscription{% endif %}
+      </div>
+      <h2 class="form-title">
+        {% if modeAttente is defined and modeAttente %}Rejoindre la file{% else %}Confirmer ma place{% endif %}
+      </h2>
+      <p class="form-sub">
+        {% if modeAttente is defined and modeAttente %}
+          L'événement est complet. Inscrivez-vous sur la liste d'attente, vous serez notifié dès qu'une place se libère.
+        {% else %}
+          Remplissez le formulaire ci-dessous. Un QR code vous sera envoyé par email pour accéder à l'événement.
+        {% endif %}
+      </p>
+
+      {# ── Session strip ── #}
+      {% if app.user %}
+        {% set _u      = app.user %}
+        {% set _prenom = _u.prenom is defined ? _u.prenom : '' %}
+        {% set _nom    = _u.nom    is defined ? _u.nom    : '' %}
+        {% set _photo  = _u.photo  is defined ? _u.photo  : '' %}
+        {% set _ident  = _u.userIdentifier %}
+        {% set _display = _prenom ? (_prenom ~ ' ' ~ _nom)|trim : (_ident|split('@')|first) %}
+        {% set _initial = (_prenom ?: _ident)|first|upper %}
+
+        <div class="session-strip">
+          <div class="session-avatar">
+            {% if _photo %}<img src="{{ asset('uploads/profils/' ~ _photo) }}" alt="">{% else %}{{ _initial }}{% endif %}
+          </div>
+          <div class="session-info">
+            <div class="session-name">{{ _display }}</div>
+            <div class="session-email">{{ _ident }}</div>
+          </div>
+          <div class="session-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+
+        <div class="email-lock-notice">
+          <i class="fas fa-lock"></i>
+          <span>L'email d'inscription doit correspondre à l'email de votre compte : <strong>{{ _ident }}</strong>.</span>
+        </div>
+      {% endif %}
+
+      {# Flash / errors #}
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert-box {{ label }}">
+            <i class="fas fa-{{ label == 'danger' ? 'exclamation-circle' : 'exclamation-triangle' }}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endfor %}
+      {% if form.vars.errors|length > 0 %}
+        <div class="alert-box danger">
+          <i class="fas fa-exclamation-circle"></i>
+          <div>{% for error in form.vars.errors %}<div>{{ error.message }}</div>{% endfor %}</div>
+        </div>
+      {% endif %}
+
+      {# Steps #}
+      <div class="steps">
+        <div class="step"><div class="step-dot active">1</div><div class="step-label">Infos</div></div>
+        <div class="step-connector"></div>
+        <div class="step"><div class="step-dot idle">2</div><div class="step-label">Confirmation</div></div>
+        <div class="step-connector"></div>
+        <div class="step"><div class="step-dot idle">3</div><div class="step-label">QR Code</div></div>
+      </div>
+
+      {# Form #}
+      {{ form_start(form, {attr: {novalidate: 'novalidate', id: 'participation-form'}}) }}
+      {{ form_widget(form.dateInscription) }}
+      {{ form_widget(form.codeQr) }}
+      {{ form_widget(form.statut) }}
+
+      <div class="fields-2col">
+        <div class="field-group">
+          <label class="field-label">Nom <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="input-icon fas fa-user"></i>
+            {{ form_widget(form.nom, {attr: {class: 'field-input', placeholder: 'Votre nom'}}) }}
+          </div>
+          {% if form.nom.vars.errors|length > 0 %}<div class="field-error"><i class="fas fa-circle-xmark"></i>{{ form_errors(form.nom) }}</div>{% endif %}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Prénom <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="input-icon fas fa-user"></i>
+            {{ form_widget(form.prenom, {attr: {class: 'field-input', placeholder: 'Votre prénom'}}) }}
+          </div>
+          {% if form.prenom.vars.errors|length > 0 %}<div class="field-error"><i class="fas fa-circle-xmark"></i>{{ form_errors(form.prenom) }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          Email <span class="req">*</span>
+          {% if app.user %}<span class="opt"> · depuis votre compte</span>{% endif %}
+        </label>
+        <div class="input-wrap">
+          <i class="input-icon fas fa-envelope"></i>
+          {% if app.user and userEmail is defined %}
+            {{ form_widget(form.email, {attr: {class: 'field-input locked', readonly: 'readonly', title: 'Email verrouillé : doit correspondre à votre compte'}}) }}
+            <i class="lock-icon fas fa-lock"></i>
+          {% else %}
+            {{ form_widget(form.email, {attr: {class: 'field-input', placeholder: 'exemple@email.com'}}) }}
+          {% endif %}
+        </div>
+        {% if form.email.vars.errors|length > 0 %}<div class="field-error"><i class="fas fa-circle-xmark"></i>{{ form_errors(form.email) }}</div>{% endif %}
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Téléphone <span class="opt">(optionnel)</span></label>
+        <div class="input-wrap">
+          <i class="input-icon fas fa-phone"></i>
+          {{ form_widget(form.telephone, {attr: {class: 'field-input', placeholder: '+216 XX XXX XXX'}}) }}
+        </div>
+        {% if form.telephone.vars.errors|length > 0 %}<div class="field-error"><i class="fas fa-circle-xmark"></i>{{ form_errors(form.telephone) }}</div>{% endif %}
+      </div>
+
+      <button type="submit" class="btn-submit {{ (modeAttente is defined and modeAttente) ? 'waitlist-variant' : '' }}" id="submit-btn">
+        <i class="fas fa-{{ (modeAttente is defined and modeAttente) ? 'hourglass-half' : 'bolt' }}"></i>
+        <span>{% if modeAttente is defined and modeAttente %}Rejoindre la liste d'attente{% else %}Confirmer mon inscription{% endif %}</span>
+        <i class="fas fa-arrow-right submit-arrow"></i>
+      </button>
+
+      {{ form_end(form) }}
+
+      <div class="form-footer">
+        <div class="privacy-row">
+          <i class="fas fa-shield-halved"></i>
+          Vos données sont utilisées uniquement pour cette inscription et ne seront pas partagées avec des tiers.
+        </div>
+        <a href="{{ path('evenement_liste') }}" class="cancel-link">
+          <i class="fas fa-arrow-left"></i> Annuler et retourner aux événements
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  {% if app.user and userEmail is defined %}
+  // Force email field to match user account email
+  const emailField = document.querySelector('input[name$="[email]"], input[type="email"].field-input');
+  if (emailField) {
+    emailField.value = '{{ userEmail|replace({"'": "\\'"})|raw }}';
+  }
+  {% endif %}
+
+  // Spinner on submit
+  const form = document.getElementById('participation-form');
+  const btn  = document.getElementById('submit-btn');
+  if (form && btn) {
+    form.addEventListener('submit', function() {
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Traitement en cours…</span>';
+      btn.style.opacity = '.8';
+    });
+  }
+});
+</script>
+{% endblock %}

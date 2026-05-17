@@ -1,0 +1,298 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Podcast : {{ ressource.titre }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .podcast-player {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: #1e1e2f;
+        border-radius: 2rem;
+        padding: 1.5rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .cover {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .cover img {
+        max-width: 200px;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    .title {
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .description {
+        color: #bbb;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    .controls button, .controls select {
+        background: #2d2d44;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: 0.2s;
+    }
+    .controls button:hover {
+        background: #4c4c6e;
+    }
+    .slider-container {
+        flex: 1;
+        min-width: 150px;
+    }
+    input[type="range"] {
+        width: 100%;
+        cursor: pointer;
+        background: #4c4c6e;
+        height: 4px;
+        border-radius: 5px;
+    }
+    .time-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    .volume-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .error-message {
+        background: #c62828;
+        padding: 0.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .fallback-link {
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .fallback-link a {
+        color: #4caf50;
+        text-decoration: none;
+    }
+    .platform-embed {
+        margin: 1rem 0;
+    }
+    .apple-link {
+        display: inline-block;
+        background: #000;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="podcast-player">
+    <div class="cover">
+        {% if ressource.imageUrl %}
+            <img src="{{ asset(ressource.imageUrl) }}" alt="{{ ressource.titre }}">
+        {% else %}
+            <div style="width:200px; height:200px; background:#2d2d44; border-radius:1rem; display:flex; align-items:center; justify-content:center;">🎧</div>
+        {% endif %}
+    </div>
+    <div class="title">{{ ressource.titre }}</div>
+    <div class="description">{{ ressource.resume }}</div>
+
+    {% if embedHtml %}
+        <div class="platform-embed">
+            {{ embedHtml|raw }}
+        </div>
+    {% else %}
+        <audio id="audioPlayer" preload="metadata" style="display:none;"></audio>
+
+        <div class="controls">
+            <button id="playPauseBtn">▶</button>
+            <button id="reculerBtn">⏪ -15s</button>
+            <button id="avancerBtn">⏩ +15s</button>
+            <div class="slider-container">
+                <input type="range" id="progressSlider" value="0" step="0.1">
+                <div class="time-info">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+            <div class="volume-control">
+                🔊 <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
+            </div>
+            <select id="speedSelect">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+        </div>
+
+        <div id="errorContainer" style="display:none;" class="error-message"></div>
+        <div id="fallbackContainer" class="fallback-link" style="display:none;">
+            <a href="#" target="_blank" id="fallbackLink">🌐 Ouvrir dans le navigateur</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{% if not embedHtml %}
+<script>
+    const audio = document.getElementById('audioPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const progressSlider = document.getElementById('progressSlider');
+    const currentTimeSpan = document.getElementById('currentTime');
+    const durationSpan = document.getElementById('duration');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const speedSelect = document.getElementById('speedSelect');
+    const reculerBtn = document.getElementById('reculerBtn');
+    const avancerBtn = document.getElementById('avancerBtn');
+    const errorContainer = document.getElementById('errorContainer');
+    const fallbackContainer = document.getElementById('fallbackContainer');
+    const fallbackLink = document.getElementById('fallbackLink');
+
+    let currentAudioUrl = null;
+
+    async function loadAudio(url) {
+        showError(null);
+        fallbackContainer.style.display = 'none';
+        try {
+            if (!isDirectAudioUrl(url)) {
+                showError('Analyse de la page en cours...');
+                const extracted = await extractAudioUrl(url);
+                if (extracted) {
+                    url = extracted;
+                } else {
+                    showError('Impossible de trouver le fichier audio direct.');
+                    setupFallback(url);
+                    return;
+                }
+            }
+            currentAudioUrl = url;
+            audio.src = url;
+            audio.load();
+            audio.volume = volumeSlider.value;
+            audio.playbackRate = parseFloat(speedSelect.value);
+            audio.onloadedmetadata = () => {
+                durationSpan.innerText = formatTime(audio.duration);
+                progressSlider.max = audio.duration;
+            };
+            audio.ontimeupdate = () => {
+                if (!progressSlider.disabled) {
+                    progressSlider.value = audio.currentTime;
+                    currentTimeSpan.innerText = formatTime(audio.currentTime);
+                }
+            };
+            audio.onended = () => {
+                playPauseBtn.innerText = '▶';
+                progressSlider.value = 0;
+                currentTimeSpan.innerText = '0:00';
+            };
+            audio.onerror = () => {
+                showError('Erreur de lecture du fichier audio.');
+                setupFallback(url);
+            };
+            audio.play();
+            playPauseBtn.innerText = '⏸';
+        } catch (err) {
+            showError(err.message);
+            setupFallback(url);
+        }
+    }
+
+    function isDirectAudioUrl(url) {
+        const audioExtensions = /\.(mp3|m4a|wav|ogg|aac)(\?.*)?$/i;
+        return audioExtensions.test(url) || url.includes('/audio/') || url.includes('stream');
+    }
+
+    async function extractAudioUrl(pageUrl) {
+        try {
+            const response = await fetch('{{ path('podcast_extract_audio') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ url: pageUrl })
+            });
+            const data = await response.json();
+            return data.audioUrl || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setupFallback(originalUrl) {
+        fallbackLink.href = originalUrl;
+        fallbackContainer.style.display = 'block';
+    }
+
+    function showError(msg) {
+        if (msg) {
+            errorContainer.innerText = '⚠️ ' + msg;
+            errorContainer.style.display = 'block';
+        } else {
+            errorContainer.style.display = 'none';
+        }
+    }
+
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        if (hrs > 0) return `${hrs}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        return `${mins}:${secs.toString().padStart(2,'0')}`;
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            playPauseBtn.innerText = '⏸';
+        } else {
+            audio.pause();
+            playPauseBtn.innerText = '▶';
+        }
+    });
+
+    reculerBtn.addEventListener('click', () => {
+        audio.currentTime = Math.max(0, audio.currentTime - 15);
+    });
+
+    avancerBtn.addEventListener('click', () => {
+        audio.currentTime = Math.min(audio.duration, audio.currentTime + 15);
+    });
+
+    progressSlider.addEventListener('input', () => {
+        audio.currentTime = progressSlider.value;
+    });
+
+    volumeSlider.addEventListener('input', () => {
+        audio.volume = volumeSlider.value;
+    });
+
+    speedSelect.addEventListener('change', () => {
+        audio.playbackRate = parseFloat(speedSelect.value);
+    });
+
+    const initialUrl = '{{ ressource.url|escape('js') }}';
+    loadAudio(initialUrl);
+</script>
+{% endif %}
+{% endblock %}

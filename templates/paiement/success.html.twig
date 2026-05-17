@@ -1,0 +1,39 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %}Paiement confirmé — GestionEvents{% endblock %}
+
+{% block body %}
+<div style="max-width:600px; margin:4rem auto; text-align:center; padding:2rem;">
+
+    <div style="font-size:4rem; margin-bottom:1rem;">✅</div>
+    <h1 style="font-family:'Syne',sans-serif; font-weight:800; color:#1a1a2e; margin-bottom:.5rem;">
+        Paiement confirmé !
+    </h1>
+    <p style="color:#6b7280; margin-bottom:2rem;">
+        Merci pour votre commande. Un email de confirmation a été envoyé à
+        <strong>{{ commande.userEmail }}</strong>.
+    </p>
+
+    <div style="background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,.08); padding:1.5rem; text-align:left; margin-bottom:2rem;">
+        <h3 style="font-weight:700; margin-bottom:1rem; color:#1a1a2e;">Récapitulatif commande #{{ commande.id }}</h3>
+
+        {% for item in commande.items %}
+        <div style="display:flex; justify-content:space-between; padding:.6rem 0; border-bottom:1px solid #f3f4f6;">
+            <span>{{ item.produit.nom }} × {{ item.quantite }}</span>
+            <span style="font-weight:700; color:#8e44ad;">{{ item.sousTotal|number_format(2) }} TND</span>
+        </div>
+        {% endfor %}
+
+        <div style="display:flex; justify-content:space-between; padding:.75rem 0; font-weight:800; font-size:1.1rem;">
+            <span>Total payé</span>
+            <span style="color:#8e44ad;">{{ commande.montantTotal }} TND</span>
+        </div>
+    </div>
+
+    <a href="{{ path('evenement_liste') }}"
+       style="display:inline-block; background:#1a1a2e; color:white; padding:.85rem 2rem;
+              border-radius:10px; font-weight:700; text-decoration:none;">
+        ← Retour aux événements
+    </a>
+</div>
+{% endblock %}

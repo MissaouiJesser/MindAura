@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; border-radius: 10px; padding: 30px; max-width: 600px; margin: auto; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px;
+                 background: #4CAF50; color: white; font-size: 13px; }
+        h2 { color: #333; }
+        .meta { color: #777; font-size: 14px; margin: 8px 0; }
+        .btn { display: inline-block; margin-top: 20px; padding: 12px 24px;
+               background: #4CAF50; color: white; border-radius: 6px;
+               text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🆕 Nouvelle ressource publiée !</h2>
+
+        {% if ressource.imageUrl %}
+            <img src="{{ app.request.schemeAndHttpHost ~ ressource.imageUrl }}"
+                 alt="{{ ressource.titre }}" style="width:100%;border-radius:8px;margin-bottom:16px;">
+        {% endif %}
+
+        <span class="badge">{{ ressource.contenu }}</span>
+
+        <h3>{{ ressource.titre }}</h3>
+        <p class="meta">📂 {{ ressource.categorie }} &nbsp;|&nbsp; 🎯 {{ ressource.niveau }}</p>
+        <p class="meta">📅 {{ ressource.datePublication|date('d/m/Y') }}</p>
+        <p>{{ ressource.resume }}</p>
+
+        <a href="{{ app.request.schemeAndHttpHost ~ path('ressources_show', { id: ressource.id }) }}"
+           class="btn">
+            Voir la ressource →
+        </a>
+    </div>
+</body>
+</html>

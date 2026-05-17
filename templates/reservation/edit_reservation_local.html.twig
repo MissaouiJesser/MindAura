@@ -1,0 +1,147 @@
+{# templates/reservation_local/edit.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Modifier : Réservation #{{ reservation.idReservation }}{% endblock %}
+{% block page_label %}Modifier une Réservation{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Modifier la réservation</div>
+    <div class="page-sub">Mise à jour — <strong>{{ reservation.prenomCl }} {{ reservation.nomCl }}</strong></div>
+  </div>
+  <div class="page-actions">
+    <a href="{{ path('reservation_local_show', {id: reservation.idReservation}) }}" class="btn-secondary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="3"/><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/></svg>
+      Voir la réservation
+    </a>
+    <a href="{{ path('reservation_local_index') }}" class="btn-secondary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 5l-6 5 6 5" stroke-linecap="round"/></svg>
+      Retour
+    </a>
+  </div>
+</div>
+
+{% set allErrors = [] %}
+{% for field in ['local','nomCl','prenomCl','dateReservation','heureDebutReservation','heureFinReservation','statusReservation','motifReservation','prixReservation'] %}
+  {% for error in attribute(form, field).vars.errors %}
+    {% set allErrors = allErrors|merge([error.message]) %}
+  {% endfor %}
+{% endfor %}
+{% if allErrors|length > 0 %}
+<div style="background:#FEF2F2;border-radius:12px;padding:14px 18px;margin-bottom:20px;border-left:3px solid #EF4444">
+  <div style="font-size:.85rem;font-weight:700;color:#991B1B;margin-bottom:8px">Erreurs à corriger :</div>
+  <ul style="margin:0;padding-left:18px">
+    {% for msg in allErrors %}<li style="font-size:.82rem;color:#991B1B;margin-bottom:3px">{{ msg }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start">
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Client & Local #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .07s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px">Identité du client</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.local) }}</label>
+          {{ form_widget(form.local, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.prenomCl) }}</label>
+          {{ form_widget(form.prenomCl, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.prenomCl.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+          {% for error in form.prenomCl.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.nomCl) }}</label>
+          {{ form_widget(form.nomCl, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid ' ~ (form.nomCl.vars.errors|length > 0 ? '#EF4444' : 'var(--border)') ~ ';font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+          {% for error in form.nomCl.vars.errors %}<div style="color:#EF4444;font-size:.74rem;margin-top:4px">{{ error.message }}</div>{% endfor %}
+        </div>
+
+      </div>
+    </div>
+
+    {# Date & Horaires #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .11s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px">Date & Horaires</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.dateReservation) }}</label>
+          {{ form_widget(form.dateReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.heureDebutReservation) }}</label>
+          {{ form_widget(form.heureDebutReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.heureFinReservation) }}</label>
+          {{ form_widget(form.heureFinReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.prixReservation) }}</label>
+          {{ form_widget(form.prixReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg)', onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+        </div>
+
+      </div>
+    </div>
+
+    {# Motif #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .15s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px">Motif de la réservation</div>
+      {{ form_widget(form.motifReservation, {attr: {style: 'width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;resize:vertical;background:var(--bg)', rows: 3, onfocus: "this.style.borderColor='var(--green-light)'", onblur: "this.style.borderColor='var(--border)'"}}) }}
+    </div>
+
+  </div>
+
+  {# ── Panneau latéral ── #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Statut #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .1s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px">Statut</div>
+      <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-sec);margin-bottom:5px">{{ form_label(form.statusReservation) }}</label>
+      {{ form_widget(form.statusReservation, {attr: {style: 'width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer'}}) }}
+    </div>
+
+    {# Actions #}
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:10px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .18s both">
+      {{ form_widget(form.submit, {attr: {style: 'width:100%;padding:11px;border-radius:12px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.9rem;font-weight:700;border:none;cursor:pointer;transition:all .2s', onmouseover: "this.style.background='var(--green-mid)'", onmouseout: "this.style.background='var(--green)'"}}) }}
+      <a href="{{ path('reservation_local_index') }}" style="display:block;width:100%;padding:10px;border-radius:12px;background:var(--bg);color:var(--text-sec);font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;border:1.5px solid var(--border);text-align:center;text-decoration:none;transition:all .2s;box-sizing:border-box"
+        onmouseover="this.style.borderColor='var(--green-light)';this.style.color='var(--green)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sec)'">
+        Annuler
+      </a>
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:2px">
+        <button type="submit" form="deleteResaForm"
+          onclick="return confirm('Supprimer définitivement cette réservation ?')"
+          style="width:100%;padding:10px;border-radius:12px;background:#FEF2F2;color:#EF4444;font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;border:1.5px solid #FECACA;cursor:pointer;transition:all .2s"
+          onmouseover="this.style.background='#EF4444';this.style.color='#fff'"
+          onmouseout="this.style.background='#FEF2F2';this.style.color='#EF4444'">
+          Supprimer cette réservation
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{{ form_end(form) }}
+
+{# Formulaire de suppression — hors du form principal #}
+<form id="deleteResaForm" method="post" action="{{ path('reservation_local_delete', {id: reservation.idReservation}) }}" style="display:none">
+  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.idReservation) }}">
+</form>
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Nouvelle réponse — Backoffice{% endblock %}
+{% block page_label %}Nouvelle réponse{% endblock %}
+
+{% block content %}
+<style>
+  .form-section { max-width:750px; margin:0 auto; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both; }
+  
+  .form-header { margin-bottom:28px; }
+  .form-title { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .form-sub { font-size:.9rem; color:var(--text-sec); }
+  
+  .form-card { background:var(--white); border:1.5px solid var(--border); border-radius:16px; padding:32px; box-shadow:var(--shadow-card); }
+  
+  .form-group { margin-bottom:24px; }
+  .form-group label, .form-group > .form-label { display:block; font-weight:600; color:var(--text); margin-bottom:8px; font-size:.9rem; }
+  .form-group input,
+  .form-group textarea,
+  .form-group select { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.9rem; color:var(--text); background:var(--white); transition:border-color .2s, box-shadow .2s; }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { outline:none; border-color:var(--green-light); box-shadow:0 0 0 3px rgba(82,183,136,.1); }
+  
+  .form-group textarea { resize:vertical; min-height:140px; }
+  
+  .form-hint { font-size:.8rem; color:var(--text-sec); margin-top:6px; }
+  
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:600px) { .form-row { grid-template-columns:1fr; } }
+  
+  .form-actions { display:flex; align-items:center; gap:12px; margin-top:32px; padding-top:24px; border-top:1.5px solid var(--border); }
+  
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:10px; font-family:'Outfit',sans-serif; font-weight:600; font-size:.9rem; text-decoration:none; cursor:pointer; border:none; transition:all .2s; white-space:nowrap; }
+  
+  .btn-primary { background:var(--green); color:#fff; box-shadow:0 4px 12px rgba(82,183,136,.3); }
+  .btn-primary:hover { background:#1a9970; box-shadow:0 6px 16px rgba(82,183,136,.4); }
+  
+  .btn-secondary { background:var(--border); color:var(--text); border:1.5px solid var(--border); }
+  .btn-secondary:hover { background:var(--bg); }
+  
+  .btn svg { width:16px; height:16px; }
+
+  .error-message { background:#FEE2E2; color:#DC2626; padding:12px 14px; border-radius:10px; margin-bottom:16px; font-size:.85rem; }
+</style>
+
+<div class="form-section">
+  <div class="form-header">
+    <h1 class="form-title">Répondre à une réclamation</h1>
+    <p class="form-sub">Fournissez une réponse détaillée à la réclamation</p>
+  </div>
+
+  {% for message in app.flashes('error') %}
+    <div class="error-message">{{ message }}</div>
+  {% endfor %}
+
+  {{ form_start(form, { attr: { class: 'form-card' } }) }}
+    {% if not form.vars.valid %}
+      {{ form_errors(form) }}
+    {% endif %}
+
+    <div class="form-group">
+      {{ form_row(form.reclamation) }}
+    </div>
+
+    <div class="form-group">
+      {{ form_row(form.contenu_reponse) }}
+      <div class="form-hint">Entre 5 et 5000 caractères</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date de la réponse</label>
+        <div style="padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text-sec);font-size:.9rem;">
+          {{ form.vars.data.date_reponse|date('d/m/Y H:i:s') }} — fixée automatiquement à l’enregistrement (non modifiable)
+        </div>
+      </div>
+      <div class="form-group">
+        {{ form_row(form.id_utilisateur) }}
+        <div class="form-hint">Si vous êtes connecté, l’identifiant peut être remplacé par celui de votre compte à l’enregistrement.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{ form_row(form.rate_reponse) }}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 8l-5-5m0 0H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V8z M11 3v5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Envoyer la réponse
+      </button>
+      {% set recl = form.reclamation.vars.value %}
+     {# ✅ Replace with this #}
+{% if reclamation_id %}
+  <a href="{{ path('reclamation_show', {id: reclamation_id}) }}" class="btn btn-secondary">Annuler</a>
+{% else %}
+  <a href="{{ path('reclamation_index') }}" class="btn btn-secondary">Annuler</a>
+{% endif %}
+    </div>
+  {{ form_end(form) }}
+</div>
+{% endblock %}

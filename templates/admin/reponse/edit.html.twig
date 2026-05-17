@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la réponse{% endblock %}
+
+{% block body %}
+<h1>Modifier la réponse</h1>
+<a href="{{ path('reponse_index') }}">Retour à la liste</a>
+
+{% for message in app.flashes('error') %}
+    <div style="color: red;">{{ message }}</div>
+{% endfor %}
+
+<form method="post">
+    <label for="reclamation_id">Réclamation :</label>
+    <select name="reclamation_id" id="reclamation_id" required>
+        <option value="">Choisir une réclamation</option>
+        {% for reclamation in reclamations %}
+            <option value="{{ reclamation.id_reclamation }}" {% if reclamation.id_reclamation == reponse.reclamation.id_reclamation %}selected{% endif %}>{{ reclamation.sujet_reclamation }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="contenu_reponse">Contenu :</label><br>
+    <textarea name="contenu_reponse" id="contenu_reponse" rows="4" cols="50" required>{{ reponse.contenu_reponse }}</textarea><br><br>
+
+    <label for="id_utilisateur">ID Utilisateur :</label>
+    <input type="number" name="id_utilisateur" id="id_utilisateur" value="{{ reponse.id_utilisateur }}"><br><br>
+
+    <label for="rate_reponse">Note :</label>
+    <input type="number" step="0.01" name="rate_reponse" id="rate_reponse" value="{{ reponse.rate_reponse }}"><br><br>
+
+    <label for="rate_sum">Somme des notes :</label>
+    <input type="number" name="rate_sum" id="rate_sum" value="{{ reponse.rate_sum }}"><br><br>
+
+    <label for="rate_count">Nombre de notes :</label>
+    <input type="number" name="rate_count" id="rate_count" value="{{ reponse.rate_count }}"><br><br>
+
+    <button type="submit">Modifier</button>
+</form>
+{% endblock %}

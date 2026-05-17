@@ -1,0 +1,127 @@
+{# templates/evenement/index.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Événements{% endblock %}
+{% block page_label %}Gestion des événements{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Événements</h1>
+        <p class="page-sub">Gérez tous les événements de la plateforme</p>
+    </div>
+    <div class="page-actions">
+        <a href="{{ path('evenement_new') }}" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M10 4v12M4 10h12" stroke-linecap="round"/>
+            </svg>
+            Nouvel événement
+        </a>
+    </div>
+</div>
+
+{# Formulaire de recherche #}
+<div class="card" style="border-radius: var(--radius); margin-bottom: 24px;">
+    <div class="card-body">
+        {{ form_start(searchForm) }}
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                {{ form_widget(searchForm.query) }}
+            </div>
+            <div class="col-md-2">
+                {{ form_widget(searchForm.statut) }}
+            </div>
+            <div class="col-md-2">
+                {{ form_widget(searchForm.typeEvenement) }}
+            </div>
+            <div class="col-md-2">
+                {{ form_widget(searchForm.dateDebut) }}
+            </div>
+            <div class="col-md-2">
+                {{ form_widget(searchForm.dateFin) }}
+            </div>
+            <div class="col-md-1">
+                <div class="form-check">
+                    {{ form_widget(searchForm.gratuit) }}
+                    {{ form_label(searchForm.gratuit) }}
+                </div>
+            </div>
+            <div class="col-12">
+                {{ form_widget(searchForm.search) }}
+                <a href="{{ path('evenement_index') }}" class="btn-secondary">Réinitialiser</a>
+            </div>
+        </div>
+        {{ form_end(searchForm) }}
+    </div>
+</div>
+
+{# Tableau des événements #}
+<div class="card" style="border-radius: var(--radius); overflow: hidden;">
+    <div class="card-body p-0">
+        {% if evenements is empty %}
+            <div class="text-center py-5">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                <p class="text-muted">Aucun événement trouvé.</p>
+                <a href="{{ path('evenement_new') }}" class="btn-primary">Créer le premier événement</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table" style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: var(--bg);">
+                        <tr>
+                            <th style="padding: 14px 16px;">ID</th>
+                            <th style="padding: 14px 16px;">Titre</th>
+                            <th style="padding: 14px 16px;">Type</th>
+                            <th style="padding: 14px 16px;">Date début</th>
+                            <th style="padding: 14px 16px;">Date fin</th>
+                            <th style="padding: 14px 16px;">Lieu</th>
+                            <th style="padding: 14px 16px;">Capacité</th>
+                            <th style="padding: 14px 16px;">Tarif</th>
+                            <th style="padding: 14px 16px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for e in evenements %}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 12px 16px;">{{ e.id }}</td>
+                            <td style="padding: 12px 16px;">
+                                <strong>{{ e.titreEvenement }}</strong>
+                                {% if e.image %}
+                                    <span class="text-muted">🖼️</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                {% if e.typeEvenement %}
+                                    <span class="badge green">{{ e.typeEvenement.libelle }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px 16px;">{{ e.datedebutEvenemnt ? e.datedebutEvenemnt|date('d/m/Y') : '—' }}</td>
+                            <td style="padding: 12px 16px;">{{ e.datefinEvenemnt ? e.datefinEvenemnt|date('d/m/Y') : '—' }}</td>
+                            <td style="padding: 12px 16px;">{{ e.lieuEvenement }}</td>
+                            <td style="padding: 12px 16px;">{{ e.capaciteEvenement }}</td>
+                            <td style="padding: 12px 16px;">
+                                {% if e.typeEvenement %}
+                                    <span class="badge {{ e.typeEvenement.estGratuit ? 'green' : 'violet' }}">
+                                        {{ e.typeEvenement.estGratuit ? 'Gratuit' : 'Payant' }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{{ path('evenement_show', {id: e.id}) }}" class="btn-secondary" style="padding: 5px 10px;">👁️ Voir</a>
+                                    <a href="{{ path('evenement_edit', {id: e.id}) }}" class="btn-secondary" style="padding: 5px 10px;">✏️ Modifier</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réponses — Backoffice{% endblock %}
+{% block page_label %}Réponses{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  
+  .page-hero {
+    background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 55%,#7B5EA7 100%);
+    border-radius:20px; padding:28px 34px; margin-bottom:20px;
+    overflow:hidden; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+    box-shadow:0 8px 32px rgba(27,67,50,.22);
+  }
+  .hero-inner { display:flex; align-items:center; gap:20px; position:relative; z-index:1; margin-top:8px; }
+  .hero-icon-box { width:58px; height:58px; border-radius:16px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.2); display:grid; place-items:center; flex-shrink:0; }
+  .hero-icon-box svg { width:26px; height:26px; color:#fff; }
+  .hero-text { flex:1; }
+  .hero-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; margin-bottom:4px; }
+  .hero-sub { font-size:.82rem; color:rgba(255,255,255,.7); }
+  .hero-chip { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:99px; padding:3px 10px; font-size:.73rem; font-weight:600; color:rgba(255,255,255,.9); margin-left:10px; }
+  .btn-new { display:inline-flex; align-items:center; gap:9px; padding:12px 22px; border-radius:13px; background:#fff; color:var(--green); font-family:'Outfit',sans-serif; font-size:.87rem; font-weight:700; text-decoration:none; flex-shrink:0; box-shadow:0 4px 18px rgba(0,0,0,.14); transition:transform .2s, box-shadow .2s; }
+  .btn-new:hover { transform:translateY(-2px); }
+  .btn-new-icon { width:27px; height:27px; border-radius:8px; background:var(--green-pale); display:grid; place-items:center; flex-shrink:0; }
+  .btn-new-icon svg { width:14px; height:14px; color:var(--green); }
+
+  .table-card { background:var(--white); border:1.5px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg); }
+  thead th { padding:12px 16px; text-align:left; font-size:.69rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.9px; border-bottom:1.5px solid var(--border); }
+  tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+  tbody tr:hover { background:var(--green-hover); }
+  td { padding:13px 16px; vertical-align:middle; font-size:.845rem; }
+  td.title { font-weight:600; color:var(--text); }
+
+  .actions-cell { display:flex; align-items:center; gap:5px; flex-wrap:nowrap; }
+  .btn-action { display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:8px; font-family:'Outfit',sans-serif; font-size:.75rem; font-weight:600; text-decoration:none; cursor:pointer; border:1.5px solid transparent; transition:all .18s; white-space:nowrap; }
+  .btn-action svg { width:12px; height:12px; }
+  .btn-show   { background:#EFF6FF; border-color:#BFDBFE; color:#1565C0; }
+  .btn-show:hover { background:#DBEAFE; }
+  .btn-edit { background:#FEF3C7; border-color:#FDE68A; color:#B45309; }
+  .btn-edit:hover { background:#FDE68A; }
+
+  .empty-state { text-align:center; padding:56px 20px; }
+  .empty-icon { width:60px; height:60px; border-radius:16px; background:var(--green-pale); display:grid; place-items:center; margin:0 auto 16px; }
+  .empty-icon svg { width:26px; height:26px; color:var(--green); }
+  .empty-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+</style>
+
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="hero-icon-box">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 7h16" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">Réponses</div>
+      <div class="hero-sub">
+        Gérez les réponses aux réclamations
+        <span class="hero-chip">
+          {{ reponses|length }} réponse{{ reponses|length != 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+    <a class="btn-new" href="{{ path('reponse_new') }}">
+      <div class="btn-new-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+      </div>
+      Nouvelle réponse
+    </a>
+  </div>
+</div>
+
+<div class="table-card">
+  {% if reponses %}
+    <table>
+      <thead>
+        <tr>
+          <th>Réclamation</th>
+          <th>Contenu</th>
+          <th>Date</th>
+          <th>Utilisateur</th>
+          <th>Note</th>
+          <th style="text-align:right; width:140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reponse in reponses %}
+          <tr>
+            <td class="title">{{ reponse.reclamation ? reponse.reclamation.sujet_reclamation[:40] : 'N/A' }}{% if reponse.reclamation and reponse.reclamation.sujet_reclamation|length > 40 %}...{% endif %}</td>
+            <td>{{ reponse.contenu_reponse[:50] }}...{% if reponse.contenu_reponse|length <= 50 %}{% endif %}</td>
+            <td>{{ reponse.date_reponse|date('d/m/Y H:i') }}</td>
+            <td>{{ reponse.nom_utilisateur ?: ('#' ~ reponse.id_utilisateur) }}</td>
+            <td>{{ reponse.rate_reponse|number_format(1, ',', ' ') }}/5</td>
+            <td>
+              <div class="actions-cell">
+                <a href="{{ path('reponse_show', {id: reponse.id_reponse}) }}" class="btn-action btn-show" title="Voir">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3C5.5 3 2 7 2 10s3.5 7 8 7 8-4 8-7-3.5-7-8-7zm0 5c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z" stroke-linecap="round"/></svg>
+                </a>
+                <a href="{{ path('reponse_edit', {id: reponse.id_reponse}) }}" class="btn-action btn-edit" title="Modifier">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17.25V21h3.75L17.81 9.94m-2.85-2.85L21 4.25M13 13l-4-4" stroke-linecap="round" stroke-linejoin="round" transform="translate(-1 -1)"/></svg>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 12h6m0 0h-6m6 0V6m0 0V6m0 6v6m0 0v6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="empty-title">Aucune réponse</div>
+      <p style="font-size:.8rem; color:var(--text-sec);">Aucune réponse n'a été enregistrée pour le moment.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

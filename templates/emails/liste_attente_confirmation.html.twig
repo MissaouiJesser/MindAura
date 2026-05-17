@@ -1,0 +1,69 @@
+{# templates/emails/liste_attente_confirmation.html.twig #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription en liste d'attente</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .wrapper { max-width: 600px; margin: 30px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header { background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%); padding: 40px 30px; text-align: center; color: #fff; }
+        .header h1 { margin: 0; font-size: 26px; }
+        .header p { margin: 8px 0 0; opacity: 0.85; font-size: 15px; }
+        .body { padding: 35px 30px; color: #333; }
+        .body h2 { font-size: 20px; color: #444; margin-bottom: 6px; }
+        .info-box { background: #fff8f0; border-left: 4px solid #e67e22; padding: 18px 20px; border-radius: 6px; margin: 24px 0; }
+        .info-box p { margin: 6px 0; font-size: 14px; }
+        .info-box strong { color: #555; }
+        .position-badge { display: inline-block; background: #e67e22; color: white; padding: 8px 20px; border-radius: 20px; font-size: 18px; font-weight: bold; margin: 16px 0; }
+        .note-box { background: #f8f9fa; border: 1px solid #dee2e6; padding: 14px 18px; border-radius: 6px; margin: 20px 0; font-size: 13px; color: #6c757d; }
+        .footer { background: #f8f8f8; text-align: center; padding: 20px; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+
+    <div class="header">
+        <h1>⏳ Vous êtes en liste d'attente</h1>
+        <p>Nous vous prévenons dès qu'une place se libère</p>
+    </div>
+
+    <div class="body">
+        <h2>Bonjour {{ participation.prenom }} {{ participation.nom }},</h2>
+        <p>
+            L'événement <strong>« {{ participation.evenement.titreEvenement }} »</strong> est complet,
+            mais nous avons bien enregistré votre demande en liste d'attente.
+        </p>
+
+        <p style="text-align:center;">
+            Votre position dans la liste d'attente :<br>
+            <span class="position-badge">N° {{ participation.positionAttente }}</span>
+        </p>
+
+        <div class="info-box">
+            <p><strong>📅 Date de début :</strong> {{ participation.evenement.datedebutEvenemnt|date('d/m/Y') }}</p>
+            <p><strong>📅 Date de fin :</strong> {{ participation.evenement.datefinEvenemnt|date('d/m/Y') }}</p>
+            <p><strong>📍 Lieu :</strong> {{ participation.evenement.lieuEvenement }}</p>
+            <p><strong>📧 Email inscrit :</strong> {{ participation.email }}</p>
+            <p><strong>🕐 Date d'inscription :</strong> {{ participation.dateInscription|date('d/m/Y à H:i') }}</p>
+        </div>
+
+        <div class="note-box">
+            💡 <strong>Comment ça fonctionne ?</strong><br>
+            Dès qu'une personne se désiste, la première personne de la liste d'attente reçoit automatiquement
+            un email et sa participation est confirmée. Vous n'avez rien à faire — nous vous prévenons !
+        </div>
+
+        <p style="font-size:14px; color:#666;">
+            Merci de votre intérêt pour cet événement. À bientôt sur MindAura ! 🚀
+        </p>
+    </div>
+
+    <div class="footer">
+        © {{ "now"|date("Y") }} MindAura · Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+    </div>
+
+</div>
+</body>
+</html>

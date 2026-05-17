@@ -1,0 +1,155 @@
+parameters:
+    chat_uploads_dir: '%kernel.project_dir%/public/uploads/chat'
+    images_locaux_directory: '%kernel.project_dir%/public/uploads/locaux'
+    images_salles_directory: '%kernel.project_dir%/public/uploads/salles'
+    images_directory: '%kernel.project_dir%/public/uploads/evenements'
+    produits_images_directory: '%kernel.project_dir%/public/uploads/produits'
+
+    groq_fallback_models_default: ''
+
+    voicerss.api_key: '%env(VOICERSS_API_KEY)%'
+    voicerss.default_lang: 'fr-fr'
+    voicerss.default_format: '16khz_16bit_stereo'
+
+    deepl_api_key: '%env(DEEPL_API_KEY)%'
+    stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
+
+    reclamation_admin_notification_email: 'azer.laifi@esprit.tn'
+    reclamation_traitee_expediteur_email: 'azer.laifi@esprit.tn'
+    reclamation_traitee_expediteur_name: 'MindAura — Réclamations'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # ========================
+    # CONTROLLERS
+    # ========================
+
+    App\Controller\PaiementController:
+        arguments:
+            $stripeSecretKey: '%stripe_secret_key%'
+
+    # ========================
+    # SERVICES
+    # ========================
+
+    App\Twig\PodcastExtension:
+        tags: ['twig.extension']
+
+    App\Service\YoutubeService:
+        arguments:
+            $youtubeApiKey: '%env(YOUTUBE_API_KEY)%'
+
+    App\Service\CommentAnalysisService:
+        arguments:
+            $apiKey: '%env(ANTHROPIC_API_KEY)%'
+
+    App\Service\TranslationService:
+        arguments:
+            $email: '%env(default::MYMEMORY_EMAIL)%'
+
+    App\Service\PexelsService:
+        arguments:
+            $apiKey: '%env(PEXELS_API_KEY)%'
+
+    App\Service\WikipediaService: ~
+
+    App\Service\OpenLibraryService: ~
+
+    App\Service\DescriptionIaService:
+        arguments:
+            $groqApiKey: '%env(GROQ_API_KEY)%'
+
+    App\Service\EmailReservationService:
+        arguments:
+            $fromEmail: '%env(MAILER_FROM)%'
+            $fromName:  '%env(MAILER_FROM_NAME)%'
+
+    App\Controller\ChatbotController:
+        arguments:
+            $openRouterApiKey: '%env(OPENROUTER_API_KEY)%'
+
+    App\Controller\PdfReservationController:
+        arguments:
+            $openRouterApiKey: '%env(OPENROUTER_API_KEY)%'
+
+    App\Controller\RoomRecommendationController:
+        arguments:
+            $openRouterApiKey: '%env(OPENROUTER_API_KEY)%'
+
+    App\Service\GroqService:
+        arguments:
+            $groqApiKey:        '%env(GROQ_API_KEY)%'
+            $groqModel:         '%env(GROQ_MODEL)%'
+            $fallbackModelsCsv: '%env(default:groq_fallback_models_default:string:GROQ_FALLBACK_MODELS)%'
+            $cache:             '@cache.app'
+
+    App\Service\VoiceRssService:
+        arguments:
+            $apiKey:       '%voicerss.api_key%'
+            $defaultLang:  '%voicerss.default_lang%'
+            $defaultFormat: '%voicerss.default_format%'
+
+    App\Service\MailService:
+        arguments:
+            $mailerFrom:     '%env(MAILER_FROM)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
+    App\Service\NewsApiService:
+        arguments:
+            $apiKey: '%env(NEWS_API_KEY)%'
+            $apiUrl: '%env(NEWS_API_URL)%'
+
+    App\Service\TraductionService:
+        arguments:
+            $email: '%env(default::MYMEMORY_EMAIL_T)%'
+
+    #YASSINE#
+    App\Service\GroqServiceR:
+        arguments:
+            $groqApiKey: '%env(GROQ_API_KEY)%'
+
+    App\Service\ReclamationNotificationMailer:
+        arguments:
+            $fromAddress: '%env(MAILER_FROM)%'
+            $fromName: '%env(MAILER_FROM_NAME)%'
+            $adminNotificationTo: '%reclamation_admin_notification_email%'
+            $traiteeExpediteurAddress: '%reclamation_traitee_expediteur_email%'
+            $traiteeExpediteurName: '%reclamation_traitee_expediteur_name%'
+
+    App\Service\ReclamationPriorityService:
+        arguments:
+            $groqApiKey: '%env(GROQ_API_KEY)%'
+
+    App\Service\DeepLTranslationService:
+        arguments:
+            $deepLApiKey: '%env(DEEPL_API_KEY_RECLAMATION)%'
+
+    App\Service\BioGeneratorService:
+        arguments:
+            $openrouterApiKey: '%env(OPENROUTER_API_KEY)%'
+
+    App\Service\EmotionAnalysisService:
+        arguments:
+            $faceppApiKey: '%env(FACEPP_API_KEY)%'
+            $faceppApiSecret: '%env(FACEPP_API_SECRET)%'
+
+    # ========================
+    # EVENT LISTENER (pour détecter ORDER BY sans LIMIT)
+    # ========================
+    App\EventListener\QueryListener:
+        tags:
+            - { name: doctrine.event_listener, event: postExecute, connection: default }
+
+    App\Controller\ChatController:
+        arguments:
+            $chatUploadsDir: '%chat_uploads_dir%'

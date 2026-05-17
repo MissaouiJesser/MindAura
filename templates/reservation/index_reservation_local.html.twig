@@ -1,0 +1,534 @@
+{# templates/reservation/index_reservation_local.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réservations Locaux{% endblock %}
+{% block page_label %}Réservations Locaux{% endblock %}
+
+{% block content %}
+
+{# ══ HERO BANNER ══════════════════════════════════════════════════════════ #}
+<div style="background:linear-gradient(120deg,#1a3c2e 0%,#2d6a4f 45%,#c45c00 100%);border-radius:20px;padding:28px 32px;margin-bottom:26px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:0 8px 32px rgba(26,60,46,.22);animation:fadeUp .45s cubic-bezier(.22,1,.36,1) both;position:relative;overflow:hidden">
+  <div style="position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.04);top:-60px;right:260px;pointer-events:none"></div>
+  <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05);bottom:-50px;right:180px;pointer-events:none"></div>
+
+  <div style="display:flex;align-items:center;gap:18px;z-index:1">
+    <div style="width:56px;height:56px;background:rgba(255,255,255,.12);border-radius:16px;display:grid;place-items:center;flex-shrink:0;backdrop-filter:blur(4px)">
+      <svg style="width:28px;height:28px;color:#fff" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <rect x="3" y="4" width="14" height="13" rx="2"/>
+        <path d="M3 8h14" stroke-linecap="round"/>
+        <path d="M7 2v3M13 2v3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1.2">Réservations de Locaux</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.7);margin-top:4px">Gestion de toutes les réservations de locaux psychiatriques</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:rgba(255,255,255,.15);border-radius:99px;padding:3px 12px;backdrop-filter:blur(4px)">
+        <svg style="width:12px;height:12px;color:rgba(255,255,255,.85)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14" stroke-linecap="round"/>
+        </svg>
+        <span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.9)">
+          {{ reservations|length }} réservation{% if reservations|length > 1 %}s{% endif %} au total
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px;z-index:1;flex-wrap:wrap">
+
+    {# ── Cloche de notifications ── #}
+    <div class="notif-bell-wrap" id="notifBellWrap" style="position:relative">
+      <button class="icon-btn" id="notifBellBtn" title="Notifications" aria-label="Notifications"
+        style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff"
+        onmouseover="this.style.background='rgba(255,255,255,.22)';this.style.borderColor='rgba(255,255,255,.45)'"
+        onmouseout="this.style.background='rgba(255,255,255,.12)';this.style.borderColor='rgba(255,255,255,.25)'">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M10 2a6 6 0 00-6 6c0 3.5-1.5 5-1.5 5h15s-1.5-1.5-1.5-5a6 6 0 00-6-6z" stroke-linecap="round"/>
+          <path d="M11.73 17a2 2 0 01-3.46 0" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span class="notif-badge hidden" id="notifBadge">0</span>
+    </div>
+
+    <a href="#" onclick="window.print();return false;" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff;font-family:Outfit,sans-serif;font-size:.85rem;font-weight:600;text-decoration:none;transition:all .2s;backdrop-filter:blur(4px)"
+      onmouseover="this.style.background='rgba(255,255,255,.22)';this.style.borderColor='rgba(255,255,255,.45)'"
+      onmouseout="this.style.background='rgba(255,255,255,.12)';this.style.borderColor='rgba(255,255,255,.25)'">
+      <svg style="width:16px;height:16px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 4h8l4 4v8a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" stroke-linecap="round"/>
+        <path d="M14 4v4h-4" stroke-linecap="round"/><path d="M7 13h6M7 10h3" stroke-linecap="round"/>
+      </svg>
+      Export PDF
+    </a>
+    <a href="{{ path('reservation_local_new') }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;background:#fff;border:1.5px solid #fff;color:#1a3c2e;font-family:Outfit,sans-serif;font-size:.88rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.12)"
+      onmouseover="this.style.background='#f0fdf4';this.style.boxShadow='0 4px 16px rgba(0,0,0,.18)'"
+      onmouseout="this.style.background='#fff';this.style.boxShadow='0 2px 8px rgba(0,0,0,.12)'">
+      <svg style="width:16px;height:16px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M10 4v12M4 10h12" stroke-linecap="round"/>
+      </svg>
+      Nouvelle réservation
+    </a>
+  </div>
+</div>
+
+{# ── Dropdown Notifications (hors du banner pour éviter overflow:hidden) ── #}
+<div class="notif-dropdown hidden" id="notifDropdown" role="dialog" aria-label="Centre de notifications"
+  style="position:fixed;z-index:9999">
+
+  <div class="notif-header">
+    <div class="notif-header-row1">
+      <div class="notif-header-title">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M10 2a6 6 0 00-6 6c0 3.5-1.5 5-1.5 5h15s-1.5-1.5-1.5-5a6 6 0 00-6-6z" stroke-linecap="round"/>
+          <path d="M11.73 17a2 2 0 01-3.46 0" stroke-linecap="round"/>
+        </svg>
+        Notifications
+      </div>
+    </div>
+    <span id="notifUnreadCount" style="display:none"></span>
+    <div class="notif-header-actions">
+      <button class="notif-action-btn" id="notifMarkRead" title="Marquer tout comme lu">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M4 10l4 4 8-8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        ✓ Tout marquer lu
+      </button>
+      <button class="notif-action-btn btn-clear" id="notifClearAll" title="Tout effacer">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M5 6h10M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke-linecap="round"/>
+        </svg>
+        🗑 Tout effacer
+      </button>
+    </div>
+  </div>
+
+  <div class="notif-list" id="notifList">
+    <div class="notif-empty" id="notifLoading">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M10 2a6 6 0 00-6 6c0 3.5-1.5 5-1.5 5h15s-1.5-1.5-1.5-5a6 6 0 00-6-6z" stroke-linecap="round"/>
+        <path d="M11.73 17a2 2 0 01-3.46 0" stroke-linecap="round"/>
+      </svg>
+      <strong>Chargement…</strong>
+      Récupération des notifications
+    </div>
+  </div>
+
+  <div class="notif-footer">
+    <a href="{{ path('reservation_local_index') }}">
+      Voir toutes les réservations
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 10h10M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+{# ── Barre recherche / filtres / tri / pagination ── #}
+<div style="background:#fff;border-radius:16px;padding:18px 22px;box-shadow:var(--shadow-card);margin-bottom:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .08s both">
+  <div style="position:relative;flex:1;min-width:200px">
+    <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-sec)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+    <input id="searchInput" type="text" placeholder="Rechercher un client, local..."
+      style="width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.84rem;outline:none;background:var(--bg);box-sizing:border-box"
+      onfocus="this.style.borderColor='var(--green-light)'" onblur="this.style.borderColor='var(--border)'">
+  </div>
+  <select id="filterStatus" style="padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.83rem;background:var(--bg);outline:none;cursor:pointer">
+    <option value="">Tous les statuts</option>
+    <option value="En attente">En attente</option>
+    <option value="Confirmée">Confirmée</option>
+    <option value="Annulée">Annulée</option>
+    <option value="Terminée">Terminée</option>
+  </select>
+
+  {# ── Tri ── #}
+  <select id="sortSelect" style="padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.83rem;background:var(--bg);outline:none;cursor:pointer">
+    <option value="date-desc">Date ↓ (récent)</option>
+    <option value="date-asc">Date ↑ (ancien)</option>
+    <option value="client-asc">Client A→Z</option>
+    <option value="client-desc">Client Z→A</option>
+    <option value="prix-asc">Prix ↑</option>
+    <option value="prix-desc">Prix ↓</option>
+    <option value="status-asc">Statut A→Z</option>
+  </select>
+
+  {# ── Lignes / page ── #}
+  <select id="perPageSelect" style="padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:Outfit,sans-serif;font-size:.83rem;background:var(--bg);outline:none;cursor:pointer">
+    <option value="5">5 / page</option>
+    <option value="10" selected>10 / page</option>
+    <option value="20">20 / page</option>
+    <option value="50">50 / page</option>
+  </select>
+
+  <div style="font-size:.82rem;color:var(--text-sec);white-space:nowrap">
+    <span id="countLabel">{{ reservations|length }}</span> résultat{% if reservations|length > 1 %}s{% endif %}
+  </div>
+</div>
+
+{# ── Tableau ── #}
+{% if reservations is empty %}
+<div style="background:#fff;border-radius:16px;padding:60px 24px;text-align:center;box-shadow:var(--shadow-card);animation:fadeUp .4s both">
+  <svg style="width:48px;height:48px;color:var(--border);margin:0 auto 14px;display:block" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3">
+    <rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14" stroke-linecap="round"/>
+  </svg>
+  <div style="font-size:.95rem;font-weight:600;color:var(--text-sec);margin-bottom:10px">Aucune réservation pour le moment</div>
+  <a href="{{ path('reservation_local_new') }}" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.85rem;font-weight:600;text-decoration:none">
+    <svg style="width:14px;height:14px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+    Créer une réservation
+  </a>
+</div>
+{% else %}
+<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both">
+  <table style="width:100%;border-collapse:collapse" id="mainTable">
+    <thead>
+      <tr style="background:var(--bg);border-bottom:2px solid var(--border)">
+        <th class="sortable" data-col="client" style="padding:12px 20px;text-align:left;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;cursor:pointer;user-select:none;white-space:nowrap">
+          Client <span class="sort-arrow" id="arr-client"></span>
+        </th>
+        <th class="sortable" data-col="local" style="padding:12px 16px;text-align:left;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;cursor:pointer;user-select:none;white-space:nowrap">
+          Local <span class="sort-arrow" id="arr-local"></span>
+        </th>
+        <th style="padding:12px 16px;text-align:left;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px">Salle</th>
+        <th class="sortable" data-col="date" style="padding:12px 16px;text-align:left;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;cursor:pointer;user-select:none;white-space:nowrap">
+          Date <span class="sort-arrow" id="arr-date">↓</span>
+        </th>
+        <th style="padding:12px 16px;text-align:center;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px">Horaires</th>
+        <th class="sortable" data-col="prix" style="padding:12px 16px;text-align:center;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;cursor:pointer;user-select:none;white-space:nowrap">
+          Prix <span class="sort-arrow" id="arr-prix"></span>
+        </th>
+        <th class="sortable" data-col="status" style="padding:12px 16px;text-align:center;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;cursor:pointer;user-select:none;white-space:nowrap">
+          Statut <span class="sort-arrow" id="arr-status"></span>
+        </th>
+        <th style="padding:12px 20px;text-align:center;font-size:.73rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      {% for res in reservations %}
+      <tr class="table-row"
+        data-client="{{ (res.prenomCl ~ ' ' ~ res.nomCl)|lower }}"
+        data-local="{{ res.local ? res.local.nomLocal|lower : '' }}"
+        data-salle="{{ res.salle ? res.salle.nomSalle|lower : '' }}"
+        data-status="{{ res.statusReservation }}"
+        data-date="{{ res.dateReservation ? res.dateReservation|date('Y-m-d') : '0000-00-00' }}"
+        data-prix="{{ res.prixReservation ?? '0' }}"
+        style="border-bottom:1px solid var(--bg);transition:background .18s">
+
+        <td style="padding:14px 20px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:12px;background:#EDE9FE;display:grid;place-items:center;flex-shrink:0">
+              <svg style="width:18px;height:18px;color:#7C3AED" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                <circle cx="10" cy="7" r="3.5"/>
+                <path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:.87rem;font-weight:600;color:var(--text)">{{ res.prenomCl }} {{ res.nomCl }}</div>
+              {% if res.motifReservation %}
+              <div style="font-size:.74rem;color:var(--text-sec);margin-top:2px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ res.motifReservation }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+
+        <td style="padding:14px 16px">
+          {% if res.local %}
+            <span style="font-size:.82rem;color:var(--text-sec);display:flex;align-items:center;gap:5px">
+              <svg style="width:12px;height:12px;flex-shrink:0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18V8l7-5 7 5v10H3z" stroke-linecap="round"/></svg>
+              {{ res.local.nomLocal }}
+            </span>
+          {% else %}
+            <span style="color:var(--text-sec);font-size:.82rem">—</span>
+          {% endif %}
+        </td>
+
+        <td style="padding:14px 16px">
+          {% if res.salle %}
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--violet-pale);color:var(--violet);font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:99px">
+              <svg style="width:11px;height:11px;flex-shrink:0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="14" height="14" rx="2"/><path d="M3 7h14" stroke-linecap="round"/>
+              </svg>
+              {{ res.salle.nomSalle }}
+            </span>
+          {% else %}
+            <span style="color:var(--text-sec);font-size:.82rem">—</span>
+          {% endif %}
+        </td>
+
+        <td style="padding:14px 16px">
+          <div style="font-size:.84rem;font-weight:600;color:var(--text)">
+            {{ res.dateReservation ? res.dateReservation|date('d/m/Y') : '—' }}
+          </div>
+        </td>
+
+        <td style="padding:14px 16px;text-align:center">
+          <div style="font-size:.8rem;color:var(--text-sec)">
+            {{ res.heureDebutReservation ? res.heureDebutReservation|date('H:i') : '—' }} → {{ res.heureFinReservation ? res.heureFinReservation|date('H:i') : '—' }}
+          </div>
+        </td>
+
+        <td style="padding:14px 16px;text-align:center">
+          {% if res.prixReservation %}
+            <span style="font-size:.84rem;font-weight:700;color:var(--green)">{{ res.prixReservation }} TND</span>
+          {% else %}
+            <span style="color:var(--text-sec);font-size:.82rem">—</span>
+          {% endif %}
+        </td>
+
+        <td style="padding:14px 16px;text-align:center">
+          {% if res.statusReservation == 'Confirmée' %}
+            <span style="background:#D8F3DC;color:#1B4332;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#52B788;border-radius:50%"></span>Confirmée
+            </span>
+          {% elseif res.statusReservation == 'En attente' %}
+            <span style="background:#FFF3E0;color:#D97706;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#F59E0B;border-radius:50%"></span>En attente
+            </span>
+          {% elseif res.statusReservation == 'Annulée' %}
+            <span style="background:#FEF2F2;color:#991B1B;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#EF4444;border-radius:50%"></span>Annulée
+            </span>
+          {% else %}
+            <span style="background:var(--bg);color:var(--text-sec);font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#9CA3AF;border-radius:50%"></span>{{ res.statusReservation }}
+            </span>
+          {% endif %}
+        </td>
+
+        <td style="padding:14px 20px;text-align:center">
+          <div style="display:inline-flex;align-items:center;gap:6px">
+            <a href="{{ path('reservation_local_show', {id: res.idReservation}) }}" title="Voir"
+              style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:grid;place-items:center;transition:all .18s;text-decoration:none"
+              onmouseover="this.style.background='var(--green-hover)';this.style.borderColor='var(--green-light)'"
+              onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">
+              <svg style="width:14px;height:14px;color:var(--green)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="3"/><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/></svg>
+            </a>
+            <a href="{{ path('reservation_local_edit', {id: res.idReservation}) }}" title="Modifier"
+              style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:grid;place-items:center;transition:all .18s;text-decoration:none"
+              onmouseover="this.style.background='#FFFBEB';this.style.borderColor='#F59E0B'"
+              onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">
+              <svg style="width:14px;height:14px;color:#D97706" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 4.3a1 1 0 011.4 1.4L6.4 15.4 3 16.7l1.3-3.4 10-10z" stroke-linecap="round"/></svg>
+            </a>
+            <form method="post" action="{{ path('reservation_local_delete', {id: res.idReservation}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette réservation ?')">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ res.idReservation) }}">
+              <button type="submit" title="Supprimer"
+                style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:grid;place-items:center;cursor:pointer;transition:all .18s"
+                onmouseover="this.style.background='#FEF2F2';this.style.borderColor='#EF4444'"
+                onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">
+                <svg style="width:14px;height:14px;color:#EF4444" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h10M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke-linecap="round"/></svg>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div id="noResults" style="display:none;text-align:center;padding:40px;color:var(--text-sec);font-size:.88rem">
+    Aucune réservation ne correspond à votre recherche.
+  </div>
+</div>
+
+{# ── Pagination ── #}
+<div id="paginationWrap" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:18px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .18s both">
+  <div style="font-size:.82rem;color:var(--text-sec)" id="paginationInfo"></div>
+  <div id="paginationBtns" style="display:flex;align-items:center;gap:6px"></div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<style>
+  .sort-arrow { display:inline-block;margin-left:4px;opacity:.4;font-size:.75rem; }
+  .sortable:hover .sort-arrow { opacity:.8; }
+  .sortable.active-sort { color:var(--green)!important; }
+  .sortable.active-sort .sort-arrow { opacity:1;color:var(--green); }
+  .page-btn {
+    min-width:34px;height:34px;border-radius:10px;
+    background:var(--bg);border:1.5px solid var(--border);
+    font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;
+    color:var(--text-sec);cursor:pointer;transition:all .18s;
+    display:grid;place-items:center;padding:0 8px;
+  }
+  .page-btn:hover { background:var(--green-hover);border-color:var(--green-light);color:var(--green); }
+  .page-btn.active { background:var(--green);border-color:var(--green);color:#fff; }
+  .page-btn:disabled { opacity:.35;cursor:default;pointer-events:none; }
+</style>
+<script>
+/* ── Repositionnement du dropdown notifications (fixed, hors overflow) ── */
+(function(){
+  const btn      = document.getElementById('notifBellBtn');
+  const dropdown = document.getElementById('notifDropdown');
+  if (!btn || !dropdown) return;
+
+  function positionDropdown() {
+    const rect = btn.getBoundingClientRect();
+    const ddW  = 380; // largeur du dropdown (voir CSS .notif-dropdown)
+    let left   = rect.right - ddW;
+    if (left < 8) left = 8;
+    // S'assure qu'il ne déborde pas à droite
+    if (left + ddW > window.innerWidth - 8) left = window.innerWidth - ddW - 8;
+    dropdown.style.top  = (rect.bottom + 10) + 'px';
+    dropdown.style.left = left + 'px';
+  }
+
+  // Surcharge du toggle natif : repositionner à chaque ouverture
+  const _origToggle = btn.onclick;
+  btn.addEventListener('click', function(e) {
+    // Calculer la position avant que le dropdown soit visible
+    positionDropdown();
+  }, true); // capture phase : avant que le handler natif masque/affiche
+
+  // Repositionner si la fenêtre est redimensionnée pendant que le dropdown est ouvert
+  window.addEventListener('resize', function() {
+    if (dropdown && !dropdown.classList.contains('hidden')) positionDropdown();
+  });
+})();
+
+(function(){
+  const searchInput  = document.getElementById('searchInput');
+  const filterStatus = document.getElementById('filterStatus');
+  const sortSelect   = document.getElementById('sortSelect');
+  const perPageSel   = document.getElementById('perPageSelect');
+  const countLabel   = document.getElementById('countLabel');
+  const noResults    = document.getElementById('noResults');
+  const paginInfo    = document.getElementById('paginationInfo');
+  const paginBtns    = document.getElementById('paginationBtns');
+  const tbody        = document.getElementById('tableBody');
+
+  let currentPage = 1;
+  let sortCol = 'date';
+  let sortDir = 'desc';
+  // Snapshot immuable de l'ordre original du DOM
+  const allRows = Array.from(document.querySelectorAll('.table-row'));
+
+  /* ── Tri par clic colonne ── */
+  document.querySelectorAll('.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      sortDir = (sortCol === col && sortDir === 'asc') ? 'desc' : 'asc';
+      sortCol = col;
+      // Synchronise le <select> si l'option existe
+      const key = col + '-' + sortDir;
+      if (sortSelect.querySelector(`option[value="${key}"]`)) sortSelect.value = key;
+      currentPage = 1;
+      render();
+    });
+  });
+
+  /* ── Tri via <select> : split sur le dernier '-' pour gérer "date-desc", "status-asc"… ── */
+  sortSelect.addEventListener('change', () => {
+    const val = sortSelect.value;
+    const idx = val.lastIndexOf('-');
+    sortCol = val.slice(0, idx);
+    sortDir = val.slice(idx + 1);
+    currentPage = 1;
+    render();
+  });
+
+  [searchInput, filterStatus].forEach(el => {
+    el?.addEventListener('input',  () => { currentPage = 1; render(); });
+    el?.addEventListener('change', () => { currentPage = 1; render(); });
+  });
+  perPageSel.addEventListener('change', () => { currentPage = 1; render(); });
+
+  function render() {
+    const q       = (searchInput?.value  || '').toLowerCase().trim();
+    const status  = (filterStatus?.value || '');   // comparaison exacte (pas lowercase)
+    const perPage = parseInt(perPageSel.value) || 10;
+
+    /* 1 — Filtrage */
+    let filtered = allRows.filter(row => {
+      const client = (row.dataset.client || '').toLowerCase();
+      const local  = (row.dataset.local  || '').toLowerCase();
+      const salle  = (row.dataset.salle  || '').toLowerCase();
+      const s      =  row.dataset.status || '';
+      return (!q      || client.includes(q) || local.includes(q) || salle.includes(q))
+          && (!status || s === status);
+    });
+
+    /* 2 — Tri */
+    filtered.sort((a, b) => {
+      let va = a.dataset[sortCol] || '';
+      let vb = b.dataset[sortCol] || '';
+      if (sortCol === 'date') {
+        return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      }
+      if (sortCol === 'prix') {
+        va = parseFloat(va) || 0;
+        vb = parseFloat(vb) || 0;
+        return sortDir === 'asc' ? va - vb : vb - va;
+      }
+      return sortDir === 'asc'
+        ? va.localeCompare(vb, 'fr', {sensitivity:'base'})
+        : vb.localeCompare(va, 'fr', {sensitivity:'base'});
+    });
+
+    /* 3 — Compteur */
+    if (countLabel) countLabel.textContent = filtered.length;
+    if (noResults)  noResults.style.display = filtered.length === 0 ? '' : 'none';
+
+    /* 4 — Pagination */
+    const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+    currentPage = Math.min(currentPage, totalPages);
+    const start    = (currentPage - 1) * perPage;
+    const pageRows = filtered.slice(start, start + perPage);
+
+    /* 5 — Affichage : masquer tout, puis réinjecter dans l'ordre trié
+           (fragment pour éviter les reflows multiples) */
+    allRows.forEach(r => { r.style.display = 'none'; });
+    const frag = document.createDocumentFragment();
+    pageRows.forEach(r => { r.style.display = ''; frag.appendChild(r); });
+    tbody.appendChild(frag);
+
+    /* 6 — Info pagination */
+    const from = filtered.length ? start + 1 : 0;
+    const to   = Math.min(start + perPage, filtered.length);
+    if (paginInfo) paginInfo.textContent =
+      `Affichage ${from}–${to} sur ${filtered.length} résultat${filtered.length !== 1 ? 's' : ''}`;
+
+    /* 7 — Boutons pagination */
+    renderPagination(totalPages);
+
+    /* 8 — Flèches de tri dans les en-têtes */
+    document.querySelectorAll('.sortable').forEach(th => {
+      const col   = th.dataset.col;
+      const arrow = document.getElementById('arr-' + col);
+      th.classList.toggle('active-sort', col === sortCol);
+      if (arrow) arrow.textContent = col === sortCol ? (sortDir === 'asc' ? '↑' : '↓') : '↕';
+    });
+  }
+
+  function renderPagination(total) {
+    if (!paginBtns) return;
+    paginBtns.innerHTML = '';
+    const mkBtn = (label, page, disabled = false, active = false) => {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (active ? ' active' : '');
+      btn.innerHTML = label;
+      btn.disabled  = disabled;
+      btn.onclick   = () => { currentPage = page; render(); };
+      paginBtns.appendChild(btn);
+    };
+    mkBtn('‹', currentPage - 1, currentPage <= 1);
+    paginPages(currentPage, total).forEach(p => {
+      if (p === '…') {
+        const span = document.createElement('span');
+        span.textContent = '…';
+        span.style.cssText = 'padding:0 4px;color:var(--text-sec);font-size:.82rem;display:grid;place-items:center;height:34px';
+        paginBtns.appendChild(span);
+      } else {
+        mkBtn(p, p, false, p === currentPage);
+      }
+    });
+    mkBtn('›', currentPage + 1, currentPage >= total);
+  }
+
+  function paginPages(cur, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    if (cur <= 4)   return [1,2,3,4,5,'…',total];
+    if (cur >= total - 3) return [1,'…',total-4,total-3,total-2,total-1,total];
+    return [1,'…',cur-1,cur,cur+1,'…',total];
+  }
+
+  render();
+})();
+</script>
+{% endblock %}

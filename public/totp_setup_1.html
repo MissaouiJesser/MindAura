@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>MindAura — Configuration 2FA pour laifiazer0@gmail.com</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #1B4332 0%, #7B5EA7 100%);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; color: #1A1A2E;
+    }
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      max-width: 600px; width: 100%;
+      padding: 40px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.3);
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; color: #1B4332;
+      margin-bottom: 6px;
+    }
+    .subtitle { color: #5A6475; font-size: .95rem; margin-bottom: 28px; }
+    .user-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #EBF7F0; color: #1B4332;
+      padding: 6px 14px; border-radius: 999px;
+      font-size: .8rem; font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .qr-wrap {
+      text-align: center;
+      padding: 24px;
+      background: #F0F4F8;
+      border-radius: 16px;
+      border: 2px dashed #52B788;
+      margin-bottom: 24px;
+    }
+    .qr-wrap img {
+      display: block; margin: 0 auto 12px;
+      border-radius: 12px;
+      background: #fff; padding: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.08);
+    }
+    .qr-wrap .hint { font-size: .8rem; color: #5A6475; }
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #D5DCE6;
+    }
+    .divider span {
+      color: #5A6475; font-size: .8rem; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .secret-block {
+      background: #EDE9F6; border-left: 4px solid #7B5EA7;
+      padding: 18px 20px; border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .secret-block .label {
+      font-size: .75rem; font-weight: 600; color: #7B5EA7;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .secret-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem; font-weight: 700;
+      color: #1A1A2E;
+      word-break: break-all;
+      user-select: all;
+      cursor: pointer;
+    }
+    .secret-value:hover { background: rgba(123,94,167,.1); }
+    .steps {
+      background: #FFF3E0; border-radius: 12px;
+      padding: 18px 22px; margin-top: 18px;
+    }
+    .steps h3 { color: #E65100; margin-bottom: 10px; font-size: .95rem; }
+    .steps ol { padding-left: 20px; font-size: .88rem; line-height: 1.7; color: #1A1A2E; }
+    .steps li { margin-bottom: 3px; }
+    .warning {
+      margin-top: 22px;
+      background: #FEF2F2; border: 1px solid #FECACA;
+      color: #B71C1C;
+      padding: 12px 16px; border-radius: 10px;
+      font-size: .82rem; line-height: 1.5;
+    }
+    .copy-feedback {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1B4332; color: #fff;
+      padding: 10px 20px; border-radius: 999px;
+      font-size: .85rem; font-weight: 600;
+      transition: transform .3s;
+    }
+    .copy-feedback.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 Configuration 2FA MindAura</h1>
+    <p class="subtitle">Scanne ce QR code avec Google Authenticator pour réinitialiser ton second facteur.</p>
+    <div class="user-badge">👤 Azer · laifiazer0@gmail.com</div>
+
+    <div class="qr-wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=otpauth%3A%2F%2Ftotp%2FMindAura%253Alaifiazer0%2540gmail.com%3Fissuer%3DMindAura%26secret%3DLTLUNTUXXM6GQJ3MDVOZ3CRQNFHKGSEK&amp;size=280x280&amp;margin=20" alt="QR code 2FA MindAura" width="280" height="280"/>
+      <div class="hint">📱 Ouvre Google Authenticator → + → Scanner un QR code</div>
+    </div>
+
+    <div class="divider"><span>ou saisie manuelle</span></div>
+
+    <div class="secret-block">
+      <div class="label">Clé secrète (clique pour copier)</div>
+      <div class="secret-value" id="secret" title="Cliquer pour copier">LTLU NTUX XM6G QJ3M DVOZ 3CRQ NFHK GSEK</div>
+    </div>
+
+    <div class="steps">
+      <h3>📋 Étapes</h3>
+      <ol>
+        <li><strong>Supprime</strong> l'ancienne entrée MindAura dans Google Authenticator</li>
+        <li><strong>Scanne</strong> le QR code ci-dessus (ou saisis la clé manuellement)</li>
+        <li><strong>Vérifie</strong> que les codes générés sont maintenant valides</li>
+        <li><strong>Retourne</strong> au terminal pour tester :<br/>
+          <code style="background:#1A1A2E;color:#52B788;padding:2px 8px;border-radius:4px;font-family:monospace;font-size:.82rem;">php bin/console app:totp:debug laifiazer0@gmail.com --code=XXXXXX</code>
+        </li>
+      </ol>
+    </div>
+
+    <div class="warning">
+      ⚠️ <strong>Supprime ce fichier quand tu as terminé !</strong>
+      Il contient ton secret 2FA en clair et ne doit pas être partagé ni committé.
+    </div>
+  </div>
+
+  <div class="copy-feedback" id="feedback">✅ Clé copiée !</div>
+
+  <script>
+    document.getElementById('secret').addEventListener('click', function() {
+      const raw = 'LTLUNTUXXM6GQJ3MDVOZ3CRQNFHKGSEK';
+      navigator.clipboard.writeText(raw).then(() => {
+        const fb = document.getElementById('feedback');
+        fb.classList.add('show');
+        setTimeout(() => fb.classList.remove('show'), 1800);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Nouveau test psychologique{% endblock %}
+{% block page_label %}Nouveau test{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🧠</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Nouveau test psychologique</h1>
+      <p class="ds-hero-sub">Remplissez les informations pour créer un nouveau test.</p>
+      <span class="ds-hero-chip">+ Création</span>
+    </div>
+    <a href="{{ path('app_admin_tests_index') }}" class="ds-back-link" data-spa data-route="app_admin_tests_index" data-label="Tests psychologiques">← Retour</a>
+  </div>
+</div>
+
+<div class="ds-form-page">
+  {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'ds-form-card', 'style': 'max-width: 920px; margin: 0 auto;'}}) }}
+
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">📋 Informations générales</h3>
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">{{ form_row(form.titre_test) }}</div>
+      </div>
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">{{ form_row(form.description_test) }}</div>
+      </div>
+      <div class="ds-form-row">
+        <div class="ds-form-group">{{ form_row(form.type_test) }}</div>
+        <div class="ds-form-group">{{ form_row(form.duree_estimee) }}</div>
+      </div>
+    </div>
+
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">📝 Instructions du test</h3>
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">{{ form_row(form.instructions_test) }}</div>
+      </div>
+    </div>
+
+    <div class="ds-form-body" style="border-top: 1.5px solid var(--border, #D5DCE6);">
+      <h3 class="ds-form-section-title">⚙️ Statut</h3>
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          <label style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--green-pale, #D8F3DC); border-radius: 12px; cursor: pointer;">
+            {{ form_widget(form.est_actif, {'attr': {'style': 'width: 18px; height: 18px; accent-color: var(--green, #1B4332);'}}) }}
+            <span style="font-weight: 600; color: var(--green, #1B4332); font-size: 13.5px;">Test actif (visible aux utilisateurs)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-actions">
+      <a href="{{ path('app_admin_tests_index') }}" class="ds-btn-cancel" data-spa data-route="app_admin_tests_index" data-label="Tests psychologiques">← Retour</a>
+      <button type="submit" class="ds-btn-submit">💾 Enregistrer le test</button>
+    </div>
+
+  {{ form_end(form) }}
+</div>
+
+<style>
+  .ds-form-page .ds-form-card input[type="text"],
+  .ds-form-page .ds-form-card input[type="number"],
+  .ds-form-page .ds-form-card input[type="date"],
+  .ds-form-page .ds-form-card input[type="email"],
+  .ds-form-page .ds-form-card select,
+  .ds-form-page .ds-form-card textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    background: #fff;
+    color: #1f2937;
+    transition: border-color .2s ease, box-shadow .2s ease;
+    box-sizing: border-box;
+  }
+  .ds-form-page .ds-form-card input:focus,
+  .ds-form-page .ds-form-card select:focus,
+  .ds-form-page .ds-form-card textarea:focus {
+    outline: none;
+    border-color: var(--green-light, #52B788);
+    box-shadow: 0 0 0 4px rgba(82,183,136,.15);
+  }
+  .ds-form-page .ds-form-card textarea { resize: vertical; min-height: 100px; }
+  .ds-form-page .ds-form-card label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 7px;
+  }
+</style>
+{% endblock %}

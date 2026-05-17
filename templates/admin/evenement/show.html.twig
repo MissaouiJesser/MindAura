@@ -1,0 +1,176 @@
+{# templates/admin/evenement/show.html.twig
+   Détail d'un événement — Back-office #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ evenement.titreEvenement }}{% endblock %}
+{% block page_label %}Détail de l'événement{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{% set statut = evenement.statutEvenemnt ?? 'a_venir' %}
+{% set statutLabel = {
+    'a_venir':  'À venir',
+    'en_cours': 'En cours',
+    'termine':  'Terminé',
+    'annule':   'Annulé'
+}[statut] ?? statut %}
+{% set statutBadge = {
+    'a_venir':  'ds-badge-violet',
+    'en_cours': 'ds-badge-green',
+    'termine':  'ds-badge-gray',
+    'annule':   'ds-badge-red'
+}[statut] ?? 'ds-badge-gray' %}
+
+<style>
+  .ev-show-grid { display:grid; grid-template-columns:2fr 1fr; gap:20px; }
+  @media (max-width:900px) { .ev-show-grid { grid-template-columns:1fr; } }
+
+  .info-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:11px 0; border-bottom:1px solid var(--border); gap:12px;
+    font-size:.88rem;
+  }
+  .info-row:last-child { border-bottom:none; }
+  .info-row .label { color:var(--text-sec); font-weight:500; font-size:.82rem; }
+  .info-row .value { font-weight:700; color:var(--text); text-align:right; }
+
+  .ev-cover {
+    width:100%; max-height:340px; object-fit:cover;
+    border-radius:16px; margin-top:18px;
+    border:1.5px solid var(--border);
+  }
+</style>
+
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">{{ evenement.titreEvenement }}</div>
+      <div class="ds-hero-sub">
+        <span class="ds-hero-chip">Code: {{ evenement.identifiantEvenemnt }}</span>
+        <span class="ds-hero-chip" style="background:rgba(255,255,255,.18)">{{ statutLabel }}</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;flex-wrap:wrap">
+      <a href="{{ path('evenement_edit', {id: evenement.id}) }}" class="ds-btn-primary" style="background:rgba(255,255,255,.13);color:#fff;border:1.5px solid rgba(255,255,255,.3)">
+        <div class="ds-btn-primary-icon" style="background:rgba(255,255,255,.2)">
+          <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l4 4-8 8H5v-4l8-8z"/></svg>
+        </div>
+        Modifier
+      </a>
+      <a href="{{ path('evenement_index') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </div>
+        Retour
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="ev-show-grid">
+
+  <div>
+    <div class="ds-detail-block">
+      <div class="ds-detail-block-title">
+        <svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="11" height="11" rx="2"/>
+          <line x1="6" y1="7" x2="11" y2="7"/>
+          <line x1="6" y1="10" x2="11" y2="10"/>
+        </svg>
+        À propos de l'événement
+      </div>
+
+      <div style="margin-bottom:14px">
+        <span class="ds-badge {{ statutBadge }}">{{ statutLabel }}</span>
+      </div>
+
+      {% if evenement.descriptionEvenement %}
+        <div class="ds-detail-text">{{ evenement.descriptionEvenement|nl2br }}</div>
+      {% else %}
+        <div class="ds-detail-text" style="color:var(--text-sec)">Aucune description disponible.</div>
+      {% endif %}
+
+      {% if evenement.image %}
+        <img src="{{ asset('uploads/images/' ~ evenement.image) }}"
+             alt="{{ evenement.titreEvenement }}"
+             class="ev-cover">
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="ds-detail-block">
+      <div class="ds-detail-block-title">
+        <svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8.5" cy="8.5" r="6.5"/>
+          <line x1="8.5" y1="5" x2="8.5" y2="9"/>
+          <line x1="8.5" y1="11.5" x2="8.51" y2="11.5"/>
+        </svg>
+        Informations générales
+      </div>
+      <div class="info-row">
+        <span class="label">Date début</span>
+        <span class="value">{{ evenement.datedebutEvenemnt ? evenement.datedebutEvenemnt|date('d/m/Y') : '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Date fin</span>
+        <span class="value">{{ evenement.datefinEvenemnt ? evenement.datefinEvenemnt|date('d/m/Y') : '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Lieu</span>
+        <span class="value">{{ evenement.lieuEvenement ?: '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Capacité</span>
+        <span class="value">{{ evenement.capaciteEvenement }} pers.</span>
+      </div>
+    </div>
+
+    {% if evenement.typeEvenement %}
+      <div class="ds-detail-block">
+        <div class="ds-detail-block-title">
+          <svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 4h11v9H3z"/>
+            <path d="M3 7h11"/>
+          </svg>
+          Type d'événement
+        </div>
+        <div class="info-row">
+          <span class="label">Libellé</span>
+          <span class="value">{{ evenement.typeEvenement.libelle }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Catégorie</span>
+          <span class="value">{{ evenement.typeEvenement.categorie|capitalize }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Modalité</span>
+          <span class="value">{{ evenement.typeEvenement.modalite|capitalize }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Tarif</span>
+          <span>
+            {% if evenement.typeEvenement.estGratuit %}
+              <span class="ds-badge ds-badge-green">🎁 Gratuit</span>
+            {% else %}
+              <span class="ds-badge ds-badge-orange">💳 Payant</span>
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

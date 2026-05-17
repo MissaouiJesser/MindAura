@@ -1,0 +1,450 @@
+{# templates/admin/ressources/showR.html.twig
+   Détail d'une ressource — Back-office
+   Design harmonisé avec admin/utilisateurs/
+   JS lecteur podcast + extracteur article préservés #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ ressource.titre }}{% endblock %}
+{% block page_label %}Détail de la ressource{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .detail-card {
+    background:var(--white); border:1.5px solid var(--border); border-radius:18px;
+    padding:24px; box-shadow:var(--shadow-card);
+    margin-bottom:18px;
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .detail-meta-row {
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    margin-bottom:14px;
+  }
+  .detail-stat {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:.82rem; color:var(--text-sec); font-weight:500;
+  }
+  .meta-kv { font-size:.88rem; color:var(--text); margin:6px 0; }
+  .meta-kv strong { color:var(--text-sec); font-weight:600; }
+  .resume-block {
+    margin-top:14px; padding-top:14px; border-top:1px solid var(--border);
+    font-size:.92rem; line-height:1.6; color:var(--text);
+  }
+
+  .media-header {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:12px;
+  }
+  .media-title { font-size:.95rem; font-weight:700; color:var(--text); }
+  .btn-outline {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:7px 14px; border-radius:9px;
+    background:var(--white); border:1.5px solid var(--green-light);
+    color:var(--green); text-decoration:none;
+    font-family:'Outfit',sans-serif; font-size:.83rem; font-weight:700;
+    transition:all .2s; cursor:pointer;
+  }
+  .btn-outline:hover { background:var(--green); color:#fff; }
+
+  .controls {
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--bg); border-radius:12px; padding:12px;
+    margin-top:8px;
+  }
+  .controls input[type="range"] { accent-color:var(--green); }
+
+  .comments-section { }
+  .comment-item {
+    padding:14px; border:1.5px solid var(--border); border-radius:12px;
+    background:var(--bg); margin-bottom:12px;
+  }
+  .comment-meta { font-size:.82rem; color:var(--text-sec); margin-bottom:6px; }
+  .comment-meta strong { color:var(--text); }
+  .replies { margin-top:10px; padding-left:14px; border-left:2px solid var(--green-light); }
+  .badge-danger {
+    background:#FEE2E2; color:#991B1B; font-size:.7rem; font-weight:700;
+    padding:2px 8px; border-radius:99px; margin-left:6px;
+  }
+
+  /* Article reader */
+  .spinner {
+    width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--green);
+    border-radius:50%; animation:spin .9s linear infinite; margin:0 auto;
+  }
+  @keyframes spin { to { transform:rotate(360deg) } }
+  .article-reader { font-size:.92rem; line-height:1.65; color:var(--text); }
+  .article-reader-header { margin-bottom:14px; }
+  .article-reader-title { font-size:1.3rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .article-reader-meta { display:flex; flex-wrap:wrap; gap:14px; font-size:.82rem; color:var(--text-sec); }
+  .article-reader-image { width:100%; max-height:340px; object-fit:cover; border-radius:12px; margin:10px 0; }
+  .article-reader-body img { max-width:100%; height:auto; border-radius:10px; }
+  .article-warning {
+    background:#FEF3C7; color:#92400E; padding:10px 14px; border-radius:10px;
+    margin-bottom:14px; font-size:.85rem; font-weight:500;
+  }
+  .article-error-box {
+    background:#FEF2F2; border:1.5px solid #FCA5A5; border-radius:16px;
+    padding:32px; text-align:center; color:#991B1B;
+  }
+  .article-error-box .error-icon { font-size:2.5rem; margin-bottom:10px; }
+</style>
+
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">{{ ressource.titre }}</div>
+      <div class="ds-hero-sub">
+        <span class="ds-hero-chip">{{ ressource.contenu }}</span>
+        {% if ressource.niveau %}<span class="ds-hero-chip" style="background:rgba(255,255,255,.2)">{{ ressource.niveau }}</span>{% endif %}
+        {% if ressource.categorie %}<span class="ds-hero-chip">🏷️ {{ ressource.categorie|replace({'_':' '}) }}</span>{% endif %}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;flex-wrap:wrap">
+      <a href="{{ path('admin_ressources_edit', {id: ressource.id}) }}" class="ds-btn-primary" style="background:rgba(255,255,255,.13);color:#fff;border:1.5px solid rgba(255,255,255,.3)">
+        <div class="ds-btn-primary-icon" style="background:rgba(255,255,255,.2)">
+          <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l4 4-8 8H5v-4l8-8z"/></svg>
+        </div>
+        Modifier
+      </a>
+      <a href="{{ path('admin_ressources_index') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </div>
+        Retour
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ── Informations générales ── #}
+<div class="detail-card">
+  <div class="detail-meta-row">
+    {% set bcls = ressource.contenu == 'PDF' ? 'ds-badge-red' :
+                 (ressource.contenu == 'Video' ? 'ds-badge-violet' :
+                 (ressource.contenu == 'Podcast' ? 'ds-badge-yellow' :
+                 (ressource.contenu == 'Article' ? 'ds-badge-blue' : 'ds-badge-gray'))) %}
+    <span class="ds-badge {{ bcls }}">{{ ressource.contenu }}</span>
+    <span class="ds-badge ds-badge-gray">{{ ressource.niveau }}</span>
+    <span class="detail-stat">❤️ {{ ressource.likes }}</span>
+    <span class="detail-stat">👁️ {{ ressource.nbrVues }}</span>
+    {% if ressource.datePublication %}
+      <span class="detail-stat">📅 {{ ressource.datePublication|date('d/m/Y') }}</span>
+    {% endif %}
+  </div>
+
+  <div class="meta-kv"><strong>Catégorie :</strong> {{ ressource.categorie }}</div>
+  {% if ressource.tags %}
+    <div class="meta-kv"><strong>Tags :</strong> {{ ressource.tags }}</div>
+  {% endif %}
+
+  {% if ressource.resume %}
+    <div class="resume-block">{{ ressource.resume|nl2br }}</div>
+  {% endif %}
+</div>
+
+{# ── Contenu (média) ── #}
+{% if ressource.url %}
+<div class="detail-card">
+
+  {% if ressource.contenu == 'PDF' %}
+    <div class="media-header">
+      <div class="media-title">📄 Aperçu PDF</div>
+      <a href="{{ asset(ressource.url) }}" target="_blank" class="btn-outline">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 7v5a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h5"/><polyline points="8 1 13 1 13 6"/><line x1="6" y1="8" x2="13" y2="1"/></svg>
+        Ouvrir en grand
+      </a>
+    </div>
+    <embed src="{{ asset(ressource.url) }}" width="100%" height="500" type="application/pdf" style="border-radius:12px">
+
+  {% elseif ressource.contenu == 'Video' %}
+    <div class="media-header">
+      <div class="media-title">🎬 Vidéo</div>
+    </div>
+    <video controls width="100%" style="border-radius:12px; background:#000">
+      <source src="{{ asset(ressource.url) }}" type="video/mp4">
+    </video>
+
+  {% elseif ressource.contenu == 'Podcast' %}
+    <div class="media-header">
+      <div class="media-title">🎙️ Podcast</div>
+    </div>
+    {% set embedHtml = get_podcast_embed(ressource.url) %}
+    {% if embedHtml %}
+      <div class="platform-embed">{{ embedHtml|raw }}</div>
+    {% else %}
+      <audio id="adminAudioPlayer" preload="metadata" style="width:100%; display:none;"></audio>
+      <div class="controls">
+        <button id="adminPlayPause" class="btn-outline">▶</button>
+        <button id="adminReculer"   class="btn-outline">⏪ -15s</button>
+        <button id="adminAvancer"   class="btn-outline">⏩ +15s</button>
+        <div style="flex:1; min-width:150px;">
+          <input type="range" id="adminProgress" value="0" step="0.1" style="width:100%;">
+          <div style="display:flex; justify-content:space-between; font-size:.78rem; color:var(--text-sec); margin-top:3px">
+            <span id="adminCurrentTime">0:00</span>
+            <span id="adminDuration">0:00</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px;">
+          🔊 <input type="range" id="adminVolume" min="0" max="1" step="0.01" value="0.8" style="width:80px;">
+        </div>
+        <select id="adminSpeed" style="background:var(--bg); border:1.5px solid var(--border); border-radius:8px; padding:5px 10px; font-family:Outfit,sans-serif; font-size:.83rem">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+      <div id="adminErrorMsg" style="display:none; background:#FEF2F2; color:#991B1B; padding:10px; border-radius:10px; margin-top:8px; font-size:.85rem;"></div>
+      <div id="adminFallback" style="display:none; text-align:center; margin-top:12px;">
+        <a href="#" target="_blank" id="adminFallbackLink" class="btn-outline">🌐 Ouvrir dans le navigateur</a>
+      </div>
+    {% endif %}
+    <div style="margin-top:14px; text-align:center">
+      <a href="{{ ressource.url }}" target="_blank" rel="noopener noreferrer" class="btn-outline">
+        🎙️ Écouter sur le site d'origine
+      </a>
+    </div>
+
+  {% elseif ressource.contenu == 'Article' %}
+    <div class="media-header">
+      <div class="media-title">📰 Article</div>
+    </div>
+    <div id="article-container" data-url="{{ ressource.url }}">
+      <div id="article-loading" style="text-align:center; padding:48px 24px; color:var(--text-sec);">
+        <div class="spinner"></div>
+        <p style="margin-top:14px; font-size:.88rem">Chargement de l'article...</p>
+      </div>
+      <div id="article-content" style="display:none;"></div>
+      <div id="article-error"   style="display:none;"></div>
+    </div>
+    <div style="text-align:center; margin-top:14px;">
+      <a href="{{ ressource.url }}" target="_blank" rel="noopener noreferrer" class="btn-outline">
+        🔗 Lire l'article original
+      </a>
+      <div style="margin-top:6px; font-size:.76rem; color:var(--text-sec);">
+        Lien externe – ouvre une nouvelle fenêtre
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+{# ── Commentaires ── #}
+<div class="detail-card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text)">💬 Commentaires</h3>
+    <span class="ds-badge ds-badge-violet">{{ commentaires|length }} message{{ commentaires|length > 1 ? 's' : '' }}</span>
+  </div>
+
+  <div class="comments-list">
+    {% for commentaire in commentaires %}
+      {% if commentaire.status != 'SUPPRIME' %}
+        <div class="comment-item">
+          <div class="comment-meta">
+            <strong>{{ commentaire.userName ?? 'Anonyme' }}</strong>
+            · {{ commentaire.datePublication|date('d/m/Y H:i') }}
+            {% if commentaire.status == 'SIGNALE' %}
+              <span class="badge-danger">⚠️ Signalé</span>
+            {% endif %}
+          </div>
+          <div style="font-size:.88rem; line-height:1.6; color:var(--text)">{{ commentaire.contenu|nl2br }}</div>
+
+          {% if commentaire.reponses is defined and commentaire.reponses|length %}
+            <div class="replies">
+              {% for reponse in commentaire.reponses %}
+                {% if reponse.status != 'SUPPRIME' %}
+                  <div style="padding:8px 0; border-bottom:1px dashed var(--border);">
+                    <div class="comment-meta">
+                      <strong>{{ reponse.userName ?? 'Anonyme' }}</strong>
+                      · {{ reponse.datePublication|date('d/m/Y H:i') }}
+                    </div>
+                    <div style="font-size:.86rem; line-height:1.5">{{ reponse.contenu|nl2br }}</div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="ds-empty">
+        <div class="ds-empty-icon">💬</div>
+        <div class="ds-empty-title">Aucun commentaire</div>
+        <div class="ds-empty-sub">Cette ressource n'a pas encore reçu de commentaires.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+{% if ressource.contenu == 'Podcast' and not get_podcast_embed(ressource.url) %}
+<script>
+    const audio       = document.getElementById('adminAudioPlayer');
+    const playPause   = document.getElementById('adminPlayPause');
+    const progress    = document.getElementById('adminProgress');
+    const currentTimeSpan = document.getElementById('adminCurrentTime');
+    const durationSpan    = document.getElementById('adminDuration');
+    const volumeSlider    = document.getElementById('adminVolume');
+    const speedSelect     = document.getElementById('adminSpeed');
+    const reculerBtn  = document.getElementById('adminReculer');
+    const avancerBtn  = document.getElementById('adminAvancer');
+    const errorDiv    = document.getElementById('adminErrorMsg');
+    const fallbackDiv = document.getElementById('adminFallback');
+    const fallbackLink = document.getElementById('adminFallbackLink');
+
+    async function loadAdminAudio(url) {
+        errorDiv.style.display = 'none';
+        fallbackDiv.style.display = 'none';
+        try {
+            if (!isDirectAudioUrl(url)) {
+                errorDiv.innerText = 'Analyse de la page en cours...';
+                errorDiv.style.display = 'block';
+                const extracted = await extractAudioUrl(url);
+                if (extracted) { url = extracted; }
+                else {
+                    errorDiv.innerText = 'Impossible de trouver le fichier audio direct.';
+                    setupFallback(url); return;
+                }
+            }
+            errorDiv.style.display = 'none';
+            audio.src = url; audio.load();
+            audio.volume = volumeSlider.value;
+            audio.playbackRate = parseFloat(speedSelect.value);
+            audio.onloadedmetadata = () => { durationSpan.innerText = formatTime(audio.duration); progress.max = audio.duration; };
+            audio.ontimeupdate = () => { progress.value = audio.currentTime; currentTimeSpan.innerText = formatTime(audio.currentTime); };
+            audio.onended = () => { playPause.innerText = '▶'; progress.value = 0; };
+            audio.onerror = () => { errorDiv.innerText = 'Erreur de lecture.'; errorDiv.style.display = 'block'; setupFallback(url); };
+            audio.play(); playPause.innerText = '⏸';
+        } catch (err) {
+            errorDiv.innerText = err.message;
+            errorDiv.style.display = 'block';
+            setupFallback(url);
+        }
+    }
+
+    function isDirectAudioUrl(url) {
+        return /\.(mp3|m4a|wav|ogg|aac)(\?.*)?$/i.test(url) || url.includes('/audio/') || url.includes('stream');
+    }
+
+    async function extractAudioUrl(pageUrl) {
+        try {
+            const r = await fetch('{{ path('admin_ressources_extract_audio') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ url: pageUrl })
+            });
+            const d = await r.json();
+            return d.audioUrl || null;
+        } catch { return null; }
+    }
+
+    function setupFallback(url) { fallbackLink.href = url; fallbackDiv.style.display = 'block'; }
+    function formatTime(s) {
+        if (isNaN(s)) return '0:00';
+        return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+    }
+
+    playPause.addEventListener('click', () => {
+        audio.paused ? (audio.play(), playPause.innerText='⏸') : (audio.pause(), playPause.innerText='▶');
+    });
+    reculerBtn.addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 15); });
+    avancerBtn.addEventListener('click', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 15); });
+    progress.addEventListener('input', () => { audio.currentTime = progress.value; });
+    volumeSlider.addEventListener('input', () => { audio.volume = volumeSlider.value; });
+    speedSelect.addEventListener('change', () => { audio.playbackRate = parseFloat(speedSelect.value); });
+
+    loadAdminAudio(document.getElementById('adminAudioPlayer').closest('[data-audio-url]')?.dataset.audioUrl
+        || '{{ ressource.url|e('js') }}');
+</script>
+{% endif %}
+
+{% if ressource.contenu == 'Article' and ressource.url %}
+<script>
+(function () {
+    const container = document.getElementById('article-container');
+    if (!container) return;
+
+    const loading = document.getElementById('article-loading');
+    const content = document.getElementById('article-content');
+    const errorEl = document.getElementById('article-error');
+    const articleUrl = container.dataset.url;
+
+    fetch('/admin/ressources/extract-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ url: articleUrl })
+    })
+    .then(r => r.json())
+    .then(data => {
+        loading.style.display = 'none';
+        if (!data.success || !data.content) {
+            showError(data.error || 'Contenu introuvable.');
+            return;
+        }
+        content.style.display = 'block';
+        content.innerHTML = buildArticleHtml(data);
+    })
+    .catch(err => {
+        loading.style.display = 'none';
+        showError('Erreur réseau : ' + err.message);
+    });
+
+    function buildArticleHtml(data) {
+        let html = '<div class="article-reader">';
+        if (data.partial) {
+            html += '<div class="article-warning">⚠️ Certains sites limitent l\'accès — affichage partiel.</div>';
+        }
+        html += '<div class="article-reader-header">';
+        if (data.title) html += `<div class="article-reader-title">${escHtml(data.title)}</div>`;
+        html += '<div class="article-reader-meta">';
+        if (data.siteName)    html += `<span>🌐 ${escHtml(data.siteName)}</span>`;
+        if (data.author)      html += `<span>✍️ ${escHtml(data.author)}</span>`;
+        if (data.publishedAt) {
+            const date = new Date(data.publishedAt);
+            if (!isNaN(date)) html += `<span>📅 ${date.toLocaleDateString('fr-FR')}</span>`;
+        }
+        html += '</div></div>';
+        if (data.image) {
+            html += `<img src="${escHtml(data.image)}" alt="" class="article-reader-image" onerror="this.style.display='none'">`;
+        }
+        html += `<div class="article-reader-body">${data.content}</div>`;
+        html += '</div>';
+        return html;
+    }
+
+    function showError(msg) {
+        errorEl.style.display = 'block';
+        errorEl.innerHTML = `
+            <div class="article-error-box">
+                <div class="error-icon">📭</div>
+                <p style="font-weight:600; margin-bottom:8px;">Impossible de charger l'article</p>
+                <p style="font-size:.82rem; color:var(--text-sec);">${escHtml(msg)}</p>
+                <p style="margin-top:14px; font-size:.82rem; color:var(--text-sec);">
+                    Utilisez le lien ci-dessous pour lire l'article sur le site d'origine.
+                </p>
+            </div>`;
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+})();
+</script>
+{% endif %}
+{% endblock %}

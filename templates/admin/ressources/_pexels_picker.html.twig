@@ -1,0 +1,199 @@
+{# templates/admin/ressources/_pexels_picker.html.twig #}
+{#
+  Sélecteur d'images Pexels à inclure dans newR.html.twig et editR.html.twig
+  Usage : {% include 'admin/ressources/_pexels_picker.html.twig' %}
+#}
+
+<div class="pexels-picker mt-4" id="pexels-picker">
+
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <span class="badge bg-purple fs-6">🖼 Choisir une image Pexels</span>
+    <small class="text-muted">Gratuit · Libre de droits · Sans upload</small>
+  </div>
+
+  {# ── Barre de recherche ── #}
+  <div class="input-group mb-3">
+    <input type="text"
+           id="pexels-query"
+           class="form-control"
+           placeholder="Ex : meditation, confiance, motivation..."
+           value="">
+    <select id="pexels-color" class="form-select" style="max-width:130px;">
+      <option value="">Toutes couleurs</option>
+      <option value="blue">🔵 Bleu</option>
+      <option value="green">🟢 Vert</option>
+      <option value="orange">🟠 Orange</option>
+      <option value="white">⚪ Blanc</option>
+      <option value="black">⚫ Noir</option>
+    </select>
+    <button type="button" class="btn btn-outline-purple" id="pexels-search-btn">
+      🔍 Rechercher
+    </button>
+    <button type="button" class="btn btn-outline-secondary" id="pexels-suggest-btn">
+      ✨ Auto-suggérer
+    </button>
+  </div>
+
+  {# ── Grille de résultats ── #}
+  <div id="pexels-loading" class="text-center py-3 d-none">
+    <div class="spinner-border text-purple" role="status"></div>
+    <p class="mt-2 text-muted">Chargement des images...</p>
+  </div>
+
+  <div id="pexels-grid" class="row g-2 mb-3"></div>
+
+  {# ── Image sélectionnée ── #}
+  <div id="pexels-selected-preview" class="d-none mt-3">
+    <div class="alert alert-success d-flex align-items-center gap-3 py-2">
+      <img id="pexels-selected-thumb"
+           src="" alt="Sélectionnée"
+           style="width:80px;height:55px;object-fit:cover;border-radius:6px;">
+      <div>
+        <strong>✅ Image sélectionnée</strong>
+        <p id="pexels-selected-credit" class="mb-0 small text-muted"></p>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-danger ms-auto" id="pexels-clear-btn">
+        ✕ Retirer
+      </button>
+    </div>
+  </div>
+
+  {# ── Champ caché → envoyé avec le formulaire ── #}
+  <input type="hidden" name="pexels_image_url"   id="pexels-image-url">
+  <input type="hidden" name="pexels_image_credit" id="pexels-image-credit">
+
+  <small class="text-muted d-block">
+    📸 Images fournies par <a href="https://www.pexels.com" target="_blank">Pexels</a> —
+    libres d'utilisation commerciale, aucune attribution requise (mais recommandée).
+  </small>
+</div>
+
+<script>
+(function () {
+  const grid        = document.getElementById('pexels-grid');
+  const loading     = document.getElementById('pexels-loading');
+  const preview     = document.getElementById('pexels-selected-preview');
+  const thumb       = document.getElementById('pexels-selected-thumb');
+  const credit      = document.getElementById('pexels-selected-credit');
+  const hiddenUrl   = document.getElementById('pexels-image-url');
+  const hiddenCredit= document.getElementById('pexels-image-credit');
+
+  // ── Recherche manuelle ──
+  document.getElementById('pexels-search-btn').addEventListener('click', () => {
+    const q     = document.getElementById('pexels-query').value.trim();
+    const color = document.getElementById('pexels-color').value;
+    if (!q) return;
+    fetchPhotos(`/admin/pexels/search?q=${encodeURIComponent(q)}&per_page=9&color=${color}`);
+  });
+
+  // Touche Entrée dans le champ de recherche
+  document.getElementById('pexels-query').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('pexels-search-btn').click();
+    }
+  });
+
+  // ── Auto-suggestion selon catégorie + type sélectionnés ──
+  document.getElementById('pexels-suggest-btn').addEventListener('click', () => {
+    // Récupère les valeurs des selects du formulaire principal
+    const categorie = document.querySelector('[name="categorie"]')?.value  || '';
+    const contenu   = document.querySelector('[name="contenu"]')?.value    || '';
+
+    if (!categorie && !contenu) {
+      alert('Sélectionne d\'abord une catégorie ou un type de contenu dans le formulaire.');
+      return;
+    }
+
+    fetchPhotos(
+      `/admin/pexels/suggest?categorie=${encodeURIComponent(categorie)}&contenu=${encodeURIComponent(contenu)}&count=9`
+    );
+  });
+
+  // ── Retirer la sélection ──
+  document.getElementById('pexels-clear-btn').addEventListener('click', () => {
+    hiddenUrl.value    = '';
+    hiddenCredit.value = '';
+    preview.classList.add('d-none');
+    // Retirer la bordure de sélection sur toutes les images
+    grid.querySelectorAll('.pexels-img-card').forEach(c => c.classList.remove('selected'));
+  });
+
+  // ── Charger + afficher les photos ──
+  function fetchPhotos(url) {
+    grid.innerHTML = '';
+    loading.classList.remove('d-none');
+
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        loading.classList.add('d-none');
+        if (!data.photos || data.photos.length === 0) {
+          grid.innerHTML = '<p class="text-muted col-12">Aucun résultat. Essaie un autre mot-clé.</p>';
+          return;
+        }
+        renderPhotos(data.photos);
+      })
+      .catch(() => {
+        loading.classList.add('d-none');
+        grid.innerHTML = '<p class="text-danger col-12">Erreur lors du chargement.</p>';
+      });
+  }
+
+  // ── Rendre la grille de photos ──
+  function renderPhotos(photos) {
+    photos.forEach(photo => {
+      const col = document.createElement('div');
+      col.className = 'col-4';
+
+      col.innerHTML = `
+        <div class="pexels-img-card position-relative" data-url="${photo.url_medium}" data-credit="${photo.credit}"
+             style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:border .2s;">
+          <img src="${photo.url_small || photo.url_medium}"
+               alt="${photo.alt}"
+               style="width:100%;height:100px;object-fit:cover;display:block;">
+          <div class="pexels-img-overlay position-absolute bottom-0 start-0 w-100 px-2 py-1"
+               style="background:rgba(0,0,0,0.5);font-size:10px;color:#fff;opacity:0;transition:opacity .2s;">
+            📷 ${photo.photographer}
+          </div>
+        </div>`;
+
+      const card = col.querySelector('.pexels-img-card');
+
+      // Hover → afficher le nom du photographe
+      card.addEventListener('mouseenter', () => {
+        card.querySelector('.pexels-img-overlay').style.opacity = '1';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.querySelector('.pexels-img-overlay').style.opacity = '0';
+      });
+
+      // Clic → sélectionner l'image
+      card.addEventListener('click', () => selectPhoto(card, photo));
+
+      col.appendChild(card);
+      grid.appendChild(col);
+    });
+  }
+
+  // ── Sélectionner une photo ──
+  function selectPhoto(card, photo) {
+    // Retirer la sélection précédente
+    grid.querySelectorAll('.pexels-img-card').forEach(c => {
+      c.style.borderColor = 'transparent';
+    });
+
+    // Marquer la nouvelle sélection
+    card.style.borderColor = '#534AB7';
+
+    // Remplir les champs cachés
+    hiddenUrl.value    = photo.url_medium;
+    hiddenCredit.value = photo.credit;
+
+    // Afficher la prévisualisation
+    thumb.src           = photo.url_small || photo.url_medium;
+    credit.textContent  = photo.credit;
+    preview.classList.remove('d-none');
+  }
+})();
+</script>

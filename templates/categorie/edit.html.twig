@@ -1,0 +1,71 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Modifier catégorie — Backoffice{% endblock %}
+{% block page_label %}Modifier une catégorie{% endblock %}
+
+{% block content %}
+<style>
+  .form-section { max-width:700px; margin:0 auto; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both; }
+  
+  .form-header { margin-bottom:28px; }
+  .form-title { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .form-sub { font-size:.9rem; color:var(--text-sec); }
+  
+  .form-card { background:var(--white); border:1.5px solid var(--border); border-radius:16px; padding:32px; box-shadow:var(--shadow-card); }
+  
+  .form-group { margin-bottom:24px; }
+  .form-group label { display:block; font-weight:600; color:var(--text); margin-bottom:8px; font-size:.9rem; }
+  .form-group input,
+  .form-group textarea,
+  .form-group select { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.9rem; color:var(--text); background:var(--white); transition:border-color .2s, box-shadow .2s; }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { outline:none; border-color:var(--green-light); box-shadow:0 0 0 3px rgba(82,183,136,.1); }
+  
+  .form-group textarea { resize:vertical; min-height:100px; }
+  
+  .form-hint { font-size:.8rem; color:var(--text-sec); margin-top:6px; }
+  
+  .form-actions { display:flex; align-items:center; gap:12px; margin-top:32px; padding-top:24px; border-top:1.5px solid var(--border); }
+  
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:10px; font-family:'Outfit',sans-serif; font-weight:600; font-size:.9rem; text-decoration:none; cursor:pointer; border:none; transition:all .2s; white-space:nowrap; }
+  
+  .btn-primary { background:var(--green); color:#fff; box-shadow:0 4px 12px rgba(82,183,136,.3); }
+  .btn-primary:hover { background:#1a9970; box-shadow:0 6px 16px rgba(82,183,136,.4); }
+  
+  .btn-secondary { background:var(--border); color:var(--text); border:1.5px solid var(--border); }
+  .btn-secondary:hover { background:var(--bg); }
+  
+  .btn svg { width:16px; height:16px; }
+</style>
+
+<div class="form-section">
+  <div class="form-header">
+    <h1 class="form-title">Modifier la catégorie</h1>
+    <p class="form-sub">{{ categorie.nom_categorie }}</p>
+  </div>
+
+  <form method="post" class="form-card">
+    
+    <div class="form-group">
+      <label for="nom_categorie">Nom de la catégorie *</label>
+      <input type="text" id="nom_categorie" name="nom_categorie" value="{{ categorie.nom_categorie }}" required maxlength="100" placeholder="Ex: Qualité des services">
+      <div class="form-hint">Entre 2 et 100 caractères</div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description *</label>
+      <textarea id="description" name="description" required maxlength="255" placeholder="Décrivez cette catégorie...">{{ categorie.description }}</textarea>
+      <div class="form-hint">Entre 5 et 255 caractères</div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 8l-5-5m0 0H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V8z M11 3v5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Enregistrer
+      </button>
+      <a href="{{ path('categorie_index') }}" class="btn btn-secondary">Retour</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

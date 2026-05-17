@@ -1,0 +1,232 @@
+{# templates/pdf/evenements_list.html.twig #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: DejaVu Sans, Helvetica, Arial, sans-serif;
+            font-size: 9.5px;
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+
+        /* ── EN-TÊTE ── */
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 14px 20px 12px;
+            margin-bottom: 14px;
+        }
+        .header-inner { display: table; width: 100%; }
+        .header-left  { display: table-cell; vertical-align: middle; }
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+            width: 180px;
+        }
+        .header h1    { font-size: 17px; margin-bottom: 3px; }
+        .header .sub  { font-size: 8.5px; opacity: 0.65; }
+        .header .meta { font-size: 8.5px; opacity: 0.8; }
+
+        /* ── RÉSUMÉ ── */
+        .summary-table { width: 100%; border-collapse: collapse; margin: 0 0 14px; }
+        .summary-table td {
+            text-align: center;
+            padding: 8px 6px;
+            background: #ecf0f1;
+            border: 2px solid white;
+            border-radius: 4px;
+        }
+        .summary-num { font-size: 18px; font-weight: bold; color: #1a1a2e; display: block; }
+        .summary-lbl { font-size: 7.5px; color: #7f8c8d; margin-top: 1px; display: block; }
+
+        /* ── TABLEAU ── */
+        .content { padding: 0 0 20px; }
+        table.main { width: 100%; border-collapse: collapse; }
+        table.main thead tr { background: #1a1a2e; color: white; }
+        table.main thead th {
+            padding: 7px 8px;
+            text-align: left;
+            font-size: 8.5px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        table.main tbody tr:nth-child(even) { background: #f8f9fa; }
+        table.main tbody tr:nth-child(odd)  { background: white; }
+        table.main tbody td {
+            padding: 5.5px 8px;
+            font-size: 8.5px;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: middle;
+        }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 7.5px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .badge-primary   { background: #3498db; color: white; }
+        .badge-success   { background: #27ae60; color: white; }
+        .badge-secondary { background: #95a5a6; color: white; }
+        .badge-danger    { background: #e74c3c; color: white; }
+        .badge-gratuit   { background: #27ae60; color: white; }
+        .badge-payant    { background: #e74c3c; color: white; }
+
+        /* ── PIED DE PAGE ── */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 5px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            font-size: 7.5px;
+            color: #9ca3af;
+        }
+        .footer-inner { display: table; width: 100%; }
+        .footer-left  { display: table-cell; }
+        .footer-right { display: table-cell; text-align: right; }
+    </style>
+</head>
+<body>
+
+{# ── EN-TÊTE ── #}
+<div class="header">
+    <div class="header-inner">
+        <div class="header-left">
+            <h1>Liste des événements</h1>
+            <div class="sub">GestionEvents — Export PDF automatique</div>
+        </div>
+        <div class="header-right">
+            <div class="meta">Généré le {{ generatedAt|date('d/m/Y') }}</div>
+            <div class="meta" style="margin-top:2px;">à {{ generatedAt|date('H:i') }}</div>
+        </div>
+    </div>
+</div>
+
+{# ── RÉSUMÉ STATISTIQUES ── #}
+{% set total    = evenements|length %}
+{% set gratuits = evenements|filter(e => e.typeEvenement.estGratuit)|length %}
+{% set aVenir   = evenements|filter(e => e.statutEvenemnt == 'a_venir')|length %}
+{% set enCours  = evenements|filter(e => e.statutEvenemnt == 'en_cours')|length %}
+{% set termines = evenements|filter(e => e.statutEvenemnt == 'termine')|length %}
+{% set annules  = evenements|filter(e => e.statutEvenemnt == 'annule')|length %}
+
+<table class="summary-table">
+    <tr>
+        <td>
+            <span class="summary-num">{{ total }}</span>
+            <span class="summary-lbl">Total</span>
+        </td>
+        <td>
+            <span class="summary-num" style="color:#3498db;">{{ aVenir }}</span>
+            <span class="summary-lbl">À venir</span>
+        </td>
+        <td>
+            <span class="summary-num" style="color:#27ae60;">{{ enCours }}</span>
+            <span class="summary-lbl">En cours</span>
+        </td>
+        <td>
+            <span class="summary-num" style="color:#95a5a6;">{{ termines }}</span>
+            <span class="summary-lbl">Terminés</span>
+        </td>
+        <td>
+            <span class="summary-num" style="color:#e74c3c;">{{ annules }}</span>
+            <span class="summary-lbl">Annulés</span>
+        </td>
+        <td>
+            <span class="summary-num" style="color:#27ae60;">{{ gratuits }}</span>
+            <span class="summary-lbl">Gratuits</span>
+        </td>
+        <td>
+            <span class="summary-num" style="color:#e74c3c;">{{ total - gratuits }}</span>
+            <span class="summary-lbl">Payants</span>
+        </td>
+    </tr>
+</table>
+
+{# ── TABLEAU PRINCIPAL ── #}
+<div class="content">
+    <table class="main">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Identifiant</th>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Modalité</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+                <th>Lieu</th>
+                <th>Capacité</th>
+                <th>Tarif</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for e in evenements %}
+            {% set statut = e.statutEvenemnt ?? 'a_venir' %}
+            {% set statutLabel = {
+                'a_venir':  'À venir',
+                'en_cours': 'En cours',
+                'termine':  'Terminé',
+                'annule':   'Annulé'
+            }[statut] ?? statut %}
+            {% set statutClass = {
+                'a_venir':  'badge-primary',
+                'en_cours': 'badge-success',
+                'termine':  'badge-secondary',
+                'annule':   'badge-danger'
+            }[statut] ?? '' %}
+            <tr>
+                <td style="color:#9ca3af;">{{ e.id }}</td>
+                <td><strong>{{ e.identifiantEvenemnt }}</strong></td>
+                <td>{{ e.titreEvenement }}</td>
+                <td>{{ e.typeEvenement.categorie|capitalize }}</td>
+                <td>{{ e.typeEvenement.modalite }}</td>
+                <td style="white-space:nowrap;">{{ e.datedebutEvenemnt|date('d/m/Y') }}</td>
+                <td style="white-space:nowrap;">{{ e.datefinEvenemnt|date('d/m/Y') }}</td>
+                <td>{{ e.lieuEvenement }}</td>
+                <td style="text-align:right;">{{ e.capaciteEvenement }}</td>
+                <td>
+                    <span class="badge {{ e.typeEvenement.estGratuit ? 'badge-gratuit' : 'badge-payant' }}">
+                        {{ e.typeEvenement.estGratuit ? 'Gratuit' : 'Payant' }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {{ statutClass }}">{{ statutLabel }}</span>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11" style="text-align:center; padding:20px; color:#9ca3af;">
+                    Aucun événement à afficher.
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── PIED DE PAGE ── #}
+<div class="footer">
+    <div class="footer-inner">
+        <div class="footer-left">
+            GestionEvents — Export du {{ generatedAt|date('d/m/Y à H:i') }}
+        </div>
+        <div class="footer-right">
+            {{ total }} événement{{ total > 1 ? 's' : '' }} exporté{{ total > 1 ? 's' : '' }}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

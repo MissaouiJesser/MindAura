@@ -1,0 +1,632 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Mes objectifs{% endblock %}
+{% block page_title %}Mes objectifs personnels{% endblock %}
+
+{% block content %}
+{% set objectifs = objectifs|default([]) %}
+<style>
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+  @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+  @keyframes scaleIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+  @keyframes pulse   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+  @keyframes fillBar { from{width:0} to{width:var(--w)} }
+  @keyframes spin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  /* ══════════════════════════════════════
+     Hero
+  ══════════════════════════════════════ */
+  .obj-hero {
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 55%,#7B5EA7 100%);
+    border-radius:22px; padding:36px 40px; margin-bottom:26px;
+    box-shadow:0 16px 50px rgba(27,67,50,.28);
+    animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  .obj-hero::before { content:''; position:absolute; width:320px; height:320px; border-radius:50%; background:rgba(255,255,255,.055); top:-90px; right:-70px; pointer-events:none; }
+  .obj-hero::after  { content:''; position:absolute; width:160px; height:160px; border-radius:50%; background:rgba(123,94,167,.2); bottom:-40px; left:160px; pointer-events:none; }
+  .hero-dots { position:absolute; top:18px; left:36px; display:flex; gap:7px; }
+  .hero-dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.35); animation:shimmer 2s ease-in-out infinite; }
+  .hero-dots span:nth-child(2){animation-delay:.3s} .hero-dots span:nth-child(3){animation-delay:.6s}
+  .hero-row    { display:flex; align-items:center; gap:24px; position:relative; z-index:1; margin-top:8px; flex-wrap:wrap; }
+  .hero-icon   { width:68px; height:68px; border-radius:20px; flex-shrink:0; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.22); display:grid; place-items:center; }
+  .hero-icon svg { width:30px; height:30px; color:#fff; }
+  .hero-text   { flex:1; min-width:220px; }
+  .hero-title  { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:700; color:#fff; margin-bottom:6px; line-height:1.2; }
+  .hero-sub    { font-size:.9rem; color:rgba(255,255,255,.75); max-width:460px; line-height:1.6; }
+  .hero-chips  { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .hero-chip   { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); border-radius:99px; padding:5px 13px; font-size:.76rem; font-weight:600; color:#fff; }
+  .hero-chip svg { width:11px; height:11px; }
+  .hero-stats  { display:flex; gap:10px; flex-wrap:wrap; }
+  .hero-stat   { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:12px; padding:12px 18px; text-align:center; min-width:82px; }
+  .hero-stat-val { font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:700; color:#fff; line-height:1; }
+  .hero-stat-lbl { font-size:.67rem; color:rgba(255,255,255,.65); font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-top:3px; }
+  .hero-actions { display:flex; flex-direction:column; gap:9px; align-items:flex-end; flex-shrink:0; }
+  .btn-hw { display:inline-flex; align-items:center; gap:7px; padding:10px 20px; border-radius:12px; background:#fff; color:var(--green); font-family:'Outfit',sans-serif; font-size:.86rem; font-weight:700; text-decoration:none; transition:all .2s; box-shadow:0 4px 12px rgba(0,0,0,.12); white-space:nowrap; }
+  .btn-hw:hover { transform:translateY(-2px); box-shadow:0 7px 20px rgba(0,0,0,.18); }
+  .btn-hw svg  { width:14px; height:14px; }
+  .btn-hg { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:12px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.25); color:#fff; font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600; text-decoration:none; transition:all .2s; white-space:nowrap; }
+  .btn-hg:hover { background:rgba(255,255,255,.22); }
+  .btn-hg svg  { width:13px; height:13px; }
+
+  /* ══════════════════════════════════════
+     Météo 7 jours
+  ══════════════════════════════════════ */
+  .weather-week {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 22px;
+    animation: fadeUp .5s cubic-bezier(.22,1,.36,1) .06s both;
+    position: relative;
+    overflow: hidden;
+  }
+  .weather-week::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #1B4332, #2D6A4F, #7B5EA7, #52B788);
+    border-radius: 18px 18px 0 0;
+  }
+  .weather-week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .weather-week-title { display:flex; align-items:center; gap:10px; }
+  .weather-week-icon  { width:32px; height:32px; border-radius:10px; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; flex-shrink:0; }
+  .weather-week-icon svg { width:15px; height:15px; color:var(--green); }
+  .weather-week-name  { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--text); }
+  .weather-week-updated { font-size:.73rem; color:var(--text-sec); font-weight:600; }
+
+  .weather-week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 900px) { .weather-week-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 560px) { .weather-week-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .weather-day-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--bg, #F7FAFC);
+    transition: all .2s cubic-bezier(.22,1,.36,1);
+    text-align: center;
+  }
+  .weather-day-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(27,67,50,.12); border-color:rgba(82,183,136,.4); background:#fff; }
+  .weather-day-card.is-today { background:linear-gradient(135deg,#E8F8F0,#F0EAF8); border-color:rgba(82,183,136,.5); box-shadow:0 4px 14px rgba(27,67,50,.1); }
+  .weather-day-card.is-today .weather-day-label { color:var(--green); }
+
+  .weather-day-label  { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--text-sec); }
+  .weather-day-date   { font-size:.7rem; color:var(--text-sec); font-weight:500; }
+  .weather-day-emoji  { font-size:1.9rem; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.1)); }
+  .weather-day-pred   { font-size:.72rem; font-weight:700; color:var(--text); }
+  .weather-day-temps  { display:flex; gap:4px; align-items:center; font-size:.7rem; font-weight:600; }
+  .weather-day-max    { color:#E53E3E; }
+  .weather-day-min    { color:#3182CE; }
+  .weather-day-sep    { color:var(--border); }
+
+  .weather-day-skeleton { width:40px; height:10px; background:linear-gradient(90deg,#F0F4F0 25%,#E8EEE8 50%,#F0F4F0 75%); background-size:200% 100%; animation:shimmer 1.4s ease-in-out infinite; border-radius:6px; }
+  .weather-error { display:flex; align-items:center; gap:8px; font-size:.83rem; color:#B91C1C; background:#FEF2F2; border:1.5px solid #FECACA; border-radius:12px; padding:12px 16px; grid-column:1/-1; }
+
+  /* ══════════════════════════════════════
+     Filter bar
+  ══════════════════════════════════════ */
+  .filter-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:14px 18px; box-shadow:var(--shadow-card); margin-bottom:22px; animation:fadeUp .5s cubic-bezier(.22,1,.36,1) .08s both; }
+  .filter-search-wrap { position:relative; flex:1; min-width:220px; max-width:320px; }
+  .filter-search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--text-sec); pointer-events:none; }
+  .filter-search { width:100%; padding:9px 14px 9px 36px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFAFA; outline:none; transition:border-color .2s,box-shadow .2s; }
+  .filter-search:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(27,67,50,.1); background:#fff; }
+  .filter-input { padding:9px 13px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFAFA; outline:none; min-width:140px; transition:border-color .2s; }
+  .filter-input:focus { border-color:var(--green); }
+  .filter-select { padding:9px 13px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFAFA; outline:none; cursor:pointer; transition:border-color .2s; }
+  .filter-select:focus { border-color:var(--green); }
+  .filter-reset { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:10px; border:1.5px solid var(--border); background:#fff; color:var(--text-sec); font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600; text-decoration:none; transition:all .2s; }
+  .filter-reset:hover { border-color:var(--green-light); color:var(--green); background:var(--green-hover); }
+  .filter-reset svg { width:13px; height:13px; }
+  .filter-count { margin-left:auto; font-size:.78rem; color:var(--text-sec); font-weight:600; white-space:nowrap; }
+
+  /* ══════════════════════════════════════
+     Section heading
+  ══════════════════════════════════════ */
+  .section-heading { display:flex; align-items:center; gap:12px; margin-bottom:18px; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both; }
+  .section-heading-icon { width:36px; height:36px; border-radius:11px; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; flex-shrink:0; }
+  .section-heading-icon svg { width:17px; height:17px; color:var(--green); }
+  .section-heading-text  { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--text); }
+  .section-heading-count { margin-left:auto; font-size:.8rem; color:var(--text-sec); font-weight:600; }
+
+  /* ══════════════════════════════════════
+     Cards grid
+  ══════════════════════════════════════ */
+  .obj-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .14s both; }
+  .obj-card { background:#fff; border:1.5px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-card); display:flex; flex-direction:column; transition:all .25s cubic-bezier(.22,1,.36,1); animation:scaleIn .4s cubic-bezier(.22,1,.36,1) both; }
+  .obj-card:hover { transform:translateY(-4px); box-shadow:0 16px 44px rgba(27,67,50,.14); border-color:rgba(82,183,136,.35); }
+  .obj-card.actif  { border-color:rgba(82,183,136,.4); }
+  .obj-card.inactif{ border-color:rgba(203,213,224,.6); }
+  .obj-accent { height:4px; }
+  .obj-card.actif  .obj-accent { background:linear-gradient(90deg,var(--green),var(--green-light),var(--violet)); }
+  .obj-card.inactif .obj-accent { background:linear-gradient(90deg,#CBD5E0,#A0AEC0); }
+  .obj-body { padding:18px 20px; flex:1; display:flex; flex-direction:column; gap:11px; }
+  .obj-header { display:flex; align-items:flex-start; gap:12px; }
+  .obj-icon   { width:42px; height:42px; border-radius:12px; flex-shrink:0; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; }
+  .obj-card.inactif .obj-icon { background:#F7FAFC; border-color:var(--border); }
+  .obj-icon svg { width:18px; height:18px; color:var(--green); }
+  .obj-card.inactif .obj-icon svg { color:var(--text-sec); }
+  .obj-head-info { flex:1; min-width:0; }
+  .obj-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--text); line-height:1.35; margin-bottom:4px; }
+  .obj-desc  { font-size:.87rem; color:var(--text-sec); line-height:1.6; flex:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .obj-metas { display:flex; gap:6px; flex-wrap:wrap; }
+  .obj-meta-chip { display:inline-flex; align-items:center; gap:4px; font-size:.71rem; font-weight:600; border-radius:99px; padding:3px 10px; }
+  .chip-cat  { background:var(--violet-pale,#EDE9F6); color:var(--violet,#7B5EA7); }
+  .chip-type { background:#EFF6FF; color:#1565C0; }
+  .chip-dur  { background:var(--green-pale); color:var(--green); }
+  .diff-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:.71rem; font-weight:700; }
+  .diff-dot   { width:6px; height:6px; border-radius:50%; background:currentColor; animation:pulse 2.2s ease-in-out infinite; }
+  .diff-easy  { background:#D1FAE5; color:#065F46; }
+  .diff-med   { background:#FEF3C7; color:#92400E; }
+  .diff-hard  { background:#FEE2E2; color:#991B1B; }
+  .obj-progress { }
+  .progress-label { display:flex; justify-content:space-between; font-size:.72rem; font-weight:600; color:var(--text-sec); margin-bottom:5px; }
+  .progress-track { background:var(--bg,#F7FAFC); border-radius:99px; height:6px; overflow:hidden; }
+  .progress-fill  { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--green),var(--green-light)); --w:0; width:0; animation:fillBar 1s cubic-bezier(.22,1,.36,1) .4s forwards; }
+  .obj-card.inactif .progress-fill { background:linear-gradient(90deg,#A0AEC0,#CBD5E0); }
+  .obj-footer { padding:14px 20px; border-top:1.5px solid var(--border); background:var(--bg,#F7FAFC); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .obj-footer-date { display:inline-flex; align-items:center; gap:5px; font-size:.76rem; color:var(--text-sec); }
+  .obj-footer-date svg { width:11px; height:11px; }
+  .obj-footer-date strong { color:var(--text); font-weight:600; }
+  .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 11px; border-radius:99px; font-size:.72rem; font-weight:700; }
+  .status-badge.green  { background:#D1FAE5; color:#065F46; }
+  .status-badge.orange { background:#FEF3C7; color:#92400E; }
+  .status-dot  { width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  /* ══════════════════════════════════════
+     TTS
+  ══════════════════════════════════════ */
+  .tts-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:10px; font-size:.78rem; font-weight:700; border:1.5px solid; cursor:pointer; transition:all .2s; font-family:'Outfit',sans-serif; background:none; }
+  .tts-btn svg { width:12px; height:12px; flex-shrink:0; }
+  .tts-btn-play { background:var(--green-pale,#E8F8F0); border-color:rgba(82,183,136,.4); color:var(--green,#2D6A4F); }
+  .tts-btn-play:hover { background:#C6F6D5; border-color:var(--green,#2D6A4F); transform:translateY(-1px); }
+  .tts-btn-stop { background:#FEE2E2; border-color:rgba(239,68,68,.35); color:#B91C1C; display:none; }
+  .tts-btn-stop:hover { background:#FECACA; border-color:#EF4444; transform:translateY(-1px); }
+  .tts-btn-play.loading { opacity:.75; pointer-events:none; cursor:not-allowed; }
+  .tts-spin { display:inline-block; width:11px; height:11px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+
+  /* ══════════════════════════════════════
+     Pagination
+  ══════════════════════════════════════ */
+  .pagination { display:flex; gap:6px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
+  .page-btn { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px; border:1.5px solid var(--border); background:#fff; color:var(--text-sec); font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600; text-decoration:none; transition:all .2s; }
+  .page-btn:hover { border-color:var(--green-light); color:var(--green); background:var(--green-hover); }
+  .page-btn.active { background:linear-gradient(135deg,var(--green),var(--green-mid)); color:#fff; border-color:transparent; box-shadow:0 4px 12px rgba(27,67,50,.22); }
+
+  /* ══════════════════════════════════════
+     Empty state
+  ══════════════════════════════════════ */
+  .empty-state { display:flex; flex-direction:column; align-items:center; padding:64px 20px; text-align:center; gap:14px; background:#fff; border:1.5px solid var(--border); border-radius:20px; box-shadow:var(--shadow-card); animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both; }
+  .empty-icon  { width:64px; height:64px; border-radius:18px; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; }
+  .empty-icon svg { width:28px; height:28px; color:var(--green); }
+  .empty-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:var(--text); }
+  .empty-sub   { font-size:.87rem; color:var(--text-sec); max-width:320px; line-height:1.65; }
+  .btn-cta { margin-top:6px; display:inline-flex; align-items:center; gap:8px; padding:11px 24px; border-radius:12px; background:linear-gradient(135deg,var(--green),var(--green-mid)); color:#fff; font-family:'Outfit',sans-serif; font-size:.86rem; font-weight:700; text-decoration:none; box-shadow:0 4px 14px rgba(27,67,50,.22); transition:all .2s; }
+  .btn-cta:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(27,67,50,.3); }
+  .btn-cta svg { width:14px; height:14px; }
+</style>
+
+{# ── Compute stats ── #}
+{% set nbActifs  = 0 %}
+{% set nbInactif = 0 %}
+{% for o in objectifs %}
+  {% if o.statut == 'actif' %}{% set nbActifs  = nbActifs  + 1 %}
+  {% else                   %}{% set nbInactif = nbInactif + 1 %}{% endif %}
+{% endfor %}
+
+{# ── Hero ── #}
+<div class="obj-hero">
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+  <div class="hero-row">
+
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/>
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="hero-text">
+      <div class="hero-title">Mes objectifs personnels</div>
+      <div class="hero-sub">Suivez votre progression et atteignez vos ambitions grâce aux objectifs personnalisés issus de vos tests.</div>
+      <div class="hero-chips">
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6 9l-3 1.5.5-3.5L1 4.5l3.5-.5z"/></svg>
+          {{ objectifs|length }} objectif{{ objectifs|length != 1 ? 's' : '' }} au total
+        </span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6l3 3 5-5" stroke-linecap="round"/></svg>
+          {{ nbActifs }} actif{{ nbActifs != 1 ? 's' : '' }}
+        </span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="4"/><path d="M6 4v2l1 1" stroke-linecap="round"/></svg>
+          Suivi en temps réel
+        </span>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ objectifs|length }}</div>
+        <div class="hero-stat-lbl">Total</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ nbActifs }}</div>
+        <div class="hero-stat-lbl">Actifs</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ nbInactif }}</div>
+        <div class="hero-stat-lbl">Inactifs</div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a href="{{ path('front_tests_index') }}" class="btn-hw">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 5l7 5-7 5V5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Passer un test
+      </a>
+      <a href="{{ path('front_tests_my_responses') }}" class="btn-hg">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v4M13 2v4" stroke-linecap="round"/></svg>
+        Mes réponses
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{# ══════════════════════════════════════
+   MÉTÉO 7 JOURS
+══════════════════════════════════════ #}
+<div class="weather-week">
+  <div class="weather-week-header">
+    <div class="weather-week-title">
+      <div class="weather-week-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M12 3v1M12 20v1M4.22 4.22l.7.7M18.36 18.36l.71.71M1 12h2M21 12h2M4.22 19.78l.7-.7M18.36 5.64l.71-.71" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+      </div>
+      <span class="weather-week-name">🌍 Météo Tunisie — 7 jours</span>
+    </div>
+    <span class="weather-week-updated" id="weather-updated">Chargement…</span>
+  </div>
+
+  <div class="weather-week-grid" id="weather-week-grid">
+    {% for i in 1..7 %}
+    <div class="weather-day-card">
+      <div class="weather-day-skeleton"></div>
+      <div style="font-size:1.6rem;margin:4px 0">⏳</div>
+      <div class="weather-day-skeleton" style="width:30px"></div>
+      <div class="weather-day-skeleton" style="width:50px;margin-top:2px"></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{# ══ FIN MÉTÉO ══ #}
+
+{# ── Filter bar ── #}
+<form method="get" id="frontListForm" action="{{ path('front_objectifs_index') }}" autocomplete="off">
+  <div class="filter-bar">
+    <input type="hidden" name="page" value="{{ page }}">
+
+    <div class="filter-search-wrap">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+      <input class="filter-search" type="search" name="q" value="{{ q }}" placeholder="Rechercher un objectif…" autocomplete="off" data-front-debounce>
+    </div>
+
+    <input class="filter-input" type="text" name="type" value="{{ type }}" placeholder="Type / filtre…" data-front-debounce>
+
+    <select class="filter-select front-filter-select" name="statut">
+      <option value="">Tous les statuts</option>
+      <option value="actif"   {{ statut == 'actif'   ? 'selected' }}>Actif</option>
+      <option value="inactif" {{ statut == 'inactif' ? 'selected' }}>Inactif</option>
+    </select>
+
+    <a class="filter-reset" href="{{ path('front_objectifs_index') }}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 1012 0A6 6 0 002 8zM10 6L6 10M6 6l4 4" stroke-linecap="round"/></svg>
+      Tout afficher
+    </a>
+
+    <span class="filter-count">{{ objectifs|length }} résultat{{ objectifs|length != 1 ? 's' : '' }}</span>
+  </div>
+</form>
+
+{# ── Content ── #}
+{% if objectifs is empty %}
+
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="empty-title">Aucun objectif trouvé</div>
+    <div class="empty-sub">
+      {% if q or type or statut %}
+        Aucun objectif ne correspond à vos critères. Essayez de modifier ou réinitialiser les filtres.
+      {% else %}
+        Passez un test psychologique pour recevoir des objectifs personnalisés adaptés à votre profil.
+      {% endif %}
+    </div>
+    {% if q or type or statut %}
+      <a href="{{ path('front_objectifs_index') }}" class="btn-cta">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8" stroke-linecap="round"/></svg>
+        Tout afficher
+      </a>
+    {% else %}
+      <a href="{{ path('front_tests_index') }}" class="btn-cta">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5l7 5-7 5V5z" stroke-linecap="round"/></svg>
+        Découvrir les tests
+      </a>
+    {% endif %}
+  </div>
+
+{% else %}
+
+  <div class="section-heading">
+    <div class="section-heading-icon">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <circle cx="10" cy="10" r="8"/><circle cx="10" cy="10" r="3"/>
+        <path d="M10 2v2M10 16v2M2 10h2M16 10h2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="section-heading-text">Objectifs adoptés</div>
+    <span class="section-heading-count">{{ objectifs|length }} objectif{{ objectifs|length != 1 ? 's' : '' }}</span>
+  </div>
+
+  <div class="obj-grid">
+    {% for objectif in objectifs %}
+
+      {% set diffClass = 'diff-med' %}
+      {% set diffLower = objectif.difficule|default('')|lower %}
+      {% if diffLower in ['facile','easy','débutant','debutant'] %}{% set diffClass = 'diff-easy' %}
+      {% elseif diffLower in ['difficile','hard','avancé','avance','expert'] %}{% set diffClass = 'diff-hard' %}
+      {% endif %}
+
+      {% set duree = objectif.dureeEstimee|default(0) %}
+      {% set pct = duree > 0 ? min(duree, 100) : 0 %}
+      {% set statClass = objectif.statut == 'actif' ? 'actif' : 'inactif' %}
+
+      <article class="obj-card {{ statClass }}" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+
+        <div class="obj-accent"></div>
+
+        <div class="obj-body">
+
+          <div class="obj-header">
+            <div class="obj-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>
+                <path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="obj-head-info">
+              <span class="status-badge {{ objectif.statut == 'actif' ? 'green' : 'orange' }}">
+                <span class="status-dot"></span>
+                {{ objectif.statut|capitalize }}
+              </span>
+              <div class="obj-title" style="margin-top:5px;">{{ objectif.titre }}</div>
+            </div>
+          </div>
+
+          {% if objectif.description %}
+            <div class="obj-desc">{{ objectif.description }}</div>
+          {% endif %}
+
+          <div class="obj-metas">
+            {% if objectif.typeObjectif %}
+              <span class="obj-meta-chip chip-type">
+                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" style="width:8px;height:8px;"><rect x="1" y="1" width="8" height="8" rx="1"/></svg>
+                {{ objectif.typeObjectif }}
+              </span>
+            {% endif %}
+            {% if objectif.categorie %}
+              <span class="obj-meta-chip chip-cat">{{ objectif.categorie }}</span>
+            {% endif %}
+            {% if objectif.difficule %}
+              <span class="diff-badge {{ diffClass }}">
+                <span class="diff-dot"></span>{{ objectif.difficule }}
+              </span>
+            {% endif %}
+            {% if duree %}
+              <span class="obj-meta-chip chip-dur">
+                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" style="width:8px;height:8px;"><circle cx="5" cy="5" r="3.5"/><path d="M5 3v2l1 1" stroke-linecap="round"/></svg>
+                {{ duree }} j.
+              </span>
+            {% endif %}
+          </div>
+
+          {% if duree %}
+          <div class="obj-progress">
+            <div class="progress-label">
+              <span>Durée estimée</span>
+              <span>{{ duree }} jours</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="--w:{{ pct }}%;"></div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <div class="obj-footer">
+          <span class="obj-footer-date">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="1" y="2" width="10" height="9" rx="1.5"/>
+              <path d="M1 5h10M4 1v2M8 1v2" stroke-linecap="round"/>
+            </svg>
+            Échéance :
+            <strong>{{ objectif.dateEcheance ? objectif.dateEcheance|date('d/m/Y') : '—' }}</strong>
+          </span>
+
+          <div style="display:flex; gap:7px; align-items:center;">
+            <button
+              type="button"
+              class="tts-btn tts-btn-play"
+              id="tts-play-{{ objectif.idObjectif }}"
+              data-tts-url="{{ path('front_objectifs_tts', {id: objectif.idObjectif}) }}"
+              data-tts-id="{{ objectif.idObjectif }}"
+              onclick="ttsPlay(this)"
+              title="Lire les instructions à voix haute">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path d="M6.3 4.7a1 1 0 011.5-.87l8 5a1 1 0 010 1.74l-8 5A1 1 0 016.3 14.7V4.7z"/>
+              </svg>
+              Écouter
+            </button>
+            <button
+              type="button"
+              class="tts-btn tts-btn-stop"
+              id="tts-stop-{{ objectif.idObjectif }}"
+              data-tts-id="{{ objectif.idObjectif }}"
+              onclick="ttsStop(this)"
+              title="Arrêter la lecture">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <rect x="5" y="5" width="10" height="10" rx="2"/>
+              </svg>
+              Arrêter
+            </button>
+          </div>
+        </div>
+
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if pages is defined and pages > 1 %}
+    <div class="pagination">
+      {% for p in 1..pages %}
+        <a class="page-btn {{ p == page ? 'active' : '' }}"
+           href="{{ path('front_objectifs_index', {q: q, type: type, statut: statut, page: p}) }}">{{ p }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+<script>
+/* ══════════════════════════════════════════
+   MÉTÉO 7 JOURS — XGBoost
+══════════════════════════════════════════ */
+(function () {
+  const EMOJI = { clear:'☀️', hot:'🥵', cold:'🥶', rainy:'🌧️', windy:'💨' };
+  const FR    = { clear:'Dégagé', hot:'Très chaud', cold:'Froid', rainy:'Pluvieux', windy:'Venteux' };
+
+  function shortDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+  }
+
+  function buildCard(data, index) {
+    const emoji   = EMOJI[data.prediction] ?? '🌤️';
+    const labelFr = FR[data.prediction]    ?? data.prediction;
+    const isToday = index === 0;
+
+    return `
+      <div class="weather-day-card ${isToday ? 'is-today' : ''}">
+        <div class="weather-day-label">${data.label}</div>
+        <div class="weather-day-date">${shortDate(data.date)}</div>
+        <div class="weather-day-emoji">${emoji}</div>
+        <div class="weather-day-pred">${labelFr}</div>
+        <div class="weather-day-temps">
+          <span class="weather-day-max">↑${data.temp_max}°</span>
+          <span class="weather-day-sep">·</span>
+          <span class="weather-day-min">↓${data.temp_min}°</span>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadWeather() {
+    try {
+      const res  = await fetch('/weather/forecast');
+      const json = await res.json();
+      if (!json.success || !json.forecast) throw new Error('Réponse invalide');
+
+      document.getElementById('weather-week-grid').innerHTML =
+        json.forecast.map((day, i) => buildCard(day, i)).join('');
+
+      document.getElementById('weather-updated').textContent =
+        'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+
+    } catch (err) {
+      document.getElementById('weather-week-grid').innerHTML =
+        `<div class="weather-error">⚠️ Impossible de charger la météo : ${err.message}</div>`;
+      console.error('[Météo]', err);
+    }
+  }
+
+  loadWeather();
+  setInterval(loadWeather, 10 * 60 * 1000);
+})();
+
+/* ══════════════════════════════════════════
+   VoiceRSS TTS — Écouter / Arrêter
+══════════════════════════════════════════ */
+const _ttsRegistry = {};
+const _ttsIconPlay = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;flex-shrink:0"><path d="M6.3 4.7a1 1 0 011.5-.87l8 5a1 1 0 010 1.74l-8 5A1 1 0 016.3 14.7V4.7z"/></svg> Écouter`;
+const _ttsIconStop = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;flex-shrink:0"><rect x="5" y="5" width="10" height="10" rx="2"/></svg> Arrêter`;
+const _ttsIconLoad = `<span class="tts-spin"></span> Chargement…`;
+
+function _ttsResetAll() {
+  document.querySelectorAll('.tts-btn-play').forEach(btn => { btn.innerHTML = _ttsIconPlay; btn.style.display = 'inline-flex'; btn.classList.remove('loading'); });
+  document.querySelectorAll('.tts-btn-stop').forEach(btn => { btn.style.display = 'none'; });
+  Object.values(_ttsRegistry).forEach(audio => { audio.pause(); audio.currentTime = 0; });
+  for (const k in _ttsRegistry) delete _ttsRegistry[k];
+}
+
+async function ttsPlay(btn) {
+  const id = btn.dataset.ttsId, url = btn.dataset.ttsUrl;
+  _ttsResetAll();
+  const stopBtn = document.getElementById('tts-stop-' + id);
+  btn.innerHTML = _ttsIconLoad;
+  btn.classList.add('loading');
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const ct = res.headers.get('Content-Type') || '';
+    if (ct.includes('text/plain')) throw new Error(await res.text());
+    const audio = new Audio(URL.createObjectURL(await res.blob()));
+    _ttsRegistry[id] = audio;
+    btn.style.display = 'none'; btn.classList.remove('loading');
+    stopBtn.style.display = 'inline-flex'; stopBtn.innerHTML = _ttsIconStop;
+    audio.play();
+    audio.addEventListener('ended', () => { stopBtn.style.display = 'none'; btn.style.display = 'inline-flex'; btn.innerHTML = _ttsIconPlay; delete _ttsRegistry[id]; });
+  } catch (err) {
+    btn.innerHTML = _ttsIconPlay; btn.classList.remove('loading'); btn.style.display = 'inline-flex';
+    console.error('[TTS]', err); alert('Impossible de lire cet objectif :\n' + err.message);
+  }
+}
+
+function ttsStop(btn) {
+  const id = btn.dataset.ttsId, playBtn = document.getElementById('tts-play-' + id);
+  if (_ttsRegistry[id]) { _ttsRegistry[id].pause(); _ttsRegistry[id].currentTime = 0; delete _ttsRegistry[id]; }
+  btn.style.display = 'none'; playBtn.style.display = 'inline-flex'; playBtn.innerHTML = _ttsIconPlay;
+}
+</script>
+
+{% include '_partials/front_dynamic_list_filters.html.twig' with { form_id: 'frontListForm', skip_test_id_zero: false } %}
+{% endblock %}

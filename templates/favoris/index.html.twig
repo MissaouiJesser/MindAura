@@ -1,0 +1,338 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block page_title %}&nbsp;{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:    #1B4332;
+    --forest-md: #2D6A4F;
+    --forest-lt: #40916C;
+    --sage:      #52B788;
+    --mint:      #B7E4C7;
+    --pale:      #D8F3DC;
+    --cream:     #F8F6F0;
+    --sand:      #EDE8DC;
+    --ink:       #0D1F0F;
+    --ink-2:     #2C3E2F;
+    --muted:     #6B7C6D;
+    --border:    rgba(27,67,50,.09);
+    --border-md: rgba(27,67,50,.18);
+    --shadow-sm: 0 4px 16px rgba(13,31,15,.06);
+    --shadow-md: 0 12px 40px rgba(13,31,15,.11);
+    --shadow-lg: 0 28px 72px rgba(13,31,15,.16);
+    --r-sm: 12px;
+    --r-md: 18px;
+    --r-lg: 24px;
+    --r-xl: 32px;
+    --ease-out: cubic-bezier(.16,1,.3,1);
+    --ease-spring: cubic-bezier(.34,1.56,.64,1);
+    --font-display: 'Syne', sans-serif;
+    --font-body:    'DM Sans', sans-serif;
+  }
+
+  body { font-family: var(--font-body); background: var(--cream); color: var(--ink-2); -webkit-font-smoothing: antialiased; }
+
+  /* Ambient background */
+  .fav-bg {
+    position: fixed; inset: 0; pointer-events: none; z-index: -1;
+    background:
+      radial-gradient(ellipse 55% 70% at 10% 15%, rgba(64,145,108,.10) 0%, transparent 70%),
+      radial-gradient(ellipse 45% 60% at 88% 80%, rgba(183,228,199,.15) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 80% at 50% 50%, rgba(248,246,240,1) 0%, rgba(236,232,220,.6) 100%);
+  }
+
+  /* ── Shell ── */
+  .page-shell { max-width: 100% !important; padding-left: 44px !important; padding-right: 44px !important; }
+  .fav-wrap { max-width: 100%; margin: 0 auto; padding: 0 0 80px; }
+
+  /* ── Hero header ── */
+  .fav-hero {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+    padding: 32px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .fav-hero-left { display: flex; align-items: center; gap: 16px; }
+  .btn-back-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 18px; background: white; color: var(--forest);
+    border-radius: 40px; text-decoration: none; font-size: 13px; font-weight: 600;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-md);
+    transition: all .2s var(--ease-out);
+    font-family: var(--font-display);
+  }
+  .btn-back-pill:hover { transform: translateX(-3px); box-shadow: var(--shadow-md); background: var(--pale); }
+  .fav-hero-title {
+    font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 800; color: var(--forest); letter-spacing: -1px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .star-box {
+    width: 44px; height: 44px; background: #FAEEDA; border-radius: 12px;
+    display: grid; place-items: center; border: 1px solid rgba(139,94,10,.15);
+    animation: starPop 3s ease-in-out infinite alternate;
+  }
+  @keyframes starPop { from { transform: scale(1) rotate(-8deg); } to { transform: scale(1.1) rotate(8deg); } }
+  .fav-count-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #FAEEDA; color: #8B5E0A; font-size: 13px; font-weight: 700;
+    padding: 6px 18px; border-radius: 40px; font-family: var(--font-display);
+    border: 1px solid rgba(139,94,10,.18);
+  }
+
+  /* ── Grid ── */
+  .fav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  /* ── Card ── */
+  .fav-card {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.85);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform .35s var(--ease-out), box-shadow .35s, border-color .3s;
+    position: relative; cursor: pointer;
+  }
+  .fav-card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--sage);
+  }
+  .fav-card::before {
+    content: ''; position: absolute; inset: 0; border-radius: var(--r-lg);
+    box-shadow: inset 0 0 0 1.5px rgba(82,183,136,0);
+    transition: box-shadow .3s; pointer-events: none;
+  }
+  .fav-card:hover::before { box-shadow: inset 0 0 0 1.5px rgba(82,183,136,.35); }
+
+  /* Remove btn */
+  .fav-remove {
+    position: absolute; top: 12px; right: 12px; z-index: 3;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.92); border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    backdrop-filter: blur(6px);
+    transition: all .2s var(--ease-spring); color: #6b7280;
+  }
+  .fav-remove:hover { background: #FEF2F2; color: #EF4444; transform: scale(1.15) rotate(15deg); }
+
+  /* Thumb */
+  .fav-thumb {
+    height: 160px; position: relative; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .fav-thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .5s var(--ease-out);
+    display: block;
+  }
+  .fav-card:hover .fav-thumb img { transform: scale(1.06); }
+  .thumb-bg-article { background: linear-gradient(145deg, #EEEDFE, #C7C3F8); }
+  .thumb-bg-video   { background: linear-gradient(145deg, #FFF3DC, #F5D4A0); }
+  .thumb-bg-podcast { background: linear-gradient(145deg, #E0F7EF, #A8E6C8); }
+  .thumb-bg-pdf     { background: linear-gradient(145deg, #F3EFEA, #DDD8C8); }
+  .thumb-bg-default { background: linear-gradient(145deg, var(--pale), var(--mint)); }
+
+  .fav-thumb-icon {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 48px; opacity: .8;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,.12));
+  }
+  .fav-thumb-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,31,15,.22) 0%, transparent 50%);
+  }
+  .fav-badges {
+    position: absolute; top: 12px; left: 12px; display: flex; gap: 5px; z-index: 1;
+  }
+  .fav-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+    backdrop-filter: blur(8px); letter-spacing: .3px;
+  }
+  .badge-article { background: rgba(83,74,183,0.88); color: #fff; }
+  .badge-video   { background: rgba(184,115,22,.9);  color: #fff; }
+  .badge-podcast { background: rgba(8,80,65,.85);    color: #fff; }
+  .badge-pdf     { background: rgba(64,64,80,.82);   color: #fff; }
+  .badge-niveau  { background: rgba(255,255,255,.88); color: #333; border: 1px solid rgba(0,0,0,.1); }
+
+  /* Body */
+  .fav-body { padding: 18px 20px 12px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .fav-card-title {
+    font-family: var(--font-display); font-size: 16px; font-weight: 700;
+    color: var(--ink); line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+    transition: color .2s;
+  }
+  .fav-card:hover .fav-card-title { color: var(--forest-md); }
+  .fav-excerpt {
+    font-size: 12.5px; color: var(--muted); line-height: 1.6; flex: 1;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    font-weight: 300;
+  }
+  .fav-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .fav-stat { font-size: 11.5px; color: #9ca3af; display: flex; align-items: center; gap: 3px; font-weight: 500; }
+  .fav-added {
+    font-size: 10.5px; color: #c9d1d9; margin-top: 2px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* Footer */
+  .fav-footer {
+    padding: 14px 20px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 10px;
+  }
+  .btn-read {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-display); font-size: 12.5px; font-weight: 600;
+    color: var(--forest); text-decoration: none;
+    padding: 8px 18px; border-radius: var(--r-sm);
+    background: var(--pale); transition: all .25s var(--ease-out);
+    letter-spacing: .2px;
+  }
+  .btn-read:hover { background: var(--forest); color: white; transform: translateX(3px); box-shadow: 0 4px 14px rgba(27,67,50,.25); }
+  .btn-read svg { transition: transform .25s; }
+  .btn-read:hover svg { transform: translateX(3px); }
+
+  /* ── Empty state ── */
+  .fav-empty {
+    text-align: center; padding: 80px 32px;
+    background: rgba(255,255,255,.7); backdrop-filter: blur(16px);
+    border-radius: var(--r-xl); border: 2px dashed var(--mint);
+    box-shadow: var(--shadow-sm);
+  }
+  .fav-empty-icon { font-size: 64px; margin-bottom: 20px; animation: starPop 2s ease-in-out infinite alternate; }
+  .fav-empty-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: #374151; margin-bottom: 10px; }
+  .fav-empty-sub { font-size: 13.5px; color: #9ca3af; margin-bottom: 28px; line-height: 1.6; }
+  .btn-explore {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 32px; background: var(--forest); color: white; border-radius: 40px;
+    text-decoration: none; font-weight: 600; font-family: var(--font-display); font-size: 14px;
+    transition: all .25s var(--ease-out); box-shadow: 0 6px 20px rgba(27,67,50,.25);
+  }
+  .btn-explore:hover { background: var(--forest-md); transform: translateY(-3px); box-shadow: 0 10px 28px rgba(27,67,50,.35); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fav-bg"></div>
+<div class="fav-wrap">
+
+  {# ── Hero Header ── #}
+  <div class="fav-hero">
+    <div class="fav-hero-left">
+      <a href="{{ path('ressources_index') }}" class="btn-back-pill" aria-label="Retour aux ressources">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Bibliothèque
+      </a>
+      <div class="fav-hero-title">
+        <div class="star-box">⭐</div>
+        Mes Favoris
+      </div>
+    </div>
+    {% if favoris is not empty %}
+      <div class="fav-count-chip">⭐ {{ favoris|length }} ressource{{ favoris|length > 1 ? 's' }}</div>
+    {% endif %}
+  </div>
+
+  {# ── Content ── #}
+  {% if favoris is empty %}
+    <div class="fav-empty">
+      <div class="fav-empty-icon">⭐</div>
+      <div class="fav-empty-title">Aucun favori pour l'instant</div>
+      <div class="fav-empty-sub">
+        Ajoutez des ressources à vos favoris en cliquant sur l'étoile ⭐<br>depuis n'importe quelle resource.
+      </div>
+      <a href="{{ path('ressources_index') }}" class="btn-explore">📚 Explorer les ressources</a>
+    </div>
+  {% else %}
+    <div class="fav-grid">
+      {% for favori in favoris %}
+        {% set r = favori.ressource %}
+        {% set typeSlug = r.contenu|lower %}
+        {% set thumbBg = typeSlug == 'article' ? 'thumb-bg-article' :
+                        (typeSlug == 'video'   ? 'thumb-bg-video'   :
+                        (typeSlug == 'podcast' ? 'thumb-bg-podcast'  :
+                        (typeSlug == 'pdf'     ? 'thumb-bg-pdf'      : 'thumb-bg-default'))) %}
+        {% set badgeCls = typeSlug == 'article' ? 'badge-article' :
+                         (typeSlug == 'video'   ? 'badge-video'   :
+                         (typeSlug == 'podcast' ? 'badge-podcast'  :
+                         (typeSlug == 'pdf'     ? 'badge-pdf'      : 'badge-article'))) %}
+        {% set typeIcon = typeSlug == 'pdf' ? '📄' :
+                         (typeSlug == 'video'   ? '🎬' :
+                         (typeSlug == 'podcast' ? '🎙️' : '📰')) %}
+
+        <div class="fav-card" id="fav-card-{{ r.id }}" onclick="window.location='{{ path('ressources_show', {id: r.id}) }}'">
+
+          {# Remove btn #}
+          <form method="post"
+                action="{{ path('ressource_favori_remove', {id: r.id}) }}"
+                onsubmit="event.stopPropagation(); return confirm('Retirer de vos favoris ?')"
+                style="display:contents;">
+            <input type="hidden" name="_token" value="{{ csrf_token('ressource_favori_remove_' ~ r.id) }}">
+            <button type="submit" class="fav-remove" title="Retirer des favoris" onclick="event.stopPropagation()">✕</button>
+          </form>
+
+          {# Thumb #}
+          <div class="fav-thumb {{ r.imageUrl ? '' : thumbBg }}">
+            {% if r.imageUrl %}
+              <img src="{{ r.imageUrl }}" alt="{{ r.titre }}" loading="lazy"
+                   onerror="this.style.display='none'; this.closest('.fav-thumb').classList.add('{{ thumbBg }}'); this.nextElementSibling.style.display='block';">
+            {% endif %}
+            <div class="fav-thumb-icon" style="{{ r.imageUrl ? 'display:none' : '' }}">{{ typeIcon }}</div>
+            <div class="fav-thumb-overlay"></div>
+            <div class="fav-badges">
+              <span class="fav-badge {{ badgeCls }}">{{ r.contenu }}</span>
+              {% if r.niveau %}<span class="fav-badge badge-niveau">{{ r.niveau }}</span>{% endif %}
+            </div>
+          </div>
+
+          {# Body #}
+          <div class="fav-body">
+            <div class="fav-card-title">{{ r.titre }}</div>
+            <div class="fav-excerpt">
+              {{ r.resume|slice(0, 120) }}{% if r.resume|length > 120 %}…{% endif %}
+            </div>
+            <div class="fav-meta">
+              <span class="fav-stat">❤️ {{ r.likes }}</span>
+              <span class="fav-stat">👁 {{ r.nbrVues }}</span>
+              {% if r.dureeLecture %}<span class="fav-stat">⏱ {{ r.dureeLecture }} min</span>{% endif %}
+              {% if r.categorie %}<span class="fav-stat">🏷 {{ r.categorie }}</span>{% endif %}
+            </div>
+            <div class="fav-added">
+              🕐 Ajouté le {{ favori.createdAt|date('d/m/Y') }}
+            </div>
+          </div>
+
+          {# Footer #}
+          <div class="fav-footer">
+            <a href="{{ path('ressources_show', {id: r.id}) }}" class="btn-read" onclick="event.stopPropagation()">
+              Consulter
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="10" x2="16" y2="10"/><polyline points="11,5 16,10 11,15"/>
+              </svg>
+            </a>
+            <span style="font-size:11px; color:var(--muted);">{{ r.contenu }}</span>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

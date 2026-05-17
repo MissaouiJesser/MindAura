@@ -1,0 +1,31 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block subject %}Votre réclamation #{{ reclamation.id_reclamation }} a été traitée{% endblock %}
+
+{% block body %}
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #1B4332;">Votre réclamation a été traitée</h2>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3>Réclamation #{{ reclamation.id_reclamation }}</h3>
+        <p><strong>Sujet:</strong> {{ reclamation.sujet_reclamation }}</p>
+        <p><strong>Description:</strong> {{ reclamation.description_reclamation }}</p>
+        <p><strong>Catégorie:</strong> {{ reclamation.categorie.nom_categorie }}</p>
+        <p><strong>Statut:</strong> {{ reclamation.statut_reclamation }}</p>
+        <p><strong>Date de création:</strong> {{ reclamation.dateCreation_reclamation|date('d/m/Y H:i') }}</p>
+    </div>
+
+    <p>Nous vous informons que votre réclamation a été examinée et traitée par notre équipe.</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ url('reclamation_index') }}"
+           style="background: #52B788; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            Voir mes réclamations
+        </a>
+    </div>
+
+    <p style="color: #666; font-size: 12px;">
+        Cet email a été envoyé automatiquement par le système MindAura.
+    </p>
+</div>
+{% endblock %}

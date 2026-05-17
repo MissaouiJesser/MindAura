@@ -1,0 +1,433 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+{% block page_title %}Mon Profil{% endblock %}
+
+{# ─────────────────────────────────────────────────────────────────────────────
+   templates/site/profil/show.html.twig
+   Vue lecture-seule du profil — hérite de base_frontoffice.html.twig
+   Palette : vert forêt / violet / blanc  (identique à home.html.twig)
+───────────────────────────────────────────────────────────────────────────── #}
+
+{% block header_actions %}
+  <a href="{{ path('app_profil_edit') }}" class="profil-edit-btn">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px">
+      <path d="M13.586 3.586a2 2 0 112.828 2.828l-8.5 8.5L4 16l1.086-3.914 8.5-8.5z" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Modifier le profil
+  </a>
+{% endblock %}
+
+{% block content %}
+
+<style>
+  /* ── Palette locale (cohérente avec home.html.twig) ── */
+  :root {
+    --p-g1:      #1B4332;
+    --p-g2:      #2D6A4F;
+    --p-g3:      #52B788;
+    --p-gpale:   #D8F3DC;
+    --p-ghover:  #E8F5EE;
+    --p-vio:     #7B5EA7;
+    --p-viopale: #EDE9F6;
+    --p-bg:      #F0F4F8;
+    --p-white:   #FFFFFF;
+    --p-text:    #1A1A2E;
+    --p-tsec:    #5A6475;
+    --p-border:  #D5DCE6;
+    --p-ease:    cubic-bezier(.22,1,.36,1);
+  }
+
+  /* ── Bouton header ── */
+  .profil-edit-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 18px; border-radius: 99px;
+    background: var(--p-g1); color: #fff;
+    font-size: .83rem; font-weight: 600;
+    text-decoration: none; transition: all .25s var(--p-ease);
+    box-shadow: 0 3px 12px rgba(27,67,50,.22);
+  }
+  .profil-edit-btn:hover { background: var(--p-g2); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,67,50,.28); }
+
+  /* ── Page wrapper ── */
+  .profil-page {
+    max-width: 900px; margin: 0 auto; padding: 32px 24px 48px;
+    animation: profilFadeIn .55s var(--p-ease) both;
+  }
+  @keyframes profilFadeIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+
+  /* ── Hero card ── */
+  .profil-hero {
+    background: linear-gradient(135deg, var(--p-g1) 0%, var(--p-g2) 55%, #1a5c3a 100%);
+    border-radius: 22px; padding: 40px 44px;
+    display: flex; align-items: center; gap: 36px;
+    position: relative; overflow: hidden; margin-bottom: 28px;
+    box-shadow: 0 12px 40px rgba(27,67,50,.22);
+  }
+  .profil-hero::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 70% 60% at 80% 50%, rgba(82,183,136,.18) 0%, transparent 65%);
+  }
+  .profil-hero-blob {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    filter: blur(55px); opacity: .12; animation: blobDrift 10s ease-in-out infinite;
+  }
+  .profil-hero-blob:nth-child(1) { width: 280px; height: 280px; background: #52B788; top: -80px; right: -60px; }
+  .profil-hero-blob:nth-child(2) { width: 180px; height: 180px; background: #7B5EA7; bottom: -50px; left: 30%; animation-delay: -4s; }
+  @keyframes blobDrift {
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(14px,-10px) scale(1.08)}
+  }
+
+  .profil-avatar-wrap {
+    position: relative; flex-shrink: 0; z-index: 1;
+  }
+  .profil-avatar {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--p-g3), #95D5B2);
+    border: 4px solid rgba(255,255,255,.3);
+    display: grid; place-items: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700; color: #fff;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(0,0,0,.22), 0 0 0 6px rgba(255,255,255,.08);
+    transition: transform .35s var(--p-ease);
+  }
+  .profil-avatar:hover { transform: scale(1.05); }
+  .profil-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .profil-status-dot {
+    position: absolute; bottom: 8px; right: 4px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #22C55E; border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    animation: statusPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes statusPulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}
+    50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}
+  }
+
+  .profil-hero-info { flex: 1; z-index: 1; }
+  .profil-hero-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem,3vw,2.1rem); color: #fff;
+    font-weight: 700; line-height: 1.1; margin-bottom: 8px;
+  }
+  .profil-role-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22);
+    border-radius: 99px; padding: 5px 14px;
+    font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.92);
+    backdrop-filter: blur(6px); margin-bottom: 14px;
+  }
+  .profil-hero-meta {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    color: rgba(255,255,255,.65); font-size: .82rem;
+  }
+  .profil-hero-meta span { display: flex; align-items: center; gap: 5px; }
+  .profil-hero-meta svg { width: 14px; height: 14px; stroke: rgba(255,255,255,.5); }
+
+  .profil-status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 99px;
+    font-size: .74rem; font-weight: 700;
+  }
+  .profil-status-pill.active { background: rgba(34,197,94,.18); color: #4ADE80; }
+  .profil-status-pill.inactive { background: rgba(220,38,38,.18); color: #F87171; }
+  .profil-status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ── Grid 2 colonnes ── */
+  .profil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* ── Card de détail ── */
+  .profil-card {
+    background: var(--p-white); border-radius: 18px;
+    border: 1.5px solid var(--p-border);
+    box-shadow: 0 2px 12px rgba(27,67,50,.07);
+    overflow: hidden;
+    transition: transform .3s var(--p-ease), box-shadow .3s var(--p-ease);
+    animation: cardIn .5s var(--p-ease) both;
+  }
+  .profil-card:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(27,67,50,.12); }
+  @keyframes cardIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+  .profil-card:nth-child(1) { animation-delay: .06s }
+  .profil-card:nth-child(2) { animation-delay: .12s }
+  .profil-card:nth-child(3) { animation-delay: .18s; grid-column: 1 / -1; }
+
+  .card-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 22px 16px;
+    border-bottom: 1.5px solid var(--p-border);
+    background: linear-gradient(to right, var(--p-ghover), transparent);
+  }
+  .card-header-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .card-header-icon.green { background: var(--p-gpale); }
+  .card-header-icon.green svg { stroke: var(--p-g1); }
+  .card-header-icon.violet { background: var(--p-viopale); }
+  .card-header-icon.violet svg { stroke: var(--p-vio); }
+  .card-header-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 1.8; }
+  .card-title { font-size: .92rem; font-weight: 700; color: var(--p-text); }
+  .card-subtitle { font-size: .73rem; color: var(--p-tsec); margin-top: 1px; }
+
+  /* ── Fields dans les cards ── */
+  .card-body { padding: 20px 22px; }
+
+  .profil-field { margin-bottom: 18px; }
+  .profil-field:last-child { margin-bottom: 0; }
+  .field-label {
+    font-size: .71rem; font-weight: 700; color: var(--p-tsec);
+    letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; display: block;
+  }
+  .field-value {
+    font-size: .93rem; color: var(--p-text); font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .field-value.empty { color: var(--p-tsec); font-style: italic; font-weight: 400; }
+
+  /* field icon accent */
+  .field-accent {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: grid; place-items: center; flex-shrink: 0;
+    background: var(--p-gpale);
+  }
+  .field-accent svg { width: 13px; height: 13px; stroke: var(--p-g1); fill: none; stroke-width: 2; }
+
+  /* bio */
+  .bio-text {
+    font-size: .9rem; color: var(--p-text); line-height: 1.75;
+    background: var(--p-bg); border-radius: 12px; padding: 16px 18px;
+    border: 1.5px solid var(--p-border); min-height: 80px;
+  }
+  .bio-text.empty { color: var(--p-tsec); font-style: italic; }
+
+  /* ── Action bar ── */
+  .profil-actions {
+    display: flex; align-items: center; gap: 12px; margin-top: 28px; flex-wrap: wrap;
+    animation: cardIn .5s var(--p-ease) .28s both;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 24px; border-radius: 99px;
+    background: var(--p-g1); color: #fff;
+    font-size: .88rem; font-weight: 700; text-decoration: none;
+    box-shadow: 0 4px 16px rgba(27,67,50,.22);
+    transition: all .25s var(--p-ease);
+  }
+  .btn-primary:hover { background: var(--p-g2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,67,50,.28); }
+  .btn-primary svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 24px; border-radius: 99px;
+    background: transparent; color: var(--p-g1);
+    border: 1.5px solid rgba(27,67,50,.22);
+    font-size: .88rem; font-weight: 600; text-decoration: none;
+    transition: all .25s var(--p-ease);
+  }
+  .btn-secondary:hover { background: var(--p-ghover); border-color: var(--p-g3); }
+  .btn-secondary svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* ── Flash messages ── */
+  .profil-flash {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px; border-radius: 12px; margin-bottom: 20px;
+    font-size: .88rem; font-weight: 500; animation: cardIn .4s var(--p-ease) both;
+  }
+  .profil-flash.success { background: var(--p-gpale); color: var(--p-g1); border: 1.5px solid #95D5B2; }
+  .profil-flash.error   { background: #FEF2F2; color: #DC2626; border: 1.5px solid #FECACA; }
+  .profil-flash svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; flex-shrink: 0; }
+
+  @media (max-width: 680px) {
+    .profil-grid { grid-template-columns: 1fr; }
+    .profil-card:nth-child(3) { grid-column: 1; }
+    .profil-hero { flex-direction: column; text-align: center; padding: 30px 24px; gap: 20px; }
+    .profil-hero-meta { justify-content: center; }
+  }
+</style>
+
+<div class="profil-page">
+
+  {# ── Flash messages ── #}
+  {% for type, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="profil-flash {{ type }}">
+        <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 4v4m0 3v1" stroke-linecap="round"/></svg>
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  {# ── Hero banner ── #}
+  <div class="profil-hero">
+    <div class="profil-hero-blob"></div>
+    <div class="profil-hero-blob"></div>
+
+    <div class="profil-avatar-wrap">
+      <div class="profil-avatar">
+        {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+          <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="Photo de profil"/>
+        {% else %}
+          {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+        {% endif %}
+      </div>
+      {% if user.isEstActifUtilisateur %}
+        <div class="profil-status-dot"></div>
+      {% endif %}
+    </div>
+
+    <div class="profil-hero-info">
+      <h1 class="profil-hero-name">{{ user.prenomUtilisateur }} {{ user.nomUtilisateur }}</h1>
+      <div class="profil-role-badge">{{ roleEmoji }} {{ roleLabel }}</div>
+      <div class="profil-hero-meta">
+        <span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M4 4h12c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <path d="M18 6L10 11 2 6" stroke-linecap="round"/>
+          </svg>
+          {{ user.emailUtilisateur }}
+        </span>
+        <span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <rect x="3" y="4" width="14" height="13" rx="2"/>
+            <path d="M3 8h14M7 2v4M13 2v4" stroke-linecap="round"/>
+          </svg>
+          Inscrit le {{ user.dateInscriptionUtilisateur|date('d/m/Y') }}
+        </span>
+        <span class="profil-status-pill {{ user.isEstActifUtilisateur ? 'active' : 'inactive' }}">
+          <span class="dot"></span>
+          {{ user.isEstActifUtilisateur ? 'Actif' : 'Inactif' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  {# ── Grille de détails ── #}
+  <div class="profil-grid">
+
+    {# Card — Informations personnelles #}
+    <div class="profil-card">
+      <div class="card-header">
+        <div class="card-header-icon green">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="10" cy="7" r="3.5"/>
+            <path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="card-title">Informations personnelles</div>
+          <div class="card-subtitle">Vos données d'identité</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="profil-field">
+          <span class="field-label">Prénom</span>
+          <div class="field-value">
+            <div class="field-accent"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2z"/></svg></div>
+            {{ user.prenomUtilisateur }}
+          </div>
+        </div>
+        <div class="profil-field">
+          <span class="field-label">Nom</span>
+          <div class="field-value">
+            <div class="field-accent"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2z"/></svg></div>
+            {{ user.nomUtilisateur }}
+          </div>
+        </div>
+        <div class="profil-field">
+          <span class="field-label">Date de naissance</span>
+          <div class="field-value {{ user.dateNaissanceUtilisateur ? '' : 'empty' }}">
+            <div class="field-accent"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14" stroke-linecap="round"/></svg></div>
+            {% if user.dateNaissanceUtilisateur %}
+              {{ user.dateNaissanceUtilisateur|date('d/m/Y') }}
+            {% else %}
+              Non renseignée
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Card — Contact #}
+    <div class="profil-card">
+      <div class="card-header">
+        <div class="card-header-icon violet">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.5 0 1 .4 1 1V20c0 .5-.5 1-1 1-9.4 0-17-7.6-17-17 0-.5.4-1 1-1h3.5c.5 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="card-title">Coordonnées</div>
+          <div class="card-subtitle">Vos informations de contact</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="profil-field">
+          <span class="field-label">Adresse e-mail</span>
+          <div class="field-value">
+            <div class="field-accent" style="background:var(--p-viopale)"><svg viewBox="0 0 20 20" fill="none" stroke="var(--p-vio)" stroke-width="2"><path d="M4 4h12c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M18 6L10 11 2 6" stroke-linecap="round"/></svg></div>
+            {{ user.emailUtilisateur }}
+          </div>
+        </div>
+        <div class="profil-field">
+          <span class="field-label">Téléphone</span>
+          <div class="field-value {{ user.telephoneUtilisateur ? '' : 'empty' }}">
+            <div class="field-accent" style="background:var(--p-viopale)"><svg viewBox="0 0 20 20" fill="none" stroke="var(--p-vio)" stroke-width="2"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2.8-.8 2-.8 1.6 1.6c-1 5.4-7.8 8.4-12.6 3.6C2.8 16.2-.2 9.4 5.2 8.4l1.6 1.6L6 12l-.8.8-1.6 1.6L6.6 10.8z"/></svg></div>
+            {{ user.telephoneUtilisateur ?: 'Non renseigné' }}
+          </div>
+        </div>
+        <div class="profil-field">
+          <span class="field-label">Rôle</span>
+          <div class="field-value">
+            <div class="field-accent" style="background:var(--p-viopale)"><svg viewBox="0 0 20 20" fill="none" stroke="var(--p-vio)" stroke-width="2"><path d="M9 12l-2-2 4-4 5 5M3 17l4-4"/></svg></div>
+            {{ roleEmoji }} {{ roleLabel }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Card — Bio (pleine largeur) #}
+    <div class="profil-card">
+      <div class="card-header">
+        <div class="card-header-icon green">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 4h12v12H4z M7 8h6M7 11h4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="card-title">Biographie</div>
+          <div class="card-subtitle">Quelques mots sur vous</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="bio-text {{ user.bioUtilisateur ? '' : 'empty' }}">
+          {{ user.bioUtilisateur ?: 'Aucune biographie renseignée. Cliquez sur « Modifier le profil » pour en ajouter une.' }}
+        </div>
+      </div>
+    </div>
+
+  </div>{# /profil-grid #}
+
+  {# ── Boutons d'action ── #}
+  <div class="profil-actions">
+    <a href="{{ path('app_profil_edit') }}" class="btn-primary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M13.586 3.586a2 2 0 112.828 2.828l-8.5 8.5L4 16l1.086-3.914 8.5-8.5z" stroke-linecap="round"/>
+      </svg>
+      Modifier mon profil
+    </a>
+    <a href="{{ path('app_home') }}" class="btn-secondary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M10 2L2 9h2v9h5v-5h2v5h5V9h2L10 2z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Retour à l'accueil
+    </a>
+  </div>
+
+</div>{# /profil-page #}
+
+{% endblock %}

@@ -1,0 +1,1015 @@
+{% extends 'base_user.html.twig' %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN SYSTEM — MINDAURA EMERALD EDITORIAL
+══════════════════════════════════════════════ */
+:root {
+  --g900: #052e16; --g800: #14532d; --g700: #15803d;
+  --g600: #16a34a; --g500: #22c55e; --g400: #4ade80;
+  --g200: #bbf7d0; --g100: #dcfce7; --g50:  #f0fdf4;
+  --ink:  #0a0f0d; --ink2: #1a2e1e; --muted: #5c7a63;
+  --light: #f6fdf8; --white: #ffffff;
+  --amber: #f59e0b; --rose: #f43f5e; --sky: #0ea5e9;
+  --r: 14px; --r-lg: 20px; --r-xl: 28px;
+  --shadow-sm: 0 1px 4px rgba(5,46,22,.07);
+  --shadow:    0 4px 20px rgba(5,46,22,.09), 0 1px 4px rgba(5,46,22,.06);
+  --shadow-lg: 0 12px 44px rgba(5,46,22,.13), 0 3px 12px rgba(5,46,22,.07);
+  --shadow-xl: 0 24px 70px rgba(5,46,22,.17), 0 6px 20px rgba(5,46,22,.09);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--light); color: var(--ink); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.user-nav { display: none !important; }
+
+/* ─── NAV (matches screenshot exactly) ─── */
+.nav {
+  position: sticky; top: 0; z-index: 999;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid rgba(27,67,50,.08);
+  padding: 0 40px;
+  display: flex; align-items: center; gap: 0;
+  height: 72px; transition: box-shadow .3s;
+  font-family: 'DM Sans', sans-serif;
+}
+.nav.scrolled { box-shadow: 0 4px 28px rgba(5,46,22,.10); }
+
+/* Brand — left */
+.nav-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; margin-right: 32px; }
+.nav-brand-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--g800), var(--g600));
+  display: grid; place-items: center;
+  box-shadow: 0 4px 14px rgba(21,128,61,.35);
+  transition: transform .3s ease; overflow: hidden;
+}
+.nav-brand:hover .nav-brand-icon { transform: rotate(-6deg) scale(1.06); }
+.nav-brand-name { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 700; color: var(--ink); line-height: 1.1; letter-spacing: -0.3px; }
+.nav-brand-sub  { font-family: 'DM Sans', sans-serif; font-size: .57rem; color: var(--muted); letter-spacing: 1.4px; text-transform: uppercase; font-weight: 500; }
+
+/* Tab navigation — center (inline in navbar like screenshot) */
+.nav-tabs {
+  display: flex; align-items: center; gap: 4px;
+  flex: 1; justify-content: center;
+}
+.nav-tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 20px; border-radius: 10px;
+  font-size: .87rem; font-weight: 600; color: #6b7280;
+  border: none; background: transparent; cursor: pointer;
+  transition: all .2s; font-family: 'DM Sans', sans-serif;
+  text-decoration: none; white-space: nowrap;
+}
+.nav-tab-btn:hover { background: var(--g50); color: var(--g700); }
+.nav-tab-btn.active {
+  background: var(--g50); color: var(--g700);
+  border-bottom: 2.5px solid var(--g600);
+  border-radius: 10px 10px 0 0;
+}
+.nav-tab-btn i { font-size: .82rem; }
+.tab-pill {
+  background: var(--g600); color: white;
+  border-radius: 100px; font-size: .65rem; font-weight: 700;
+  padding: 2px 7px; min-width: 20px; text-align: center;
+  line-height: 1.4;
+}
+.nav-tab-btn:not(.active) .tab-pill { background: #e5e7eb; color: #6b7280; }
+.nav-tab-btn.active .tab-pill { background: var(--g600); color: white; }
+
+/* Right side — panier + user */
+.nav-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; margin-left: 32px; }
+
+/* Panier — icône pure, zéro fond, zéro bordure */
+.btn-panier {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: none; border: none;
+  color: var(--ink); cursor: pointer; transition: color .2s;
+  position: relative; flex-shrink: 0; padding: 0;
+}
+.btn-panier:hover { color: var(--g700); }
+.btn-panier i { font-size: 1.15rem; }
+.panier-badge {
+  position: absolute; top: -3px; right: -5px;
+  background: var(--g600); color: white; border-radius: 100px;
+  font-size: .58rem; font-weight: 700; padding: 1px 5px;
+  min-width: 16px; text-align: center; line-height: 1.5;
+  border: 2px solid white;
+}
+
+/* User pill — exactement comme la photo : rond vert + nom + badge + chevron */
+.nav-user-pill-wrapper { position: relative; }
+.nav-user-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px; border-radius: 100px;
+  background: white; border: 1.5px solid var(--g400);
+  cursor: pointer; transition: all .22s ease;
+  box-shadow: 0 1px 4px rgba(5,46,22,.08);
+}
+.nav-user-pill:hover, .nav-user-pill[aria-expanded="true"] {
+  background: var(--g50); border-color: var(--g500);
+  box-shadow: 0 0 0 3px rgba(34,197,94,.13);
+}
+.nav-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: white; border: 2px solid var(--g500);
+  display: grid; place-items: center;
+  font-size: .78rem; font-weight: 700; color: var(--g700);
+  overflow: hidden; flex-shrink: 0;
+}
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nav-user-name { font-size: .84rem; font-weight: 600; color: var(--ink); }
+.nav-role-badge {
+  font-size: .68rem; color: var(--muted);
+  font-weight: 500;
+}
+.pill-chevron { width: 13px; height: 13px; stroke: var(--muted); transition: transform .3s; fill: none; stroke-width: 2.2; margin-left: 1px; }
+.nav-user-pill[aria-expanded="true"] .pill-chevron { transform: rotate(180deg); }
+
+/* Dropdown */
+.user-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0; width: 270px;
+  background: white; border: 1.5px solid rgba(5,46,22,.09); border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(5,46,22,.13), 0 4px 12px rgba(5,46,22,.06);
+  z-index: 1000; opacity: 0; visibility: hidden;
+  transform: translateY(-8px) scale(.97); transform-origin: top right;
+  transition: opacity .22s ease, transform .22s ease, visibility .22s; overflow: hidden;
+}
+.user-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+.dropdown-header { display: flex; align-items: center; gap: 12px; padding: 16px 18px 14px; background: linear-gradient(135deg, var(--g50), #fff); }
+.dropdown-avatar { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--g700), var(--g500)); border: 2.5px solid var(--g400); display: grid; place-items: center; font-size: .9rem; font-weight: 700; color: #fff; overflow: hidden; flex-shrink: 0; }
+.dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.dropdown-user-name { font-size: .9rem; font-weight: 700; color: var(--ink); }
+.dropdown-user-email { font-size: .73rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.dropdown-divider { height: 1px; background: var(--g100); margin: 4px 0; }
+.dropdown-item { display: flex; align-items: center; gap: 12px; padding: 11px 18px; text-decoration: none; color: var(--ink); transition: background .15s; cursor: pointer; border: none; width: 100%; background: none; font-family: 'DM Sans', sans-serif; }
+.dropdown-item:hover { background: var(--g50); }
+.dropdown-item-icon { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; background: var(--g50); display: grid; place-items: center; transition: transform .2s; }
+.dropdown-item-icon svg { width: 17px; height: 17px; stroke: var(--g700); fill: none; stroke-width: 1.8; }
+.dropdown-item:hover .dropdown-item-icon { transform: scale(1.08); }
+.dropdown-item-icon--red { background: #FEF2F2; }
+.dropdown-item-icon--red svg { stroke: #DC2626; }
+.dropdown-item-text { flex: 1; display: flex; flex-direction: column; gap: 1px; text-align: left; }
+.dropdown-item-label { font-size: .87rem; font-weight: 600; }
+.dropdown-item-sub { font-size: .72rem; color: var(--muted); }
+.dropdown-item-arrow { width: 14px; height: 14px; fill: none; stroke: var(--g100); stroke-width: 2; transition: stroke .2s, transform .2s; flex-shrink: 0; }
+.dropdown-item:hover .dropdown-item-arrow { stroke: var(--g500); transform: translateX(3px); }
+.dropdown-item--danger .dropdown-item-label { color: #DC2626; }
+.dropdown-item--danger:hover { background: #FEF2F2; }
+
+/* ─── HERO — sans encadré, texte directement sur background ─── */
+.hero {
+  background: var(--g900);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-noise {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .5;
+}
+.hero-mesh {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 150% at 15% 60%, rgba(22,163,74,.14) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 100% at 85% 20%, rgba(74,222,128,.08) 0%, transparent 50%);
+}
+.hero-lines {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,222,128,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,222,128,.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.hero-inner {
+  position: relative; z-index: 2;
+  text-align: center;
+  padding: 2.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700; font-style: italic;
+  font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+  color: white; letter-spacing: -.8px; line-height: 1.15;
+}
+.hero h1 em { font-style: normal; color: var(--g400); }
+.hero-sub { color: rgba(255,255,255,.65); font-size: .9rem; font-weight: 300; line-height: 1.5; }
+
+/* ─── SECTION ─── */
+.section-wrap { max-width: 1280px; margin: 0 auto; padding: 2.25rem 2rem 5rem; }
+.section-header { margin-bottom: 1.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.section-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.6rem; color: var(--ink); letter-spacing: -1px; line-height: 1.2; }
+.section-title span { color: var(--g600); font-style: italic; }
+
+/* ─── FILTER BAR ─── */
+.filter-bar {
+  display: flex; gap: .35rem; flex-wrap: wrap;
+  background: white; border: 1px solid var(--g100);
+  border-radius: 50px; padding: .35rem;
+  box-shadow: var(--shadow-sm);
+}
+.filter-chip {
+  padding: .3rem .85rem; border-radius: 50px; font-size: .77rem; font-weight: 600;
+  cursor: pointer; border: none; background: transparent; color: var(--muted);
+  transition: all .18s; font-family: 'DM Sans', sans-serif;
+}
+.filter-chip:hover { background: var(--g50); color: var(--g700); }
+.filter-chip.active { background: var(--g800); color: white; box-shadow: 0 2px 8px rgba(20,83,45,.25); }
+
+/* ─── EVENT CARDS ─── */
+.ev-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+.ev-card {
+  background: white; border-radius: var(--r-xl); overflow: hidden;
+  box-shadow: var(--shadow); display: flex; flex-direction: column;
+  border: 1px solid rgba(5,46,22,.05);
+  transition: transform .35s cubic-bezier(.34,1.4,.64,1), box-shadow .35s;
+  animation: fadeUp .5s ease both;
+  position: relative;
+}
+.ev-card:hover { transform: translateY(-7px); box-shadow: var(--shadow-xl); }
+@keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+.ev-card:nth-child(1){animation-delay:.04s}.ev-card:nth-child(2){animation-delay:.09s}
+.ev-card:nth-child(3){animation-delay:.13s}.ev-card:nth-child(4){animation-delay:.18s}
+.ev-card:nth-child(5){animation-delay:.22s}.ev-card:nth-child(6){animation-delay:.27s}
+.card-thumb {
+  position: relative; height: 215px;
+  background: linear-gradient(135deg, var(--g900), var(--g800));
+  overflow: hidden; flex-shrink: 0;
+}
+.card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s cubic-bezier(.4,0,.2,1); }
+.ev-card:hover .card-thumb img { transform: scale(1.08); }
+.card-thumb-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--g900) 0%, var(--g800) 55%, rgba(34,197,94,.18) 100%);
+}
+.card-thumb-placeholder i { font-size: 3.2rem; color: rgba(74,222,128,.18); }
+.thumb-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(5,46,22,.55) 0%, transparent 50%); }
+.thumb-top { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.badge-cat { font-size: .63rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; padding: .24rem .65rem; border-radius: 100px; background: rgba(5,46,22,.72); color: var(--g400); backdrop-filter: blur(8px); border: 1px solid rgba(74,222,128,.18); }
+.badge-price { font-size: .63rem; font-weight: 700; text-transform: uppercase; padding: .24rem .65rem; border-radius: 100px; }
+.price-free { background: var(--g600); color: white; box-shadow: 0 2px 8px rgba(22,163,74,.35); }
+.price-paid { background: var(--amber); color: var(--ink); }
+.badge-status { position: absolute; bottom: 12px; right: 12px; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: .22rem .65rem; border-radius: 100px; backdrop-filter: blur(6px); }
+.s-a_venir  { background: rgba(14,165,233,.88); color: white; }
+.s-en_cours { background: rgba(22,163,74,.88); color: white; }
+.s-termine  { background: rgba(107,143,113,.78); color: white; }
+.s-annule   { background: rgba(244,63,94,.88); color: white; }
+.card-num { position: absolute; bottom: 12px; left: 14px; font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 900; color: rgba(255,255,255,.12); line-height: 1; pointer-events: none; letter-spacing: -2px; }
+.card-body { padding: 1.35rem 1.5rem 1.5rem; flex: 1; display: flex; flex-direction: column; }
+.card-type-label { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .7px; color: var(--g600); display: flex; align-items: center; gap: .4rem; margin-bottom: .55rem; }
+.card-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.15rem; color: var(--ink); line-height: 1.25; margin-bottom: .55rem; letter-spacing: -.2px; }
+.card-desc { font-size: .81rem; color: var(--muted); line-height: 1.65; flex: 1; margin-bottom: 1rem; font-weight: 400; }
+.card-meta { border-top: 1px solid var(--g50); padding-top: .9rem; display: flex; flex-direction: column; gap: .38rem; }
+.meta-row { display: flex; align-items: center; gap: .5rem; font-size: .77rem; color: #4a5568; }
+.meta-row i { color: var(--g600); width: 13px; font-size: .7rem; }
+.places-wrap { margin-top: .9rem; }
+.places-head { display: flex; justify-content: space-between; font-size: .72rem; margin-bottom: .35rem; }
+.p-good { color: var(--g600); font-weight: 700; }
+.p-warn { color: var(--amber); font-weight: 700; }
+.p-full { color: var(--rose); font-weight: 700; }
+.prog-track { height: 5px; border-radius: 99px; background: var(--g100); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+.prog-green { background: linear-gradient(90deg, var(--g600), var(--g400)); }
+.prog-amber { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.prog-red   { background: linear-gradient(90deg, var(--rose), #fb7185); }
+.btn-join { display: block; width: 100%; margin-top: 1rem; padding: .8rem 1rem; border-radius: 12px; font-weight: 700; font-size: .86rem; text-align: center; text-decoration: none; border: none; cursor: pointer; transition: all .22s; font-family: 'DM Sans', sans-serif; letter-spacing: -.1px; position: relative; overflow: hidden; }
+.btn-join::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.12), transparent); opacity: 0; transition: opacity .2s; }
+.btn-join:hover::after { opacity: 1; }
+.btn-join-active { background: linear-gradient(135deg, var(--g700), var(--g500)); color: white; box-shadow: 0 4px 16px rgba(22,163,74,.32); }
+.btn-join-active:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(22,163,74,.42); color: white; }
+.btn-join-waitlist { background: linear-gradient(135deg, #b45309, var(--amber)); color: white; box-shadow: 0 4px 14px rgba(245,158,11,.28); }
+.btn-join-waitlist:hover { transform: translateY(-2px); filter: brightness(1.06); color: white; }
+.btn-join-disabled { background: var(--g50); color: #9ca3af; cursor: not-allowed; border: 1px solid var(--g100); }
+.btn-join-login { background: linear-gradient(135deg, #1e3a5f, #2563eb); color: white; box-shadow: 0 4px 14px rgba(37,99,235,.28); }
+.btn-join-login:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,.38); color: white; }
+.card-actions { display: flex; gap: .5rem; margin-top: .6rem; }
+.btn-ai { flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem; padding: .6rem .5rem; border-radius: 10px; font-size: .77rem; font-weight: 700; background: var(--g900); color: var(--g400); border: 1px solid rgba(74,222,128,.18); cursor: pointer; transition: all .2s; text-decoration: none; font-family: 'DM Sans', sans-serif; }
+.btn-ai:hover { background: var(--g800); border-color: var(--g500); color: white; transform: translateY(-1px); }
+.btn-fav { display: flex; align-items: center; justify-content: center; width: 44px; border-radius: 10px; border: 1.5px solid var(--g100); background: white; color: #ccc; font-size: 1.1rem; cursor: pointer; transition: all .2s; flex-shrink: 0; }
+.btn-fav:hover { border-color: #fca5a5; color: #dc2626; background: #fff5f5; }
+.btn-fav.active { border-color: #fca5a5; color: #dc2626; background: #fff5f5; }
+
+/* ─── SHOP GRID ─── */
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.prod-card {
+  background: white; border-radius: var(--r-lg); overflow: hidden;
+  border: 1px solid rgba(5,46,22,.055); box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column;
+  transition: all .35s cubic-bezier(.34,1.4,.64,1); animation: fadeUp .4s ease both;
+}
+.prod-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+.prod-thumb {
+  height: 200px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, var(--g50), var(--g100));
+}
+.prod-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.prod-card:hover .prod-thumb img { transform: scale(1.09); }
+.prod-thumb-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: linear-gradient(135deg, var(--g50), var(--g100)); }
+.prod-body { padding: 1.1rem 1.25rem 1.25rem; flex: 1; display: flex; flex-direction: column; }
+.prod-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; color: var(--ink); line-height: 1.25; margin-bottom: .35rem; }
+.prod-desc { font-size: .78rem; color: var(--muted); line-height: 1.55; flex: 1; margin-bottom: .75rem; }
+.prod-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.prod-price { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.15rem; color: var(--g700); }
+.prod-stock-badge { font-size: .68rem; color: var(--muted); font-weight: 600; }
+.btn-add-cart { width: 100%; margin-top: .85rem; padding: .68rem .8rem; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--g700), var(--g600)); color: white; font-weight: 700; font-size: .84rem; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: .4rem; box-shadow: 0 2px 8px rgba(22,163,74,.22); }
+.btn-add-cart:hover { background: linear-gradient(135deg, var(--g800), var(--g700)); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(22,163,74,.32); }
+.btn-out-of-stock { width: 100%; margin-top: .75rem; padding: .62rem .8rem; border-radius: 10px; border: none; background: var(--g50); color: #9ca3af; font-weight: 600; font-size: .82rem; cursor: not-allowed; font-family: 'DM Sans', sans-serif; }
+.btn-desc-ai { width: 100%; margin-top: .45rem; padding: .52rem .8rem; border-radius: 10px; border: 1px solid var(--g200); background: var(--g50); color: var(--g700); font-weight: 600; font-size: .78rem; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: .4rem; }
+.btn-desc-ai:hover { background: var(--g100); color: var(--g800); }
+.alert-stock-form { margin-top: .7rem; }
+.alert-stock-form small { font-size: .7rem; color: var(--muted); display: block; margin-bottom: .35rem; }
+.alert-stock-form .alert-row { display: flex; gap: .35rem; }
+.alert-stock-form input { flex: 1; padding: .45rem .7rem; border: 1.5px solid var(--g100); border-radius: 8px; font-size: .75rem; outline: none; font-family: 'DM Sans', sans-serif; transition: border .2s; }
+.alert-stock-form input:focus { border-color: var(--g500); }
+.alert-stock-form .btn-alert { padding: .45rem .75rem; border-radius: 8px; border: none; background: var(--amber); color: white; font-size: .75rem; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+.alert-stock-form .btn-alert:hover { background: #d97706; }
+.alert-fb { font-size: .7rem; margin-top: .3rem; min-height: 1rem; display: block; }
+
+/* ─── CART DRAWER ─── */
+.cart-overlay { position: fixed; inset: 0; background: rgba(5,46,22,.38); z-index: 1000; backdrop-filter: blur(5px); opacity: 0; pointer-events: none; transition: opacity .3s; }
+.cart-overlay.open { opacity: 1; pointer-events: all; }
+.cart-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100vw); background: white; z-index: 1001; transform: translateX(100%); transition: transform .38s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -8px 0 50px rgba(5,46,22,.14); }
+.cart-drawer.open { transform: translateX(0); }
+.cart-head { background: var(--g900); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(74,222,128,.09); }
+.cart-head-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.15rem; color: white; display: flex; align-items: center; gap: .6rem; }
+.cart-head-title i { color: var(--g400); }
+.btn-cart-close { background: rgba(74,222,128,.09); border: 1px solid rgba(74,222,128,.14); color: var(--g400); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all .2s; }
+.btn-cart-close:hover { background: rgba(74,222,128,.18); color: white; }
+.cart-items { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
+.cart-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: var(--muted); gap: 1rem; }
+.cart-empty i { font-size: 3rem; color: var(--g100); }
+.cart-empty p { font-size: .88rem; }
+.cart-item { display: flex; align-items: center; gap: .9rem; padding: .85rem 0; border-bottom: 1px solid var(--g100); }
+.cart-item-img { width: 60px; height: 60px; border-radius: 10px; overflow: hidden; background: var(--g50); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-weight: 700; font-size: .85rem; color: var(--ink); }
+.cart-item-price { font-size: .78rem; color: var(--g600); font-weight: 700; margin-top: .15rem; }
+.cart-item-qty { display: flex; align-items: center; gap: .4rem; margin-top: .35rem; }
+.qty-btn { width: 26px; height: 26px; border-radius: 6px; border: 1.5px solid var(--g100); background: white; color: var(--g700); font-size: .85rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.qty-btn:hover { background: var(--g700); color: white; border-color: var(--g700); }
+.qty-num { font-weight: 700; font-size: .85rem; min-width: 20px; text-align: center; }
+.btn-remove { background: none; border: none; color: #fca5a5; cursor: pointer; font-size: .9rem; margin-left: .3rem; transition: color .2s; }
+.btn-remove:hover { color: var(--rose); }
+.cart-subtotal { font-size: .8rem; font-weight: 700; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.cart-foot { padding: 1.25rem 1.5rem; border-top: 2px solid var(--g100); background: var(--g50); overflow-y: auto; max-height: 70vh; flex-shrink: 0; }
+.cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.cart-total-label { font-weight: 700; font-size: .95rem; color: var(--muted); }
+.cart-total-amount { font-family: 'Fraunces', serif; font-weight: 900; font-size: 1.55rem; color: var(--g700); }
+.cart-login-banner { display: flex; align-items: flex-start; gap: .75rem; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+.cart-login-banner i { color: #2563eb; font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+.cart-login-banner-text strong { display: block; font-size: .86rem; color: #1e3a8a; margin-bottom: .2rem; }
+.cart-login-banner-text span { font-size: .78rem; color: #3b82f6; }
+.btn-login-cart { display: block; width: 100%; padding: .75rem 1rem; border-radius: 10px; border: none; background: linear-gradient(135deg, #1e3a5f, #2563eb); color: white; font-weight: 700; font-size: .88rem; cursor: pointer; text-align: center; text-decoration: none; font-family: 'DM Sans', sans-serif; transition: all .2s; margin-bottom: .5rem; }
+.btn-login-cart:hover { background: linear-gradient(135deg, #1e3a8a, #1d4ed8); color: white; transform: translateY(-1px); }
+.checkout-user-info { display: flex; align-items: center; gap: .6rem; background: var(--g50); border: 1px solid rgba(34,197,94,.18); border-radius: 10px; padding: .65rem .9rem; margin-bottom: .85rem; }
+.checkout-user-info i { color: var(--g600); flex-shrink: 0; }
+.checkout-user-info span { font-size: .82rem; color: var(--g800); font-weight: 600; }
+.checkout-user-info small { font-size: .72rem; color: var(--muted); display: block; }
+.payment-options { margin-bottom: 1rem; }
+.payment-options label { display: block; margin-bottom: .5rem; font-size: .85rem; font-weight: 700; color: var(--ink); }
+.payment-method { display: flex; gap: 1rem; margin-bottom: .75rem; }
+.payment-method label { display: flex; align-items: center; gap: .4rem; font-weight: normal; cursor: pointer; }
+.delivery-fields { margin-top: .75rem; padding-top: .75rem; border-top: 1px dashed var(--g100); transition: all .2s; }
+.delivery-fields.hidden { display: none; }
+.delivery-fields input, .delivery-fields textarea { width: 100%; padding: .65rem 1rem; border: 2px solid var(--g100); border-radius: 10px; font-size: .85rem; font-family: 'DM Sans', sans-serif; margin-bottom: .6rem; outline: none; transition: border .2s; }
+.delivery-fields input:focus, .delivery-fields textarea:focus { border-color: var(--g500); }
+.delivery-fields textarea { resize: vertical; min-height: 60px; }
+.email-field { width: 100%; padding: .65rem 1rem; border: 2px solid var(--g100); border-radius: 10px; font-size: .88rem; outline: none; font-family: 'DM Sans', sans-serif; transition: border .2s; margin-bottom: .85rem; color: var(--ink); background: white; }
+.email-field:focus { border-color: var(--g500); }
+.btn-checkout { width: 100%; padding: .9rem; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--g700), var(--g600)); color: white; font-weight: 700; font-size: .93rem; cursor: pointer; transition: all .22s; font-family: 'DM Sans', sans-serif; box-shadow: 0 4px 16px rgba(22,163,74,.32); }
+.btn-checkout:hover { background: linear-gradient(135deg, var(--g800), var(--g700)); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(22,163,74,.42); }
+.btn-checkout:disabled { background: #d1d5db; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-continue { width: 100%; padding: .6rem; border-radius: 10px; border: 1.5px solid var(--g200); background: white; color: var(--g700); font-weight: 600; font-size: .84rem; cursor: pointer; margin-top: .5rem; transition: all .2s; font-family: 'DM Sans', sans-serif; }
+.btn-continue:hover { background: var(--g50); }
+
+/* ─── MODALS ─── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(5,46,22,.5); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(7px); }
+.modal-overlay.open { display: flex; }
+.modal-box { background: white; border-radius: var(--r-xl); width: 100%; max-width: 580px; max-height: 88vh; overflow-y: auto; position: relative; box-shadow: var(--shadow-xl); animation: slideUp .32s cubic-bezier(.34,1.56,.64,1); }
+@keyframes slideUp { from{opacity:0;transform:translateY(28px) scale(.97);} to{opacity:1;transform:none;} }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(5,46,22,.08); border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; z-index: 1; }
+.modal-close:hover { background: rgba(244,63,94,.12); color: var(--rose); }
+.modal-hero { background: linear-gradient(135deg, var(--g900), var(--g800)); color: white; padding: 1.5rem; border-radius: var(--r-xl) var(--r-xl) 0 0; border-bottom: 1px solid rgba(74,222,128,.1); }
+.modal-hero h2 { font-family: 'Fraunces', serif; font-size: 1.22rem; font-weight: 700; }
+.modal-hero p  { font-size: .78rem; color: rgba(255,255,255,.5); margin-top: .2rem; }
+.modal-loader { padding: 3rem; text-align: center; }
+.spinner { width: 44px; height: 44px; border: 4px solid var(--g100); border-top-color: var(--g600); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.modal-body { padding: 1.25rem 1.5rem; }
+.desc-overlay { display: none; position: fixed; inset: 0; background: rgba(5,46,22,.45); z-index: 3000; backdrop-filter: blur(4px); }
+.desc-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 3001; background: white; border-radius: var(--r-xl); box-shadow: var(--shadow-xl); width: min(90%, 520px); padding: 2rem; animation: slideUp .3s ease; }
+.desc-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; }
+.desc-modal-head strong { font-family: 'Fraunces', serif; font-size: 1.05rem; color: var(--g700); font-weight: 700; }
+.desc-body-box { background: var(--g50); border: 1px solid var(--g100); border-radius: 12px; padding: 1rem 1.1rem; font-size: .9rem; line-height: 1.7; color: #333; min-height: 80px; }
+.desc-spinner { text-align: center; padding: .75rem; color: var(--g600); display: flex; align-items: center; justify-content: center; gap: .5rem; font-size: .85rem; }
+.desc-spinner .sp { width: 20px; height: 20px; border: 3px solid var(--g100); border-top-color: var(--g600); border-radius: 50%; animation: spin 1s linear infinite; }
+
+/* ─── TOAST ─── */
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--g900); color: white; padding: .75rem 1.5rem; border-radius: 50px; z-index: 9999; font-size: .84rem; font-weight: 600; box-shadow: var(--shadow-lg); white-space: nowrap; border: 1px solid rgba(74,222,128,.18); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; transform: translateX(-50%) translateY(10px); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── EMPTY STATE ─── */
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; color: var(--muted); }
+.empty-state i { font-size: 4rem; color: var(--g100); display: block; margin-bottom: 1rem; }
+
+/* ─── FLASH MESSAGES ─── */
+.flash-wrap { max-width: 1280px; margin: 1rem auto; padding: 0 2rem; }
+
+/* ─── REC MODAL ─── */
+.rec-section { margin-bottom: 1.25rem; }
+.rec-section-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: .97rem; color: var(--ink); margin-bottom: .65rem; display: flex; align-items: center; gap: .45rem; border-bottom: 2px solid var(--g100); padding-bottom: .4rem; }
+.rec-style { background: var(--g50); border-radius: 10px; padding: .75rem; font-size: .83rem; color: #555; margin-bottom: .75rem; line-height: 1.6; border-left: 3px solid var(--g400); }
+.piece-list { display: flex; flex-direction: column; gap: .45rem; }
+.piece-item { display: flex; align-items: flex-start; gap: .65rem; background: var(--g50); border-radius: 10px; padding: .6rem .8rem; }
+.piece-emoji { font-size: 1.25rem; flex-shrink: 0; }
+.piece-name { font-weight: 700; font-size: .85rem; color: var(--ink); }
+.piece-tip { font-size: .76rem; color: var(--muted); margin-top: .1rem; }
+.produit-grid-rec { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+.produit-item-rec { background: var(--g50); border-radius: 10px; padding: .6rem .75rem; display: flex; align-items: flex-start; gap: .5rem; }
+.produit-emoji { font-size: 1.1rem; flex-shrink: 0; }
+.produit-name { font-weight: 700; font-size: .8rem; color: var(--ink); }
+.produit-why { font-size: .72rem; color: var(--muted); margin-top: .1rem; }
+.conseils-list { display: flex; flex-direction: column; gap: .4rem; }
+.conseil-item { display: flex; align-items: flex-start; gap: .6rem; font-size: .82rem; color: #444; background: var(--g50); border-radius: 8px; padding: .5rem .75rem; }
+.conseil-item::before { content: '✦'; color: var(--g600); flex-shrink: 0; }
+.rec-ambiance { background: linear-gradient(135deg, var(--g900), var(--g800)); color: white; border-radius: 12px; padding: .9rem 1.1rem; font-size: .87rem; line-height: 1.55; text-align: center; font-style: italic; margin-top: .9rem; border: 1px solid rgba(74,222,128,.14); }
+
+@keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
+
+@media (max-width: 900px) {
+  .nav { padding: 0 1.25rem; }
+  .nav-tabs { display: none; }
+  .hero-inner { padding: 2.5rem 1.25rem; }
+  .ev-grid, .shop-grid { grid-template-columns: 1fr; }
+  .section-wrap { padding: 1.5rem 1.25rem 4rem; }
+  .produit-grid-rec { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── HEADER — matches screenshot: brand | tabs (center) | panier + user (right) ── #}
+<nav class="nav" id="main-nav">
+  {# Brand #}
+  <a class="nav-brand" href="{{ path('app_home') ?? '/' }}">
+    <div class="nav-brand-icon">
+      <img src="{{ asset('images/logo.png') }}" alt="MindAura" style="width:28px;height:28px;object-fit:contain;border-radius:6px;" onerror="this.style.display='none'">
+    </div>
+    <div>
+      <div class="nav-brand-name">MindAura</div>
+      <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+    </div>
+  </a>
+
+  {# Tabs centered — like screenshot #}
+  <div class="nav-tabs">
+    <button class="nav-tab-btn active" id="tab-btn-events" onclick="switchTab('events')">
+      <i class="fas fa-calendar-alt"></i> Événements
+      <span class="tab-pill" id="tab-count-events">{{ evenements|length }}</span>
+    </button>
+    <button class="nav-tab-btn" id="tab-btn-shop" onclick="switchTab('shop')">
+      <i class="fas fa-shopping-bag"></i> Produits
+      {% if produits is defined %}<span class="tab-pill" id="tab-count-shop">{{ produits|length }}</span>{% endif %}
+    </button>
+    <button class="nav-tab-btn" id="tab-btn-fav" onclick="switchTab('fav')">
+      <i class="fas fa-heart"></i> Favoris
+      <span class="tab-pill" id="tab-count-fav">0</span>
+    </button>
+  </div>
+
+  {# Right: Panier + User #}
+  <div class="nav-right">
+    <button class="btn-panier" onclick="openCart()" title="Mon panier">
+      <i class="fas fa-shopping-bag"></i>
+      <span class="panier-badge" id="cart-badge-header">0</span>
+    </button>
+
+    {% if app.user %}
+      {% set _u = app.user %}
+      {% set _prenom  = _u.prenomUtilisateur is defined ? _u.prenomUtilisateur : '' %}
+      {% set _nom     = _u.nomUtilisateur    is defined ? _u.nomUtilisateur    : '' %}
+      {% set _photo   = _u.photoProfilUtilisateur is defined ? _u.photoProfilUtilisateur : '' %}
+      {% set _ident   = _u.userIdentifier %}
+      {% set _display = _prenom ? _prenom : (_ident|split('@')|first) %}
+      {% set _initial = _display|first|upper %}
+
+      <div class="nav-user-pill-wrapper">
+        <button class="nav-user-pill" id="userPillBtn" aria-expanded="false">
+          <div class="nav-avatar">
+            {% if _photo and _photo != 'default.png' %}<img src="{{ asset('uploads/profils/' ~ _photo) }}" alt="{{ _display }}" onerror="this.style.display='none'; this.parentElement.textContent='{{ _initial }}';">
+            {% else %}{{ _initial }}{% endif %}
+          </div>
+          <span class="nav-user-name">{{ _display }}</span>
+          <span class="nav-role-badge">Utilisateur</span>
+          <svg class="pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">
+              {% if _photo and _photo != 'default.png' %}<img src="{{ asset('uploads/profils/' ~ _photo) }}" alt="">
+              {% else %}{{ _initial }}{% endif %}
+            </div>
+            <div>
+              <div class="dropdown-user-name">{{ (_prenom ~ ' ' ~ _nom)|trim ?: _display }}</div>
+              <div class="dropdown-user-email">{{ _ident }}</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="{{ path('app_profile') }}" class="dropdown-item">
+            <div class="dropdown-item-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div class="dropdown-item-text"><span class="dropdown-item-label">Mon profil</span><span class="dropdown-item-sub">Gérer mon compte</span></div>
+            <svg class="dropdown-item-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+          <a href="{{ path('mon_espace_participations') }}" class="dropdown-item">
+            <div class="dropdown-item-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div class="dropdown-item-text"><span class="dropdown-item-label">Mes participations</span><span class="dropdown-item-sub">Événements inscrits</span></div>
+            <svg class="dropdown-item-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+          <a href="{{ path('mon_espace_commandes') }}" class="dropdown-item">
+            <div class="dropdown-item-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+            <div class="dropdown-item-text"><span class="dropdown-item-label">Mes commandes</span><span class="dropdown-item-sub">Produits achetés</span></div>
+            <svg class="dropdown-item-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger">
+            <div class="dropdown-item-icon dropdown-item-icon--red"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+            <div class="dropdown-item-text"><span class="dropdown-item-label">Se déconnecter</span></div>
+          </a>
+        </div>
+      </div>
+    {% else %}
+      <a href="{{ path('app_login') }}" style="background:linear-gradient(135deg,var(--g700),var(--g600));color:white;padding:8px 18px;border-radius:10px;font-size:.84rem;font-weight:600;text-decoration:none;box-shadow:0 3px 10px rgba(22,163,74,.3);transition:all .2s;">Connexion</a>
+    {% endif %}
+  </div>
+</nav>
+
+{# ── HERO — version sans encadré (suppression du bloc "carré vert") ── #}
+<div class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-mesh"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-inner">
+    <h1>Découvrez nos <em>événements</em> &amp; <em>boutique</em></h1>
+    <p class="hero-sub">Inscrivez-vous, participez et commandez en toute sérénité.</p>
+  </div>
+</div>
+
+{# ── FLASH ── #}
+<div class="flash-wrap">
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="alert alert-{{ label }} alert-dismissible fade show rounded-3 mt-2">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+{# ══════════════════════════════════
+   EVENTS TAB
+══════════════════════════════════ #}
+<div id="tab-events">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2 class="section-title">Tous les <span>événements</span></h2>
+      <div class="filter-bar">
+        <button class="filter-chip active" onclick="filterEv(this,'all')">Tous</button>
+        <button class="filter-chip" onclick="filterEv(this,'a_venir')">À venir</button>
+        <button class="filter-chip" onclick="filterEv(this,'en_cours')">En cours</button>
+        <button class="filter-chip" onclick="filterEv(this,'termine')">Terminé</button>
+      </div>
+    </div>
+
+    <div class="ev-grid" id="ev-grid">
+    {% for e in evenements %}
+      {% set statut  = e.statutEvenemnt ?? 'a_venir' %}
+      {% set labels  = {'a_venir':'À venir','en_cours':'En cours','termine':'Terminé','annule':'Annulé'} %}
+      {% set nbPart  = e.nbParticipants %}
+      {% set placesR = (e.capaciteEvenement ?? 0) - nbPart %}
+      {% set pct     = e.capaciteEvenement ? ((nbPart / e.capaciteEvenement)*100)|round : 0 %}
+      {% set complet = e.capaciteEvenement and not e.hasPlacesDisponibles %}
+      {% set ferme   = statut in ['annule','termine'] %}
+      {% set attente = complet and e.hasPlaceEnAttente %}
+
+      <article class="ev-card" data-statut="{{ statut }}" data-id="{{ e.id }}">
+        <div class="card-thumb">
+          {% if e.image %}
+            <img src="{{ asset('uploads/evenements/' ~ e.image) }}" alt="{{ e.titreEvenement }}">
+          {% else %}
+            <div class="card-thumb-placeholder"><i class="fas fa-calendar-alt"></i></div>
+          {% endif %}
+          <div class="thumb-overlay"></div>
+          <div class="thumb-top">
+            {% if e.typeEvenement %}
+              <span class="badge-cat">{{ e.typeEvenement.categorie }}</span>
+              {% if e.typeEvenement.estGratuit %}
+                <span class="badge-price price-free">Gratuit</span>
+              {% else %}
+                <span class="badge-price price-paid">Payant</span>
+              {% endif %}
+            {% endif %}
+          </div>
+          <span class="badge-status s-{{ statut }}">{{ labels[statut] ?? statut }}</span>
+          <div class="card-num">{{ loop.index < 10 ? '0' ~ loop.index : loop.index }}</div>
+        </div>
+
+        <div class="card-body">
+          {% if e.typeEvenement %}
+            <div class="card-type-label">
+              <i class="fas fa-tag"></i>{{ e.typeEvenement.libelle }}
+              {% if e.typeEvenement.modalite %}· <i class="fas fa-{{ e.typeEvenement.modalite == 'en ligne' ? 'wifi' : 'building' }}"></i> {{ e.typeEvenement.modalite }}{% endif %}
+            </div>
+          {% endif %}
+
+          <h3 class="card-title">{{ e.titreEvenement }}</h3>
+          <p class="card-desc">{{ e.descriptionEvenement|default('Aucune description.')|slice(0,115) }}{% if e.descriptionEvenement|length > 115 %}…{% endif %}</p>
+
+          <div class="card-meta">
+            <div class="meta-row"><i class="fas fa-map-marker-alt"></i><span>{{ e.lieuEvenement }}</span></div>
+            <div class="meta-row"><i class="fas fa-calendar"></i><span><strong>{{ e.datedebutEvenemnt|date('d/m/Y') }}</strong> → {{ e.datefinEvenemnt|date('d/m/Y') }}</span></div>
+            <div class="meta-row"><i class="fas fa-users"></i><span><strong>{{ e.capaciteEvenement }}</strong> places au total</span></div>
+          </div>
+
+          {% if e.capaciteEvenement %}
+          <div class="places-wrap">
+            <div class="places-head">
+              <span style="font-size:.72rem;color:var(--muted);">{{ nbPart }} / {{ e.capaciteEvenement }} inscrits</span>
+              <span class="{{ complet ? 'p-full' : (placesR <= 5 ? 'p-warn' : 'p-good') }}">
+                {% if complet %}Complet{% elseif placesR <= 5 %}⚠ {{ placesR }} place{{ placesR > 1 ? 's' : '' }}{% else %}✓ {{ placesR }} places{% endif %}
+              </span>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill {{ pct >= 100 ? 'prog-red' : (pct >= 80 ? 'prog-amber' : 'prog-green') }}" style="width:{{ min(pct,100) }}%;"></div>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if ferme %}
+            <button class="btn-join btn-join-disabled" disabled><i class="fas fa-ban"></i> {{ statut == 'annule' ? 'Annulé' : 'Terminé' }}</button>
+          {% elseif complet and not attente %}
+            <button class="btn-join btn-join-disabled" disabled><i class="fas fa-times-circle"></i> Complet — Inscriptions fermées</button>
+          {% elseif complet and attente %}
+            {% if app.user %}
+              <a href="{{ path('user_participation_new', {id: e.id}) }}" class="btn-join btn-join-waitlist"><i class="fas fa-clock"></i> Rejoindre la liste d'attente</a>
+            {% else %}
+              <a href="{{ path('app_login') }}" class="btn-join btn-join-waitlist"><i class="fas fa-lock"></i> Connectez-vous pour rejoindre la liste</a>
+            {% endif %}
+          {% else %}
+            {% if app.user %}
+              <a href="{{ path('user_participation_new', {id: e.id}) }}" class="btn-join btn-join-active"><i class="fas fa-ticket-alt"></i> Participer à cet événement</a>
+            {% else %}
+              <a href="{{ path('app_login') }}" class="btn-join btn-join-login"><i class="fas fa-lock"></i> Connectez-vous pour participer</a>
+            {% endif %}
+          {% endif %}
+
+          <div class="card-actions">
+            <button class="btn-ai" data-url="{{ path('event_recommendation', {id: e.id}) }}" data-title="{{ e.titreEvenement|e('html_attr') }}" onclick="openRec(this)">
+              <i class="fas fa-magic"></i> Recommandation IA
+            </button>
+            <button class="btn-fav" data-ev-id="{{ e.id }}" data-ev-titre="{{ e.titreEvenement|e('html_attr') }}" onclick="toggleFavori(this)" title="Ajouter aux favoris">♡</button>
+          </div>
+        </div>
+      </article>
+    {% else %}
+      <div class="empty-state"><i class="fas fa-calendar-times"></i><p>Aucun événement disponible pour le moment.</p></div>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ══════════════════════════════════
+   SHOP TAB
+══════════════════════════════════ #}
+<div id="tab-shop" style="display:none">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2 class="section-title">Notre <span>Boutique</span></h2>
+      <span style="font-size:.82rem;color:var(--muted);">Des produits sélectionnés pour vous</span>
+    </div>
+    {% if produits is defined and produits|length > 0 %}
+    <div class="shop-grid">
+    {% for produit in produits %}
+      <div class="prod-card">
+        <div class="prod-thumb">
+          {% if produit.image %}<img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
+          {% else %}<div class="prod-thumb-placeholder">🛍️</div>{% endif %}
+        </div>
+        <div class="prod-body">
+          <div class="prod-name">{{ produit.nom }}</div>
+          {% if produit.description %}<p class="prod-desc">{{ produit.description|slice(0,80) }}{% if produit.description|length > 80 %}…{% endif %}</p>{% endif %}
+          <div class="prod-footer">
+            <span class="prod-price">{{ produit.prix }} TND</span>
+            {% if produit.stock is not null %}<span class="prod-stock-badge">Stock : {{ produit.stock }}</span>{% endif %}
+          </div>
+          {% if not produit.isDisponible() %}
+            <button class="btn-out-of-stock" disabled>❌ Rupture de stock</button>
+            <div class="alert-stock-form">
+              <small>📧 Être alerté par email quand disponible</small>
+              <div class="alert-row">
+                <input type="email" class="email-alerte" placeholder="votre@email.com">
+                <button class="btn-alert" data-pid="{{ produit.id }}">M'alerter</button>
+              </div>
+              <span class="alert-fb"></span>
+            </div>
+          {% else %}
+            <button class="btn-add-cart" data-id="{{ produit.id }}" data-nom="{{ produit.nom|e('html_attr') }}" data-prix="{{ produit.prix }}" data-stock="{{ produit.stock is null ? -1 : produit.stock }}" data-img="{{ produit.image ? asset('uploads/produits/' ~ produit.image) : '' }}" onclick="addToCart(this)">
+              <i class="fas fa-plus"></i> Ajouter au panier
+            </button>
+          {% endif %}
+          <button class="btn-desc-ai" data-id="{{ produit.id }}" data-nom="{{ produit.nom|e('html_attr') }}" data-prix="{{ produit.prix }}" data-desc="{{ produit.description|default('')|e('html_attr') }}" onclick="openDescAi(this)">
+            ✨ Description IA
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+    {% else %}
+      <div class="empty-state"><i class="fas fa-box-open"></i><p>Aucun produit disponible pour le moment.</p></div>
+    {% endif %}
+  </div>
+</div>
+
+{# ══════════════════════════════════
+   FAVORIS TAB
+══════════════════════════════════ #}
+<div id="tab-fav" style="display:none">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2 class="section-title">Mes <span>Favoris</span></h2>
+      <span style="font-size:.82rem;color:var(--muted);">Événements que vous avez aimés</span>
+    </div>
+    <div class="ev-grid" id="fav-grid"></div>
+  </div>
+</div>
+
+{# ── CART DRAWER ── #}
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<aside class="cart-drawer" id="cart-drawer">
+  <div class="cart-head">
+    <div class="cart-head-title"><i class="fas fa-shopping-bag"></i> Mon Panier <span class="panier-badge" id="cart-badge-drawer">0</span></div>
+    <button class="btn-cart-close" onclick="closeCart()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Votre panier est vide.<br>Ajoutez des produits depuis la boutique !</p></div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-amount" id="cart-total">0.00 TND</span>
+    </div>
+    {% if app.user %}
+      {% set _userIdent = app.user.userIdentifier %}
+      <div class="checkout-user-info">
+        <i class="fas fa-user-check"></i>
+        <div><span>Connecté en tant que</span><small>{{ _userIdent }}</small></div>
+      </div>
+      <div class="payment-options">
+        <label>Mode de paiement</label>
+        <div class="payment-method">
+          <label><input type="radio" name="payment_method" value="stripe" checked> 💳 Paiement en ligne (Stripe)</label>
+          <label><input type="radio" name="payment_method" value="delivery"> 🚚 Paiement à la livraison</label>
+        </div>
+        <div class="delivery-fields" id="common-fields">
+         <input type="text" id="checkout-name" class="email-field" placeholder="👤 Nom complet *" autocomplete="name" value="{{ _prenom ~ ' ' ~ _nom }}" readonly>
+          <input type="tel"  id="checkout-phone" class="email-field" placeholder="📞 Numéro de téléphone *" autocomplete="tel">
+          <input type="text" id="checkout-lieu"  class="email-field" placeholder="📍 Ville / Lieu *" autocomplete="address-level2">
+        </div>
+        <div id="delivery-fields" class="delivery-fields hidden">
+          <input type="text" id="delivery_address" placeholder="🏠 Adresse complète de livraison *" autocomplete="off">
+          <textarea id="delivery_notes" placeholder="📝 Instructions supplémentaires (optionnel)"></textarea>
+        </div>
+      </div>
+      <button class="btn-checkout" id="btn-checkout" onclick="processPayment()"><i class="fas fa-credit-card"></i> Commander</button>
+    {% else %}
+      <div class="cart-login-banner">
+        <i class="fas fa-lock"></i>
+        <div class="cart-login-banner-text"><strong>Connexion requise pour commander</strong><span>Votre panier est prêt ! Connectez-vous pour finaliser votre achat.</span></div>
+      </div>
+      <a href="{{ path('app_login') }}" class="btn-login-cart"><i class="fas fa-sign-in-alt"></i> Se connecter pour commander</a>
+    {% endif %}
+    <button class="btn-continue" onclick="closeCart(); switchTab('shop')">🛍️ Continuer les achats</button>
+  </div>
+</aside>
+
+{# ── MODALS ── #}
+<div class="modal-overlay" id="modal-rec">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeRec()"><i class="fas fa-times"></i></button>
+    <div class="modal-hero"><h2>✨ Recommandation IA</h2><p id="rec-modal-title">Événement</p></div>
+    <div class="modal-loader" id="rec-loader"><div class="spinner"></div><p style="color:var(--muted);font-size:.88rem;">Génération en cours…</p></div>
+    <div class="modal-body" id="rec-body" style="display:none"></div>
+    <div style="padding:1rem 1.5rem;display:none;text-align:center;color:var(--rose);" id="rec-err"></div>
+  </div>
+</div>
+
+<div class="desc-overlay" id="desc-overlay" onclick="closeDescAi()"></div>
+<div class="desc-modal" id="desc-modal">
+  <div class="desc-modal-head">
+    <div><span style="font-size:1.3rem;">✨</span> <strong id="desc-modal-nom">Produit</strong></div>
+    <button onclick="closeDescAi()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);">✕</button>
+  </div>
+  <div class="desc-body-box" id="desc-modal-body">
+    <div class="desc-spinner" id="desc-loading"><div class="sp"></div> Génération en cours…</div>
+    <span id="desc-text" style="display:none;"></span>
+  </div>
+  <div id="desc-error" style="display:none;color:var(--rose);font-size:.82rem;margin-top:.6rem;"></div>
+  <div style="margin-top:1rem;text-align:right;">
+    <button onclick="closeDescAi()" style="padding:.5rem 1.2rem;border:1px solid var(--g100);border-radius:8px;background:white;cursor:pointer;font-size:.84rem;font-family:'DM Sans',sans-serif;">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const IS_LOGGED_IN = {{ app.user ? 'true' : 'false' }};
+{% if app.user %}const USER_EMAIL = {{ app.user.userIdentifier|json_encode|raw }};{% else %}const USER_EMAIL = null;{% endif %}
+const LOGIN_URL = {{ path('app_login')|json_encode|raw }};
+
+function switchTab(tab) {
+  ['events','shop','fav'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'':'none');
+  document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-btn-'+tab).classList.add('active');
+  if (tab==='fav') renderFavList();
+}
+
+function filterEv(chip, status) {
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  document.querySelectorAll('#ev-grid .ev-card').forEach(card=>{
+    card.style.display = (status==='all'||card.dataset.statut===status)?'':'none';
+  });
+}
+
+const cart = {};
+function openCart() { document.getElementById('cart-overlay').classList.add('open'); document.getElementById('cart-drawer').classList.add('open'); document.body.style.overflow='hidden'; renderCart(); }
+function closeCart() { document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-drawer').classList.remove('open'); document.body.style.overflow=''; }
+
+function addToCart(btn) {
+  const {id,nom,img} = btn.dataset;
+  const prix=parseFloat(btn.dataset.prix), stock=parseInt(btn.dataset.stock), max=stock===-1?Infinity:stock;
+  const cur=cart[id]?cart[id].qte:0;
+  if(cur>=max){showToast('⚠️ Stock maximum atteint');return;}
+  if(cart[id]) cart[id].qte++; else cart[id]={nom,prix,qte:1,img:img||'',max};
+  const orig=btn.innerHTML;
+  btn.innerHTML='<i class="fas fa-check"></i> Ajouté !'; btn.style.background='var(--g800)';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},1200);
+  updateBadge(); showToast('🛍️ '+nom+' ajouté au panier');
+}
+function changeQty(id,delta) { if(!cart[id])return; cart[id].qte+=delta; if(cart[id].qte<=0)delete cart[id]; updateBadge();renderCart(); }
+function removeItem(id) { delete cart[id]; updateBadge();renderCart(); }
+function updateBadge() {
+  const total=Object.values(cart).reduce((s,i)=>s+i.qte,0);
+  document.getElementById('cart-badge-header').textContent=document.getElementById('cart-badge-drawer').textContent=total;
+}
+function renderCart() {
+  const container=document.getElementById('cart-items'), keys=Object.keys(cart);
+  if(!keys.length){container.innerHTML=`<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Votre panier est vide.</p></div>`;document.getElementById('cart-total').textContent='0.00 TND';return;}
+  let total=0;
+  container.innerHTML=keys.map(id=>{const i=cart[id];const sub=i.prix*i.qte;total+=sub;return`<div class="cart-item"><div class="cart-item-img">${i.img?`<img src="${i.img}" alt="${i.nom}">`:'🛍️'}</div><div class="cart-item-info"><div class="cart-item-name">${i.nom}</div><div class="cart-item-price">${i.prix.toFixed(2)} TND</div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${id}',-1)">−</button><span class="qty-num">${i.qte}</span><button class="qty-btn" onclick="changeQty('${id}',1)">+</button><button class="btn-remove" onclick="removeItem('${id}')"><i class="fas fa-trash-alt"></i></button></div></div><div class="cart-subtotal">${sub.toFixed(2)} TND</div></div>`;}).join('');
+  document.getElementById('cart-total').textContent=total.toFixed(2)+' TND';
+}
+
+async function processPayment() {
+  if(!IS_LOGGED_IN){showToast('🔒 Vous devez être connecté(e)');setTimeout(()=>{window.location.href=LOGIN_URL;},1500);return;}
+  const name=document.getElementById('checkout-name')?.value.trim()||'';
+  const phone=document.getElementById('checkout-phone')?.value.trim()||'';
+  const lieu=document.getElementById('checkout-lieu')?.value.trim()||'';
+  if(!name){showToast('⚠️ Veuillez saisir votre nom complet');return;}
+  if(!phone){showToast('⚠️ Veuillez saisir votre numéro');return;}
+  if(!lieu){showToast('⚠️ Veuillez saisir votre ville');return;}
+  if(!Object.keys(cart).length){showToast('⚠️ Panier vide');return;}
+  const paymentMethod=document.querySelector('input[name="payment_method"]:checked').value;
+  if(paymentMethod==='stripe'&&!confirm('💳 Redirection vers Stripe ?'))return;
+  const btn=document.getElementById('btn-checkout');
+  btn.disabled=true;btn.innerHTML='⏳ Traitement en cours…';
+  const body={name,email:USER_EMAIL,phone,lieu,panier:Object.entries(cart).map(([pid,i])=>({produit_id:parseInt(pid),quantite:i.qte})),payment_method:paymentMethod};
+  if(paymentMethod==='delivery'){const address=document.getElementById('delivery_address')?.value.trim()||'';if(!address){showToast('⚠️ Adresse requise');btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Commander';return;}body.delivery_info={address,notes:document.getElementById('delivery_notes')?.value||'',phone,city:lieu};}
+  try {
+    const url=paymentMethod==='stripe'?'/paiement/checkout':'/paiement/livraison';
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await res.json();
+    if(res.status===401&&data.require_login){showToast('🔒 Session expirée');setTimeout(()=>{window.location.href=LOGIN_URL;},1500);return;}
+    if(paymentMethod==='stripe'){if(data.checkout_url){showToast('✅ Redirection Stripe…');setTimeout(()=>{window.location.href=data.checkout_url;},1500);}else{showToast('❌ '+(data.error||'Erreur'));btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Commander';}}
+    else{if(data.success){showSuccessAlert(name);for(let id in cart)delete cart[id];updateBadge();renderCart();closeCart();}else{showToast('❌ '+(data.error||'Erreur'));}btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Commander';}
+  } catch(e){showToast('❌ Erreur réseau');btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Commander';}
+}
+
+function showSuccessAlert(name) {
+  let overlay=document.getElementById('success-order-overlay');
+  if(!overlay){overlay=document.createElement('div');overlay.id='success-order-overlay';overlay.style.cssText='position:fixed;inset:0;background:rgba(5,46,22,.55);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:fadeInOverlay .3s ease';overlay.innerHTML=`<div style="background:white;border-radius:24px;max-width:420px;width:92%;padding:2.5rem 2rem;text-align:center;box-shadow:0 24px 64px rgba(5,46,22,.22);animation:slideUp .35s cubic-bezier(.34,1.56,.64,1);"><div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#15803d,#22c55e);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;box-shadow:0 8px 24px rgba(22,163,74,.35);"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h2 style="font-family:'Fraunces',serif;font-weight:700;font-size:1.5rem;color:#052e16;letter-spacing:-0.5px;margin-bottom:.5rem;">Commande enregistrée !</h2><p style="color:#6b8f71;font-size:.92rem;line-height:1.6;margin-bottom:.4rem;">Merci <strong id="success-name" style="color:#15803d;"></strong> 🎉</p><p style="color:#6b8f71;font-size:.88rem;line-height:1.6;margin-bottom:1.75rem;">Votre commande a été enregistrée.<br>Vous la recevrez <strong style="color:#052e16;">le plus tôt possible</strong>.</p><button onclick="document.getElementById('success-order-overlay').remove()" style="background:linear-gradient(135deg,#15803d,#16a34a);color:white;border:none;border-radius:12px;padding:.85rem 2rem;font-weight:700;font-size:.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(22,163,74,.35);">✓ Parfait, merci !</button></div>`;document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});}
+  document.getElementById('success-name').textContent=name;overlay.style.display='flex';
+}
+
+document.querySelectorAll('.alert-stock-form').forEach(form=>{
+  const btn=form.querySelector('.btn-alert'),inp=form.querySelector('.email-alerte'),fb=form.querySelector('.alert-fb'),pid=btn.dataset.pid;
+  btn.addEventListener('click',async()=>{const email=inp.value.trim();if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){fb.textContent='⚠️ Email invalide';fb.style.color='var(--amber)';return;}btn.disabled=true;btn.textContent='⏳';try{const res=await fetch(`/produits/${pid}/alerte-email`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});const data=await res.json();if(data.success){fb.textContent='✅ '+data.message;fb.style.color='var(--g600)';btn.textContent='✓';}else{fb.textContent='❌ '+(data.error||'Erreur');fb.style.color='var(--rose)';btn.disabled=false;btn.textContent="M'alerter";}}catch{fb.textContent='❌ Erreur réseau';fb.style.color='var(--rose)';btn.disabled=false;btn.textContent="M'alerter";}});
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click();});
+});
+
+/* ─── FAVORIS — stockage local (pas d'email) ─── */
+let favIds = new Set();
+
+function loadFavIds() {
+  try {
+    const s = localStorage.getItem('mindaura_favoris');
+    favIds = s ? new Set(JSON.parse(s)) : new Set();
+  } catch(e) { favIds = new Set(); }
+  document.querySelectorAll('.btn-fav').forEach(btn => {
+    const id = parseInt(btn.dataset.evId);
+    if(favIds.has(id)) { btn.classList.add('active'); btn.textContent='❤️'; }
+    else { btn.classList.remove('active'); btn.textContent='♡'; }
+  });
+  updateFavTabCount();
+}
+
+function saveFavIds() {
+  try { localStorage.setItem('mindaura_favoris', JSON.stringify([...favIds])); } catch(e) {}
+}
+
+function updateFavTabCount() {
+  const el = document.getElementById('tab-count-fav');
+  if(el) el.textContent = favIds.size;
+}
+
+function renderFavList() {
+  const container = document.getElementById('fav-grid');
+  if(!container) return;
+  const allCards = document.querySelectorAll('#ev-grid .ev-card');
+  let html = '';
+  allCards.forEach(card => { if(favIds.has(parseInt(card.dataset.id))) html += card.outerHTML; });
+  if(!html) {
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-heart-broken"></i><p>Aucun événement favori.</p></div>`;
+  } else {
+    container.innerHTML = html;
+    container.querySelectorAll('.btn-fav').forEach(btn => { btn.onclick = function(){ toggleFavori(this); }; });
+    container.querySelectorAll('.btn-ai').forEach(btn => { btn.onclick = function(){ openRec(this); }; });
+  }
+}
+
+function toggleFavori(btn) {
+  const id = parseInt(btn.dataset.evId);
+  if(favIds.has(id)) {
+    favIds.delete(id);
+    btn.classList.remove('active');
+    btn.textContent = '♡';
+    showToast('❌ ' + btn.dataset.evTitre + ' retiré des favoris');
+  } else {
+    favIds.add(id);
+    btn.classList.add('active');
+    btn.textContent = '❤️';
+    showToast('❤️ ' + btn.dataset.evTitre + ' ajouté aux favoris');
+  }
+  saveFavIds();
+  updateFavTabCount();
+  if(document.getElementById('tab-btn-fav').classList.contains('active')) renderFavList();
+}
+
+function openRec(btn){document.getElementById('rec-modal-title').textContent=btn.dataset.title;document.getElementById('rec-loader').style.display='';document.getElementById('rec-body').style.display='none';document.getElementById('rec-err').style.display='none';document.getElementById('modal-rec').classList.add('open');fetch(btn.dataset.url,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json()).then(data=>{if(!data.recommendation)throw new Error(data.error??'Erreur inconnue');renderRec(data.recommendation);}).catch(err=>{document.getElementById('rec-loader').style.display='none';const el=document.getElementById('rec-err');el.textContent='⚠ '+err.message;el.style.display='';});}
+function closeRec(){document.getElementById('modal-rec').classList.remove('open');}
+function renderRec(rec){document.getElementById('rec-loader').style.display='none';const body=document.getElementById('rec-body');body.style.display='';const tenue=rec.tenue??{},produits=rec.produits??{},conseils=rec.conseils??[],ambiance=rec.ambiance??'';const piecesHtml=(tenue.pieces??[]).map(p=>`<div class="piece-item"><div class="piece-emoji">${p.emoji??'👕'}</div><div><div class="piece-name">${p.item??''}</div><div class="piece-tip">${p.conseil??''}</div></div></div>`).join('');const prodsHtml=(produits.items??[]).map(p=>`<div class="produit-item-rec"><div class="produit-emoji">${p.emoji??'📦'}</div><div><div class="produit-name">${p.item??''}</div><div class="produit-why">${p.pourquoi??''}</div></div></div>`).join('');const consHtml=conseils.map(c=>`<div class="conseil-item">${c}</div>`).join('');body.innerHTML=`<div class="rec-section"><div class="rec-section-title"><i class="fas fa-tshirt" style="color:var(--g600)"></i>${tenue.titre??'Tenue recommandée'}</div><div class="rec-style">${tenue.style??''}</div><div class="piece-list">${piecesHtml}</div></div><div class="rec-section"><div class="rec-section-title"><i class="fas fa-shopping-bag" style="color:var(--sky)"></i>${produits.titre??'Produits essentiels'}</div><div class="produit-grid-rec">${prodsHtml}</div></div>${consHtml?`<div class="rec-section"><div class="rec-section-title"><i class="fas fa-lightbulb" style="color:var(--amber)"></i>Conseils</div><div class="conseils-list">${consHtml}</div></div>`:''}${ambiance?`<div class="rec-ambiance">💬 ${ambiance}</div>`:''}` ;}
+
+const descCache={};
+function openDescAi(btn){const{id,nom,prix,desc}=btn.dataset;document.getElementById('desc-overlay').style.display='block';document.getElementById('desc-modal').style.display='block';document.getElementById('desc-modal-nom').textContent=nom;document.getElementById('desc-loading').style.display='';document.getElementById('desc-text').style.display='none';document.getElementById('desc-error').style.display='none';if(descCache[id]){showDescResult(descCache[id]);return;}if(desc&&desc.trim().length>10){descCache[id]=desc;showDescResult(desc);return;}fetch('/admin/produit/ia/description',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom,prix})}).then(r=>r.json()).then(data=>{if(data.error)throw new Error(data.error);descCache[id]=data.description;showDescResult(data.description);}).catch(err=>{document.getElementById('desc-loading').style.display='none';const el=document.getElementById('desc-error');el.textContent='❌ '+err.message;el.style.display='';});}
+function showDescResult(text){document.getElementById('desc-loading').style.display='none';const el=document.getElementById('desc-text');el.style.display='';el.textContent=text;}
+function closeDescAi(){document.getElementById('desc-overlay').style.display='none';document.getElementById('desc-modal').style.display='none';}
+
+let toastTimer;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+
+document.addEventListener('DOMContentLoaded',function(){
+  const radios=document.querySelectorAll('input[name="payment_method"]'),deliveryFields=document.getElementById('delivery-fields');
+  if(radios.length&&deliveryFields){radios.forEach(r=>{r.addEventListener('change',function(){deliveryFields.classList.toggle('hidden',this.value!=='delivery');});});const checked=document.querySelector('input[name="payment_method"]:checked');if(checked)deliveryFields.classList.toggle('hidden',checked.value!=='delivery');}
+  const pill=document.getElementById('userPillBtn'),dropdown=document.getElementById('userDropdown');
+  if(pill&&dropdown){pill.addEventListener('click',function(e){e.stopPropagation();const isOpen=dropdown.classList.toggle('open');pill.setAttribute('aria-expanded',isOpen);});document.addEventListener('click',()=>{dropdown.classList.remove('open');pill.setAttribute('aria-expanded','false');});}
+  const nav=document.querySelector('.nav');
+  if(nav){window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>10);});}
+  const modalRec=document.getElementById('modal-rec');
+  if(modalRec){modalRec.addEventListener('click',e=>{if(e.target===modalRec)closeRec();});}
+  loadFavIds();
+});
+</script>
+{% endblock %} 

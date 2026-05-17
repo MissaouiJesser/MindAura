@@ -1,0 +1,508 @@
+{# templates/salle/front_index.html.twig
+   ─ FRONT OFFICE : Liste des salles de consultation
+   ─ Route : salle_front_salles_index
+   ─ Navbar & Footer : identique locaux (Salles actif)
+#}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Salles — MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --g1: #1B4332; --g2: #2D6A4F; --g3: #52B788;
+      --g-pale: #D8F3DC; --g-hover: #E8F5EE;
+      --violet: #7B5EA7; --vio-pale: #EDE9F6;
+      --red: #DC2626; --red-pale: #FEF2F2;
+      --bg: #F0F4F8; --white: #FFFFFF;
+      --text: #1A1A2E; --text-sec: #5A6475; --border: #D5DCE6;
+      --radius-xl: 20px; --radius-lg: 14px; --radius-md: 10px;
+      --ease: cubic-bezier(.22,1,.36,1);
+      --shadow-card: 0 2px 14px rgba(27,67,50,.07), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover: 0 14px 38px rgba(27,67,50,.13);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
+
+    /* ══ NAVBAR ══ */
+    .nav {
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(255,255,255,.93);
+      backdrop-filter: blur(18px) saturate(150%);
+      border-bottom: 1px solid rgba(27,67,50,.09);
+      padding: 0 48px; display: flex; align-items: center; gap: 20px;
+      height: 68px; transition: box-shadow .3s;
+    }
+    .nav.scrolled { box-shadow: 0 4px 24px rgba(27,67,50,.11); }
+    .nav-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; }
+    .nav-brand-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--g1); display: grid; place-items: center; box-shadow: 0 4px 14px rgba(27,67,50,.28); transition: transform .3s var(--ease); overflow: hidden; }
+    .nav-brand:hover .nav-brand-icon { transform: rotate(-6deg) scale(1.05); }
+    .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.22rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .nav-brand-sub  { font-size: .59rem; color: var(--text-sec); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
+    .nav-links { flex: 1; display: flex; align-items: center; gap: 2px; justify-content: center; }
+    .nav-link { padding: 7px 17px; border-radius: 99px; font-size: .87rem; font-weight: 500; color: var(--text-sec); text-decoration: none; transition: all .25s var(--ease); }
+    .nav-link:hover  { background: var(--g-hover); color: var(--g1); }
+    .nav-link.active { background: var(--g-pale); color: var(--g1); font-weight: 700; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    /* User pill */
+    .nav-user-pill-wrapper { position: relative; }
+    .nav-user-pill { display: flex; align-items: center; gap: 9px; padding: 5px 14px 5px 5px; border-radius: 99px; background: var(--bg); border: 1.5px solid rgba(27,67,50,.13); cursor: pointer; font-family: 'Outfit', sans-serif; transition: all .25s var(--ease); }
+    .nav-user-pill:hover, .nav-user-pill[aria-expanded="true"] { background: var(--g-hover); border-color: var(--g3); box-shadow: 0 0 0 3px rgba(82,183,136,.12); }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g-pale); border: 2px solid var(--g3); display: grid; place-items: center; font-size: .77rem; font-weight: 700; color: var(--g1); overflow: hidden; flex-shrink: 0; }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .nav-user-name  { font-size: .83rem; font-weight: 600; color: var(--text); }
+    .nav-role-badge { font-size: .7rem; color: var(--text-sec); background: var(--g-pale); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+    .pill-chevron { width: 14px; height: 14px; stroke: var(--text-sec); transition: transform .3s var(--ease); margin-left: 2px; fill: none; stroke-width: 2; }
+    .nav-user-pill[aria-expanded="true"] .pill-chevron { transform: rotate(180deg); }
+
+    /* Dropdown */
+    .user-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 290px; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 20px 48px rgba(27,67,50,.14), 0 4px 12px rgba(27,67,50,.07); z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-8px) scale(.97); transform-origin: top right; transition: opacity .22s var(--ease), transform .22s var(--ease), visibility .22s; overflow: hidden; }
+    .user-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .dropdown-header { display: flex; align-items: center; gap: 12px; padding: 16px 18px 14px; background: linear-gradient(135deg, var(--g-pale) 0%, rgba(255,255,255,0) 100%); }
+    .dropdown-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--g2), var(--g3)); border: 2.5px solid var(--g3); display: grid; place-items: center; font-size: .9rem; font-weight: 700; color: #fff; overflow: hidden; flex-shrink: 0; box-shadow: 0 3px 10px rgba(27,67,50,.2); }
+    .dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .dropdown-user-name  { font-size: .9rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .dropdown-user-email { font-size: .74rem; color: var(--text-sec); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .dropdown-divider    { height: 1px; background: var(--border); margin: 4px 0; }
+    .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 11px 18px; text-decoration: none; color: var(--text); transition: background .18s var(--ease); }
+    .dropdown-item:hover { background: var(--g-hover); }
+    .dropdown-item-icon { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; background: var(--g-pale); display: grid; place-items: center; transition: transform .2s var(--ease); }
+    .dropdown-item-icon svg { width: 17px; height: 17px; stroke: var(--g1); fill: none; stroke-width: 1.8; }
+    .dropdown-item:hover .dropdown-item-icon { transform: scale(1.08); }
+    .dropdown-item-icon--violet { background: var(--vio-pale); }
+    .dropdown-item-icon--violet svg { stroke: var(--violet); }
+    .dropdown-item-icon--red { background: #FEF2F2; }
+    .dropdown-item-icon--red svg { stroke: var(--red); }
+    .dropdown-item-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+    .dropdown-item-label { font-size: .87rem; font-weight: 600; }
+    .dropdown-item-sub   { font-size: .73rem; color: var(--text-sec); }
+    .dropdown-item-arrow { width: 14px; height: 14px; fill: none; stroke: var(--border); stroke-width: 2; transition: stroke .2s, transform .2s var(--ease); }
+    .dropdown-item:hover .dropdown-item-arrow { stroke: var(--g3); transform: translateX(3px); }
+    .dropdown-item--danger .dropdown-item-label { color: var(--red); }
+    .dropdown-item--danger:hover { background: #FEF2F2; }
+
+    /* ══ HERO ══ */
+    .page-hero { background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 60%, #1a5c3a 100%); padding: 56px 48px 50px; position: relative; overflow: hidden; }
+    .page-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:320px; height:320px; border-radius:50%; background:rgba(255,255,255,.04); }
+    .page-hero::after  { content:''; position:absolute; bottom:-50px; left:28%; width:200px; height:200px; border-radius:50%; background:rgba(82,183,136,.1); }
+    .hero-inner { max-width: 1240px; margin: 0 auto; position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+    .hero-left h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem,3.5vw,2.8rem); color: #fff; line-height: 1.12; margin-bottom: 10px; }
+    .hero-left p  { font-size: .95rem; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+    .hero-stats-row { display: flex; gap: 24px; margin-top: 30px; flex-wrap: wrap; }
+    .hstat { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 16px; padding: 18px 24px; text-align: center; min-width: 110px; }
+    .hstat-num   { font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; }
+    .hstat-label { font-size: .73rem; color: rgba(255,255,255,.65); margin-top: 5px; font-weight: 500; }
+
+    /* ══ CONTENT ══ */
+    .main { max-width: 1240px; margin: 0 auto; padding: 40px 48px 80px; }
+    .controls-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--white); border-radius: var(--radius-lg); padding: 14px 20px; box-shadow: var(--shadow-card); margin-bottom: 26px; }
+    .search-wrap { position: relative; flex: 1; min-width: 220px; }
+    .search-wrap input { width: 100%; padding: 10px 14px 10px 38px; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-size: .88rem; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); outline: none; transition: all .25s; }
+    .search-wrap input:focus { border-color: var(--g3); box-shadow: 0 0 0 3px rgba(82,183,136,.12); background: #fff; }
+    .search-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .search-ico svg { width: 15px; height: 15px; stroke: var(--text-sec); fill: none; stroke-width: 2; }
+    .filter-select { padding: 10px 32px 10px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-size: .87rem; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); outline: none; cursor: pointer; transition: border-color .2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%235A6475' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .filter-select:focus { border-color: var(--g3); }
+    .results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: .84rem; color: var(--text-sec); }
+    .results-info strong { color: var(--g1); font-weight: 700; }
+
+    /* ══ GRID ══ */
+    .salles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+
+    /* ══ CARD ══ */
+    .salle-card { background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; transition: transform .28s var(--ease), box-shadow .28s var(--ease); }
+    .salle-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+
+    .card-img { width: 100%; height: 200px; overflow: hidden; background: linear-gradient(135deg, var(--g-pale), #B2DFDB); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s var(--ease); }
+    .salle-card:hover .card-img img { transform: scale(1.05); }
+    .card-img-icon { font-size: 3.5rem; opacity: .3; }
+    .card-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 99px; font-size: .72rem; font-weight: 700; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(8px); }
+    .badge-ok { background: rgba(46,125,50,.88); color: white; }
+    .badge-no { background: rgba(211,47,47,.82); color: white; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+    .card-type-tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 99px; font-size: .7rem; font-weight: 700; background: rgba(27,67,50,.85); color: white; backdrop-filter: blur(6px); }
+
+    .card-body { padding: 22px 24px 18px; flex: 1; display: flex; flex-direction: column; }
+    .card-local-link { display: inline-flex; align-items: center; gap: 5px; font-size: .8rem; color: var(--g2); font-weight: 600; text-decoration: none; margin-bottom: 8px; }
+    .card-local-link:hover { text-decoration: underline; }
+    .card-name { font-family: 'Playfair Display', serif; font-size: 1.18rem; color: var(--text); margin-bottom: 8px; line-height: 1.25; font-weight: 700; }
+    .card-desc { font-size: .87rem; color: var(--text-sec); line-height: 1.65; flex: 1; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-meta-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .meta-chip { display: flex; align-items: center; gap: 5px; background: var(--bg); border-radius: 8px; padding: 5px 10px; font-size: .78rem; color: var(--text-sec); font-weight: 500; }
+    .meta-chip svg { width: 13px; height: 13px; stroke: var(--g3); fill: none; stroke-width: 2; }
+
+    /* Boutons footer carte */
+    .card-footer-btn { padding: 16px 24px 20px; display: flex; gap: 10px; }
+    .btn-voir { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; background: var(--g1); color: white; padding: 11px 16px; border-radius: var(--radius-md); font-size: .87rem; font-weight: 700; text-decoration: none; transition: all .25s var(--ease); }
+    .btn-voir:hover { background: var(--g2); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(27,67,50,.28); }
+    .btn-voir svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; transition: transform .2s var(--ease); }
+    .btn-voir:hover svg { transform: translateX(3px); }
+    .btn-reserver { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; background: transparent; color: var(--g1); padding: 11px 16px; border-radius: var(--radius-md); border: 2px solid var(--g-pale); font-size: .87rem; font-weight: 700; text-decoration: none; transition: all .25s var(--ease); }
+    .btn-reserver:hover { border-color: var(--g1); background: var(--g-pale); }
+    .btn-reserver.disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+    .btn-reserver svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* Empty */
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 40px; background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); }
+    .empty-icon  { font-size: 4rem; margin-bottom: 16px; opacity: .5; }
+    .empty-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--text); margin-bottom: 8px; }
+    .empty-sub   { color: var(--text-sec); font-size: .92rem; }
+
+    /* ══ FOOTER ══ */
+    .footer { background: var(--g1); padding: 60px 48px 30px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 44px; margin-bottom: 50px; }
+    .footer-brand-name { font-family: 'Playfair Display', serif; font-size: 1.38rem; color: #fff; }
+    .footer-brand-sub  { font-size: .59rem; color: rgba(255,255,255,.45); letter-spacing: 1.1px; text-transform: uppercase; font-weight: 600; }
+    .footer-tagline    { font-size: .85rem; color: rgba(255,255,255,.52); line-height: 1.72; margin-top: 14px; max-width: 265px; }
+    .footer-socials { display: flex; gap: 9px; margin-top: 20px; }
+    .f-social { width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); display: grid; place-items: center; text-decoration: none; transition: all .25s; }
+    .f-social:hover { background: var(--g2); border-color: var(--g2); }
+    .f-social svg { width: 16px; height: 16px; stroke: rgba(255,255,255,.65); fill: none; stroke-width: 1.8; }
+    .footer-col-title { font-size: .73rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.9); margin-bottom: 16px; }
+    .footer-link { display: block; font-size: .84rem; color: rgba(255,255,255,.52); text-decoration: none; padding: 4px 0; transition: color .22s; }
+    .footer-link:hover { color: #fff; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 26px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .footer-copy  { font-size: .78rem; color: rgba(255,255,255,.37); }
+    .footer-heart { font-size: .72rem; color: rgba(255,255,255,.37); }
+    .footer-heart span { color: var(--g3); }
+
+    /* RESPONSIVE */
+    @media(max-width:1024px) { .footer-top { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:768px) {
+      .nav { padding: 0 20px; } .nav-links { display: none; }
+      .main { padding: 24px 20px 60px; } .page-hero { padding: 40px 20px; }
+      .footer { padding: 50px 24px 24px; } .footer-top { grid-template-columns: 1fr; gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+{# ══ Variables rôle ══ #}
+{% set user      = app.user %}
+{% set roleRaw   = user.roleUtilisateur %}
+{% set roleSlug  = roleRaw|replace({'ROLE_': ''})|lower %}
+{% set roleLabel = {'patient':'Patient','medecin':'Médecin','coach':'Coach','psychologue':'Psychologue','user':'Utilisateur','admin':'Admin'}[roleSlug] ?? (roleSlug|capitalize) %}
+{% set roleEmoji = {'patient':'🧠','medecin':'🩺','coach':'💪','psychologue':'🧘','user':'👤','admin':'🛡️'}[roleSlug] ?? '👤' %}
+
+{# ══ NAVBAR ══ #}
+<nav class="nav" id="main-nav">
+  <a href="{{ path('app_home') }}" class="nav-brand">
+    <div class="nav-brand-icon">
+      <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width:100%;height:100%;object-fit:contain;border-radius:12px;">
+    </div>
+    <div>
+      <div class="nav-brand-name">MindAura</div>
+      <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}" class="nav-link">Locaux</a>
+    <a href="{{ path('salle_front_salles_index') }}"              class="nav-link active">Salles</a>
+    <a href="{{ path('reservation_local_front_index') }}"         class="nav-link">Mes réservations</a>
+  </div>
+
+  <div class="nav-right">
+    <div class="nav-user-pill-wrapper" id="userPillWrapper">
+      <button class="nav-user-pill" id="userPillBtn" type="button" aria-haspopup="true" aria-expanded="false">
+        <div class="nav-avatar">
+          {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+            <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+          {% else %}
+            {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+          {% endif %}
+        </div>
+        <span class="nav-user-name">{{ user.prenomUtilisateur }}</span>
+        <span class="nav-role-badge">{{ roleEmoji }} {{ roleLabel }}</span>
+        <svg class="pill-chevron" viewBox="0 0 16 16" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+
+      <div class="user-dropdown" id="userDropdown" role="menu">
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">
+            {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+              <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+            {% else %}
+              {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+            {% endif %}
+          </div>
+          <div>
+            <div class="dropdown-user-name">{{ user.prenomUtilisateur }} {{ user.nomUtilisateur }}</div>
+            <div class="dropdown-user-email">{{ user.emailUtilisateur }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ path('app_profil') }}" class="dropdown-item" role="menuitem">
+          <span class="dropdown-item-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="7" r="3.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/></svg></span>
+          <span class="dropdown-item-text"><span class="dropdown-item-label">Voir mon profil</span><span class="dropdown-item-sub">Consulter mes informations</span></span>
+          <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+        </a>
+        <a href="{{ path('app_profil_edit') }}" class="dropdown-item" role="menuitem">
+          <span class="dropdown-item-icon dropdown-item-icon--violet"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.586 3.586a2 2 0 112.828 2.828l-8.5 8.5L4 16l1.086-3.914 8.5-8.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="dropdown-item-text"><span class="dropdown-item-label">Modifier mon profil</span><span class="dropdown-item-sub">Changer mes informations</span></span>
+          <svg class="dropdown-item-arrow" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" stroke-linecap="round"/></svg>
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger" role="menuitem">
+          <span class="dropdown-item-icon dropdown-item-icon--red"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3h4v14h-4M9 14l4-4-4-4M13 10H3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="dropdown-item-text"><span class="dropdown-item-label">Se déconnecter</span><span class="dropdown-item-sub">Quitter la session</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+{# ══ HERO ══ #}
+{% set availableCount = 0 %}
+{% set indispoCount   = 0 %}
+{% for salle in salles %}
+  {% if salle.disponibiliteSalle|lower == 'indisponible' %}
+    {% set indispoCount = indispoCount + 1 %}
+  {% else %}
+    {% set availableCount = availableCount + 1 %}
+  {% endif %}
+{% endfor %}
+
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <h1>🚪 Salles de Consultation</h1>
+      <p>Choisissez la salle adaptée à votre séance thérapeutique, dans un cadre serein et professionnel.</p>
+      <div class="hero-stats-row">
+        <div class="hstat">
+          <div class="hstat-num">{{ salles|length }}</div>
+          <div class="hstat-label">Total</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">{{ availableCount }}</div>
+          <div class="hstat-label">Disponibles</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">{{ indispoCount }}</div>
+          <div class="hstat-label">Indisponibles</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ MAIN ══ #}
+<main class="main">
+
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <span class="search-ico"><svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M16 16l-3.5-3.5" stroke-linecap="round"/></svg></span>
+      <input type="text" id="searchInput" placeholder="Rechercher une salle…">
+    </div>
+    <select id="statusFilter" class="filter-select">
+      <option value="">Tous les statuts</option>
+      <option value="disponible">Disponible</option>
+      <option value="indisponible">Indisponible</option>
+    </select>
+    <select id="typeFilter" class="filter-select">
+      <option value="">Tous les types</option>
+      <option value="consultation">Consultation</option>
+      <option value="reunion">Réunion</option>
+      <option value="groupe">Groupe</option>
+    </select>
+  </div>
+
+  <div class="results-info">
+    <div><strong id="countVisible">{{ salles|length }}</strong> salle(s) trouvée(s)</div>
+  </div>
+
+  <div class="salles-grid" id="sallesGrid">
+    {% if salles is empty %}
+      <div class="empty-state">
+        <div class="empty-icon">🚪</div>
+        <div class="empty-title">Aucune salle disponible</div>
+        <p class="empty-sub">Aucune salle n'a encore été ajoutée.</p>
+      </div>
+    {% else %}
+      {% for salle in salles %}
+        <div class="salle-card"
+             data-name="{{ salle.nomSalle|lower }}"
+             data-status="{{ salle.disponibiliteSalle|lower|default('disponible') }}"
+             data-type="{{ salle.typeSalle|lower|default('') }}">
+
+          <div class="card-img">
+            {% if salle.imageURL %}
+              <img src="{{ asset('uploads/salles/' ~ salle.imageURL) }}" alt="{{ salle.nomSalle }}">
+            {% else %}
+              <span class="card-img-icon">🚪</span>
+            {% endif %}
+
+            {% if salle.disponibiliteSalle|lower == 'indisponible' %}
+              <div class="card-badge badge-no"><span class="dot"></span> Indisponible</div>
+            {% else %}
+              <div class="card-badge badge-ok"><span class="dot"></span> Disponible</div>
+            {% endif %}
+
+            {% if salle.typeSalle %}
+              <div class="card-type-tag">{{ salle.typeSalle }}</div>
+            {% endif %}
+          </div>
+
+          <div class="card-body">
+            {% if salle.local is defined and salle.local %}
+              <a href="{{ path('locaux_psychiatrie_front_locaux_show', {id: salle.local.idLocal}) }}" class="card-local-link">
+                🏥 {{ salle.local.nomLocal }}
+              </a>
+            {% endif %}
+
+            <div class="card-name">{{ salle.nomSalle }}</div>
+
+            <p class="card-desc">
+              {% if salle.equipements is defined and salle.equipements %}
+                {{ salle.equipements|slice(0, 130) }}{% if salle.equipements|length > 130 %}…{% endif %}
+              {% else %}
+                Salle de consultation moderne, confortable et adaptée à vos séances thérapeutiques.
+              {% endif %}
+            </p>
+
+            <div class="card-meta-row">
+              {% if salle.capaciteSalle %}
+                <div class="meta-chip">
+                  <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="3.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/></svg>
+                  {{ salle.capaciteSalle }} pers.
+                </div>
+              {% endif %}
+              {% if salle.typeSalle %}
+                <div class="meta-chip">
+                  <svg viewBox="0 0 20 20"><path d="M3 17V5a2 2 0 012-2h10a2 2 0 012 2v12" stroke-linecap="round"/><path d="M7 17v-5h6v5" stroke-linecap="round"/></svg>
+                  {{ salle.typeSalle }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="card-footer-btn">
+            <a href="{{ path('salle_front_salles_show', {id: salle.idSalle}) }}" class="btn-voir">
+              Détails
+              <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            {% if salle.disponibiliteSalle|lower != 'indisponible' %}
+              <a href="{{ path('reservation_local_front_new', {salle: salle.idSalle}) }}" class="btn-reserver">
+                <svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v4M13 2v4" stroke-linecap="round"/></svg>
+                Réserver
+              </a>
+            {% else %}
+              <span class="btn-reserver disabled">
+                <svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v4M13 2v4" stroke-linecap="round"/></svg>
+                Indisponible
+              </span>
+            {% endif %}
+          </div>
+
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+</main>
+
+{# ══ FOOTER ══ #}
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:4px">
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.17);display:grid;place-items:center;flex-shrink:0;overflow:hidden;">
+            <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width:100%;height:100%;object-fit:contain;border-radius:12px;">
+          </div>
+          <div>
+            <div class="footer-brand-name">MindAura</div>
+            <div class="footer-brand-sub">Bien-être &amp; Sérénité</div>
+          </div>
+        </div>
+        <p class="footer-tagline">Une plateforme dédiée à la santé mentale et au développement personnel, conçue avec passion par des étudiants engagés.</p>
+        <div class="footer-socials">
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}" class="footer-link">Locaux</a>
+        <a href="{{ path('salle_front_salles_index') }}"              class="footer-link">Salles</a>
+        <a href="{{ path('reservation_local_front_index') }}"         class="footer-link">Mes réservations</a>
+        <a href="{{ path('app_home') }}"                              class="footer-link">Accueil</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Mon Espace</div>
+        <a href="{{ path('app_profil') }}"  class="footer-link">Mon profil</a>
+        <a href="#"                         class="footer-link">Mes réclamations</a>
+        <a href="#"                         class="footer-link">Mes rendez-vous</a>
+        <a href="#"                         class="footer-link">Mes objectifs</a>
+        <a href="{{ path('app_logout') }}"  class="footer-link" style="color:rgba(220,38,38,.5)">Déconnexion</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Légal</div>
+        <a href="#" class="footer-link">Politique de confidentialité</a>
+        <a href="#" class="footer-link">Conditions d'utilisation</a>
+        <a href="#" class="footer-link">Mentions légales</a>
+        <a href="#" class="footer-link">RGPD &amp; Cookies</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 MindAura &mdash; Projet Intégré Développement Web. Tous droits réservés.</div>
+      <div class="footer-heart">Fait avec <span>&hearts;</span> par &middot; Laifi Azer &middot;</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const nav = document.getElementById('main-nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+
+(function () {
+  var pillBtn  = document.getElementById('userPillBtn');
+  var dropdown = document.getElementById('userDropdown');
+  var wrapper  = document.getElementById('userPillWrapper');
+  if (!pillBtn || !dropdown) return;
+  pillBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = dropdown.classList.toggle('open');
+    pillBtn.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', function (e) {
+    if (!wrapper.contains(e.target)) { dropdown.classList.remove('open'); pillBtn.setAttribute('aria-expanded', 'false'); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { dropdown.classList.remove('open'); pillBtn.setAttribute('aria-expanded', 'false'); }
+  });
+})();
+
+function applyFilters() {
+  var q      = document.getElementById('searchInput').value.toLowerCase();
+  var status = document.getElementById('statusFilter').value.toLowerCase();
+  var type   = document.getElementById('typeFilter').value.toLowerCase();
+  var count  = 0;
+  document.querySelectorAll('.salle-card').forEach(function (card) {
+    var matchQ  = !q      || (card.dataset.name   || '').includes(q);
+    var matchSt = !status || (card.dataset.status || '').includes(status);
+    var matchTy = !type   || (card.dataset.type   || '').includes(type);
+    var show = matchQ && matchSt && matchTy;
+    card.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+  document.getElementById('countVisible').textContent = count;
+}
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('typeFilter').addEventListener('change', applyFilters);
+</script>
+</body>
+</html>

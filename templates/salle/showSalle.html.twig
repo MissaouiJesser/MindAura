@@ -1,0 +1,145 @@
+{# templates/salle/showSalle.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ salle.nomSalle }}{% endblock %}
+{% block page_label %}Détail Salle{% endblock %}
+
+{% block header_actions %}
+  <a href="{{ path('salle_edit', {id: salle.idSalle}) }}" class="btn-primary">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 4.3a1 1 0 011.4 1.4L6.4 15.4 3 16.7l1.3-3.4 10-10z" stroke-linecap="round"/></svg>
+    Modifier
+  </a>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <a href="{{ path('salle_index') }}" style="width:36px;height:36px;border-radius:10px;background:#fff;border:1.5px solid var(--border);display:grid;place-items:center;text-decoration:none;transition:all .2s;flex-shrink:0"
+       onmouseover="this.style.borderColor='var(--green-light)'" onmouseout="this.style.borderColor='var(--border)'">
+      <svg style="width:16px;height:16px;color:var(--text-sec)" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 5l-6 5 6 5" stroke-linecap="round"/></svg>
+    </a>
+    <div>
+      <div class="page-title">{{ salle.nomSalle }}</div>
+      <div class="page-sub">{{ salle.typeSalle }}{% if salle.local %} — {{ salle.local.nomLocal }}{% endif %}</div>
+    </div>
+  </div>
+  <div class="page-actions">
+    <a href="{{ path('salle_edit', {id: salle.idSalle}) }}" class="btn-primary">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 4.3a1 1 0 011.4 1.4L6.4 15.4 3 16.7l1.3-3.4 10-10z" stroke-linecap="round"/></svg>
+      Modifier
+    </a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start">
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Image hero #}
+    {% if salle.imageURL %}
+    <div style="border-radius:16px;overflow:hidden;height:240px;box-shadow:var(--shadow-card);position:relative;animation:fadeUp .4s both">
+      <img src="{{ asset('uploads/salles/' ~ salle.imageURL) }}" alt="{{ salle.nomSalle }}" style="width:100%;height:100%;object-fit:cover">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(27,67,50,.5) 0%, transparent 60%)"></div>
+      <div style="position:absolute;bottom:18px;left:22px;color:#fff">
+        <div style="font-size:1.15rem;font-weight:800;font-family:'Playfair Display',serif">{{ salle.nomSalle }}</div>
+        {% if salle.local %}<div style="font-size:.8rem;opacity:.85;margin-top:2px">🏥 {{ salle.local.nomLocal }}</div>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Infos #}
+    <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .07s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:18px">Informations</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+        {% for info in [
+          {label: 'Type', value: salle.typeSalle, bg: 'var(--violet-pale)', color: 'var(--violet)'},
+          {label: 'Capacité', value: salle.capaciteSalle ~ ' personnes', bg: '#E0F2F1', color: '#00897B'},
+          {label: 'Étage', value: salle.etage ?? 'Non renseigné', bg: 'var(--green-pale)', color: 'var(--green)'},
+          {label: 'Statut', value: salle.statutSalle, bg: '#FFF3E0', color: '#E65100'},
+        ] %}
+        <div style="padding:14px 16px;border-radius:12px;background:{{ info.bg }}">
+          <div style="font-size:.73rem;font-weight:600;color:{{ info.color }};opacity:.75;margin-bottom:4px;text-transform:uppercase;letter-spacing:.6px">{{ info.label }}</div>
+          <div style="font-size:.92rem;font-weight:700;color:{{ info.color }}">{{ info.value }}</div>
+        </div>
+        {% endfor %}
+
+        {% if salle.local %}
+        <div style="grid-column:1/-1;padding:14px 16px;border-radius:12px;background:var(--bg)">
+          <div style="font-size:.73rem;font-weight:600;color:var(--text-sec);margin-bottom:4px;text-transform:uppercase;letter-spacing:.6px">Local rattaché</div>
+          <a href="{{ path('locaux_psychiatrie_show', {id: salle.local.idLocal}) }}" style="font-size:.88rem;font-weight:600;color:var(--green);text-decoration:none;display:flex;align-items:center;gap:6px">
+            <svg style="width:14px;height:14px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18V8l7-5 7 5v10H3z" stroke-linecap="round"/></svg>
+            {{ salle.local.nomLocal }} — {{ salle.local.villeLocal }}
+          </a>
+        </div>
+        {% endif %}
+
+        {% if salle.equipements %}
+        <div style="grid-column:1/-1;padding:14px 16px;border-radius:12px;background:var(--bg)">
+          <div style="font-size:.73rem;font-weight:600;color:var(--text-sec);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">Équipements</div>
+          <p style="font-size:.87rem;line-height:1.6;color:var(--text);margin:0">{{ salle.equipements }}</p>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+
+  {# Panneau latéral #}
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    {# Disponibilité #}
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow-card);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .05s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px">Disponibilité</div>
+      {% if salle.disponibiliteSalle == 'Disponible' %}
+        <div style="padding:14px;border-radius:12px;background:#D8F3DC;display:flex;align-items:center;gap:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#52B788;flex-shrink:0"></div>
+          <div style="font-size:.9rem;font-weight:700;color:#1B4332">Disponible</div>
+        </div>
+      {% elseif salle.disponibiliteSalle == 'En maintenance' %}
+        <div style="padding:14px;border-radius:12px;background:#FFF3E0;display:flex;align-items:center;gap:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#F59E0B;flex-shrink:0"></div>
+          <div style="font-size:.9rem;font-weight:700;color:#D97706">En maintenance</div>
+        </div>
+      {% else %}
+        <div style="padding:14px;border-radius:12px;background:#FEF2F2;display:flex;align-items:center;gap:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#EF4444;flex-shrink:0"></div>
+          <div style="font-size:.9rem;font-weight:700;color:#991B1B">Indisponible</div>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Actions #}
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:10px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .1s both">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.9px;margin-bottom:4px">Actions</div>
+      <a href="{{ path('salle_edit', {id: salle.idSalle}) }}"
+         style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:12px;background:var(--green);color:#fff;font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;text-decoration:none;transition:all .2s"
+         onmouseover="this.style.background='var(--green-mid)'" onmouseout="this.style.background='var(--green)'">
+        <svg style="width:15px;height:15px" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 4.3a1 1 0 011.4 1.4L6.4 15.4 3 16.7l1.3-3.4 10-10z" stroke-linecap="round"/></svg>
+        Modifier cette salle
+      </a>
+      <a href="{{ path('salle_index') }}"
+         style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:12px;background:var(--bg);color:var(--text-sec);font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;text-decoration:none;border:1.5px solid var(--border);transition:all .2s"
+         onmouseover="this.style.borderColor='var(--green-light)';this.style.color='var(--green)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sec)'">
+        Retour à la liste
+      </a>
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:2px">
+        <form method="post" action="{{ path('salle_delete', {id: salle.idSalle}) }}" onsubmit="return confirm('Supprimer définitivement cette salle ?')">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ salle.idSalle) }}">
+          <button type="submit" style="width:100%;padding:10px;border-radius:12px;background:#FEF2F2;color:#EF4444;font-family:Outfit,sans-serif;font-size:.87rem;font-weight:600;border:1.5px solid #FECACA;cursor:pointer;transition:all .2s"
+            onmouseover="this.style.background='#EF4444';this.style.color='#fff'"
+            onmouseout="this.style.background='#FEF2F2';this.style.color='#EF4444'">
+            Supprimer cette salle
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

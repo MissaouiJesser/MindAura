@@ -1,0 +1,348 @@
+{# templates/locaux_psychiatrie/front_show.html.twig
+   ─ FRONT OFFICE : Détail d'un local psychiatrique
+   ─ Route : locaux_psychiatrie_front_locaux_show
+#}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ local.nomLocal }} — MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --g1: #1B4332; --g2: #2D6A4F; --g3: #52B788;
+      --g-pale: #D8F3DC; --g-hover: #E8F5EE;
+      --bg: #F0F4F8; --white: #FFFFFF;
+      --text: #1A1A2E; --text-sec: #5A6475; --border: #D5DCE6;
+      --radius-xl: 20px; --radius-lg: 14px; --radius-md: 10px;
+      --ease: cubic-bezier(.22,1,.36,1);
+      --shadow: 0 2px 12px rgba(27,67,50,.08), 0 0 0 1px rgba(213,220,230,.5);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── NAVBAR ── */
+    .nav {
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(27,67,50,.09);
+      padding: 0 40px; height: 66px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo  { width: 36px; height: 36px; border-radius: 9px; background: var(--g1); display: grid; place-items: center; }
+    .nav-logo span { font-size: 1rem; }
+    .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.12rem; font-weight: 700; color: var(--text); }
+    .nav-links { flex: 1; display: flex; gap: 4px; }
+    .nav-link  { padding: 7px 16px; border-radius: 99px; font-size: .87rem; font-weight: 500; color: var(--text-sec); text-decoration: none; transition: all .2s; }
+    .nav-link:hover, .nav-link.active { background: var(--g-pale); color: var(--g1); }
+    .nav-cta   { background: var(--g1); color: white; padding: 8px 18px; border-radius: 99px; font-size: .85rem; font-weight: 600; text-decoration: none; transition: all .25s; }
+    .nav-cta:hover { background: var(--g2); transform: translateY(-1px); }
+
+    /* ── HERO IMAGE ── */
+    .hero-img {
+      width: 100%; height: 420px; position: relative; overflow: hidden;
+      background: linear-gradient(135deg, var(--g-pale), var(--g-hover));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-icon { font-size: 5rem; opacity: .3; }
+    .hero-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(27,67,50,.85) 0%, transparent 100%);
+      padding: 40px 60px 32px;
+    }
+    .hero-breadcrumb { display: flex; gap: 8px; font-size: .8rem; color: rgba(255,255,255,.65); margin-bottom: 10px; }
+    .hero-breadcrumb a { color: rgba(255,255,255,.75); text-decoration: none; }
+    .hero-breadcrumb a:hover { color: white; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: white; line-height: 1.15; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 99px; font-size: .78rem; font-weight: 700;
+      margin-top: 12px;
+    }
+    .badge-ok  { background: rgba(46,125,50,.9); color: white; }
+    .badge-no  { background: rgba(211,47,47,.85); color: white; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+    /* ── LAYOUT ── */
+    .wrapper { max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; }
+    @media(max-width: 860px) { .wrapper { grid-template-columns: 1fr; } }
+
+    /* ── CONTENT CARD ── */
+    .content-card {
+      background: var(--white); border-radius: var(--radius-xl);
+      box-shadow: var(--shadow); padding: 36px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif; font-size: 1.35rem;
+      color: var(--g1); margin-bottom: 18px;
+      padding-bottom: 12px; border-bottom: 2px solid var(--g-pale);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title span { font-size: 1.1rem; }
+
+    .desc-text { line-height: 1.85; color: var(--text-sec); font-size: .95rem; margin-bottom: 32px; }
+
+    /* Info grid */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+    .info-item {
+      background: var(--bg); border-radius: var(--radius-md); padding: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .info-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--g-pale); display: grid; place-items: center; flex-shrink: 0;
+    }
+    .info-icon svg { width: 18px; height: 18px; stroke: var(--g1); fill: none; stroke-width: 1.8; }
+    .info-label { font-size: .75rem; color: var(--text-sec); font-weight: 600; margin-bottom: 2px; }
+    .info-value { font-size: .95rem; font-weight: 700; color: var(--text); }
+
+    /* Features */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .feature {
+      background: var(--g-pale); border-radius: var(--radius-md);
+      padding: 14px 16px; text-align: center;
+      color: var(--g1); font-weight: 600; font-size: .87rem;
+    }
+
+    /* Salles list */
+    .salles-list { display: flex; flex-direction: column; gap: 12px; }
+    .salle-row {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--bg); border-radius: var(--radius-md); padding: 14px 16px;
+      text-decoration: none; color: var(--text); transition: all .2s;
+    }
+    .salle-row:hover { background: var(--g-hover); transform: translateX(4px); }
+    .salle-thumb {
+      width: 50px; height: 50px; border-radius: 8px; overflow: hidden;
+      background: var(--g-pale); display: grid; place-items: center; flex-shrink: 0;
+      font-size: 1.4rem;
+    }
+    .salle-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .salle-name { font-weight: 600; font-size: .92rem; }
+    .salle-meta { font-size: .78rem; color: var(--text-sec); margin-top: 2px; }
+    .salle-chevron { margin-left: auto; color: var(--text-sec); }
+    .salle-chevron svg { width: 16px; height: 16px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+    .sticky-card {
+      background: var(--white); border-radius: var(--radius-xl);
+      box-shadow: var(--shadow); padding: 28px;
+      position: sticky; top: 86px;
+    }
+    .sticky-title {
+      font-family: 'Playfair Display', serif; font-size: 1.25rem;
+      color: var(--text); margin-bottom: 20px;
+    }
+
+    .contact-item { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+    .contact-ico {
+      width: 36px; height: 36px; border-radius: 9px; background: var(--g-pale);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .contact-ico svg { width: 16px; height: 16px; stroke: var(--g1); fill: none; stroke-width: 1.8; }
+    .contact-label { font-size: .75rem; color: var(--text-sec); font-weight: 600; }
+    .contact-val   { font-size: .9rem; font-weight: 600; color: var(--text); margin-top: 2px; }
+
+    .btn-reserve-big {
+      display: block; width: 100%; text-align: center;
+      background: var(--g1); color: white;
+      padding: 14px 20px; border-radius: var(--radius-md);
+      font-weight: 700; font-size: 1rem;
+      text-decoration: none; transition: all .25s var(--ease);
+      margin-top: 22px;
+    }
+    .btn-reserve-big:hover { background: var(--g2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,67,50,.3); }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 7px;
+      color: var(--g1); font-weight: 600; font-size: .88rem;
+      padding: 8px 14px; border: 2px solid var(--g-pale); border-radius: var(--radius-md);
+      text-decoration: none; transition: all .2s; width: 100%; justify-content: center;
+    }
+    .btn-back:hover { background: var(--g-pale); }
+
+    footer { background: var(--g1); color: rgba(255,255,255,.7); text-align: center; padding: 28px; font-size: .85rem; }
+    footer a { color: var(--g3); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+{# ══ NAVBAR ══ #}
+<nav class="nav">
+  <a href="{{ path('app_home') }}" class="nav-brand">
+    <div class="nav-logo"><span>🧠</span></div>
+    <span class="nav-brand-name">MindAura</span>
+  </a>
+  <div class="nav-links">
+    <a href="{{ path('app_home') }}" class="nav-link">Accueil</a>
+    <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}" class="nav-link active">Locaux</a>
+    <a href="{{ path('salle_front_salles_index') }}" class="nav-link">Salles</a>
+  </div>
+  {% if local.disponibiliteLocal|lower != 'indisponible' %}
+    <a href="{{ path('reservation_local_front_new', {local: local.idLocal}) }}" class="nav-cta">+ Réserver</a>
+  {% endif %}
+</nav>
+
+{# ══ HERO IMAGE ══ #}
+<div class="hero-img">
+  {% if local.imageURL %}
+    <img src="{{ asset('uploads/locaux/' ~ local.imageURL) }}" alt="{{ local.nomLocal }}">
+  {% else %}
+    <span class="hero-img-icon">🏥</span>
+  {% endif %}
+  <div class="hero-overlay">
+    <div class="hero-breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a> ›
+      <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}">Locaux</a> ›
+      <span>{{ local.nomLocal }}</span>
+    </div>
+    <h1 class="hero-title">{{ local.nomLocal }}</h1>
+    {% if local.disponibiliteLocal|lower == 'indisponible' %}
+      <div class="hero-badge badge-no"><span class="dot"></span> Indisponible</div>
+    {% else %}
+      <div class="hero-badge badge-ok"><span class="dot"></span> Disponible</div>
+    {% endif %}
+  </div>
+</div>
+
+{# ══ CONTENT ══ #}
+<div class="wrapper">
+
+  {# ── Colonne principale ── #}
+  <div>
+
+    {# Description #}
+    {% if local.descriptionLocal %}
+      <div class="content-card" style="margin-bottom:24px">
+        <div class="section-title"><span>📖</span> À propos de ce local</div>
+        <p class="desc-text">{{ local.descriptionLocal }}</p>
+      </div>
+    {% endif %}
+
+    {# Informations clés #}
+    <div class="content-card" style="margin-bottom:24px">
+      <div class="section-title"><span>ℹ️</span> Informations</div>
+      <div class="info-grid">
+        {% if local.typeLocal %}
+          <div class="info-item">
+            <div class="info-icon">
+              <svg viewBox="0 0 20 20"><path d="M3 17V5a2 2 0 012-2h10a2 2 0 012 2v12" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 17v-5h6v5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div><div class="info-label">Type</div><div class="info-value">{{ local.typeLocal }}</div></div>
+          </div>
+        {% endif %}
+        {% if local.adresseLocal %}
+          <div class="info-item">
+            <div class="info-icon">
+              <svg viewBox="0 0 20 20"><path d="M10 2a5.5 5.5 0 00-5.5 5.5C4.5 11 10 18 10 18s5.5-7 5.5-10.5A5.5 5.5 0 0010 2z" stroke-linecap="round"/><circle cx="10" cy="7.5" r="1.8"/></svg>
+            </div>
+            <div><div class="info-label">Adresse</div><div class="info-value">{{ local.adresseLocal }}</div></div>
+          </div>
+        {% endif %}
+        {% if local.capaciteLocal %}
+          <div class="info-item">
+            <div class="info-icon">
+              <svg viewBox="0 0 20 20"><circle cx="8" cy="7" r="3"/><path d="M2 18c0-3.3 2.7-6 6-6" stroke-linecap="round"/><circle cx="14" cy="7" r="3"/><path d="M14 12c3.3 0 6 2.7 6 6" stroke-linecap="round"/></svg>
+            </div>
+            <div><div class="info-label">Salles</div><div class="info-value">{{ local.capaciteLocal }} salle(s)</div></div>
+          </div>
+        {% endif %}
+      </div>
+
+      {# Équipements #}
+      <div class="section-title" style="margin-top:8px"><span>✨</span> Équipements &amp; Services</div>
+      <div class="features">
+        <div class="feature">♿ Accès PMR</div>
+        <div class="feature">🅿️ Parking</div>
+        <div class="feature">📶 WiFi</div>
+        <div class="feature">🔒 Sécurisé</div>
+        <div class="feature">🌡️ Climatisé</div>
+        <div class="feature">💊 Pharmacie</div>
+      </div>
+    </div>
+
+    {# Salles du local #}
+    {% if local.salles is defined and local.salles|length > 0 %}
+      <div class="content-card">
+        <div class="section-title"><span>🚪</span> Salles disponibles ({{ local.salles|length }})</div>
+        <div class="salles-list">
+          {% for salle in local.salles %}
+            <a href="{{ path('salle_front_salles_show', {id: salle.idSalle}) }}" class="salle-row">
+              <div class="salle-thumb">
+                {% if salle.imageURL %}
+                  <img src="{{ asset('uploads/salles/' ~ salle.imageURL) }}" alt="{{ salle.nomSalle }}">
+                {% else %}
+                  🚪
+                {% endif %}
+              </div>
+              <div>
+                <div class="salle-name">{{ salle.nomSalle }}</div>
+                <div class="salle-meta">
+                  {% if salle.typeSalle %}{{ salle.typeSalle }} • {% endif %}
+                  {% if salle.capaciteSalle %}{{ salle.capaciteSalle }} pers.{% endif %}
+                </div>
+              </div>
+              <div class="salle-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {# ── Sidebar ── #}
+  <div class="sidebar">
+    <div class="sticky-card">
+      <div class="sticky-title">📋 Réserver ce local</div>
+
+      {% if local.telephoneLocal %}
+        <div class="contact-item">
+          <div class="contact-ico"><svg viewBox="0 0 20 20"><path d="M5.5 4a1 1 0 01.8-.4h.7a1 1 0 011 .8l.4 2a1 1 0 01-.3 1l-.6.6a8 8 0 003.5 3.5l.6-.6a1 1 0 011-.3l2 .4a1 1 0 01.8 1v.7a1 1 0 01-.4.8C14.2 14.7 13 15 12 15A10 10 0 015 8c0-1 .3-2.2 .5-4z" stroke-linecap="round"/></svg></div>
+          <div><div class="contact-label">Téléphone</div><div class="contact-val">{{ local.telephoneLocal }}</div></div>
+        </div>
+      {% endif %}
+
+      {% if local.adresseLocal %}
+        <div class="contact-item">
+          <div class="contact-ico"><svg viewBox="0 0 20 20"><path d="M10 2a5.5 5.5 0 00-5.5 5.5C4.5 11 10 18 10 18s5.5-7 5.5-10.5A5.5 5.5 0 0010 2z" stroke-linecap="round"/><circle cx="10" cy="7.5" r="1.8"/></svg></div>
+          <div><div class="contact-label">Adresse</div><div class="contact-val">{{ local.adresseLocal }}</div></div>
+        </div>
+      {% endif %}
+
+      <div class="contact-item">
+        <div class="contact-ico"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v4M13 2v4" stroke-linecap="round"/></svg></div>
+        <div><div class="contact-label">Disponibilité</div><div class="contact-val">Lun–Ven 8h–18h</div></div>
+      </div>
+
+      {% if local.disponibiliteLocal|lower != 'indisponible' %}
+        <a href="{{ path('reservation_local_front_new', {local: local.idLocal}) }}" class="btn-reserve-big">📅 Réserver maintenant</a>
+      {% else %}
+        <div style="text-align:center;padding:14px;background:var(--bg);border-radius:var(--radius-md);color:var(--text-sec);font-size:.88rem;margin-top:18px;">
+          Ce local est actuellement indisponible.
+        </div>
+      {% endif %}
+
+      <div style="margin-top: 12px;">
+        <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}" class="btn-back">
+          ← Retour aux locaux
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 MindAura — <a href="{{ path('app_home') }}">Accueil</a></p>
+</footer>
+</body>
+</html>

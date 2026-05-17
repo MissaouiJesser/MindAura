@@ -1,0 +1,352 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réclamations{% endblock %}
+{% block page_label %}Réclamations{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  
+  .page-hero {
+    position:relative;
+    background:linear-gradient(135deg,#1B4332 0%,#1A3A5C 55%,#0F2447 100%);
+    border-radius:20px; padding:28px 34px; margin-bottom:20px;
+    overflow:hidden; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+    box-shadow:0 8px 32px rgba(27,67,50,.22);
+  }
+  .page-hero::before { content:''; position:absolute; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.055); top:-80px; right:-60px; pointer-events:none; }
+  .hero-inner { display:flex; align-items:center; gap:20px; position:relative; z-index:1; margin-top:8px; }
+  .hero-icon-box { width:58px; height:58px; border-radius:16px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.2); display:grid; place-items:center; flex-shrink:0; }
+  .hero-icon-box svg { width:26px; height:26px; color:#fff; }
+  .hero-text { flex:1; }
+  .hero-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; margin-bottom:4px; }
+  .hero-sub { font-size:.82rem; color:rgba(255,255,255,.7); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .hero-chip { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:99px; padding:3px 10px; font-size:.73rem; font-weight:600; color:rgba(255,255,255,.9); }
+
+  /* ── FILTERS ── */
+  .filters-section {
+    background:#fff; border:1.5px solid var(--border);
+    border-radius:18px; padding:20px 24px; margin-bottom:20px;
+    box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .06s both;
+  }
+  .filters-form { display:flex; flex-direction:column; gap:16px; }
+
+  /* Ligne 1 : Recherche + Export */
+  .frow-1 { display:flex; align-items:flex-end; gap:12px; }
+  .frow-1 .fg-search { flex:1; }
+
+  /* Ligne 2 : Statuts + Catégorie + Dates + Par page */
+  .frow-2 { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+  .frow-2 .fg-status  { flex:2; min-width:220px; }
+  .frow-2 .fg-cat     { flex:1.2; min-width:160px; }
+  .frow-2 .fg-date    { flex:1; min-width:140px; }
+  .frow-2 .fg-per     { flex:0 0 100px; }
+
+  /* Ligne 3 : actions droite */
+  .frow-3 { display:flex; justify-content:flex-end; align-items:center; gap:10px; border-top:1px solid var(--border); padding-top:14px; }
+
+  .fg { display:flex; flex-direction:column; gap:5px; }
+  .fg label { font-size:.72rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.7px; }
+  .fg input, .fg select {
+    padding:9px 12px; border:1.5px solid var(--border); border-radius:10px;
+    font-size:.845rem; color:var(--text); background:var(--bg);
+    transition:border-color .18s, box-shadow .18s; font-family:'Outfit',sans-serif;
+  }
+  .fg input:focus, .fg select:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(82,183,136,.12); }
+
+  .status-checklist { display:flex; flex-wrap:wrap; gap:6px; padding:2px 0; }
+  .status-chip {
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--bg); border:1.5px solid var(--border);
+    border-radius:999px; padding:5px 11px; font-size:.78rem;
+    font-weight:600; color:var(--text-sec); cursor:pointer;
+    transition:all .15s; user-select:none;
+  }
+  .status-chip:has(input:checked) { background:var(--green-pale); border-color:var(--green); color:var(--green); }
+  .status-chip input { display:none; }
+
+  .btn-filter {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 20px; border-radius:10px; background:var(--green);
+    color:#fff; font-family:'Outfit',sans-serif; font-size:.845rem;
+    font-weight:700; border:none; cursor:pointer; transition:background .18s, transform .15s;
+  }
+  .btn-filter:hover { background:var(--green-dark); transform:translateY(-1px); }
+  .btn-filter svg { width:13px; height:13px; }
+  .btn-reset {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 18px; border-radius:10px; background:#fff;
+    color:var(--text-sec); font-family:'Outfit',sans-serif;
+    font-size:.845rem; font-weight:600; border:1.5px solid var(--border);
+    text-decoration:none; transition:all .15s;
+  }
+  .btn-reset:hover { border-color:var(--green); color:var(--green); background:var(--green-pale); }
+  .btn-export {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 16px; border-radius:10px; background:var(--bg);
+    color:var(--text); font-family:'Outfit',sans-serif;
+    font-size:.82rem; font-weight:600; border:1.5px solid var(--border);
+    text-decoration:none; transition:all .18s; white-space:nowrap;
+  }
+  .btn-export:hover { background:var(--green); color:#fff; border-color:var(--green); }
+  .btn-export svg { width:13px; height:13px; }
+
+  /* ── TABLE ── */
+  .table-card { background:var(--white); border:1.5px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg); }
+  thead th { padding:12px 16px; text-align:left; font-size:.69rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.9px; border-bottom:1.5px solid var(--border); white-space:nowrap; }
+  tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+  tbody tr:hover { background:var(--green-hover); }
+  td { padding:13px 16px; vertical-align:middle; font-size:.845rem; }
+  td.title { font-weight:600; color:var(--text); }
+
+  .status-badge { display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:.75rem; font-weight:600; }
+  .status-pending  { background:#FEF3C7; color:#B45309; }
+  .status-progress { background:#DBEAFE; color:#1565C0; }
+  .status-resolved { background:#DCFCE7; color:#15803D; }
+  .status-rejected { background:#FEE2E2; color:#DC2626; }
+
+  .prio-badge { display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:.72rem; font-weight:700; letter-spacing:.02em; }
+  .prio-haute   { background:#FEE2E2; color:#B91C1C; }
+  .prio-moyenne { background:#FEF3C7; color:#B45309; }
+  .prio-basse   { background:#E0E7FF; color:#3730A3; }
+  .prio-nd      { background:#F1F5F9; color:#64748B; }
+
+  .actions-cell { display:flex; align-items:center; gap:5px; flex-wrap:nowrap; }
+  .btn-action { display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:8px; font-family:'Outfit',sans-serif; font-size:.75rem; font-weight:600; text-decoration:none; cursor:pointer; border:1.5px solid transparent; transition:all .18s; white-space:nowrap; }
+  .btn-action svg { width:12px; height:12px; }
+  .btn-show  { background:#EFF6FF; border-color:#BFDBFE; color:#1565C0; }
+  .btn-show:hover { background:#DBEAFE; }
+  .btn-reply { background:#E0F2FE; border-color:#BAE6FD; color:#0369A1; }
+  .btn-reply:hover { background:#BAE6FD; }
+
+  .pagination { display:flex; justify-content:center; gap:8px; margin-top:20px; }
+  .page-link { padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; text-decoration:none; color:var(--text); font-family:'Outfit',sans-serif; font-size:.8rem; font-weight:600; transition:all .15s; }
+  .page-link:hover { border-color:var(--green); color:var(--green); }
+  .page-link.active { background:var(--green); color:#fff; border-color:var(--green); }
+  .empty-state { text-align:center; padding:56px 20px; }
+  .empty-icon { width:60px; height:60px; border-radius:16px; background:var(--green-pale); display:grid; place-items:center; margin:0 auto 14px; }
+  .empty-icon svg { width:26px; height:26px; color:var(--green); }
+  .empty-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+
+  @media (max-width:768px) {
+    .frow-1, .frow-2 { flex-direction:column; }
+    .frow-2 .fg-status, .frow-2 .fg-cat, .frow-2 .fg-date, .frow-2 .fg-per { min-width:0; flex:1 1 100%; }
+  }
+</style>
+
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="hero-icon-box">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M10 3l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11.8l-3.7 2.7 1.4-4.3L4 7.5h4.5L10 3z"/>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">Réclamations</div>
+      <div class="hero-sub">
+        <span>Gérez toutes les réclamations des utilisateurs</span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1l5 4v6H1V5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ reclamations|length }} réclamation{{ reclamations|length != 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="filters-section">
+  <form method="get" class="filters-form">
+
+    {# ── Ligne 1 : Recherche + Exports ── #}
+    <div class="frow-1">
+      <div class="fg fg-search">
+        <label for="search">Recherche</label>
+        <input type="text" id="search" name="search" value="{{ search }}" placeholder="Sujet ou description...">
+      </div>
+      <a href="{{ path('reclamation_export_pdf', app.request.query.all) }}" class="btn-export" style="margin-bottom:1px;">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2h8l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2zm0 0v4h8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        PDF
+      </a>
+      <a href="{{ path('reclamation_export_excel', app.request.query.all) }}" class="btn-export" style="margin-bottom:1px;">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Excel
+      </a>
+    </div>
+
+    {# ── Ligne 2 : Statuts + Catégorie + Dates + Par page ── #}
+    <div class="frow-2">
+      <div class="fg fg-status">
+        <label>Statut</label>
+        <div class="status-checklist">
+          {% for statusCode, statusLabel in statusChoices %}
+            <label class="status-chip" for="status_{{ statusCode }}">
+              <input type="checkbox" id="status_{{ statusCode }}" name="statut[]" value="{{ statusCode }}" {% if statusCode in statut %}checked{% endif %}>
+              {{ statusLabel }}
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="fg fg-cat">
+        <label for="categorie">Catégorie</label>
+        <select id="categorie" name="categorie">
+          <option value="">Toutes</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id_categorie }}" {% if categorie_filter == cat.id_categorie %}selected{% endif %}>{{ cat.nom_categorie }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="fg fg-date">
+        <label for="date_from">Date début</label>
+        <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+      </div>
+      <div class="fg fg-date">
+        <label for="date_to">Date fin</label>
+        <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+      </div>
+      <div class="fg fg-per">
+        <label for="perPage">Par page</label>
+        <select id="perPage" name="perPage">
+          {% for n in [5, 10, 20, 50] %}
+            <option value="{{ n }}" {% if perPage == n %}selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    {# ── Ligne 3 : Actions ── #}
+    <div class="frow-3">
+      <a href="{{ path('reclamation_index') }}" class="btn-reset">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l12 12M4 16L16 4" stroke-linecap="round"/></svg>
+        Réinitialiser
+      </a>
+      <button type="submit" class="btn-filter">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M6 10h8M9 15h2" stroke-linecap="round"/></svg>
+        Appliquer les filtres
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<div class="table-card">
+  {% if reclamations %}
+    <table>
+      <thead>
+        <tr>
+          <th>Sujet</th>
+          <th>Catégorie</th>
+          <th>Priorité</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Note</th>
+          <th style="text-align:right; width:160px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reclamation in reclamations %}
+          {% set normalizedStatus = reclamation.statut_reclamation|default('En attente')|trim %}
+          {% if normalizedStatus == '' %}
+            {% set normalizedStatus = 'En attente' %}
+          {% endif %}
+          {% set prio = priorites[reclamation.id_reclamation]|default('INCONNUE') %}
+          <tr>
+            <td class="title">{{ reclamation.sujet_reclamation }}</td>
+            <td>{{ reclamation.categorie ? reclamation.categorie.nom_categorie : 'N/A' }}</td>
+            <td>
+              {% if prio == 'HAUTE' %}
+                <span class="prio-badge prio-haute">Haute</span>
+              {% elseif prio == 'MOYENNE' %}
+                <span class="prio-badge prio-moyenne">Moyenne</span>
+              {% elseif prio == 'BASSE' %}
+                <span class="prio-badge prio-basse">Basse</span>
+              {% else %}
+                <span class="prio-badge prio-nd" title="Clé Groq absente ou classification indisponible">—</span>
+              {% endif %}
+            </td>
+            <td>{{ reclamation.dateCreation_reclamation|date('d/m/Y H:i') }}</td>
+            <td>
+              <span class="status-badge 
+                {% if normalizedStatus == 'En attente' %}status-pending
+                {% elseif normalizedStatus == 'En cours de traitement' %}status-progress
+                {% elseif normalizedStatus == 'Résolu' %}status-resolved
+                {% else %}status-rejected{% endif %}">
+                {{ normalizedStatus }}
+              </span>
+            </td>
+            <td>{{ reclamation.rate_Reclamation|number_format(1, ',', ' ') }}/5</td>
+            <td>
+              <div class="actions-cell">
+                <a href="{{ path('reclamation_show', {id: reclamation.id_reclamation}) }}" class="btn-action btn-show" title="Voir">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3C5.5 3 2 7 2 10s3.5 7 8 7 8-4 8-7-3.5-7-8-7zm0 5c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z" stroke-linecap="round"/></svg>
+                </a>
+               
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    {% set hasActiveFilters = search or (statut is defined and statut|length > 0) or categorie_filter or date_from or date_to %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M11 5a6 6 0 104.24 10.24l3.2 3.2 1.06-1.06-3.2-3.2A6 6 0 0011 5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      {% if hasActiveFilters %}
+        <div class="empty-title">Aucun résultat pour votre recherche</div>
+        <p style="font-size:.82rem; color:var(--text-sec); margin-bottom:14px;">Essayez de modifier les filtres ou d'élargir le texte recherché.</p>
+        <a href="{{ path('reclamation_index') }}" class="btn-reset">Réinitialiser les filtres</a>
+      {% else %}
+        <div class="empty-title">Aucune réclamation</div>
+        <p style="font-size:.8rem; color:var(--text-sec);">Aucune réclamation n'a été enregistrée pour le moment.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{% if pages > 1 %}
+<div class="pagination">
+  {% set baseQuery = app.request.query.all %}
+  {% if page > 1 %}
+    <a href="{{ path('reclamation_index', baseQuery|merge({'page': page - 1})) }}" class="page-link">← Précédent</a>
+  {% endif %}
+  {% for i in 1..pages %}
+    <a href="{{ path('reclamation_index', baseQuery|merge({'page': i})) }}" class="page-link {% if i == page %}active{% endif %}">{{ i }}</a>
+  {% endfor %}
+  {% if page < pages %}
+    <a href="{{ path('reclamation_index', baseQuery|merge({'page': page + 1})) }}" class="page-link">Suivant →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+let searchTimer;
+const searchInput = document.getElementById('search');
+const statusChecks = document.querySelectorAll('input[name="statut[]"]');
+const categorieSelect = document.getElementById('categorie');
+const perPageSelect = document.getElementById('perPage');
+const filtersForm = document.querySelector('.filters-form');
+
+searchInput?.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => filtersForm.submit(), 420);
+});
+statusChecks.forEach(el => el.addEventListener('change', () => filtersForm.submit()));
+categorieSelect?.addEventListener('change', () => filtersForm.submit());
+perPageSelect?.addEventListener('change', () => filtersForm.submit());
+
+document.querySelectorAll('tbody tr').forEach((tr, i) => {
+  tr.style.opacity = '0';
+  tr.style.transform = 'translateX(-6px)';
+  setTimeout(() => {
+    tr.style.transition = 'opacity .25s ease, transform .25s cubic-bezier(.22,1,.36,1)';
+    tr.style.opacity = '1';
+    tr.style.transform = 'none';
+  }, 60 + i * 35);
+});
+</script>
+{% endblock %}

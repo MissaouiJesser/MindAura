@@ -1,0 +1,684 @@
+{# templates/admin/utilisateurs/show.html.twig
+   Fiche détaillée d'un utilisateur — Back-office admin (lecture seule)
+   Design cohérent avec la palette MindAura (back-office)              #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Profil — {{ utilisateur.prenomUtilisateur }} {{ utilisateur.nomUtilisateur }}{% endblock %}
+{% block page_label %}Fiche utilisateur{% endblock %}
+
+{% block content %}
+
+{% set roleKey    = utilisateur.roleUtilisateur|replace({'ROLE_': ''}) %}
+{% set roleLabels = {
+  'PATIENT':     'Patient',
+  'PSYCHOLOGUE': 'Psychologue',
+  'COACH':       'Coach',
+  'ADMIN':       'Administrateur',
+  'USER':        'Utilisateur',
+} %}
+{% set avatarColors = {
+  'PATIENT':     '#7B5EA7',
+  'PSYCHOLOGUE': '#00897B',
+  'COACH':       '#E65100',
+  'ADMIN':       '#1B4332',
+  'USER':        '#1565C0',
+} %}
+{% set avatarBg   = avatarColors[roleKey] ?? '#5A6475' %}
+{% set roleLabel  = roleLabels[roleKey]   ?? roleKey %}
+
+<style>
+  /* ══ Keyframes ══════════════════════════════════════════════════════ */
+  @keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+  @keyframes shimmer { 0%,100%{opacity:.55} 50%{opacity:1} }
+  @keyframes pulse   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+
+  /* ══ Hero banner ════════════════════════════════════════════════════ */
+  .profile-hero {
+    position:relative;
+    background:linear-gradient(135deg, #1B4332 0%, #2D6A4F 55%, #7B5EA7 100%);
+    border-radius:20px; padding:0; margin-bottom:20px;
+    overflow:hidden;
+    box-shadow:0 8px 32px rgba(27,67,50,.22);
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .profile-hero::before {
+    content:''; position:absolute; width:340px; height:340px; border-radius:50%;
+    background:rgba(255,255,255,.055); top:-100px; right:-80px; pointer-events:none;
+  }
+  .profile-hero::after {
+    content:''; position:absolute; width:160px; height:160px; border-radius:50%;
+    background:rgba(255,255,255,.04); bottom:-50px; right:280px; pointer-events:none;
+  }
+  .hero-dots { position:absolute; top:16px; left:30px; display:flex; gap:6px; z-index:2; }
+  .hero-dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.32); animation:shimmer 2s ease-in-out infinite; }
+  .hero-dots span:nth-child(2){animation-delay:.3s} .hero-dots span:nth-child(3){animation-delay:.6s}
+
+  /* Barre d'actions en haut du hero */
+  .hero-topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px 0; position:relative; z-index:2;
+  }
+  .btn-back {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:8px 16px; border-radius:10px;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+    color:rgba(255,255,255,.85); font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:600;
+    text-decoration:none; transition:all .2s; backdrop-filter:blur(4px);
+  }
+  .btn-back svg { width:14px; height:14px; }
+  .btn-back:hover { background:rgba(255,255,255,.2); color:#fff; }
+
+  .hero-actions { display:flex; gap:10px; }
+  .hero-btn {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:8px 16px; border-radius:10px; font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:600;
+    text-decoration:none; cursor:pointer; transition:all .2s; border:none;
+  }
+  .hero-btn svg { width:14px; height:14px; }
+  .hero-btn.edit    { background:#fff; color:var(--green); }
+  .hero-btn.edit:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,.18); }
+  .hero-btn.toggle-deactivate {
+    background:rgba(251,191,36,.18); border:1px solid rgba(251,191,36,.35);
+    color:#FDE68A;
+  }
+  .hero-btn.toggle-deactivate:hover { background:rgba(251,191,36,.28); }
+  .hero-btn.toggle-activate {
+    background:rgba(52,211,153,.18); border:1px solid rgba(52,211,153,.35);
+    color:#6EE7B7;
+  }
+  .hero-btn.toggle-activate:hover { background:rgba(52,211,153,.28); }
+
+  /* Corps du hero */
+  .hero-body {
+    display:flex; align-items:flex-end; gap:24px;
+    padding:22px 28px 28px; position:relative; z-index:2;
+  }
+  .profile-avatar-wrap { position:relative; flex-shrink:0; }
+  .profile-avatar {
+    width:88px; height:88px; border-radius:22px;
+    display:grid; place-items:center;
+    font-size:2rem; font-weight:800; color:#fff;
+    border:3px solid rgba(255,255,255,.35);
+    box-shadow:0 8px 24px rgba(0,0,0,.22);
+    overflow:hidden;
+  }
+  .profile-avatar img { width:100%; height:100%; object-fit:cover; }
+  .avatar-status {
+    position:absolute; bottom:-3px; right:-3px;
+    width:20px; height:20px; border-radius:50%;
+    border:3px solid #1B4332;
+  }
+  .avatar-status.active   { background:#22C55E; }
+  .avatar-status.inactive { background:#EF4444; }
+
+  .hero-info { flex:1; }
+  .hero-name {
+    font-family:'Playfair Display', serif; font-size:1.75rem; font-weight:700;
+    color:#fff; margin-bottom:6px; line-height:1.2;
+  }
+  .hero-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .hero-chip {
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+    border-radius:99px; padding:4px 12px; font-size:.73rem; font-weight:600; color:rgba(255,255,255,.9);
+  }
+  .hero-chip svg { width:11px; height:11px; }
+  .hero-chip.active-chip   { background:rgba(34,197,94,.18); border-color:rgba(34,197,94,.35); color:#86EFAC; }
+  .hero-chip.inactive-chip { background:rgba(239,68,68,.18);  border-color:rgba(239,68,68,.35);  color:#FCA5A5; }
+
+  /* ══ Grille de cartes ════════════════════════════════════════════════ */
+  .profile-grid {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }
+
+  .info-card {
+    background:var(--white); border:1.5px solid var(--border); border-radius:18px;
+    padding:22px 24px; box-shadow:var(--shadow-card);
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .info-card:nth-child(1) { animation-delay:.06s; }
+  .info-card:nth-child(2) { animation-delay:.10s; }
+  .info-card:nth-child(3) { animation-delay:.14s; }
+  .info-card:nth-child(4) { animation-delay:.18s; }
+
+  .card-header {
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:18px; padding-bottom:14px;
+    border-bottom:1.5px solid var(--border);
+  }
+  .card-icon {
+    width:36px; height:36px; border-radius:10px;
+    display:grid; place-items:center; flex-shrink:0;
+  }
+  .card-icon svg { width:17px; height:17px; }
+  .card-icon.green  { background:var(--green-pale); color:var(--green); }
+  .card-icon.violet { background:var(--violet-pale); color:var(--violet); }
+  .card-icon.teal   { background:#E0F2F1; color:#00897B; }
+  .card-icon.blue   { background:#E3F2FD; color:#1565C0; }
+
+  .card-title { font-size:.9rem; font-weight:800; color:var(--text); }
+  .card-subtitle { font-size:.72rem; color:var(--text-sec); margin-top:1px; }
+
+  /* Lignes d'info */
+  .info-row {
+    display:flex; align-items:flex-start; gap:12px;
+    padding:10px 0; border-bottom:1px solid #F0F2F6;
+  }
+  .info-row:last-child { border-bottom:none; padding-bottom:0; }
+  .info-icon {
+    width:30px; height:30px; border-radius:8px; background:var(--bg);
+    display:grid; place-items:center; flex-shrink:0; margin-top:1px;
+  }
+  .info-icon svg { width:13px; height:13px; color:var(--text-sec); }
+  .info-label { font-size:.71rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+  .info-value { font-size:.88rem; font-weight:500; color:var(--text); word-break:break-word; }
+  .info-value.mono { font-family:monospace; font-size:.84rem; letter-spacing:.3px; }
+
+  /* Badges inline */
+  .role-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:.75rem; font-weight:700; border-radius:99px; padding:4px 12px;
+  }
+  .role-badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+  .role-PATIENT     { background:#EDE9F6; color:#7B5EA7; } .role-PATIENT::before     { background:#7B5EA7; }
+  .role-PSYCHOLOGUE { background:#E0F2F1; color:#00897B; } .role-PSYCHOLOGUE::before { background:#00897B; }
+  .role-COACH       { background:#FFF3E0; color:#E65100; } .role-COACH::before       { background:#E65100; }
+  .role-ADMIN       { background:#D8F3DC; color:#1B4332; } .role-ADMIN::before       { background:#1B4332; }
+  .role-USER        { background:#E3F2FD; color:#1565C0; } .role-USER::before        { background:#1565C0; }
+
+  .status-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:.75rem; font-weight:700; border-radius:99px; padding:4px 12px;
+  }
+  .status-badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+  .status-active   { background:#D8F3DC; color:#1B4332; } .status-active::before   { background:#22C55E; }
+  .status-inactive { background:#FEE2E2; color:#991B1B; } .status-inactive::before { background:#EF4444; }
+
+  /* Bio */
+  .bio-text {
+    font-size:.87rem; color:var(--text-sec); line-height:1.7;
+    font-style:italic; padding:4px 0;
+  }
+  .bio-empty {
+    font-size:.84rem; color:var(--border); font-style:italic;
+    display:flex; align-items:center; gap:6px; padding:8px 0;
+  }
+
+  /* Carte pleine largeur */
+  .info-card.full { grid-column: 1 / -1; }
+
+  /* ══ Barre d'actions bas de page ════════════════════════════════════ */
+  .bottom-actions {
+    display:flex; align-items:center; gap:12px; justify-content:flex-end;
+    margin-top:16px; animation:fadeIn .4s .3s both;
+    flex-wrap:wrap;
+  }
+  .btn-action {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 22px; border-radius:12px; font-family:'Outfit',sans-serif;
+    font-size:.875rem; font-weight:700; text-decoration:none;
+    cursor:pointer; transition:all .2s; border:none;
+  }
+  .btn-action svg { width:15px; height:15px; }
+  .btn-action.secondary {
+    background:var(--white); color:var(--text-sec);
+    border:1.5px solid var(--border);
+  }
+  .btn-action.secondary:hover { border-color:var(--text-sec); color:var(--text); }
+  .btn-action.primary {
+    background:var(--green); color:#fff;
+    box-shadow:0 4px 14px rgba(27,67,50,.22);
+  }
+  .btn-action.primary:hover { background:var(--green-mid); transform:translateY(-1px); box-shadow:0 6px 20px rgba(27,67,50,.28); }
+  .btn-action.warning {
+    background:#FEF3C7; color:#92400E;
+    border:1.5px solid #FCD34D;
+  }
+  .btn-action.warning:hover { background:#FDE68A; }
+  .btn-action.success {
+    background:#D1FAE5; color:#065F46;
+    border:1.5px solid #6EE7B7;
+  }
+  .btn-action.success:hover { background:#A7F3D0; }
+  .btn-action.danger {
+    background:#FEF2F2; color:#991B1B;
+    border:1.5px solid #FCA5A5;
+  }
+  .btn-action.danger:hover { background:#FEE2E2; }
+
+  /* ══ Modale toggle statut ═══════════════════════════════════════════ */
+  @keyframes modalIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+  .modal-overlay {
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,.45); backdrop-filter:blur(4px);
+    display:none; align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; animation:fadeIn .18s ease both; }
+  .modal-box {
+    background:var(--white); border-radius:20px; padding:30px;
+    max-width:400px; width:90%; text-align:center;
+    box-shadow:0 24px 64px rgba(0,0,0,.24);
+    animation:modalIn .28s cubic-bezier(.22,1,.36,1) both;
+  }
+  .modal-icon { width:52px; height:52px; border-radius:14px; display:grid; place-items:center; margin:0 auto 14px; }
+  .modal-icon.warning { background:#FEF3C7; }
+  .modal-icon.warning svg { width:24px; height:24px; color:#D97706; }
+  .modal-icon.success { background:#D1FAE5; }
+  .modal-icon.success svg { width:24px; height:24px; color:#059669; }
+  .modal-title { font-size:1.05rem; font-weight:800; color:var(--text); margin-bottom:7px; }
+  .modal-sub   { font-size:.84rem; color:var(--text-sec); margin-bottom:22px; line-height:1.65; }
+  .modal-actions { display:flex; gap:10px; justify-content:center; }
+  .modal-cancel  { padding:10px 22px; border-radius:10px; border:1.5px solid var(--border); background:var(--white); font-family:'Outfit',sans-serif; font-size:.875rem; font-weight:600; cursor:pointer; color:var(--text-sec); transition:all .2s; }
+  .modal-cancel:hover  { border-color:var(--text-sec); }
+  .modal-confirm-toggle { padding:10px 22px; border-radius:10px; border:none; color:#fff; font-family:'Outfit',sans-serif; font-size:.875rem; font-weight:700; cursor:pointer; transition:background .2s; }
+  .modal-confirm-toggle.activate   { background:#059669; }
+  .modal-confirm-toggle.activate:hover { background:#047857; }
+  .modal-confirm-toggle.deactivate { background:#D97706; }
+  .modal-confirm-toggle.deactivate:hover { background:#B45309; }
+</style>
+
+{# ════════════════════════════════════════════════════════════════════════
+   HERO — BANNIÈRE PROFIL
+════════════════════════════════════════════════════════════════════════ #}
+<div class="profile-hero">
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+
+  {# Barre du haut : bouton retour + actions rapides #}
+  <div class="hero-topbar">
+    <a href="{{ path('app_admin_utilisateurs') }}" class="btn-back" data-spa>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 5l-5 5 5 5" stroke-linecap="round"/>
+      </svg>
+      Retour à la liste
+    </a>
+
+    <div class="hero-actions">
+      <a href="{{ path('app_admin_utilisateurs_edit', {id: utilisateur.idUtilisateur}) }}"
+         class="hero-btn edit" data-spa>
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M14.5 2.5a2.12 2.12 0 013 3L6 17H3v-3L14.5 2.5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Modifier
+      </a>
+
+      {% if utilisateur.estActifUtilisateur %}
+        <button type="button" class="hero-btn toggle-deactivate"
+                onclick="openToggleModal()">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M10 6v5M10 14v.5" stroke-linecap="round"/>
+            <circle cx="10" cy="10" r="7"/>
+          </svg>
+          Désactiver
+        </button>
+      {% else %}
+        <button type="button" class="hero-btn toggle-activate"
+                onclick="openToggleModal()">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="10" r="7"/>
+          </svg>
+          Activer
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Infos principales #}
+  <div class="hero-body">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar" style="background:{{ avatarBg }}">
+        {% if utilisateur.photoProfilUtilisateur != 'default.png' %}
+          <img src="{{ asset('avatars/' ~ utilisateur.photoProfilUtilisateur) }}"
+               alt="Photo de profil de {{ utilisateur.prenomUtilisateur }}"/>
+        {% else %}
+          {{ utilisateur.prenomUtilisateur|first|upper }}{{ utilisateur.nomUtilisateur|first|upper }}
+        {% endif %}
+      </div>
+      <span class="avatar-status {{ utilisateur.estActifUtilisateur ? 'active' : 'inactive' }}"></span>
+    </div>
+
+    <div class="hero-info">
+      <div class="hero-name">{{ utilisateur.prenomUtilisateur }} {{ utilisateur.nomUtilisateur }}</div>
+      <div class="hero-meta">
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 1l1.4 2.8 3.1.45-2.25 2.2.53 3.1L6 8.1 3.22 9.55l.53-3.1L1.5 4.25l3.1-.45z"/>
+          </svg>
+          {{ roleLabel }}
+        </span>
+        <span class="hero-chip {{ utilisateur.estActifUtilisateur ? 'active-chip' : 'inactive-chip' }}">
+          {% if utilisateur.estActifUtilisateur %}
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6l2.5 2.5L10 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Compte actif
+          {% else %}
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 2l8 8M10 2L2 10" stroke-linecap="round"/></svg>
+            Compte désactivé
+          {% endif %}
+        </span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="2" width="10" height="9" rx="1.5"/><path d="M4 1v2M8 1v2M1 5h10" stroke-linecap="round"/></svg>
+          Inscrit le {{ utilisateur.dateInscriptionUtilisateur|date('d/m/Y') }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════
+   GRILLE D'INFORMATIONS
+════════════════════════════════════════════════════════════════════════ #}
+<div class="profile-grid">
+
+  {# ── Carte 1 : Coordonnées ── #}
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon green">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="10" cy="7" r="4"/>
+          <path d="M3 19v-2a5 5 0 015-5h4a5 5 0 015 5v2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">Coordonnées</div>
+        <div class="card-subtitle">Informations de contact</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M3 5h14a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+          <path d="M2 6l8 6 8-6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Adresse e-mail</div>
+        <div class="info-value mono">{{ utilisateur.emailUtilisateur }}</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M3 5a2 2 0 012-2h1.5a1 1 0 011 .75l.75 3a1 1 0 01-.26.96l-1.1 1.1a10 10 0 004.29 4.29l1.1-1.1a1 1 0 01.96-.26l3 .75A1 1 0 0117 15.5V17a2 2 0 01-2 2C6.72 19 1 13.28 1 6a2 2 0 012-2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Téléphone</div>
+        <div class="info-value">{{ utilisateur.telephoneUtilisateur }}</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="2" y="3" width="16" height="15" rx="2"/>
+          <path d="M5 3V1M15 3V1M2 8h16" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Date de naissance</div>
+        <div class="info-value">
+          {% if utilisateur.dateNaissanceUtilisateur %}
+            {{ utilisateur.dateNaissanceUtilisateur|date('d/m/Y') }}
+            {# Calcul de l'âge #}
+            {% set age = "now"|date('Y') - utilisateur.dateNaissanceUtilisateur|date('Y') %}
+            {% if "now"|date('md') < utilisateur.dateNaissanceUtilisateur|date('md') %}
+              {% set age = age - 1 %}
+            {% endif %}
+            <span style="color:var(--text-sec);font-size:.78rem;margin-left:6px">({{ age }} ans)</span>
+          {% else %}
+            <span style="color:var(--border)">—</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Carte 2 : Compte & Rôle ── #}
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon violet">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M10 2l2 5h5l-4 3 1.5 5L10 12l-4.5 3L7 10 3 7h5z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">Compte &amp; Rôle</div>
+        <div class="card-subtitle">Paramètres d'accès</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M9 3a6 6 0 100 12A6 6 0 009 3zM15 15l3 3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Identifiant (ID)</div>
+        <div class="info-value mono">#{{ utilisateur.idUtilisateur }}</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="10" cy="8" r="3"/>
+          <path d="M4 18v-1a4 4 0 014-4h4a4 4 0 014 4v1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Rôle</div>
+        <div class="info-value">
+          <span class="role-badge role-{{ roleKey }}">{{ roleLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M12 2H6a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6l-4-4z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 2v4h4M8 13h4M8 10h4M8 7h2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Statut du compte</div>
+        <div class="info-value">
+          <span class="status-badge {{ utilisateur.estActifUtilisateur ? 'status-active' : 'status-inactive' }}">
+            {{ utilisateur.estActifUtilisateur ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="2" y="3" width="16" height="15" rx="2"/>
+          <path d="M5 3V1M15 3V1M2 8h16M7 12h6M7 15h4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="info-label">Date d'inscription</div>
+        <div class="info-value">{{ utilisateur.dateInscriptionUtilisateur|date('d MMMM Y')|default(utilisateur.dateInscriptionUtilisateur|date('d/m/Y')) }}</div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Carte 3 : Photo de profil ── #}
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon teal">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="2" y="4" width="16" height="13" rx="2"/>
+          <circle cx="10" cy="10" r="3"/>
+          <path d="M7 4V2M13 4V2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">Photo de profil</div>
+        <div class="card-subtitle">Avatar associé au compte</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:20px;padding:6px 0">
+      <div style="width:72px;height:72px;border-radius:16px;overflow:hidden;border:2px solid var(--border);flex-shrink:0;background:{{ avatarBg }};display:grid;place-items:center;font-size:1.6rem;font-weight:800;color:#fff;">
+        {% if utilisateur.photoProfilUtilisateur != 'default.png' %}
+          <img src="{{ asset('avatars/' ~ utilisateur.photoProfilUtilisateur) }}"
+               alt="Photo de profil"
+               style="width:100%;height:100%;object-fit:cover"/>
+        {% else %}
+          {{ utilisateur.prenomUtilisateur|first|upper }}{{ utilisateur.nomUtilisateur|first|upper }}
+        {% endif %}
+      </div>
+      <div>
+        <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:3px">
+          {% if utilisateur.photoProfilUtilisateur != 'default.png' %}
+            Photo personnalisée
+          {% else %}
+            Avatar par défaut
+          {% endif %}
+        </div>
+        <div style="font-size:.73rem;color:var(--text-sec);word-break:break-all">
+          {{ utilisateur.photoProfilUtilisateur }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Carte 4 : Bio ── #}
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon blue">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M4 5h12M4 9h12M4 13h8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">Biographie</div>
+        <div class="card-subtitle">Présentation personnelle</div>
+      </div>
+    </div>
+
+    {% if utilisateur.bioUtilisateur is not empty %}
+      <p class="bio-text">{{ utilisateur.bioUtilisateur }}</p>
+    {% else %}
+      <div class="bio-empty">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px">
+          <path d="M4 5h12M4 9h8M4 13h5" stroke-linecap="round"/>
+        </svg>
+        Aucune biographie renseignée.
+      </div>
+    {% endif %}
+  </div>
+
+</div>{# /profile-grid #}
+
+{# ════════════════════════════════════════════════════════════════════════
+   BARRE D'ACTIONS BAS DE PAGE
+════════════════════════════════════════════════════════════════════════ #}
+<div class="bottom-actions">
+  <a href="{{ path('app_admin_utilisateurs') }}" class="btn-action secondary" data-spa>
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M13 5l-5 5 5 5" stroke-linecap="round"/>
+    </svg>
+    Retour à la liste
+  </a>
+
+  {% if utilisateur.estActifUtilisateur %}
+    <button type="button" class="btn-action warning" onclick="openToggleModal()">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M10 6v5M10 14v.5" stroke-linecap="round"/>
+        <circle cx="10" cy="10" r="7"/>
+      </svg>
+      Désactiver le compte
+    </button>
+  {% else %}
+    <button type="button" class="btn-action success" onclick="openToggleModal()">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="10" cy="10" r="7"/>
+      </svg>
+      Activer le compte
+    </button>
+  {% endif %}
+
+  <a href="{{ path('app_admin_utilisateurs_edit', {id: utilisateur.idUtilisateur}) }}"
+     class="btn-action primary" data-spa>
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+      <path d="M14.5 2.5a2.12 2.12 0 013 3L6 17H3v-3L14.5 2.5z" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Modifier le profil
+  </a>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════
+   MODALE TOGGLE STATUT
+════════════════════════════════════════════════════════════════════════ #}
+<div class="modal-overlay" id="toggleModal">
+  <div class="modal-box">
+    <div class="modal-icon {{ utilisateur.estActifUtilisateur ? 'warning' : 'success' }}" id="toggleModalIcon">
+      {% if utilisateur.estActifUtilisateur %}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M10 6v5M10 14v.5" stroke-linecap="round"/>
+          <circle cx="10" cy="10" r="7"/>
+        </svg>
+      {% else %}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="10" r="7"/>
+        </svg>
+      {% endif %}
+    </div>
+    <div class="modal-title">
+      {{ utilisateur.estActifUtilisateur ? 'Désactiver le compte ?' : 'Activer le compte ?' }}
+    </div>
+    <div class="modal-sub">
+      {% if utilisateur.estActifUtilisateur %}
+        Le compte de <strong>{{ utilisateur.prenomUtilisateur }} {{ utilisateur.nomUtilisateur }}</strong>
+        sera suspendu. L'utilisateur ne pourra plus se connecter à la plateforme.
+      {% else %}
+        Le compte de <strong>{{ utilisateur.prenomUtilisateur }} {{ utilisateur.nomUtilisateur }}</strong>
+        sera réactivé et l'utilisateur pourra se connecter à nouveau.
+      {% endif %}
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" onclick="closeToggleModal()">Annuler</button>
+      <form method="POST"
+            action="{{ path('app_admin_utilisateurs_toggle', {id: utilisateur.idUtilisateur}) }}"
+            style="display:contents">
+        <input type="hidden" name="_token"
+               value="{{ csrf_token('toggle_user_' ~ utilisateur.idUtilisateur) }}"/>
+        <input type="hidden" name="_referer"
+               value="{{ path('app_admin_utilisateurs') }}"/>
+        <button type="submit"
+                class="modal-confirm-toggle {{ utilisateur.estActifUtilisateur ? 'deactivate' : 'activate' }}">
+          {{ utilisateur.estActifUtilisateur ? 'Désactiver' : 'Activer' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function openToggleModal()  { document.getElementById('toggleModal').classList.add('open'); }
+function closeToggleModal() { document.getElementById('toggleModal').classList.remove('open'); }
+
+document.getElementById('toggleModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeToggleModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeToggleModal();
+});
+</script>
+{% endblock %}

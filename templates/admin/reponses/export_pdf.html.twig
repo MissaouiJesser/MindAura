@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #1a1a2e; }
+    h1 { font-size: 14px; margin: 0 0 8px 0; }
+    .meta { font-size: 8px; color: #555; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; }
+    th { background: #f0f4f8; font-size: 8px; }
+    .num { width: 36px; }
+  </style>
+</head>
+<body>
+  <h1>Réponses utilisateurs (tests)</h1>
+  <div class="meta">
+    Export du {{ exportedAt|date('d/m/Y H:i') }}
+    {% if filters.q is defined and filters.q != '' %} — Recherche : {{ filters.q }}{% endif %}
+    {% if filters.testId is defined and filters.testId > 0 %} — Test #{{ filters.testId }}{% endif %}
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th class="num">ID</th>
+        <th>Utilisateur</th>
+        <th>Test</th>
+        <th>Question</th>
+        <th>Réponse</th>
+        <th>Score</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reponses %}
+        <tr>
+          <td>{{ r.idReponseClient }}</td>
+          <td>{{ r.idUtilisateur ?? '—' }}</td>
+          <td>{{ r.testPsychologique ? r.testPsychologique.titreTest : '—' }}</td>
+          <td>{{ r.questionReponse ? r.questionReponse.texteQuestion : '—' }}</td>
+          <td>{{ r.reponseTexteLibre ?: (r.optionChoisie ?? '—') }}</td>
+          <td>{{ r.scoreObtenu ?? '—' }}</td>
+          <td>{{ r.dateReponse ? r.dateReponse|date('d/m/Y H:i') : '—' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7">Aucune réponse.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

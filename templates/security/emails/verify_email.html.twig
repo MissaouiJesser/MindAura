@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirmez votre adresse e-mail — MindAura</title>
+</head>
+<body style="margin:0;padding:0;background:#F0F4F8;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1A1A2E;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F0F4F8;padding:40px 16px;">
+    <tr>
+      <td align="center">
+
+        {# ── Carte principale ── #}
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(27,67,50,.12);">
+
+          {# ── Header vert ── #}
+          <tr>
+            <td style="background:linear-gradient(135deg,#1B4332,#2D6A4F);padding:36px 40px;text-align:center;">
+              <div style="font-size:2.5rem;margin-bottom:12px;">✉️</div>
+              <h1 style="margin:0;font-size:1.5rem;font-weight:700;color:#ffffff;letter-spacing:.3px;">
+                MindAura
+              </h1>
+              <p style="margin:8px 0 0;font-size:.88rem;color:rgba(255,255,255,.75);">
+                Psychologie &amp; Développement Personnel
+              </p>
+            </td>
+          </tr>
+
+          {# ── Corps ── #}
+          <tr>
+            <td style="padding:40px 44px 32px;">
+
+              <p style="margin:0 0 8px;font-size:1.05rem;font-weight:600;color:#1A1A2E;">
+                Bonjour {{ user.prenomUtilisateur }} 👋
+              </p>
+              <p style="margin:0 0 24px;font-size:.92rem;color:#5A6475;line-height:1.65;">
+                Merci de vous être inscrit(e) sur <strong style="color:#1B4332;">MindAura</strong>.
+                Pour finaliser votre compte, veuillez confirmer que vous êtes bien
+                le propriétaire de cette adresse e-mail en cliquant sur le bouton ci-dessous.
+              </p>
+
+              {# ── Bouton CTA ── #}
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 32px;">
+                    <a href="{{ verifyUrl }}"
+                       style="display:inline-block;padding:15px 40px;background:linear-gradient(135deg,#1B4332,#2D6A4F);color:#ffffff;text-decoration:none;border-radius:12px;font-size:.97rem;font-weight:700;letter-spacing:.4px;box-shadow:0 6px 20px rgba(27,67,50,.3);">
+                      ✅ &nbsp; Confirmer mon adresse e-mail
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              {# ── Info ── #}
+              <table width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#EBF7F0;border:1px solid #D8F3DC;border-left:4px solid #52B788;border-radius:12px;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:14px 18px;">
+                    <p style="margin:0;font-size:.83rem;color:#2D6A4F;line-height:1.55;">
+                      ⏱ &nbsp;<strong>Ce lien expire dans 24 heures.</strong>
+                      Si vous n'avez pas créé de compte sur MindAura, vous pouvez ignorer cet e-mail.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              {# ── Lien alternatif ── #}
+              <p style="margin:0 0 6px;font-size:.8rem;color:#5A6475;">
+                Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+              </p>
+              <p style="margin:0;word-break:break-all;">
+                <a href="{{ verifyUrl }}"
+                   style="font-size:.78rem;color:#2D6A4F;text-decoration:underline;">
+                  {{ verifyUrl }}
+                </a>
+              </p>
+
+            </td>
+          </tr>
+
+          {# ── Séparateur ── #}
+          <tr>
+            <td style="padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #D5DCE6;margin:0;"/>
+            </td>
+          </tr>
+
+          {# ── Footer ── #}
+          <tr>
+            <td style="padding:24px 44px 32px;text-align:center;">
+              <p style="margin:0 0 6px;font-size:.78rem;color:#5A6475;line-height:1.5;">
+                Cet e-mail vous a été envoyé car vous avez créé un compte MindAura.<br/>
+                Si ce n'est pas vous, aucune action n'est requise.
+              </p>
+              <p style="margin:12px 0 0;font-size:.78rem;color:#1B4332;font-weight:600;">
+                — L'équipe MindAura 🌿
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+        {# ── Note bas ── #}
+        <p style="margin:20px 0 0;font-size:.73rem;color:#9AA3B2;text-align:center;">
+          © {{ "now"|date("Y") }} MindAura · Cet e-mail est automatique, merci de ne pas y répondre.
+        </p>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

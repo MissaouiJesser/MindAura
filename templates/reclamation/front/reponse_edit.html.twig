@@ -1,0 +1,84 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Modifier la réponse{% endblock %}
+{% block page_title %}Modifier la réponse{% endblock %}
+
+{% block header_actions %}
+  <div class="page-head-actions">
+    <a href="{{ path('front_reclamation_show', {id: reclamation.id_reclamation}) }}" class="btn-secondary">← Retour à la discussion</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+{% include '_partials/front_translate_toolbar_styles.html.twig' %}
+<style>
+  .form-shell { max-width:560px; margin:0 auto; }
+  .form-card {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:28px;
+    box-shadow:var(--shadow-card);
+  }
+  .form-group label { display:block; font-weight:700; font-size:.88rem; color:var(--g1); margin-bottom:6px; }
+  .form-group textarea {
+    width:100%; min-height:140px; padding:14px; border:1.5px solid var(--border); border-radius:12px; font-family:'Outfit',sans-serif; font-size:.92rem;
+  }
+  .form-group textarea:focus { outline:none; border-color:var(--g3); box-shadow:0 0 0 3px rgba(82,183,136,.15); }
+  .hint { font-size:.82rem; color:var(--text-sec); margin-bottom:16px; }
+  .submit-row { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap; }
+
+  .btn-translate {
+    display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:8px;
+    background:var(--g2); color:#fff; border:none; font-size:.82rem; font-weight:600; cursor:pointer;
+    font-family:'Outfit',sans-serif; transition:background .2s, transform .15s;
+  }
+  .btn-translate:hover { background:var(--g1); transform:translateY(-1px); }
+  .btn-translate.loading { background:#94A3B8; cursor:not-allowed; transform:none; }
+  .visually-hidden-translate {
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+</style>
+
+<div class="form-shell">
+  <p class="hint">Réponse affichée au nom de <strong>{{ app.user.prenomUtilisateur }} {{ app.user.nomUtilisateur }}</strong>.</p>
+  <div class="form-card">
+    {{ form_start(form) }}
+      {% if not form.vars.valid %}
+        <div style="background:#FEE2E2;color:#B91C1C;padding:12px 14px;border-radius:12px;margin-bottom:14px;font-size:.86rem;">{{ form_errors(form) }}</div>
+      {% endif %}
+      <div class="form-group">
+        {{ form_label(form.contenu_reponse) }}
+        <div class="translate-toolbar front-translate-group" data-text-target="#front_reponse_edit_contenu" style="margin-bottom:10px;">
+          <label for="translate-reponse-edit-lang" class="visually-hidden-translate">Langue</label>
+          <select id="translate-reponse-edit-lang" class="translate-lang" aria-label="Langue de traduction">
+            {% include '_partials/translate_lang_options.html.twig' %}
+          </select>
+          <button type="button" class="btn-translate" title="Traduire le texte (remplace le contenu du champ)">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true">
+              <circle cx="10" cy="10" r="7"/>
+              <path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/>
+            </svg>
+            Traduire
+          </button>
+        </div>
+        {{ form_widget(form.contenu_reponse, { id: 'front_reponse_edit_contenu', attr: { class: 'form-control' } }) }}
+        {{ form_errors(form.contenu_reponse) }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date de la réponse</label>
+        <div style="padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text-sec);font-size:.88rem;">
+          {{ reponse.date_reponse|date('d/m/Y H:i:s') }} — non modifiable
+        </div>
+      </div>
+      <div class="submit-row">
+        <a href="{{ path('front_reclamation_show', {id: reclamation.id_reclamation}) }}" class="btn-secondary" style="text-decoration:none;">Annuler</a>
+        <button type="submit" class="btn-primary" style="border:none;cursor:pointer;">Enregistrer</button>
+      </div>
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% include '_partials/front_translate_controls_script.html.twig' %}
+{% endblock %}

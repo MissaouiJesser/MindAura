@@ -1,0 +1,43 @@
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header py-3">
+                <strong><i class="fas fa-tag me-2"></i>{{ title }}</strong>
+            </div>
+            <div class="card-body p-4">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                <div class="mb-3">
+                    {{ form_label(form.libelle, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.libelle) }}
+                    <div class="text-danger small mt-1">{{ form_errors(form.libelle) }}</div>
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.modalite, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.modalite) }}
+                    <div class="text-danger small mt-1">{{ form_errors(form.modalite) }}</div>
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.categorie, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.categorie) }}
+                    <div class="text-danger small mt-1">{{ form_errors(form.categorie) }}</div>
+                </div>
+                <div class="mb-3 form-check">
+                    {{ form_widget(form.estGratuit) }}
+                    {{ form_label(form.estGratuit, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ path('type_evenement_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                    {{ form_widget(form.save) }}
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

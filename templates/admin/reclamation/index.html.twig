@@ -1,0 +1,193 @@
+{# templates/admin/reclamation/index.html.twig
+   Liste des réclamations — Back-office
+   Design harmonisé avec admin/utilisateurs/ #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réclamations{% endblock %}
+{% block page_label %}Réclamations{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .stars-display { display:inline-flex; align-items:center; gap:2px; font-size:.95rem; color:#F59E0B; }
+  .stars-display .empty { color:#E2E8F0; }
+  .rate-info { font-size:.7rem; color:var(--text-sec); margin-top:2px; }
+  .truncate { max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+</style>
+
+{# ════ HERO ═══════════════════════════════════════════════════════════ #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">Gestion des Réclamations</div>
+      <div class="ds-hero-sub">
+        <span class="ds-hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5v3M6 8.5h.01" stroke-linecap="round"/></svg>
+          {{ reclamations|length }} réclamation{{ reclamations|length != 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto">
+      <a href="{{ path('reclamation_new') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+        </div>
+        Nouvelle réclamation
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ════ TABLEAU ═══════════════════════════════════════════════════════ #}
+<div class="ds-table-card">
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Catégorie</th>
+        <th>Sujet</th>
+        <th>Description</th>
+        <th>Date</th>
+        <th>Statut</th>
+        <th>Utilisateur</th>
+        <th>Note</th>
+        <th style="text-align:center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reclamation in reclamations %}
+        <tr>
+          <td><strong>#{{ reclamation.id_reclamation }}</strong></td>
+          <td>
+            {% if reclamation.categorie %}
+              <span class="ds-badge ds-badge-violet">{{ reclamation.categorie.nom_categorie }}</span>
+            {% else %}
+              <span class="ds-badge ds-badge-gray">N/A</span>
+            {% endif %}
+          </td>
+          <td><strong>{{ reclamation.sujet_reclamation }}</strong></td>
+          <td><div class="truncate" title="{{ reclamation.description_reclamation }}">{{ reclamation.description_reclamation }}</div></td>
+          <td style="font-size:.78rem;color:var(--text-sec)">
+            {{ reclamation.dateCreation_reclamation ? reclamation.dateCreation_reclamation|date('d/m/Y H:i') : '—' }}
+          </td>
+          <td>
+            {% set statut = reclamation.statut_reclamation|lower %}
+            {% if statut == 'nouvelle' or statut == 'nouveau' %}
+              <span class="ds-badge ds-badge-blue">{{ reclamation.statut_reclamation }}</span>
+            {% elseif statut == 'en cours' or statut == 'en_cours' %}
+              <span class="ds-badge ds-badge-yellow">{{ reclamation.statut_reclamation }}</span>
+            {% elseif statut == 'résolue' or statut == 'resolue' or statut == 'fermée' or statut == 'fermee' %}
+              <span class="ds-badge ds-badge-green">{{ reclamation.statut_reclamation }}</span>
+            {% elseif statut == 'rejetée' or statut == 'rejetee' %}
+              <span class="ds-badge ds-badge-red">{{ reclamation.statut_reclamation }}</span>
+            {% else %}
+              <span class="ds-badge ds-badge-gray">{{ reclamation.statut_reclamation }}</span>
+            {% endif %}
+          </td>
+          <td style="font-size:.82rem">{{ reclamation.id_utilisateur }}</td>
+          <td>
+            <div class="stars-display">
+              {% set note = reclamation.rate_Reclamation|default(0) %}
+              {% for i in 1..5 %}
+                {% if i <= note %}★{% else %}<span class="empty">★</span>{% endif %}
+              {% endfor %}
+            </div>
+            <div class="rate-info">{{ reclamation.rate_count|default(0) }} vote{{ reclamation.rate_count > 1 ? 's' : '' }}</div>
+          </td>
+          <td>
+            <div class="ds-actions">
+              <a href="{{ path('reclamation_show', {id: reclamation.id_reclamation}) }}" class="ds-action-btn view" title="Voir le détail">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M1 10s3-7 9-7 9 7 9 7-3 7-9 7-9-7-9-7z" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="10" cy="10" r="2.5"/>
+                </svg>
+              </a>
+              <a href="{{ path('reponse_new', {reclamation_id: reclamation.id_reclamation}) }}" class="ds-action-btn reply" title="Répondre">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 11 3 11 3 5"/>
+                  <path d="M3 11a8 8 0 1 0 13.5-5.5"/>
+                </svg>
+              </a>
+              <a href="{{ path('reclamation_edit', {id: reclamation.id_reclamation}) }}" class="ds-action-btn edit" title="Modifier">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13.5 3.5l3 3L8 15l-4 1 1-4z"/>
+                </svg>
+              </a>
+              <form action="{{ path('reclamation_delete', {id: reclamation.id_reclamation}) }}"
+                    method="post"
+                    style="display:inline;margin:0;padding:0;"
+                    onsubmit="return confirmDeleteReclamation(event, this);">
+                <button type="submit" class="ds-action-btn del" title="Supprimer">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 17 6"/>
+                    <path d="M8 6V3h4v3M6 6l1 11h6l1-11"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="9" style="padding:0;">
+            <div class="ds-empty">
+              <div class="ds-empty-icon">📋</div>
+              <div class="ds-empty-title">Aucune réclamation</div>
+              <div class="ds-empty-sub">Les réclamations apparaîtront ici dès qu'elles seront créées.</div>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{# ════ MODALE DE CONFIRMATION ═══════════════════════════════════════ #}
+<div class="ds-modal-overlay" id="deleteModal">
+  <div class="ds-modal-box">
+    <div class="ds-modal-icon danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+      </svg>
+    </div>
+    <div class="ds-modal-title">Supprimer cette réclamation ?</div>
+    <div class="ds-modal-sub">Cette action est irréversible. La réclamation et toutes ses réponses associées seront définitivement supprimées.</div>
+    <div class="ds-modal-actions">
+      <button type="button" class="ds-modal-cancel" id="cancelDeleteRec">Annuler</button>
+      <button type="button" class="ds-modal-confirm-del" id="confirmDeleteRec">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pendingDeleteForm = null;
+  function confirmDeleteReclamation(e, form) {
+    e.preventDefault();
+    pendingDeleteForm = form;
+    document.getElementById('deleteModal').classList.add('open');
+    return false;
+  }
+  document.getElementById('cancelDeleteRec').addEventListener('click', () => {
+    document.getElementById('deleteModal').classList.remove('open');
+    pendingDeleteForm = null;
+  });
+  document.getElementById('confirmDeleteRec').addEventListener('click', () => {
+    if (pendingDeleteForm) pendingDeleteForm.submit();
+  });
+  document.getElementById('deleteModal').addEventListener('click', e => {
+    if (e.target.id === 'deleteModal') {
+      document.getElementById('deleteModal').classList.remove('open');
+      pendingDeleteForm = null;
+    }
+  });
+</script>
+{% endblock %}

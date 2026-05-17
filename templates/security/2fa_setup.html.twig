@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindAura — Activation 2FA</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #1B4332;
+      --green-mid:    #2D6A4F;
+      --green-light:  #52B788;
+      --green-pale:   #D8F3DC;
+      --green-xpale:  #EBF7F0;
+      --violet:       #7B5EA7;
+      --violet-light: rgba(123,94,167,.12);
+      --bg:           #F0F4F8;
+      --white:        #FFFFFF;
+      --text:         #1A1A2E;
+      --text-sec:     #5A6475;
+      --border:       #D5DCE6;
+      --shadow:       0 32px 80px rgba(27,67,50,.18), 0 0 0 1px rgba(255,255,255,.7);
+      --radius:       24px;
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND ── */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      background: url("{{ asset('images/background.jpg') }}") center center / cover no-repeat;
+    }
+    .bg-canvas::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0,0,0,.38);
+    }
+
+    /* Floating particles */
+    .particle {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── WRAPPER ── */
+    .wrapper {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px 16px;
+    }
+
+    /* ── MAIN CARD ── */
+    .card {
+      width: 100%; max-width: 900px;
+      display: flex; border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: cardIn .75s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(40px) scale(.94); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── LEFT PANEL ── */
+    .panel-left {
+      flex: 0 0 280px;
+      background: linear-gradient(160deg, var(--green) 0%, var(--green-mid) 100%);
+      color: var(--white); padding: 44px 30px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .panel-left::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 220px; height: 220px; border-radius: 50%;
+      border: 44px solid rgba(255,255,255,.07);
+    }
+    .panel-left::after {
+      content: ''; position: absolute; bottom: -40px; left: -40px;
+      width: 170px; height: 170px; border-radius: 50%;
+      border: 28px solid rgba(255,255,255,.05);
+    }
+    .ring-mid {
+      position: absolute; top: 46%; right: -75px;
+      width: 170px; height: 170px; border-radius: 50%;
+      border: 22px solid rgba(255,255,255,.04);
+    }
+
+    /* Shield icon animation */
+    .shield-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      position: relative; z-index: 2;
+    }
+    .shield-icon {
+      width: 90px; height: 90px;
+      background: rgba(255,255,255,.13);
+      border: 2px solid rgba(255,255,255,.25);
+      border-radius: 28px;
+      display: grid; place-items: center;
+      animation: shieldPulse 3s ease-in-out infinite;
+      box-shadow: 0 0 40px rgba(82,183,136,.25);
+    }
+    @keyframes shieldPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(82,183,136,.2), 0 0 0 0 rgba(82,183,136,.1); }
+      50%       { box-shadow: 0 0 50px rgba(82,183,136,.4), 0 0 0 12px rgba(82,183,136,.0); }
+    }
+    .shield-icon svg { width: 44px; height: 44px; color: #fff; }
+
+    .brand { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .brand-logo {
+      width: 48px; height: 48px; object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.3));
+    }
+    .brand-name {
+      font-family: 'Playfair Display', serif; font-size: 1.35rem;
+      background: linear-gradient(135deg, #fff 25%, var(--green-pale));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .panel-content { position: relative; z-index: 2; }
+    .panel-title {
+      font-family: 'Playfair Display', serif; font-size: 1.5rem;
+      line-height: 1.25; margin-bottom: 12px;
+    }
+    .panel-desc { font-size: .84rem; opacity: .72; line-height: 1.65; }
+
+    /* Steps indicator */
+    .steps { position: relative; z-index: 2; }
+    .step-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.3);
+      display: grid; place-items: center;
+      font-size: .72rem; font-weight: 800; flex-shrink: 0;
+      transition: all .3s;
+    }
+    .step-num.done { background: var(--green-light); border-color: var(--green-light); }
+    .step-num.active {
+      background: rgba(255,255,255,.9); color: var(--green);
+      border-color: var(--white);
+      animation: stepPulse 2s ease-in-out infinite;
+    }
+    @keyframes stepPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.4); }
+      50%       { box-shadow: 0 0 0 6px rgba(255,255,255,.0); }
+    }
+    .step-text { font-size: .79rem; line-height: 1.4; }
+    .step-text strong { display: block; font-weight: 700; }
+    .step-text span { opacity: .65; font-size: .73rem; }
+
+    /* ── RIGHT PANEL ── */
+    .panel-right {
+      flex: 1; background: var(--white);
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .panel-right::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green), var(--green-light), var(--violet));
+      z-index: 10;
+    }
+
+    /* Decorative corner shapes */
+    .deco-circle {
+      position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    .deco-1 {
+      top: -60px; right: -60px; width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(27,67,50,.05) 0%, transparent 70%);
+    }
+    .deco-2 {
+      bottom: -40px; left: -40px; width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(123,94,167,.06) 0%, transparent 70%);
+    }
+
+    .form-wrap {
+      flex: 1; padding: 36px 44px;
+      display: flex; flex-direction: column; gap: 24px;
+      overflow-y: auto;
+      position: relative; z-index: 1;
+    }
+
+    /* ── HEADER ── */
+    .form-header { }
+    .form-title {
+      font-family: 'Playfair Display', serif; font-size: 1.7rem;
+      color: var(--text); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .title-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--violet-light); color: var(--violet);
+      font-family: 'Outfit', sans-serif; font-size: .65rem;
+      font-weight: 800; border-radius: 99px; padding: 3px 10px;
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    .form-sub { font-size: .86rem; color: var(--text-sec); line-height: 1.6; }
+    .form-sub strong { color: var(--green); }
+
+    /* ── USER GREETING ── */
+    .user-greeting {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--green-xpale); border: 1px solid var(--green-pale);
+      border-radius: 14px; padding: 12px 16px;
+      animation: cardIn .5s .2s cubic-bezier(.22,1,.36,1) both;
+    }
+    .user-avatar {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--green), var(--green-mid));
+      display: grid; place-items: center; flex-shrink: 0;
+      font-weight: 800; font-size: 1rem; color: #fff;
+    }
+    .user-info { font-size: .84rem; }
+    .user-info strong { display: block; color: var(--text); font-weight: 700; }
+    .user-info span { color: var(--text-sec); font-size: .78rem; }
+
+    /* ── QR SECTION ── */
+    .qr-section {
+      display: flex; gap: 24px; align-items: flex-start;
+      background: var(--bg); border-radius: 18px; padding: 22px;
+      border: 1px solid var(--border);
+      animation: cardIn .5s .1s cubic-bezier(.22,1,.36,1) both;
+    }
+    .qr-wrapper {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .qr-frame {
+      width: 168px; height: 168px; border-radius: 16px;
+      background: var(--white); padding: 10px;
+      box-shadow: 0 8px 32px rgba(27,67,50,.12), 0 0 0 3px var(--green-pale);
+      position: relative; overflow: hidden;
+      animation: qrGlow 3s ease-in-out infinite;
+    }
+    @keyframes qrGlow {
+      0%, 100% { box-shadow: 0 8px 32px rgba(27,67,50,.12), 0 0 0 3px var(--green-pale); }
+      50%       { box-shadow: 0 8px 32px rgba(27,67,50,.22), 0 0 0 5px rgba(82,183,136,.4); }
+    }
+    .qr-frame img { width: 100%; height: 100%; display: block; border-radius: 8px; }
+    .qr-scan-line {
+      position: absolute; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green-light), transparent);
+      animation: scanLine 2.5s ease-in-out infinite;
+      top: 0;
+    }
+    @keyframes scanLine {
+      0%   { top: 8px; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { top: calc(100% - 8px); opacity: 0; }
+    }
+    .qr-label {
+      font-size: .7rem; color: var(--text-sec); text-align: center;
+      font-weight: 600; letter-spacing: .3px;
+    }
+
+    .qr-info { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .qr-steps-title {
+      font-size: .8rem; font-weight: 800; color: var(--text);
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    .qr-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: .83rem; color: var(--text-sec); line-height: 1.5;
+    }
+    .qr-step-n {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      display: grid; place-items: center;
+      font-size: .65rem; font-weight: 800; flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .qr-step strong { color: var(--text); }
+
+    /* Secret fallback */
+    .secret-toggle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .76rem; color: var(--text-sec); cursor: pointer;
+      font-weight: 600; transition: color .2s;
+      margin-top: 4px;
+    }
+    .secret-toggle:hover { color: var(--green); }
+    .secret-toggle svg { width: 13px; height: 13px; }
+    .secret-box {
+      display: none; margin-top: 8px;
+      background: var(--white); border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .secret-box.visible { display: block; }
+    .secret-code {
+      font-family: 'Courier New', monospace; font-size: .85rem;
+      color: var(--green); font-weight: 700; letter-spacing: 2px;
+      word-break: break-all;
+    }
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 6px; padding: 4px 10px;
+      background: var(--green-xpale); border: 1px solid var(--green-pale);
+      border-radius: 7px; color: var(--green); font-size: .71rem;
+      font-weight: 700; cursor: pointer; transition: all .2s;
+    }
+    .copy-btn:hover { background: var(--green-pale); }
+    .copy-btn svg { width: 11px; height: 11px; }
+    .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+    /* ── VERIFY SECTION ── */
+    .verify-section {
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .verify-label {
+      font-size: .79rem; font-weight: 800; color: var(--text);
+      letter-spacing: .6px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .verify-label-badge {
+      background: var(--violet-light); color: var(--violet);
+      font-size: .62rem; padding: 2px 8px; border-radius: 99px;
+      font-weight: 700; letter-spacing: .4px;
+    }
+
+    /* OTP Input row */
+    .otp-row {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .otp-inputs {
+      display: flex; gap: 8px;
+    }
+    .otp-digit {
+      width: 52px; height: 60px;
+      border: 2px solid var(--border); border-radius: 13px;
+      background: var(--bg);
+      font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800;
+      color: var(--text); text-align: center;
+      transition: all .25s; outline: none;
+      caret-color: var(--green);
+    }
+    .otp-digit:focus {
+      border-color: var(--green-mid); background: var(--white);
+      box-shadow: 0 0 0 4px rgba(45,106,79,.14);
+      transform: translateY(-2px) scale(1.04);
+    }
+    .otp-digit.filled {
+      border-color: var(--green); background: var(--green-xpale);
+      color: var(--green);
+    }
+    .otp-digit.error {
+      border-color: #EF4444; background: #FEF2F2;
+      animation: shake .4s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+
+    /* Hidden real input for form submission */
+    #totp_code { display: none; }
+
+    /* ── ERROR ALERT ── */
+    .alert-error {
+      background: #FEF2F2; border: 1px solid #FCA5A5; border-left: 3px solid #EF4444;
+      border-radius: 12px; padding: 12px 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: .83rem; color: #991B1B;
+      animation: alertIn .35s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes alertIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: none; } }
+    .alert-error svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+      color: var(--white); border: none; border-radius: 14px;
+      font-family: 'Outfit', sans-serif; font-size: .95rem; font-weight: 800;
+      cursor: pointer; letter-spacing: .4px;
+      position: relative; overflow: hidden;
+      transition: transform .18s, box-shadow .25s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      transform: skewX(-20deg); transition: left .55s ease;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(27,67,50,.38); }
+    .btn-primary:hover::before { left: 140%; }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-arrow {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: rgba(255,255,255,.16); display: grid; place-items: center;
+      transition: transform .25s;
+    }
+    .btn-arrow svg { width: 14px; height: 14px; }
+    .btn-primary:hover .btn-arrow { transform: translateX(4px); }
+
+    /* Timer */
+    .code-timer {
+      font-size: .76rem; color: var(--text-sec); text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .timer-ring {
+      width: 26px; height: 26px; flex-shrink: 0;
+    }
+    .timer-ring circle {
+      fill: none; stroke: var(--border); stroke-width: 3;
+    }
+    .timer-ring .progress {
+      stroke: var(--green-light); stroke-linecap: round;
+      stroke-dasharray: 63; stroke-dashoffset: 0;
+      transform-origin: center; transform: rotate(-90deg);
+      transition: stroke-dashoffset 1s linear, stroke .5s;
+    }
+    .timer-num {
+      font-weight: 700; color: var(--green-mid);
+      min-width: 18px; text-align: center;
+    }
+    .timer-label { opacity: .7; }
+
+    /* Trust row */
+    .trust-row {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      padding-top: 4px;
+    }
+    .trust-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: .7rem; color: var(--text-sec);
+    }
+    .trust-badge svg { width: 12px; height: 12px; color: var(--green-light); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .panel-left { display: none; }
+      .card { max-width: 480px; border-radius: 18px; }
+      .form-wrap { padding: 24px 22px; }
+      .qr-section { flex-direction: column; align-items: center; }
+      .otp-digit { width: 44px; height: 54px; font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+
+<!-- Floating particles -->
+<script>
+  (function(){
+    const colors = ['rgba(82,183,136,.15)','rgba(27,67,50,.12)','rgba(123,94,167,.1)'];
+    for(let i=0;i<18;i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random()*6+3;
+      p.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${Math.random()*15+10}s;
+        animation-delay:${Math.random()*15}s;
+      `;
+      document.body.appendChild(p);
+    }
+  })();
+</script>
+
+<div class="wrapper">
+  <div class="card">
+
+    <!-- ══ LEFT PANEL ══ -->
+    <div class="panel-left">
+      <div class="ring-mid"></div>
+
+      <div class="brand">
+        <img src="{{ asset('images/logo.png') }}" class="brand-logo" alt="MindAura"
+             onerror="this.style.display='none'"/>
+        <span class="brand-name">MindAura</span>
+      </div>
+
+      <div class="panel-content">
+        <div class="shield-wrap">
+          <div class="shield-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <div class="panel-title" style="text-align:center;">
+            Sécurisez<br><em style="font-style:italic;opacity:.85;">votre compte</em>
+          </div>
+          <p class="panel-desc" style="text-align:center;">
+            L'authentification à deux facteurs ajoute une couche de protection essentielle.
+          </p>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num done">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M2 6l3 3 5-5"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            <strong>Compte créé</strong>
+            <span>Informations enregistrées</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num active">2</div>
+          <div class="step-text">
+            <strong>Scanner le QR code</strong>
+            <span>Dans Google Authenticator</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <strong>Entrer le code</strong>
+            <span>Valider l'activation</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-text">
+            <strong>Connexion sécurisée</strong>
+            <span>Votre compte est protégé</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RIGHT PANEL ══ -->
+    <div class="panel-right">
+      <div class="deco-circle deco-1"></div>
+      <div class="deco-circle deco-2"></div>
+
+      <div class="form-wrap">
+
+        <!-- Header -->
+        <div class="form-header">
+          <div class="form-title">
+            Activation 2FA
+            <span class="title-badge">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="10">
+                <path d="M6 11s5.5-2.75 5.5-6.875V1.375L6 0 .5 1.375V4.125C.5 8.25 6 11 6 11z"/>
+              </svg>
+              Sécurisé
+            </span>
+          </div>
+          <p class="form-sub">
+            Bienvenue sur <strong>MindAura</strong> ! Une dernière étape pour sécuriser votre compte.
+            Scannez le QR code avec votre application d'authentification.
+          </p>
+        </div>
+
+        <!-- User greeting -->
+        <div class="user-greeting">
+          <div class="user-avatar">
+            {{ user.prenomUtilisateur|slice(0,1)|upper }}{{ user.nomUtilisateur|slice(0,1)|upper }}
+          </div>
+          <div class="user-info">
+            <strong>{{ user.prenomUtilisateur }} {{ user.nomUtilisateur }}</strong>
+            <span>{{ user.emailUtilisateur }}</span>
+          </div>
+          <svg viewBox="0 0 20 20" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" style="width:18px;margin-left:auto;flex-shrink:0">
+            <path d="M10 19s9-4.5 9-11.25V2.25L10 0 1 2.25V7.75C1 14.5 10 19 10 19z"/>
+            <path d="M7 10l2 2 4-4"/>
+          </svg>
+        </div>
+
+        <!-- Error alert -->
+        {% if error %}
+        <div class="alert-error" id="errorAlert">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="10" cy="10" r="9"/>
+            <path d="M10 6v5M10 14h.01"/>
+          </svg>
+          <div>
+            <strong>Code incorrect</strong><br>
+            {{ error }}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- QR Section -->
+        <div class="qr-section">
+          <div class="qr-wrapper">
+            <div class="qr-frame">
+              <div class="qr-scan-line"></div>
+              <img src="{{ qrCodeUri }}" alt="QR Code 2FA" id="qrImg"
+                   onerror="this.parentElement.innerHTML='<div style=\'padding:8px;font-size:.7rem;color:var(--text-sec);text-align:center;line-height:1.4\'>Saisir le code manuellement ci-dessous</div>'"/>
+            </div>
+            <div class="qr-label">Scanner avec votre app 📱</div>
+          </div>
+
+          <div class="qr-info">
+            <p class="qr-steps-title">Comment faire ?</p>
+
+            <div class="qr-step">
+              <div class="qr-step-n">1</div>
+              <div>
+                Installez <strong>Google Authenticator</strong> ou <strong>Authy</strong> sur votre smartphone.
+              </div>
+            </div>
+            <div class="qr-step">
+              <div class="qr-step-n">2</div>
+              <div>
+                Appuyez sur <strong>«&nbsp;+&nbsp;»</strong> puis <strong>«&nbsp;Scanner un QR code&nbsp;»</strong>.
+              </div>
+            </div>
+            <div class="qr-step">
+              <div class="qr-step-n">3</div>
+              <div>
+                Pointez votre caméra vers le QR code à gauche. L'entrée <strong>MindAura</strong> apparaît.
+              </div>
+            </div>
+            <div class="qr-step">
+              <div class="qr-step-n">4</div>
+              <div>
+                Entrez le code à 6 chiffres affiché dans l'app ci-dessous.
+              </div>
+            </div>
+
+            <!-- Secret manual entry toggle -->
+            <div class="secret-toggle" onclick="toggleSecret()" id="secretToggleBtn">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="1" y="6" width="14" height="9" rx="2"/>
+                <path d="M4 6V4a4 4 0 018 0v2"/>
+                <circle cx="8" cy="11" r="1" fill="currentColor"/>
+              </svg>
+              Afficher le code secret (saisie manuelle)
+            </div>
+            <div class="secret-box" id="secretBox">
+              <div class="secret-code" id="secretCode">{{ secret }}</div>
+              <button type="button" class="copy-btn" id="copyBtn" onclick="copySecret()">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <rect x="5" y="5" width="10" height="10" rx="2"/>
+                  <path d="M11 5V3a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2h2"/>
+                </svg>
+                Copier
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verify Section -->
+        <form method="post" action="{{ path('app_2fa_setup') }}" id="verifyForm">
+          <div class="verify-section">
+            <div class="verify-label">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:14px">
+                <rect x="2" y="7" width="12" height="9" rx="2"/>
+                <path d="M5 7V5a3 3 0 016 0v2"/>
+              </svg>
+              Code de vérification
+              <span class="verify-label-badge">6 chiffres</span>
+            </div>
+
+            <!-- OTP visual inputs -->
+            <div class="otp-row">
+              <div class="otp-inputs">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d0" autocomplete="one-time-code"/>
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d1"/>
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d2"/>
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d3"/>
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d4"/>
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d5"/>
+              </div>
+            </div>
+
+            <!-- Hidden input for real form submission -->
+            <input type="hidden" name="totp_code" id="totp_code"/>
+
+            <!-- Timer -->
+            <div class="code-timer">
+              <svg class="timer-ring" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <circle class="progress" cx="12" cy="12" r="10" id="timerProgress"/>
+              </svg>
+              <span>Code valide encore <span class="timer-num" id="timerNum">30</span>s</span>
+              <span class="timer-label">— se renouvelle automatiquement</span>
+            </div>
+
+            <button type="submit" class="btn-primary" id="submitBtn">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px">
+                <path d="M2 8s1.5-5 6-5 6 5 6 5-1.5 5-6 5-6-5-6-5z"/>
+                <circle cx="8" cy="8" r="2"/>
+              </svg>
+              Vérifier & Activer la 2FA
+              <div class="btn-arrow">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M2 6h8M6 2l4 4-4 4"/>
+                </svg>
+              </div>
+            </button>
+
+            <div class="trust-row">
+              <div class="trust-badge">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <path d="M6 11s5.5-2.75 5.5-6.875V1.375L6 0 .5 1.375V4.125C.5 8.25 6 11 6 11z"/>
+                </svg>
+                Chiffrement TOTP
+              </div>
+              <div class="trust-badge">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="6" cy="6" r="5"/>
+                  <path d="M4 6l2 2 4-4"/>
+                </svg>
+                Standard RFC 6238
+              </div>
+              <div class="trust-badge">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <rect x="1" y="4" width="10" height="7" rx="2"/>
+                  <path d="M3 4V3a3 3 0 016 0v1"/>
+                </svg>
+                Hors-ligne
+              </div>
+            </div>
+          </div>
+        </form>
+
+      </div>{# /form-wrap #}
+    </div>{# /panel-right #}
+  </div>{# /card #}
+</div>{# /wrapper #}
+
+<script>
+// ── OTP DIGIT INPUTS ──────────────────────────────────────────────
+const digits = Array.from(document.querySelectorAll('.otp-digit'));
+const hiddenInput = document.getElementById('totp_code');
+
+digits.forEach((inp, idx) => {
+  inp.addEventListener('input', e => {
+    const val = e.target.value.replace(/\D/g, '').slice(-1);
+    e.target.value = val;
+    updateClasses(inp, val);
+    updateHidden();
+    if (val && idx < 5) digits[idx + 1].focus();
+  });
+
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !inp.value && idx > 0) {
+      digits[idx - 1].value = '';
+      updateClasses(digits[idx - 1], '');
+      digits[idx - 1].focus();
+      updateHidden();
+    }
+    if (e.key === 'ArrowLeft' && idx > 0) digits[idx - 1].focus();
+    if (e.key === 'ArrowRight' && idx < 5) digits[idx + 1].focus();
+  });
+
+  // Handle paste
+  inp.addEventListener('paste', e => {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    pasted.split('').forEach((ch, i) => {
+      if (i < 6) {
+        digits[i].value = ch;
+        updateClasses(digits[i], ch);
+      }
+    });
+    updateHidden();
+    const nextEmpty = digits.findIndex(d => !d.value);
+    (nextEmpty !== -1 ? digits[nextEmpty] : digits[5]).focus();
+  });
+});
+
+function updateClasses(inp, val) {
+  inp.classList.toggle('filled', val.length > 0);
+}
+
+function updateHidden() {
+  hiddenInput.value = digits.map(d => d.value).join('');
+}
+
+// Auto-focus first digit on load
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => digits[0].focus(), 400);
+});
+
+// If error → shake all digits
+{% if error %}
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    digits.forEach(d => { d.classList.add('error'); d.value = ''; });
+    updateHidden();
+    setTimeout(() => { digits.forEach(d => d.classList.remove('error')); }, 500);
+    digits[0].focus();
+  }, 200);
+});
+{% endif %}
+
+// Form submit
+document.getElementById('verifyForm').addEventListener('submit', e => {
+  updateHidden();
+  const code = hiddenInput.value;
+  if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+    e.preventDefault();
+    digits.forEach(d => d.classList.add('error'));
+    setTimeout(() => digits.forEach(d => d.classList.remove('error')), 500);
+    return;
+  }
+  // Loading state
+  const btn = document.getElementById('submitBtn');
+  btn.style.opacity = '0.75';
+  btn.style.pointerEvents = 'none';
+  btn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;animation:spin .7s linear infinite">
+      <circle cx="12" cy="12" r="10" stroke-dasharray="40" stroke-dashoffset="10"/>
+    </svg>
+    Vérification en cours…
+  `;
+  const style = document.createElement('style');
+  style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+});
+
+// ── TOTP TIMER ────────────────────────────────────────────────────
+const CIRCUMFERENCE = 63; // 2 * π * 10
+const timerNum      = document.getElementById('timerNum');
+const timerProgress = document.getElementById('timerProgress');
+
+function updateTimer() {
+  const now = Math.floor(Date.now() / 1000);
+  const rem  = 30 - (now % 30);
+  timerNum.textContent = rem;
+  const offset = CIRCUMFERENCE * (1 - rem / 30);
+  timerProgress.style.strokeDashoffset = offset;
+  // Color transition: green → orange near expiry
+  if (rem <= 5) {
+    timerProgress.style.stroke = '#EF4444';
+    timerNum.style.color = '#EF4444';
+  } else if (rem <= 10) {
+    timerProgress.style.stroke = '#F97316';
+    timerNum.style.color = '#F97316';
+  } else {
+    timerProgress.style.stroke = 'var(--green-light)';
+    timerNum.style.color = 'var(--green-mid)';
+  }
+}
+updateTimer();
+setInterval(updateTimer, 1000);
+
+// ── SECRET TOGGLE ─────────────────────────────────────────────────
+function toggleSecret() {
+  const box = document.getElementById('secretBox');
+  const btn = document.getElementById('secretToggleBtn');
+  const visible = box.classList.toggle('visible');
+  btn.innerHTML = visible
+    ? `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:13px"><path d="M1 8s1.5 5.5 7 5.5S15 8 15 8 13.5 2.5 8 2.5 1 8 1 8z"/><circle cx="8" cy="8" r="2.5"/><path d="M1 1l14 14" stroke-width="1.5"/></svg> Masquer le code secret`
+    : `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:13px"><rect x="1" y="6" width="14" height="9" rx="2"/><path d="M4 6V4a4 4 0 018 0v2"/><circle cx="8" cy="11" r="1" fill="currentColor"/></svg> Afficher le code secret (saisie manuelle)`;
+}
+
+function copySecret() {
+  const secret = document.getElementById('secretCode').textContent;
+  navigator.clipboard.writeText(secret).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:11px"><path d="M2 6l3 3 5-5"/></svg> Copié !`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:11px"><rect x="5" y="5" width="10" height="10" rx="2"/><path d="M11 5V3a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2h2"/></svg> Copier`;
+    }, 2500);
+  });
+}
+</script>
+
+</body>
+</html>

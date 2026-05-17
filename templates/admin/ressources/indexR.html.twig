@@ -1,0 +1,397 @@
+{# templates/admin/ressources/indexR.html.twig
+   Liste des ressources — Back-office (grille de cartes)
+   Design harmonisé avec admin/utilisateurs/ #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Ressources{% endblock %}
+{% block page_label %}Ressources{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .res-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
+    gap:18px; margin-top:8px;
+  }
+
+  .res-card {
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:18px; overflow:hidden;
+    box-shadow:var(--shadow-card);
+    transition:transform .25s, box-shadow .25s, border-color .25s;
+    display:flex; flex-direction:column;
+    animation:fadeUp .35s cubic-bezier(.22,1,.36,1) both;
+  }
+  .res-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 12px 32px rgba(27,67,50,.14);
+    border-color:var(--green-light);
+  }
+
+  .res-thumb {
+    position:relative; height:160px; overflow:hidden;
+    display:grid; place-items:center;
+  }
+  .res-thumb img { width:100%; height:100%; object-fit:cover; }
+  .res-thumb-placeholder { font-size:3rem; opacity:.55; }
+  .thumb-article { background:linear-gradient(135deg, #DBEAFE, #93C5FD); }
+  .thumb-video   { background:linear-gradient(135deg, #FCE7F3, #F9A8D4); }
+  .thumb-podcast { background:linear-gradient(135deg, #FEF3C7, #FDE68A); }
+  .thumb-pdf     { background:linear-gradient(135deg, #FEE2E2, #FCA5A5); }
+  .thumb-default { background:linear-gradient(135deg, var(--green-pale), var(--violet-pale)); }
+  .thumb-overlay { position:absolute; inset:0; background:linear-gradient(180deg, transparent 60%, rgba(0,0,0,.32)); pointer-events:none; }
+  .res-card-badges {
+    position:absolute; top:10px; left:10px; right:10px;
+    display:flex; flex-wrap:wrap; gap:5px;
+  }
+  .badge-niveau { background:rgba(255,255,255,.95) !important; color:var(--text) !important; }
+  .badge-niveau::before { background:#64748B !important; }
+
+  .res-body { padding:16px 18px; flex:1; display:flex; flex-direction:column; gap:8px; }
+  .res-title { font-size:.97rem; font-weight:700; color:var(--text); line-height:1.35; }
+  .res-excerpt { font-size:.81rem; color:var(--text-sec); line-height:1.5; flex:1; }
+  .res-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .res-stat { font-size:.74rem; color:var(--text-sec); font-weight:500; display:inline-flex; align-items:center; gap:3px; }
+
+  .res-footer {
+    padding:12px 18px; border-top:1.5px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    background:var(--bg);
+  }
+  .res-footer-actions { display:flex; align-items:center; gap:5px; }
+  .res-btn-view {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:6px 12px; border-radius:8px;
+    background:var(--violet-pale); color:var(--violet);
+    text-decoration:none; font-size:.78rem; font-weight:700;
+    border:1.5px solid transparent; transition:all .2s;
+  }
+  .res-btn-view:hover { background:var(--violet); color:#fff; }
+  .res-btn-view svg { width:13px; height:13px; }
+
+  .filter-row { display:flex; gap:10px; flex-wrap:wrap; align-items:end; }
+  .filter-group { display:flex; flex-direction:column; gap:4px; min-width:130px; }
+  .filter-group-label { font-size:.7rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; }
+  .filter-search-large {
+    flex:1; min-width:240px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--bg); border:1.5px solid var(--border);
+    border-radius:10px; padding:9px 14px;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .filter-search-large:focus-within { border-color:var(--green-light); box-shadow:0 0 0 3px rgba(82,183,136,.1); }
+  .filter-search-large svg { width:14px; height:14px; color:var(--text-sec); flex-shrink:0; }
+  .filter-search-large input {
+    border:none; background:none; outline:none;
+    font-family:'Outfit',sans-serif; font-size:.85rem; color:var(--text); width:100%;
+  }
+  .btn-apply {
+    padding:9px 18px; border-radius:10px; background:var(--green);
+    color:#fff; border:none; font-family:'Outfit',sans-serif;
+    font-size:.84rem; font-weight:700; cursor:pointer;
+    transition:background .2s, transform .15s;
+  }
+  .btn-apply:hover { background:var(--green-mid); transform:translateY(-1px); }
+
+  .active-tags {
+    display:flex; flex-wrap:wrap; gap:6px; padding:12px 18px;
+    background:var(--bg); border-top:1.5px solid var(--border);
+  }
+  .active-tags-label {
+    font-size:.74rem; font-weight:700; color:var(--text-sec);
+    text-transform:uppercase; letter-spacing:.5px; margin-right:4px;
+  }
+  .active-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    background:var(--violet-pale); color:var(--violet);
+    font-size:.76rem; font-weight:600; padding:3px 10px;
+    border-radius:99px; text-decoration:none;
+    border:1.5px solid transparent; transition:all .2s;
+  }
+  .active-tag:hover { background:var(--violet); color:#fff; }
+
+  .pagination {
+    display:flex; justify-content:center; align-items:center; gap:6px;
+    margin-top:24px; padding:8px;
+  }
+  .pagination a,
+  .pagination span {
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:36px; height:36px; padding:0 10px;
+    border-radius:9px; border:1.5px solid var(--border);
+    background:var(--white); color:var(--text);
+    font-family:'Outfit',sans-serif; font-size:.83rem; font-weight:600;
+    text-decoration:none; transition:all .2s;
+  }
+  .pagination a:hover { border-color:var(--green-light); color:var(--green); }
+  .pagination .current { background:var(--green); color:#fff; border-color:var(--green); }
+  .pagination .disabled { color:var(--text-sec); opacity:.5; cursor:not-allowed; }
+  .pagination .ellipsis { border:none; }
+</style>
+
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">Toutes les Ressources</div>
+      <div class="ds-hero-sub">
+        Articles, vidéos, podcasts et documents PDF
+        <span class="ds-hero-chip">
+          {{ ressources|length }} résultat{{ ressources|length > 1 ? 's' : '' }}
+        </span>
+        {% if currentType %}
+          <span class="ds-hero-chip" style="background:rgba(255,255,255,.2)">📁 {{ currentType }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;flex-wrap:wrap">
+      <a href="{{ path('admin_ressources_new') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+        </div>
+        Nouvelle ressource
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="ds-filters-panel">
+  <form method="get" action="{{ path('admin_ressources_index') }}" id="filter-form">
+    <div class="ds-filters-top">
+      <div class="filter-row" style="flex:1;width:100%">
+        <div class="filter-search-large">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+          <input type="text" name="q" value="{{ currentQ }}" placeholder="Titre, résumé, mot-clé…" autocomplete="off">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-group-label" for="f-type">Type</label>
+          <select name="type" id="f-type" class="ds-filter-select">
+            <option value="">Tous</option>
+            {% for label, value in contenuChoices %}
+              <option value="{{ value }}" {{ currentType == value ? 'selected' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-group-label" for="f-niveau">Niveau</label>
+          <select name="niveau" id="f-niveau" class="ds-filter-select">
+            <option value="">Tous</option>
+            {% for label, value in niveauChoices %}
+              <option value="{{ value }}" {{ currentNiveau == value ? 'selected' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-group-label" for="f-categorie">Catégorie</label>
+          <select name="categorie" id="f-categorie" class="ds-filter-select">
+            <option value="">Toutes</option>
+            {% for label, value in categorieChoices %}
+              <option value="{{ value }}" {{ currentCategorie == value ? 'selected' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-group-label" for="f-sort">Trier par</label>
+          <select name="sort" id="f-sort" class="ds-filter-select">
+            <option value="date_desc"  {{ currentSort == 'date_desc'  ? 'selected' }}>📅 Plus récent</option>
+            <option value="date_asc"   {{ currentSort == 'date_asc'   ? 'selected' }}>📅 Plus ancien</option>
+            <option value="likes_desc" {{ currentSort == 'likes_desc' ? 'selected' }}>❤️ Les plus likés</option>
+            <option value="vues_desc"  {{ currentSort == 'vues_desc'  ? 'selected' }}>👁️ Les plus vus</option>
+          </select>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:end">
+          <button type="submit" class="btn-apply">Rechercher</button>
+          {% if currentQ or currentType or currentNiveau or currentCategorie %}
+            <a href="{{ path('admin_ressources_index') }}" class="ds-btn-reset">
+              <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l7 7M10 3l-7 7"/></svg>
+              Reset
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if currentQ or currentType or currentNiveau or currentCategorie %}
+      <div class="active-tags">
+        <span class="active-tags-label">Filtres actifs :</span>
+        {% if currentQ %}
+          <a href="{{ path('admin_ressources_index', {type: currentType, niveau: currentNiveau, categorie: currentCategorie, sort: currentSort}) }}" class="active-tag">
+            🔍 "{{ currentQ }}" ✕
+          </a>
+        {% endif %}
+        {% if currentType %}
+          <a href="{{ path('admin_ressources_index', {q: currentQ, niveau: currentNiveau, categorie: currentCategorie, sort: currentSort}) }}" class="active-tag">{{ currentType }} ✕</a>
+        {% endif %}
+        {% if currentNiveau %}
+          <a href="{{ path('admin_ressources_index', {q: currentQ, type: currentType, categorie: currentCategorie, sort: currentSort}) }}" class="active-tag">{{ currentNiveau }} ✕</a>
+        {% endif %}
+        {% if currentCategorie %}
+          <a href="{{ path('admin_ressources_index', {q: currentQ, type: currentType, niveau: currentNiveau, sort: currentSort}) }}" class="active-tag">{{ currentCategorie|replace({'_': ' '}) }} ✕</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </form>
+</div>
+
+{% if ressources is empty %}
+  <div class="ds-table-card">
+    <div class="ds-empty">
+      <div class="ds-empty-icon">📭</div>
+      <div class="ds-empty-title">Aucune ressource trouvée</div>
+      <div class="ds-empty-sub">Modifiez vos filtres ou créez une nouvelle ressource.</div>
+    </div>
+  </div>
+{% else %}
+  <div class="res-grid">
+    {% for r in ressources %}
+      {% set typeSlug = r.contenu|lower %}
+      {% set thumbCls = typeSlug == 'article' ? 'thumb-article' :
+                       (typeSlug == 'video'   ? 'thumb-video'   :
+                       (typeSlug == 'podcast' ? 'thumb-podcast' :
+                       (typeSlug == 'pdf'     ? 'thumb-pdf'     : 'thumb-default'))) %}
+      {% set badgeCls = typeSlug == 'article' ? 'ds-badge-blue' :
+                       (typeSlug == 'video'   ? 'ds-badge-violet' :
+                       (typeSlug == 'podcast' ? 'ds-badge-yellow' :
+                       (typeSlug == 'pdf'     ? 'ds-badge-red'    : 'ds-badge-gray'))) %}
+      {% set typeIcon = typeSlug == 'pdf'     ? '📄' :
+                       (typeSlug == 'video'   ? '🎬' :
+                       (typeSlug == 'podcast' ? '🎙️' :
+                       (typeSlug == 'article' ? '📰' : '📘'))) %}
+
+      <div class="res-card" style="animation-delay:.{{ loop.index0 * 3 }}s">
+
+        <div class="res-thumb {{ r.imageUrl ? '' : thumbCls }}">
+          {% if r.imageUrl %}
+            <img src="{{ r.imageUrl starts with '/uploads' ? asset(r.imageUrl) : r.imageUrl }}"
+                 alt="{{ r.titre }}" loading="lazy"
+                 onerror="this.style.display='none'; this.closest('.res-thumb').classList.add('{{ thumbCls }}'); document.getElementById('adm-ph-{{ r.id }}').style.display='block';">
+          {% endif %}
+          <div id="adm-ph-{{ r.id }}" class="res-thumb-placeholder" style="{{ r.imageUrl ? 'display:none;' : '' }}">{{ typeIcon }}</div>
+          <div class="thumb-overlay"></div>
+          <div class="res-card-badges">
+            <span class="ds-badge {{ badgeCls }}">{{ r.contenu }}</span>
+            {% if r.niveau %}
+              <span class="ds-badge badge-niveau">{{ r.niveau }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="res-body">
+          <div class="res-title">{{ r.titre }}</div>
+          <div class="res-excerpt">{{ r.resume|slice(0, 110) }}{% if r.resume|length > 110 %}…{% endif %}</div>
+          <div class="res-meta">
+            <span class="res-stat">❤️ {{ r.likes }}</span>
+            <span class="res-stat">👁️ {{ r.nbrVues }}</span>
+            {% if r.dureeLecture %}<span class="res-stat">⏱️ {{ r.dureeLecture }} min</span>{% endif %}
+            {% if r.categorie %}<span class="res-stat">🏷️ {{ r.categorie|replace({'_': ' '}) }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="res-footer">
+          <a href="{{ path('admin_ressources_show', {id: r.id}) }}" class="res-btn-view">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7s2-5 6-5 6 5 6 5-2 5-6 5-6-5-6-5z"/><circle cx="7" cy="7" r="2"/></svg>
+            Voir
+          </a>
+          <div class="res-footer-actions">
+            <a href="{{ path('admin_ressources_edit', {id: r.id}) }}" class="ds-action-btn edit" title="Modifier">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5l3 3L8 15l-4 1 1-4z"/></svg>
+            </a>
+            <form method="post"
+                  action="{{ path('admin_ressources_delete', {id: r.id}) }}"
+                  style="display:inline;margin:0"
+                  data-title="{{ r.titre|e('html_attr') }}"
+                  onsubmit="return confirmDeleteRes(event, this);">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ r.id) }}">
+              <button type="submit" class="ds-action-btn del" title="Supprimer">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 17 6"/><path d="M8 6V3h4v3M6 6l1 11h6l1-11"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if pagination is defined and pagination.nbPages > 1 %}
+    <div class="pagination">
+      {% if pagination.page > 1 %}
+        <a href="{{ path('admin_ressources_index', {page: pagination.page-1, q: currentQ, type: currentType, niveau: currentNiveau, categorie: currentCategorie, sort: currentSort}) }}">←</a>
+      {% else %}
+        <span class="disabled">←</span>
+      {% endif %}
+      {% for p in 1..pagination.nbPages %}
+        {% if p == pagination.page %}
+          <span class="current">{{ p }}</span>
+        {% elseif p == 1 or p == pagination.nbPages or (p >= pagination.page-2 and p <= pagination.page+2) %}
+          <a href="{{ path('admin_ressources_index', {page: p, q: currentQ, type: currentType, niveau: currentNiveau, categorie: currentCategorie, sort: currentSort}) }}">{{ p }}</a>
+        {% elseif p == 2 or p == pagination.nbPages-1 %}
+          <span class="ellipsis">…</span>
+        {% endif %}
+      {% endfor %}
+      {% if pagination.page < pagination.nbPages %}
+        <a href="{{ path('admin_ressources_index', {page: pagination.page+1, q: currentQ, type: currentType, niveau: currentNiveau, categorie: currentCategorie, sort: currentSort}) }}">→</a>
+      {% else %}
+        <span class="disabled">→</span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}
+
+<div class="ds-modal-overlay" id="deleteModalResR">
+  <div class="ds-modal-box">
+    <div class="ds-modal-icon danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+      </svg>
+    </div>
+    <div class="ds-modal-title">Supprimer cette ressource ?</div>
+    <div class="ds-modal-sub" id="deleteModalResRSub">Cette action est irréversible.</div>
+    <div class="ds-modal-actions">
+      <button type="button" class="ds-modal-cancel" id="cancelDeleteResR">Annuler</button>
+      <button type="button" class="ds-modal-confirm-del" id="confirmDeleteResR">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let pendingResR = null;
+function confirmDeleteRes(e, form) {
+  e.preventDefault();
+  pendingResR = form;
+  const t = form.dataset.title || 'cette ressource';
+  document.getElementById('deleteModalResRSub').textContent = '« ' + t + ' » sera définitivement supprimée.';
+  document.getElementById('deleteModalResR').classList.add('open');
+  return false;
+}
+document.getElementById('cancelDeleteResR').addEventListener('click', () => {
+  document.getElementById('deleteModalResR').classList.remove('open');
+  pendingResR = null;
+});
+document.getElementById('confirmDeleteResR').addEventListener('click', () => {
+  if (pendingResR) pendingResR.submit();
+});
+document.getElementById('deleteModalResR').addEventListener('click', e => {
+  if (e.target.id === 'deleteModalResR') {
+    document.getElementById('deleteModalResR').classList.remove('open');
+    pendingResR = null;
+  }
+});
+</script>
+{% endblock %}

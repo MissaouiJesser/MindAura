@@ -1,0 +1,332 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %}Commandes{% endblock %}
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Satoshi:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+.user-nav { display:none !important; }
+:root {
+  --g50:#f0fdf4;--g100:#dcfce7;--g500:#22c55e;--g600:#16a34a;
+  --g700:#15803d;--g800:#166534;
+  --ink:#0f172a;--muted:#64748b;--border:#e2e8f0;--bg:#f8fafc;
+}
+/* NAV */
+.nav { position:sticky;top:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid rgba(27,67,50,.09);padding:0 48px;display:flex;align-items:center;gap:20px;height:68px;transition:box-shadow .3s;font-family:'Satoshi',sans-serif; }
+.nav.scrolled { box-shadow:0 4px 24px rgba(27,67,50,.11); }
+.nav-brand { display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0; }
+.nav-brand-icon { width:42px;height:42px;border-radius:12px;background:var(--g800);display:grid;place-items:center;box-shadow:0 4px 14px rgba(27,67,50,.28);transition:transform .3s ease;overflow:hidden; }
+.nav-brand:hover .nav-brand-icon { transform:rotate(-6deg) scale(1.05); }
+.nav-brand-name { font-family:'Cabinet Grotesk',sans-serif;font-size:1.22rem;font-weight:900;color:var(--ink);line-height:1.1; }
+.nav-brand-sub  { font-size:.59rem;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600; }
+.nav-links { flex:1;display:flex;align-items:center;gap:2px;justify-content:center; }
+.nav-link { padding:7px 17px;border-radius:99px;font-size:.87rem;font-weight:500;color:#5A6475;text-decoration:none;transition:all .25s ease; }
+.nav-link:hover { background:var(--g50);color:var(--g800); }
+.nav-right { display:flex;align-items:center;gap:10px; }
+.nav-user-pill-wrapper { position:relative; }
+.nav-user-pill { display:flex;align-items:center;gap:9px;padding:5px 14px 5px 5px;border-radius:99px;background:var(--g50);border:1.5px solid rgba(27,67,50,.13);cursor:pointer;font-family:'Satoshi',sans-serif;transition:all .25s ease; }
+.nav-user-pill:hover,.nav-user-pill[aria-expanded="true"] { background:var(--g100);border-color:var(--g500);box-shadow:0 0 0 3px rgba(34,197,94,.12); }
+.nav-avatar { width:32px;height:32px;border-radius:50%;background:var(--g100);border:2px solid var(--g500);display:grid;place-items:center;font-size:.77rem;font-weight:700;color:var(--g800);overflow:hidden;flex-shrink:0; }
+.nav-avatar img { width:100%;height:100%;object-fit:cover; }
+.nav-user-name { font-size:.83rem;font-weight:600;color:var(--ink); }
+.nav-role-badge { font-size:.7rem;color:var(--muted);background:var(--g100);padding:2px 8px;border-radius:99px;font-weight:600; }
+.pill-chevron { width:14px;height:14px;stroke:var(--muted);transition:transform .3s ease;margin-left:2px;fill:none;stroke-width:2; }
+.nav-user-pill[aria-expanded="true"] .pill-chevron { transform:rotate(180deg); }
+.user-dropdown { position:absolute;top:calc(100% + 10px);right:0;width:270px;background:white;border:1.5px solid rgba(5,46,22,.1);border-radius:14px;box-shadow:0 20px 48px rgba(5,46,22,.14);z-index:1000;opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97);transform-origin:top right;transition:opacity .22s ease,transform .22s ease,visibility .22s;overflow:hidden; }
+.user-dropdown.open { opacity:1;visibility:visible;transform:translateY(0) scale(1); }
+.dropdown-header { display:flex;align-items:center;gap:12px;padding:16px 18px 14px;background:linear-gradient(135deg,var(--g50) 0%,rgba(255,255,255,0) 100%); }
+.dropdown-avatar { width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--g700),var(--g500));border:2.5px solid var(--g500);display:grid;place-items:center;font-size:.9rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0; }
+.dropdown-avatar img { width:100%;height:100%;object-fit:cover; }
+.dropdown-user-name { font-size:.9rem;font-weight:700;color:var(--ink);line-height:1.2; }
+.dropdown-user-email { font-size:.74rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px; }
+.dropdown-divider { height:1px;background:var(--g100);margin:4px 0; }
+.dropdown-item { display:flex;align-items:center;gap:12px;padding:11px 18px;text-decoration:none;color:var(--ink);transition:background .18s ease;cursor:pointer;border:none;width:100%;background:none;font-family:'Satoshi',sans-serif; }
+.dropdown-item:hover { background:var(--g50); }
+.dropdown-item-icon { width:36px;height:36px;border-radius:10px;flex-shrink:0;background:var(--g50);display:grid;place-items:center;transition:transform .2s ease; }
+.dropdown-item-icon svg { width:17px;height:17px;stroke:var(--g700);fill:none;stroke-width:1.8; }
+.dropdown-item:hover .dropdown-item-icon { transform:scale(1.08); }
+.dropdown-item-icon--violet { background:#ede9f6; }
+.dropdown-item-icon--violet svg { stroke:#7B5EA7; }
+.dropdown-item-icon--red { background:#FEF2F2; }
+.dropdown-item-icon--red svg { stroke:#DC2626; }
+.dropdown-item-text { flex:1;display:flex;flex-direction:column;gap:1px;text-align:left; }
+.dropdown-item-label { font-size:.87rem;font-weight:600; }
+.dropdown-item-sub { font-size:.73rem;color:var(--muted); }
+.dropdown-item-arrow { width:14px;height:14px;fill:none;stroke:var(--g100);stroke-width:2;transition:stroke .2s,transform .2s ease;flex-shrink:0; }
+.dropdown-item:hover .dropdown-item-arrow { stroke:var(--g500);transform:translateX(3px); }
+.dropdown-item--danger .dropdown-item-label { color:#DC2626; }
+.dropdown-item--danger:hover { background:#FEF2F2; }
+/* PAGE */
+body { font-family:'Satoshi',sans-serif;background:var(--bg);color:var(--ink); }
+.page-wrapper { max-width:960px;margin:48px auto;padding:0 24px 80px; }
+/* HERO violet */
+.page-hero { background:linear-gradient(135deg,#2d1b69 0%,#7B5EA7 50%,#a78bda 100%);border-radius:20px;padding:36px 40px;margin-bottom:36px;color:#fff;position:relative;overflow:hidden; }
+.page-hero::before { content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 90% 50%,rgba(255,255,255,.08),transparent);pointer-events:none; }
+.page-hero-label { display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:99px;padding:5px 14px;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px; }
+.page-hero h1 { font-family:'Cabinet Grotesk',sans-serif;font-size:1.9rem;font-weight:900;margin:0 0 8px;line-height:1.15; }
+.page-hero p  { font-size:.92rem;opacity:.8;margin:0; }
+.page-hero-actions { margin-top:22px;display:flex;gap:10px;flex-wrap:wrap; }
+.btn-hero-secondary { display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:99px;padding:9px 20px;font-size:.86rem;font-weight:600;text-decoration:none;transition:all .25s ease; }
+.btn-hero-secondary:hover { background:rgba(255,255,255,.28); }
+/* STATS */
+.stats-band { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:30px; }
+.stat-card { background:#fff;border-radius:14px;padding:18px 22px;border:1.5px solid var(--border);display:flex;align-items:center;gap:14px;box-shadow:0 1px 8px rgba(15,23,42,.04); }
+.stat-icon { width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.2rem;flex-shrink:0; }
+.stat-icon.violet { background:#ede9f6; }
+.stat-icon.green  { background:var(--g50); }
+.stat-icon.blue   { background:#eff6ff; }
+.stat-num { font-family:'Cabinet Grotesk',sans-serif;font-size:1.5rem;font-weight:900;color:var(--ink);line-height:1; }
+.stat-lbl { font-size:.73rem;color:var(--muted);margin-top:3px;font-weight:500; }
+/* COMMANDE CARD */
+.commande-card { background:#fff;border-radius:16px;border:1.5px solid var(--border);box-shadow:0 2px 16px rgba(15,23,42,.05);margin-bottom:20px;overflow:hidden; }
+.commande-header { display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px; }
+.commande-id { font-family:'Cabinet Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:var(--ink); }
+.commande-date { font-size:.78rem;color:var(--muted); }
+.commande-meta { display:flex;align-items:center;gap:14px;flex-wrap:wrap; }
+.commande-total { font-family:'Cabinet Grotesk',sans-serif;font-size:1.05rem;font-weight:900;color:var(--g800); }
+.badge { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;font-size:.73rem;font-weight:700; }
+.badge-paye       { background:#dcfce7;color:#15803d; }
+.badge-en_attente { background:#fef9c3;color:#a16207; }
+.badge-annule     { background:#fee2e2;color:#b91c1c; }
+/* ITEMS TABLE */
+.items-table { width:100%;border-collapse:collapse; }
+.items-table th { padding:10px 24px;text-align:left;font-size:.71rem;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted); }
+.items-table td { padding:14px 24px;font-size:.87rem;color:var(--ink);border-top:1px solid var(--border); }
+.item-img { width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--g50);flex-shrink:0; }
+.item-name { font-weight:700;color:var(--ink); }
+.item-price { color:var(--muted);font-size:.82rem; }
+.item-sous-total { font-weight:700;color:var(--g800); }
+/* EMPTY */
+.empty-state { text-align:center;padding:60px 24px; }
+.empty-icon { width:72px;height:72px;border-radius:50%;background:#ede9f6;display:grid;place-items:center;font-size:1.8rem;margin:0 auto 18px; }
+.empty-state h3 { font-family:'Cabinet Grotesk',sans-serif;font-size:1.1rem;font-weight:800;margin:0 0 8px;color:var(--ink); }
+.empty-state p { font-size:.88rem;color:var(--muted);margin:0 0 20px; }
+.btn-primary { display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#1B4332,#2D6A4F);color:#fff;border-radius:99px;padding:10px 22px;font-size:.88rem;font-weight:700;text-decoration:none;transition:all .25s ease; }
+.btn-primary:hover { transform:translateY(-2px);box-shadow:0 8px 20px rgba(27,67,50,.3); }
+.no-commandes-wrap { background:#fff;border-radius:16px;border:1.5px solid var(--border);box-shadow:0 2px 16px rgba(15,23,42,.05);overflow:hidden; }
+</style>
+{% endblock %}
+
+{% block body %}
+<nav class="nav" id="main-nav">
+  <a class="nav-brand" href="{{ path('app_home') ?? '/' }}">
+    <div class="nav-brand-icon">
+      <img src="{{ asset('images/logo.png') }}" alt="MindAura" style="width:28px;height:28px;object-fit:contain;border-radius:6px;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span style="display:none;color:white;font-size:1rem;font-weight:900;align-items:center;justify-content:center;">M</span>
+    </div>
+    <div>
+      <div class="nav-brand-name">MindAura</div>
+      <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="{{ path('evenement_liste') }}" class="nav-link">Événements &amp; Boutique</a>
+    <a href="{{ path('mon_espace_participations') }}" class="nav-link">Mes participations</a>
+    <a href="{{ path('mon_espace_commandes') }}" class="nav-link" style="color:var(--g800);background:var(--g50);">Mes commandes</a>
+  </div>
+  <div class="nav-right">
+    {% if app.user %}
+    {% set _u       = app.user %}
+    {% set _prenom  = _u.prenom  is defined ? _u.prenom  : '' %}
+    {% set _nom     = _u.nom     is defined ? _u.nom     : '' %}
+    {% set _photo   = _u.photo   is defined ? _u.photo   : '' %}
+    {% set _ident   = _u.userIdentifier %}
+    {% set _display = _prenom ? _prenom : (_ident|split('@')|first) %}
+    {% set _initial = _display|first|upper %}
+    <div class="nav-user-pill-wrapper">
+      <button class="nav-user-pill" id="userPillBtn" aria-expanded="false" aria-haspopup="true">
+        <div class="nav-avatar">
+          {% if _photo %}<img src="{{ asset('uploads/profils/' ~ _photo) }}" alt="">{% else %}{{ _initial }}{% endif %}
+        </div>
+        <span class="nav-user-name">{{ _display }}</span>
+        <span class="nav-role-badge">Utilisateur</span>
+        <svg class="pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">
+            {% if _photo %}<img src="{{ asset('uploads/profils/' ~ _photo) }}" alt="">{% else %}{{ _initial }}{% endif %}
+          </div>
+          <div>
+            <div class="dropdown-user-name">{{ (_prenom ~ ' ' ~ _nom)|trim ?: _display }}</div>
+            <div class="dropdown-user-email">{{ _ident }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ path('app_profil') }}" class="dropdown-item">
+          <div class="dropdown-item-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <div class="dropdown-item-text"><span class="dropdown-item-label">Mon profil</span><span class="dropdown-item-sub">Gérer mon compte</span></div>
+          <svg class="dropdown-item-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="{{ path('mon_espace_participations') }}" class="dropdown-item">
+          <div class="dropdown-item-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="dropdown-item-text"><span class="dropdown-item-label">Mes participations</span><span class="dropdown-item-sub">Événements inscrits</span></div>
+          <svg class="dropdown-item-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="{{ path('mon_espace_commandes') }}" class="dropdown-item">
+          <div class="dropdown-item-icon dropdown-item-icon--violet"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+          <div class="dropdown-item-text"><span class="dropdown-item-label">Mes commandes</span><span class="dropdown-item-sub">Produits achetés</span></div>
+          <svg class="dropdown-item-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger">
+          <div class="dropdown-item-icon dropdown-item-icon--red"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+          <div class="dropdown-item-text"><span class="dropdown-item-label">Se déconnecter</span></div>
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <a href="{{ path('app_login') }}" class="btn-primary" style="font-size:.84rem;padding:8px 16px;">Connexion</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <div class="page-hero">
+    <div class="page-hero-label"><i class="fas fa-shopping-bag"></i> Mon espace</div>
+    <h1>Mes Commandes</h1>
+    <p>Tous les produits achetés avec votre compte, avec le détail de chaque commande.</p>
+    <div class="page-hero-actions">
+      <a href="{{ path('evenement_liste') }}" class="btn-hero-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la boutique
+      </a>
+      <a href="{{ path('mon_espace_participations') }}" class="btn-hero-secondary">
+        <i class="fas fa-calendar-check"></i> Voir mes participations
+      </a>
+    </div>
+  </div>
+
+  {% set totalCmd  = commandes|length %}
+  {% set totalPaye = commandes|filter(c => c.statutPaiement == 'paye')|length %}
+  {% set montantTot = 0 %}
+  {% for c in commandes %}
+    {% if c.statutPaiement == 'paye' %}
+      {% set montantTot = montantTot + c.montantTotal %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="stats-band">
+    <div class="stat-card">
+      <div class="stat-icon violet"><i class="fas fa-shopping-bag" style="color:#7B5EA7"></i></div>
+      <div>
+        <div class="stat-num">{{ totalCmd }}</div>
+        <div class="stat-lbl">Commande(s) au total</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fas fa-check-circle" style="color:var(--g600)"></i></div>
+      <div>
+        <div class="stat-num">{{ totalPaye }}</div>
+        <div class="stat-lbl">Payée(s)</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="fas fa-euro-sign" style="color:#3b82f6"></i></div>
+      <div>
+        <div class="stat-num">{{ montantTot|number_format(2, '.', ' ') }} €</div>
+        <div class="stat-lbl">Total dépensé (payées)</div>
+      </div>
+    </div>
+  </div>
+
+  {% if commandes is empty %}
+  <div class="no-commandes-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
+      <h2 style="font-family:'Cabinet Grotesk',sans-serif;font-size:1.05rem;font-weight:800;margin:0;color:var(--ink);">
+        <i class="fas fa-list" style="margin-right:8px;color:#7B5EA7"></i>Mes commandes
+      </h2>
+      <span style="font-size:.82rem;color:var(--muted);">0 résultat</span>
+    </div>
+    <div class="empty-state">
+      <div class="empty-icon">🛍️</div>
+      <h3>Aucune commande trouvée</h3>
+      <p>Vous n'avez pas encore passé de commande. Découvrez nos produits bien-être !</p>
+      <a href="{{ path('evenement_liste') }}" class="btn-primary">
+        <i class="fas fa-store"></i> Découvrir la boutique
+      </a>
+    </div>
+  </div>
+  {% else %}
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <h2 style="font-family:'Cabinet Grotesk',sans-serif;font-size:1.05rem;font-weight:800;margin:0;color:var(--ink);">
+      <i class="fas fa-list" style="margin-right:8px;color:#7B5EA7"></i>{{ totalCmd }} commande{{ totalCmd > 1 ? 's' : '' }}
+    </h2>
+  </div>
+
+  {% for commande in commandes %}
+  <div class="commande-card">
+    <div class="commande-header">
+      <div>
+        <div class="commande-id">Commande #{{ commande.id }}</div>
+        <div class="commande-date"><i class="fas fa-clock" style="margin-right:4px"></i>{{ commande.dateCommande|date('d/m/Y à H:i') }}</div>
+      </div>
+      <div class="commande-meta">
+        <span class="badge badge-{{ commande.statutPaiement }}">
+          {% if commande.statutPaiement == 'paye' %}✅ Payée
+          {% elseif commande.statutPaiement == 'en_attente' %}⏳ En attente
+          {% elseif commande.statutPaiement == 'annule' %}❌ Annulée
+          {% else %}{{ commande.statutPaiement }}{% endif %}
+        </span>
+        <span class="commande-total">{{ commande.montantTotal|number_format(2, '.', ' ') }} €</span>
+      </div>
+    </div>
+    {% if commande.items is not empty %}
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Qté</th>
+          <th>Prix unitaire</th>
+          <th>Sous-total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in commande.items %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              {% if item.produit.image is defined and item.produit.image %}
+                <img src="{{ asset('uploads/produits/' ~ item.produit.image) }}" alt="{{ item.produit.nom }}" class="item-img" onerror="this.style.display='none'">
+              {% else %}
+                <div class="item-img" style="display:grid;place-items:center;font-size:1.2rem;">🛍️</div>
+              {% endif %}
+              <div>
+                <div class="item-name">{{ item.produit.nom ?? '—' }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-weight:700;">× {{ item.quantite }}</td>
+          <td class="item-price">{{ item.prixUnitaire|number_format(2, '.', ' ') }} €</td>
+          <td class="item-sous-total">{{ item.sousTotal|number_format(2, '.', ' ') }} €</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:18px 24px;font-size:.85rem;color:var(--muted);">Aucun article dans cette commande.</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+</div>
+
+<script>
+var nav = document.getElementById('main-nav');
+window.addEventListener('scroll', function() { nav.classList.toggle('scrolled', window.scrollY > 10); });
+(function() {
+  var btn  = document.getElementById('userPillBtn');
+  var drop = document.getElementById('userDropdown');
+  if (!btn || !drop) return;
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    drop.classList.toggle('open');
+    btn.setAttribute('aria-expanded', drop.classList.contains('open'));
+  });
+  document.addEventListener('click', function() { drop.classList.remove('open'); btn.setAttribute('aria-expanded','false'); });
+  document.addEventListener('keydown', function(e) { if (e.key==='Escape') drop.classList.remove('open'); });
+})();
+</script>
+{% endblock %}

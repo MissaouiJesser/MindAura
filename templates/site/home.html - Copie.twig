@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Accueil — MindAura</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --g1:          #1B4332;
+      --g2:          #2D6A4F;
+      --g3:          #52B788;
+      --g-pale:      #D8F3DC;
+      --g-hover:     #E8F5EE;
+      --violet:      #7B5EA7;
+      --vio-pale:    #EDE9F6;
+      --bg:          #F0F4F8;
+      --white:       #FFFFFF;
+      --text:        #1A1A2E;
+      --text-sec:    #5A6475;
+      --border:      #D5DCE6;
+      --radius-xl:   20px;
+      --radius-lg:   14px;
+      --radius-md:   10px;
+      --ease:        cubic-bezier(.22,1,.36,1);
+      --shadow-card: 0 2px 14px rgba(27,67,50,.07), 0 0 0 1px rgba(213,220,230,.5);
+      --shadow-hover:0 14px 38px rgba(27,67,50,.13);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ══════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════ */
+    .nav {
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(255,255,255,.93);
+      backdrop-filter: blur(18px) saturate(150%);
+      border-bottom: 1px solid rgba(27,67,50,.09);
+      padding: 0 48px;
+      display: flex; align-items: center; gap: 20px;
+      height: 68px;
+      transition: box-shadow .3s;
+    }
+    .nav.scrolled { box-shadow: 0 4px 24px rgba(27,67,50,.11); }
+
+    .nav-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; }
+    .nav-brand-icon {
+      width: 42px; height: 42px; border-radius: 12px; background: var(--g1);
+      display: grid; place-items: center;
+      box-shadow: 0 4px 14px rgba(27,67,50,.28);
+      transition: transform .3s var(--ease);
+    }
+    .nav-brand:hover .nav-brand-icon { transform: rotate(-6deg) scale(1.05); }
+    .nav-brand-icon svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 1.8; }
+    .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.22rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .nav-brand-sub  { font-size: .59rem; color: var(--text-sec); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
+
+    .nav-links { flex: 1; display: flex; align-items: center; gap: 2px; justify-content: center; }
+    .nav-link {
+      padding: 7px 17px; border-radius: 99px;
+      font-size: .87rem; font-weight: 500; color: var(--text-sec);
+      text-decoration: none; transition: all .25s var(--ease);
+    }
+    .nav-link:hover { background: var(--g-hover); color: var(--g1); }
+
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ── NAV USER PILL → DROPDOWN ── */
+
+    /* wrapper positionné */
+    .nav-user-pill-wrapper { position: relative; }
+
+    /* pill devient un bouton cliquable */
+    .nav-user-pill {
+      display: flex; align-items: center; gap: 9px;
+      padding: 5px 14px 5px 5px; border-radius: 99px;
+      background: var(--bg); border: 1.5px solid rgba(27,67,50,.13);
+      cursor: pointer; font-family: 'Outfit', sans-serif;
+      transition: all .25s var(--ease);
+    }
+    .nav-user-pill:hover,
+    .nav-user-pill[aria-expanded="true"] {
+      background: var(--g-hover);
+      border-color: var(--g3);
+      box-shadow: 0 0 0 3px rgba(82,183,136,.12);
+    }
+
+    .nav-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--g-pale); border: 2px solid var(--g3);
+      display: grid; place-items: center;
+      font-size: .77rem; font-weight: 700; color: var(--g1);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .nav-user-name { font-size: .83rem; font-weight: 600; color: var(--text); }
+    .nav-role-badge {
+      font-size: .7rem; color: var(--text-sec);
+      background: var(--g-pale); padding: 2px 8px; border-radius: 99px; font-weight: 600;
+    }
+
+    /* chevron animé */
+    .pill-chevron {
+      width: 14px; height: 14px; stroke: var(--text-sec);
+      transition: transform .3s var(--ease); margin-left: 2px;
+      fill: none; stroke-width: 2;
+    }
+    .nav-user-pill[aria-expanded="true"] .pill-chevron { transform: rotate(180deg); }
+
+    /* ── Dropdown panel ── */
+    .user-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      width: 290px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 48px rgba(27,67,50,.14), 0 4px 12px rgba(27,67,50,.07);
+      z-index: 1000;
+      opacity: 0; visibility: hidden;
+      transform: translateY(-8px) scale(.97);
+      transform-origin: top right;
+      transition: opacity .22s var(--ease), transform .22s var(--ease), visibility .22s;
+      overflow: hidden;
+    }
+    .user-dropdown.open {
+      opacity: 1; visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* header du dropdown */
+    .dropdown-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 18px 14px;
+      background: linear-gradient(135deg, var(--g-pale) 0%, rgba(255,255,255,0) 100%);
+    }
+    .dropdown-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--g2), var(--g3));
+      border: 2.5px solid var(--g3);
+      display: grid; place-items: center;
+      font-size: .9rem; font-weight: 700; color: #fff;
+      overflow: hidden; flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(27,67,50,.2);
+    }
+    .dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .dropdown-user-name  { font-size: .9rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .dropdown-user-email {
+      font-size: .74rem; color: var(--text-sec); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+    }
+
+    /* divider */
+    .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+    /* items */
+    .dropdown-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 18px; text-decoration: none; color: var(--text);
+      transition: background .18s var(--ease);
+    }
+    .dropdown-item:hover { background: var(--g-hover); }
+
+    /* icon circle */
+    .dropdown-item-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: var(--g-pale);
+      display: grid; place-items: center;
+      transition: transform .2s var(--ease);
+    }
+    .dropdown-item-icon svg { width: 17px; height: 17px; stroke: var(--g1); fill: none; stroke-width: 1.8; }
+    .dropdown-item:hover .dropdown-item-icon { transform: scale(1.08); }
+
+    .dropdown-item-icon--violet { background: var(--vio-pale); }
+    .dropdown-item-icon--violet svg { stroke: var(--violet); }
+    .dropdown-item-icon--red { background: #FEF2F2; }
+    .dropdown-item-icon--red svg { stroke: #DC2626; }
+
+    /* text */
+    .dropdown-item-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+    .dropdown-item-label { font-size: .87rem; font-weight: 600; }
+    .dropdown-item-sub   { font-size: .73rem; color: var(--text-sec); }
+
+    /* arrow */
+    .dropdown-item-arrow {
+      width: 14px; height: 14px; fill: none; stroke: var(--border); stroke-width: 2;
+      transition: stroke .2s, transform .2s var(--ease);
+    }
+    .dropdown-item:hover .dropdown-item-arrow { stroke: var(--g3); transform: translateX(3px); }
+
+    /* danger */
+    .dropdown-item--danger .dropdown-item-label { color: #DC2626; }
+    .dropdown-item--danger:hover { background: #FEF2F2; }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero {
+      position: relative; overflow: hidden;
+      background: linear-gradient(145deg, var(--g1) 0%, var(--g2) 55%, #1a5c3a 100%);
+      padding: 110px 48px 88px;
+      text-align: center;
+    }
+    .hero::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 55% at 50% 115%, rgba(82,183,136,.22) 0%, transparent 65%);
+    }
+
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(65px); opacity: .13; pointer-events: none;
+      animation: blobFloat 9s ease-in-out infinite;
+    }
+    .blob-1 { width: 420px; height: 420px; background: #52B788; top: -110px; left: -90px; }
+    .blob-2 { width: 310px; height: 310px; background: #7B5EA7; bottom: -90px; right: -60px; animation-delay: -3.5s; }
+    .blob-3 { width: 220px; height: 220px; background: #D8F3DC; top: 38%; left: 58%; animation-delay: -6s; }
+    @keyframes blobFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(22px,-18px) scale(1.06); }
+      66%      { transform: translate(-12px,12px) scale(.94); }
+    }
+
+    .hero-inner { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: rgba(255,255,255,.11); border: 1px solid rgba(255,255,255,.22);
+      border-radius: 99px; padding: 6px 18px;
+      font-size: .77rem; font-weight: 600; color: rgba(255,255,255,.9);
+      margin-bottom: 24px; backdrop-filter: blur(8px);
+      animation: fadeUp .6s var(--ease) .05s both;
+    }
+    .badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #52B788; box-shadow: 0 0 8px #52B788;
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5.2vw, 4.1rem);
+      color: #fff; line-height: 1.1; margin-bottom: 22px; letter-spacing: -.4px;
+      animation: fadeUp .65s var(--ease) .15s both;
+    }
+    .hero-title em { font-style: italic; color: #95D5B2; }
+
+    .hero-desc {
+      font-size: 1.05rem; color: rgba(255,255,255,.72); line-height: 1.78;
+      margin-bottom: 38px;
+      animation: fadeUp .65s var(--ease) .25s both;
+    }
+
+    .hero-actions {
+      display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
+      animation: fadeUp .65s var(--ease) .35s both;
+    }
+    .btn-white {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; color: var(--g1); border-radius: 99px;
+      padding: 13px 30px; font-family: 'Outfit', sans-serif;
+      font-size: .93rem; font-weight: 700; text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18); transition: all .28s var(--ease);
+    }
+    .btn-white:hover { transform: translateY(-3px); box-shadow: 0 9px 28px rgba(0,0,0,.22); background: var(--g-pale); }
+    .btn-glass {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.28);
+      color: #fff; border-radius: 99px;
+      padding: 12px 28px; font-family: 'Outfit', sans-serif;
+      font-size: .93rem; font-weight: 600; text-decoration: none;
+      backdrop-filter: blur(8px); transition: all .28s var(--ease);
+    }
+    .btn-glass:hover { background: rgba(255,255,255,.2); transform: translateY(-3px); }
+
+    .hero-stats {
+      display: flex; align-items: center; justify-content: center; gap: 44px;
+      margin-top: 60px; padding-top: 42px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      flex-wrap: wrap;
+      animation: fadeUp .65s var(--ease) .45s both;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-num { font-family: 'Playfair Display', serif; font-size: 2.1rem; font-weight: 700; color: #fff; line-height: 1; }
+    .hero-stat-lbl { font-size: .73rem; color: rgba(255,255,255,.58); font-weight: 500; margin-top: 5px; text-transform: uppercase; letter-spacing: .8px; }
+    .hero-stat-div { width: 1px; height: 44px; background: rgba(255,255,255,.15); }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:none} }
+
+    /* ══════════════════════════════════════
+       WAVE
+    ══════════════════════════════════════ */
+    .wave { display: block; overflow: hidden; line-height: 0; }
+    .wave svg { display: block; width: 100%; }
+
+    /* ══════════════════════════════════════
+       SECTIONS
+    ══════════════════════════════════════ */
+    .section      { padding: 92px 48px; }
+    .section-alt  { background: var(--white); }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+
+    .sec-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: .71rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--violet); background: var(--vio-pale); border-radius: 99px;
+      padding: 5px 14px; margin-bottom: 12px;
+    }
+    .sec-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.85rem, 3.5vw, 2.9rem);
+      color: var(--text); line-height: 1.18; margin-bottom: 14px; letter-spacing: -.3px;
+    }
+    .sec-title span { color: var(--g2); font-style: italic; }
+    .sec-desc { font-size: .96rem; color: var(--text-sec); line-height: 1.78; max-width: 540px; }
+
+    .sec-center { text-align: center; margin-bottom: 54px; }
+    .sec-center .sec-desc { margin: 0 auto; }
+
+    /* ══════════════════════════════════════
+       SERVICES
+    ══════════════════════════════════════ */
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+
+    .svc-card {
+      background: var(--white); border-radius: var(--radius-xl);
+      padding: 32px 28px; border: 1.5px solid transparent;
+      box-shadow: var(--shadow-card);
+      transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s;
+      position: relative; overflow: hidden;
+    }
+    .svc-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--g1), var(--g3));
+      transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease);
+    }
+    .svc-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); border-color: var(--g-pale); }
+    .svc-card:hover::after { transform: scaleX(1); }
+
+    .svc-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: grid; place-items: center; margin-bottom: 20px; font-size: 1.45rem;
+    }
+    .svc-icon.g  { background: var(--g-pale); }
+    .svc-icon.v  { background: var(--vio-pale); }
+    .svc-icon.t  { background: #E0F2F1; }
+    .svc-icon.o  { background: #FFF3E0; }
+
+    .svc-title { font-size: 1.04rem; font-weight: 700; color: var(--text); margin-bottom: 9px; }
+    .svc-desc  { font-size: .85rem; color: var(--text-sec); line-height: 1.67; }
+    .svc-tag {
+      display: inline-block; margin-top: 18px;
+      background: var(--g-hover); color: var(--g1);
+      border-radius: 99px; font-size: .71rem; font-weight: 700; padding: 4px 13px;
+    }
+
+    /* ══════════════════════════════════════
+       TEAM
+    ══════════════════════════════════════ */
+    /* ══ TEAM GRID - 3 colonnes ══ */
+    .grid-team {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    /* Carte équipe améliorée */
+    .team-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px 26px 28px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      border: 1.5px solid transparent;
+      position: relative;
+      overflow: hidden;
+      transition: transform .45s var(--ease), box-shadow .45s var(--ease), border-color .45s;
+    }
+
+    /* barre décorative en haut */
+    .team-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--g1), var(--g3), var(--violet));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .5s var(--ease);
+      border-radius: 4px 4px 0 0;
+    }
+
+    /* halo décoratif en fond */
+    .team-card::after {
+      content: '';
+      position: absolute; bottom: -60px; right: -60px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,.08) 0%, transparent 70%);
+      transition: transform .5s var(--ease), opacity .5s;
+      opacity: 0;
+    }
+
+    .team-card:hover {
+      transform: translateY(-10px) scale(1.01);
+      box-shadow: var(--shadow-hover), 0 0 0 1px rgba(82,183,136,.12);
+      border-color: var(--g-pale);
+    }
+    .team-card:hover::before { transform: scaleX(1); }
+    .team-card:hover::after  { opacity: 1; transform: scale(1.3); }
+
+    /* Avatar agrandi et animé */
+    .team-avatar {
+      width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 18px;
+      background: linear-gradient(135deg, var(--g2), var(--g3));
+      display: grid; place-items: center; font-size: 2rem;
+      border: 3px solid var(--g-pale);
+      box-shadow: 0 6px 22px rgba(27,67,50,.18);
+      position: relative;
+      overflow: hidden;
+      transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+    }
+    .team-avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 50%;
+      display: block;
+    }
+    .team-card:hover .team-avatar {
+      transform: scale(1.08) rotate(-3deg);
+      box-shadow: 0 10px 32px rgba(27,67,50,.28);
+    }
+    .team-avatar-dot {
+      position: absolute; bottom: 5px; right: 5px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #22C55E; border: 2.5px solid #fff;
+      box-shadow: 0 0 0 0 rgba(34,197,94,.4);
+      animation: pulseGreen 2.4s ease-in-out infinite;
+    }
+    @keyframes pulseGreen {
+      0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.4); }
+      50%      { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+    }
+
+    .team-name {
+      font-size: 1.04rem; font-weight: 700; color: var(--text);
+      margin-bottom: 5px;
+      transition: color .3s;
+    }
+    .team-card:hover .team-name { color: var(--g1); }
+
+    .team-role {
+      display: inline-block; font-size: .72rem; font-weight: 700;
+      padding: 4px 14px; border-radius: 99px;
+      background: var(--vio-pale); color: var(--violet); margin-bottom: 13px;
+      transition: background .3s, color .3s;
+    }
+    .team-card:hover .team-role { background: var(--g-pale); color: var(--g1); }
+
+    .team-bio {
+      font-size: .83rem; color: var(--text-sec); line-height: 1.68;
+      transition: color .3s;
+    }
+    .team-card:hover .team-bio { color: var(--text); }
+
+    /* Socials Instagram & Facebook */
+    .team-socials { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: grid; place-items: center;
+      border: 1.5px solid rgba(27,67,50,.1);
+      text-decoration: none;
+      transition: all .3s var(--ease);
+      position: relative; overflow: hidden;
+    }
+    .social-btn::before {
+      content: '';
+      position: absolute; inset: 0; opacity: 0;
+      transition: opacity .3s;
+      border-radius: inherit;
+    }
+    /* Instagram gradient */
+    .social-btn.instagram::before {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    }
+    /* Facebook blue */
+    .social-btn.facebook::before {
+      background: #1877f2;
+    }
+    .social-btn:hover::before { opacity: 1; }
+    .social-btn:hover { border-color: transparent; transform: translateY(-3px) scale(1.1); box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+    .social-btn svg {
+      width: 16px; height: 16px;
+      fill: none; stroke: var(--text-sec); stroke-width: 1.8;
+      transition: stroke .3s;
+      position: relative; z-index: 1;
+    }
+    .social-btn:hover svg { stroke: #fff; }
+
+    /* Stagger animation pour les cartes */
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(40px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ══════════════════════════════════════
+       FAQ
+    ══════════════════════════════════════ */
+    .faq-layout { display: grid; grid-template-columns: 1fr 1.65fr; gap: 64px; align-items: start; }
+
+    .faq-item {
+      background: var(--white); border-radius: var(--radius-lg);
+      border: 1.5px solid rgba(27,67,50,.08); margin-bottom: 10px;
+      overflow: hidden; transition: border-color .25s;
+    }
+    .faq-item:hover { border-color: var(--g3); }
+
+    .faq-q {
+      width: 100%; padding: 20px 24px; background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-family: 'Outfit', sans-serif; font-size: .92rem; font-weight: 600; color: var(--text);
+      text-align: left; transition: color .25s;
+    }
+    .faq-q:hover { color: var(--g1); }
+    .faq-icon {
+      width: 28px; height: 28px; border-radius: 8px; background: var(--bg);
+      display: grid; place-items: center; flex-shrink: 0; transition: all .3s var(--ease);
+    }
+    .faq-icon svg { width: 14px; height: 14px; stroke: var(--text-sec); fill: none; stroke-width: 2; transition: transform .35s var(--ease); }
+
+    .faq-body {
+      padding: 0 24px; max-height: 0; overflow: hidden;
+      font-size: .87rem; color: var(--text-sec); line-height: 1.72;
+      transition: max-height .42s var(--ease), padding .42s var(--ease);
+    }
+    .faq-item.open .faq-body    { max-height: 220px; padding-bottom: 22px; }
+    .faq-item.open .faq-icon    { background: var(--g-pale); }
+    .faq-item.open .faq-icon svg { stroke: var(--g1); transform: rotate(45deg); }
+    .faq-item.open .faq-q       { color: var(--g1); }
+
+    .btn-solid {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--g1); color: #fff; border-radius: 99px;
+      padding: 13px 28px; font-family: 'Outfit', sans-serif;
+      font-size: .92rem; font-weight: 700; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(27,67,50,.25); transition: all .28s var(--ease);
+    }
+    .btn-solid:hover { background: var(--g2); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(27,67,50,.3); }
+
+    /* ══════════════════════════════════════
+       MAP
+    ══════════════════════════════════════ */
+    .map-wrap {
+      border-radius: var(--radius-xl); overflow: hidden;
+      box-shadow: 0 8px 34px rgba(27,67,50,.11);
+      border: 1.5px solid rgba(27,67,50,.08);
+      height: 420px; position: relative;
+    }
+    .map-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+    .map-pin {
+      position: absolute; top: 18px; left: 18px;
+      background: rgba(255,255,255,.96); backdrop-filter: blur(10px);
+      border-radius: 13px; padding: 13px 18px;
+      box-shadow: 0 4px 18px rgba(27,67,50,.13);
+      border: 1px solid rgba(27,67,50,.08);
+    }
+    .map-pin-name { font-size: .9rem; font-weight: 700; color: var(--text); }
+    .map-pin-addr { font-size: .74rem; color: var(--text-sec); margin-top: 2px; }
+
+    /* ══════════════════════════════════════
+       CONTACT
+    ══════════════════════════════════════ */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
+
+    .contact-form {
+      background: var(--white); border-radius: var(--radius-xl);
+      padding: 38px; box-shadow: var(--shadow-card);
+    }
+    .contact-form-title {
+      font-family: 'Playfair Display', serif; font-size: 1.28rem;
+      color: var(--text); margin-bottom: 24px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 0; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: .81rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .form-control {
+      width: 100%; padding: 12px 16px; border-radius: var(--radius-md);
+      border: 1.5px solid rgba(27,67,50,.14); background: var(--bg);
+      font-family: 'Outfit', sans-serif; font-size: .9rem; color: var(--text);
+      outline: none; transition: border-color .25s, box-shadow .25s;
+    }
+    .form-control:focus { border-color: var(--g2); box-shadow: 0 0 0 3px rgba(45,106,79,.1); background: #fff; }
+    .form-control::placeholder { color: var(--text-sec); opacity: .7; }
+    textarea.form-control { resize: vertical; min-height: 120px; }
+
+    .btn-send {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px; border-radius: var(--radius-md);
+      background: var(--g1); color: #fff;
+      font-family: 'Outfit', sans-serif; font-size: .93rem; font-weight: 700;
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(27,67,50,.24);
+      transition: all .28s var(--ease);
+    }
+    .btn-send:hover { background: var(--g2); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(27,67,50,.3); }
+    .btn-send svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 1.9; }
+
+    .contact-info { display: flex; flex-direction: column; gap: 16px; }
+
+    .contact-item {
+      display: flex; align-items: flex-start; gap: 15px;
+      background: var(--white); border-radius: var(--radius-lg); padding: 18px 20px;
+      box-shadow: var(--shadow-card); border: 1.5px solid transparent;
+      transition: all .28s var(--ease);
+    }
+    .contact-item:hover { border-color: var(--g-pale); transform: translateX(5px); }
+    .contact-icon {
+      width: 44px; height: 44px; border-radius: 12px; background: var(--g-pale);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .contact-icon svg { width: 20px; height: 20px; stroke: var(--g1); fill: none; stroke-width: 1.8; }
+    .citem-title { font-size: .85rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .citem-val   { font-size: .82rem; color: var(--text-sec); line-height: 1.55; }
+
+    .contact-cta {
+      background: linear-gradient(135deg, var(--g1), var(--g2));
+      border-radius: var(--radius-lg); padding: 24px;
+    }
+    .ccta-title { font-size: .87rem; font-weight: 700; color: #fff; margin-bottom: 7px; }
+    .ccta-desc  { font-size: .81rem; color: rgba(255,255,255,.72); line-height: 1.62; margin-bottom: 16px; }
+    .btn-call {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+      color: #fff; border-radius: 99px; padding: 8px 18px;
+      font-size: .82rem; font-weight: 600; text-decoration: none;
+      transition: background .25s;
+    }
+    .btn-call:hover { background: rgba(255,255,255,.26); }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .footer { background: var(--g1); padding: 60px 48px 30px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 44px;
+      margin-bottom: 50px;
+    }
+    .footer-brand-name { font-family: 'Playfair Display', serif; font-size: 1.38rem; color: #fff; }
+    .footer-brand-sub  { font-size: .59rem; color: rgba(255,255,255,.45); letter-spacing: 1.1px; text-transform: uppercase; font-weight: 600; }
+    .footer-tagline    { font-size: .85rem; color: rgba(255,255,255,.52); line-height: 1.72; margin-top: 14px; max-width: 265px; }
+    .footer-socials { display: flex; gap: 9px; margin-top: 20px; }
+    .f-social {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      display: grid; place-items: center; text-decoration: none; transition: all .25s;
+    }
+    .f-social:hover { background: var(--g2); border-color: var(--g2); }
+    .f-social svg { width: 16px; height: 16px; stroke: rgba(255,255,255,.65); fill: none; stroke-width: 1.8; }
+
+    .footer-col-title {
+      font-size: .73rem; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: rgba(255,255,255,.9); margin-bottom: 16px;
+    }
+    .footer-link {
+      display: block; font-size: .84rem; color: rgba(255,255,255,.52);
+      text-decoration: none; padding: 4px 0; transition: color .22s;
+    }
+    .footer-link:hover { color: #fff; }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 26px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .footer-copy  { font-size: .78rem; color: rgba(255,255,255,.37); }
+    .footer-heart { font-size: .72rem; color: rgba(255,255,255,.37); }
+    .footer-heart span { color: #52B788; }
+
+    /* ══════════════════════════════════════
+       SCROLL REVEAL
+    ══════════════════════════════════════ */
+    .sr   { opacity: 0; transform: translateY(32px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    .sr-l { opacity: 0; transform: translateX(-32px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    .sr-r { opacity: 0; transform: translateX(32px);  transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    .sr.in, .sr-l.in, .sr-r.in { opacity: 1; transform: none; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+      background: var(--g1); color: #fff;
+      padding: 14px 22px; border-radius: 13px;
+      font-size: .88rem; font-weight: 600;
+      box-shadow: 0 8px 28px rgba(27,67,50,.32);
+      display: flex; align-items: center; gap: 10px;
+      transform: translateY(80px); opacity: 0;
+      transition: all .4s var(--ease); pointer-events: none;
+    }
+    .toast.show { transform: none; opacity: 1; }
+
+    /* RESPONSIVE */
+    @media(max-width:1024px) {
+      .grid-team { grid-template-columns: repeat(2,1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media(max-width:860px) {
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+      .faq-layout { grid-template-columns: 1fr; gap: 36px; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+    @media(max-width:640px) {
+      .nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 80px 24px 68px; }
+      .section { padding: 64px 24px; }
+      .grid-3, .grid-team { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer { padding: 50px 24px 24px; }
+      .footer-top { grid-template-columns: 1fr; gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+{# ══ Variables rôle ══ #}
+{% set user      = app.user %}
+{% set roleRaw   = user.roleUtilisateur %}
+{% set roleSlug  = roleRaw|replace({'ROLE_': ''})|lower %}
+{% set roleLabel = {'patient':'Patient','medecin':'Médecin','coach':'Coach','psychologue':'Psychologue','user':'Utilisateur','admin':'Admin'}[roleSlug] ?? (roleSlug|capitalize) %}
+{% set roleEmoji = {'patient':'🧠','medecin':'🩺','coach':'💪','psychologue':'🧘','user':'👤','admin':'🛡️'}[roleSlug] ?? '👤' %}
+
+{# ══ NAVBAR ══ #}
+<nav class="nav" id="main-nav">
+  <a href="#hero" class="nav-brand">
+    <div class="nav-brand-icon">
+      <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+    </div>
+    <div>
+      <div class="nav-brand-name">MindAura</div>
+      <div class="nav-brand-sub">Bien-être &amp; Sérénité</div>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    <a href="#services" class="nav-link">Services</a>
+    <a href="#equipe"   class="nav-link">Équipe</a>
+    <a href="#faq"      class="nav-link">FAQ</a>
+    <a href="#map"      class="nav-link">Localisation</a>
+    <a href="#contact"  class="nav-link">Contact</a>
+  </div>
+
+  <div class="nav-right">
+
+    {# ── User pill avec dropdown ── #}
+    <div class="nav-user-pill-wrapper" id="userPillWrapper">
+      <button class="nav-user-pill" id="userPillBtn" type="button"
+              aria-haspopup="true" aria-expanded="false">
+        <div class="nav-avatar">
+          {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+            <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+          {% else %}
+            {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+          {% endif %}
+        </div>
+        <span class="nav-user-name">{{ user.prenomUtilisateur }}</span>
+        <span class="nav-role-badge">{{ roleEmoji }} {{ roleLabel }}</span>
+        <svg class="pill-chevron" viewBox="0 0 16 16">
+          <path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      {# ── Dropdown menu ── #}
+      <div class="user-dropdown" id="userDropdown" role="menu">
+
+        {# Header identité #}
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">
+            {% if user.photoProfilUtilisateur is defined and user.photoProfilUtilisateur != 'default.png' %}
+              <img src="{{ asset('avatars/' ~ user.photoProfilUtilisateur) }}" alt="avatar"/>
+            {% else %}
+              {{ user.prenomUtilisateur|first|upper }}{{ user.nomUtilisateur|first|upper }}
+            {% endif %}
+          </div>
+          <div>
+            <div class="dropdown-user-name">{{ user.prenomUtilisateur }} {{ user.nomUtilisateur }}</div>
+            <div class="dropdown-user-email">{{ user.emailUtilisateur }}</div>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        {# Voir le profil #}
+        <a href="{{ path('app_profil') }}" class="dropdown-item" role="menuitem">
+          <span class="dropdown-item-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="10" cy="7" r="3.5"/>
+              <path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-text">
+            <span class="dropdown-item-label">Voir mon profil</span>
+            <span class="dropdown-item-sub">Consulter mes informations</span>
+          </span>
+          <svg class="dropdown-item-arrow" viewBox="0 0 16 16">
+            <path d="M6 4l4 4-4 4" stroke-linecap="round"/>
+          </svg>
+        </a>
+
+        {# Modifier le profil #}
+        <a href="{{ path('app_profil_edit') }}" class="dropdown-item" role="menuitem">
+          <span class="dropdown-item-icon dropdown-item-icon--violet">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-8.5 8.5L4 16l1.086-3.914 8.5-8.5z"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-text">
+            <span class="dropdown-item-label">Modifier mon profil</span>
+            <span class="dropdown-item-sub">Changer mes informations</span>
+          </span>
+          <svg class="dropdown-item-arrow" viewBox="0 0 16 16">
+            <path d="M6 4l4 4-4 4" stroke-linecap="round"/>
+          </svg>
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        {# Se déconnecter #}
+        <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger" role="menuitem">
+          <span class="dropdown-item-icon dropdown-item-icon--red">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M13 3h4v14h-4M9 14l4-4-4-4M13 10H3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-text">
+            <span class="dropdown-item-label">Se déconnecter</span>
+            <span class="dropdown-item-sub">Quitter la session</span>
+          </span>
+        </a>
+
+      </div>{# /user-dropdown #}
+    </div>{# /nav-user-pill-wrapper #}
+
+  </div>
+</nav>
+
+{# ══ HERO ══ #}
+<section class="hero" id="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Plateforme de Psychologie &amp; Développement Personnel
+    </div>
+    <h1 class="hero-title">
+      Bienvenue sur <em>MindAura</em>,<br>votre espace de bien-être
+    </h1>
+    <p class="hero-desc">
+      Une plateforme dédiée à votre santé mentale et votre épanouissement personnel.
+      Connectez-vous avec des psychologues, coachs et thérapeutes qualifiés
+      pour un accompagnement sur-mesure et confidentiel.
+    </p>
+    <div class="hero-actions">
+      <a href="#services" class="btn-white">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M5 10h10M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Découvrir nos services
+      </a>
+      <a href="#contact" class="btn-glass">&#128222; Nous contacter</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">500+</div>
+        <div class="hero-stat-lbl">Patients accompagnés</div>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">30+</div>
+        <div class="hero-stat-lbl">Professionnels certifiés</div>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">98%</div>
+        <div class="hero-stat-lbl">Taux de satisfaction</div>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">5 ans</div>
+        <div class="hero-stat-lbl">D'expertise</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# wave #}
+<div class="wave" style="background:var(--g1)">
+  <svg viewBox="0 0 1440 58" preserveAspectRatio="none" fill="#F0F4F8" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,38 C400,72 1040,4 1440,38 L1440,58 L0,58 Z"/>
+  </svg>
+</div>
+
+{# ══ SERVICES ══ #}
+<section class="section" id="services">
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#127807; Ce que nous offrons</div>
+      <h2 class="sec-title">Nos <span>Services</span></h2>
+      <p class="sec-desc">
+        Une gamme complète de services conçus pour soutenir votre parcours
+        vers le bien-être mental et le développement personnel.
+      </p>
+    </div>
+    <div class="grid-3">
+      <a href="{{ path('locaux_psychiatrie_front_locaux_index') }}" class="svc-card sr" style="transition-delay:.05s; text-decoration:none; display:block; color:inherit;">
+  <div class="svc-icon g">🧠</div>
+  <div class="svc-title">Suivi Psychologique</div>
+  <div class="svc-desc">Consultations individuelles avec des psychologues diplômés pour un accompagnement thérapeutique personnalisé et confidentiel.</div>
+  <span class="svc-tag">Psychologie</span>
+</a>
+      <div class="svc-card sr" style="transition-delay:.1s">
+        <div class="svc-icon v">&#127919;</div>
+        <div class="svc-title">Coaching Personnel</div>
+        <div class="svc-desc">Séances de coaching pour vous aider à définir et atteindre vos objectifs de vie, professionnels et personnels.</div>
+        <span class="svc-tag">Développement</span>
+      </div>
+      <div class="svc-card sr" style="transition-delay:.15s">
+        <div class="svc-icon t">&#129336;</div>
+        <div class="svc-title">Séances de Thérapie</div>
+        <div class="svc-desc">Thérapies cognitivo-comportementales, pleine conscience et techniques de gestion du stress adaptées à vos besoins.</div>
+        <span class="svc-tag">Thérapie</span>
+      </div>
+      <div class="svc-card sr" style="transition-delay:.2s">
+        <div class="svc-icon o">&#128203;</div>
+        <div class="svc-title">Plans de Traitement</div>
+        <div class="svc-desc">Programmes de soins personnalisés avec suivi régulier, ajustement des objectifs et bilans de progression.</div>
+        <span class="svc-tag">Traitement</span>
+      </div>
+      <div class="svc-card sr" style="transition-delay:.25s">
+        <div class="svc-icon g">&#128197;</div>
+        <div class="svc-title">Prise de Rendez-vous</div>
+        <div class="svc-desc">Système de réservation en ligne intuitif pour planifier vos consultations à votre convenance, 24h/24.</div>
+        <span class="svc-tag">Pratique</span>
+      </div>
+      <div class="svc-card sr" style="transition-delay:.3s">
+        <div class="svc-icon v">&#128218;</div>
+        <div class="svc-title">Ressources &amp; Exercices</div>
+        <div class="svc-desc">Bibliothèque de ressources, exercices pratiques et outils d'auto-assistance pour soutenir votre parcours au quotidien.</div>
+        <span class="svc-tag">Ressources</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# wave #}
+<div class="wave" style="background:#F0F4F8">
+  <svg viewBox="0 0 1440 58" preserveAspectRatio="none" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,18 C480,58 960,0 1440,28 L1440,58 L0,58 Z"/>
+  </svg>
+</div>
+
+{# ══ EQUIPE ══ #}
+<section class="section section-alt" id="equipe">
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#128101; Les développeurs</div>
+      <h2 class="sec-title">Notre <span>Équipe</span></h2>
+      <p class="sec-desc">
+        Des passionnés du développement web réunis pour créer une expérience
+        digitale au service du bien-être mental.
+      </p>
+    </div>
+
+    {# — Instagram SVG path réutilisable — #}
+    {# Instagram icon path: rect arrondi + cercle + point #}
+
+    <div class="grid-team">
+
+      {# ── Carte 1 ── #}
+      <div class="team-card sr" style="transition-delay:.05s">
+        <div class="team-avatar">
+          <img src="{{ asset('equipe/azer.png') }}" alt="Laifi Azer"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Laifi Azer</div>
+        <span class="team-role">Full-Stack Dev</span>
+        <div class="team-bio">Spécialisé en Symfony &amp; Java, passionné par les interfaces modernes et performantes.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/laifi_azer1/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/>
+              <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <a href="https://www.facebook.com/laifiazer2/" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      {# ── Carte 2 ── #}
+      <div class="team-card sr" style="transition-delay:.1s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#7B5EA7,#a78bda)">
+          <img src="{{ asset('equipe/Ichrak.jpg') }}" alt="Chaffai Ichrak"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Chaffai Ichrak</div>
+        <span class="team-role">UI/UX Designer</span>
+        <div class="team-bio">Créatrice d'expériences utilisateurs intuitives et accessibles avec un sens aigu du design.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/ichrakchaffai/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/ichrak.chaffai" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      {# ── Carte 3 ── #}
+      <div class="team-card sr" style="transition-delay:.15s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#1B4332,#40916c)">
+          <img src="{{ asset('equipe/jasser.png') }}" alt="Missaoui Jasser"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Missaoui Jasser</div>
+        <span class="team-role">Backend Dev</span>
+        <div class="team-bio">Expert en bases de données, sécurité et architecture applicative robuste et scalable.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/jassermiss/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/jasser.missaoui.2025" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      {# ── Carte 4 ── #}
+      <div class="team-card sr" style="transition-delay:.2s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#0d7377,#14a085)">
+          <img src="{{ asset('equipe/yassine.png') }}" alt="BenRabeh Yassine"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">BenRabeh Yassine</div>
+        <span class="team-role">Frontend Dev</span>
+        <div class="team-bio">Développeur front passionné par les animations CSS et les interfaces réactives et élégantes.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/yassine_ben_rabeh/" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/yassine.benrabeh.3" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      {# ── Carte 5 — Nouveau développeur ── #}
+      <div class="team-card sr" style="transition-delay:.25s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#c77dff,#9b5de5)">
+          <img src="{{ asset('equipe/menyar.png') }}" alt="Guesmi Menyar"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Guesmi Menyar</div>
+        <span class="team-role">DevOps Engineer</span>
+        <div class="team-bio">Spécialiste en déploiement continu, Docker &amp; CI/CD pour des livraisons rapides et fiables.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/guesmi.menyar" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/guesmi.menyar" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+      {# ── Carte 6 — Nouveau développeur ── #}
+      <div class="team-card sr" style="transition-delay:.3s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#f77f00,#fcbf49)">
+          <img src="{{ asset('equipe/rania.png') }}" alt="Zairi Rania"/>
+          <span class="team-avatar-dot"></span>
+        </div>
+        <div class="team-name">Zairi Rania</div>
+        <span class="team-role">Mobile Dev</span>
+        <div class="team-bio">Développeuse React Native &amp; Flutter, créatrice d'applications mobiles fluides et accessibles.</div>
+        <div class="team-socials">
+          <a href="https://www.instagram.com/zairi.rania" class="social-btn instagram" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.8"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://www.facebook.com/zairi.rania" class="social-btn facebook" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="1.8"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{# wave #}
+<div class="wave" style="background:white">
+  <svg viewBox="0 0 1440 58" preserveAspectRatio="none" fill="#F0F4F8" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,28 C600,66 840,0 1440,32 L1440,58 L0,58 Z"/>
+  </svg>
+</div>
+
+{# ══ FAQ ══ #}
+<section class="section" id="faq">
+  <div class="section-inner">
+    <div class="faq-layout">
+      <div class="sr-l">
+        <div class="sec-label">&#10067; Questions fréquentes</div>
+        <h2 class="sec-title">Foire aux<br><span>Questions</span></h2>
+        <p class="sec-desc" style="margin-bottom:30px">
+          Trouvez rapidement des réponses sur notre plateforme,
+          nos services et nos professionnels.
+        </p>
+        <a href="#contact" class="btn-solid">Poser une question &rarr;</a>
+      </div>
+      <div class="sr-r">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Comment prendre rendez-vous avec un professionnel ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Rendez-vous dans la section "Réservations" de votre espace personnel. Vous pouvez filtrer par spécialité, date et horaire disponible, puis confirmer votre consultation en quelques clics.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Mes données et consultations sont-elles confidentielles ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Absolument. MindAura respecte strictement le secret médical et les normes RGPD. Toutes vos informations et échanges sont chiffrés et accessibles uniquement à vous et votre professionnel.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Puis-je changer de psychologue ou de coach ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Oui, à tout moment. Vous êtes libre de modifier votre suivi et d'être redirigé vers un autre professionnel selon vos besoins et affinités, sans aucune contrainte.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Les séances sont-elles disponibles en ligne ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">Oui, nous proposons des consultations en présentiel dans nos locaux ainsi que des séances en visioconférence sécurisée, selon les préférences du professionnel et du patient.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Comment signaler un problème ou déposer une réclamation ?</span>
+            <div class="faq-icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg></div>
+          </button>
+          <div class="faq-body">La rubrique "Réclamations" dans votre espace vous permet de soumettre toute demande ou signalement. Notre équipe s'engage à vous répondre sous 48h ouvrées.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ══ MAP ══ #}
+<section class="section section-alt" id="map">
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#128205; Nous trouver</div>
+      <h2 class="sec-title">Notre <span>Localisation</span></h2>
+      <p class="sec-desc">Retrouvez-nous au coeur de Tunis pour vos consultations en présentiel.</p>
+    </div>
+    <div class="map-wrap sr">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3190.6284785091943!2d10.186870075470237!3d36.89923517221909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12e2cb1651c504af%3A0x320100dac38457e3!2sEsprit%20Bloc%20I%2CJ%2CK!5e0!3m2!1sen!2stn!4v1775420709621!5m2!1sen!2stn" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-pin">
+        <div class="map-pin-name">&#127973; Centre MindAura</div>
+        <div class="map-pin-addr">Tunis, Tunisie</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ══ CONTACT ══ #}
+<section class="section" id="contact">
+  <div class="section-inner">
+    <div class="sec-center sr">
+      <div class="sec-label">&#9993; Écrivez-nous</div>
+      <h2 class="sec-title">Contactez-<span>nous</span></h2>
+      <p class="sec-desc">Une question ou besoin d'aide ? Notre équipe vous répond dans les plus brefs délais.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-form sr-l">
+        <div class="contact-form-title">Envoyer un message</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input type="text" class="form-control" placeholder="Votre prénom" value="{{ user.prenomUtilisateur }}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" placeholder="Votre nom" value="{{ user.nomUtilisateur }}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Adresse e-mail</label>
+          <input type="email" class="form-control" placeholder="votre.email@exemple.com" value="{{ user.emailUtilisateur }}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sujet</label>
+          <input type="text" class="form-control" placeholder="Ex : Demande de renseignements"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Votre message</label>
+          <textarea class="form-control" placeholder="Décrivez votre demande..."></textarea>
+        </div>
+        <button type="button" class="btn-send" id="sendBtn" onclick="sendMsg(this)">
+          <svg viewBox="0 0 20 20"><path d="M2 10l16-8-8 16v-8L2 10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Envoyer le message
+        </button>
+      </div>
+
+      <div class="contact-info sr-r">
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">Adresse</div>
+            <div class="citem-val">Avenue Habib Bourguiba, Tunis, Tunisie</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">Téléphone</div>
+            <div class="citem-val">+216 71 000 000 &middot; +216 22 000 000</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">E-mail</div>
+            <div class="citem-val">contact [at] mindaura.tn &middot; support [at] mindaura.tn</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="citem-title">Horaires</div>
+            <div class="citem-val">Lun&ndash;Ven : 8h00&ndash;18h00 &middot; Sam : 9h00&ndash;13h00</div>
+          </div>
+        </div>
+        <div class="contact-cta">
+          <div class="ccta-title">&#128172; Besoin d'aide urgente ?</div>
+          <div class="ccta-desc">Notre équipe de support est disponible pour vous accompagner immédiatement.</div>
+          <a href="tel:+21671000000" class="btn-call">&#128222; Appeler maintenant</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ══ FOOTER ══ #}
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:4px">
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.17);display:grid;place-items:center;flex-shrink:0">
+            <img src="{{ asset('images/logo.png') }}" alt="MindAura Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+          </div>
+          <div>
+            <div class="footer-brand-name">MindAura</div>
+            <div class="footer-brand-sub">Bien-être &amp; Sérénité</div>
+          </div>
+        </div>
+        <p class="footer-tagline">Une plateforme dédiée à la santé mentale et au développement personnel, conçue avec passion par des étudiants engagés.</p>
+        <div class="footer-socials">
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="#" class="f-social"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <a href="#services" class="footer-link">Services</a>
+        <a href="#equipe"   class="footer-link">Notre équipe</a>
+        <a href="#faq"      class="footer-link">FAQ</a>
+        <a href="#contact"  class="footer-link">Contact</a>
+        <a href="#map"      class="footer-link">Nous trouver</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Mon Espace</div>
+        <a href="{{ path('app_profil') }}" class="footer-link">Mon profil</a>
+        <a href="#" class="footer-link">Mes réclamations</a>
+        <a href="#" class="footer-link">Mes rendez-vous</a>
+        <a href="#" class="footer-link">Mes objectifs</a>
+        <a href="{{ path('app_logout') }}" class="footer-link" style="color:rgba(220,38,38,.5)">Déconnexion</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Légal</div>
+        <a href="#" class="footer-link">Politique de confidentialité</a>
+        <a href="#" class="footer-link">Conditions d'utilisation</a>
+        <a href="#" class="footer-link">Mentions légales</a>
+        <a href="#" class="footer-link">RGPD &amp; Cookies</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 MindAura &mdash; Projet Intégré Développement Web. Tous droits réservés.</div>
+      <div class="footer-heart">Fait avec <span>&hearts;</span> par &middot; Laifi Azer &middot;</div>
+    </div>
+  </div>
+</footer>
+
+{# ══ TOAST ══ #}
+<div class="toast" id="toast">
+  <span>&#10003;</span><span id="toast-msg">Message envoyé !</span>
+</div>
+
+<script>
+  /* Navbar scroll shadow */
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var href = a.getAttribute('href');
+      if (href.length > 1) {
+        var t = document.querySelector(href);
+        if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
+  });
+
+  /* Scroll reveal */
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.sr, .sr-l, .sr-r').forEach(function(el) { obs.observe(el); });
+
+  /* FAQ */
+  function toggleFaq(btn) {
+    var item = btn.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+  }
+
+  /* Contact send */
+  function sendMsg(btn) {
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours...';
+    setTimeout(function() {
+      btn.textContent = 'Message envoyé !';
+      btn.style.background = '#22C55E';
+      showToast('Votre message a bien été envoyé !');
+      setTimeout(function() {
+        btn.textContent = 'Envoyer le message';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 3500);
+    }, 1600);
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 4200);
+  }
+
+  /* ── User pill dropdown ── */
+  (function() {
+    var pillBtn  = document.getElementById('userPillBtn');
+    var dropdown = document.getElementById('userDropdown');
+    var wrapper  = document.getElementById('userPillWrapper');
+    if (!pillBtn || !dropdown) return;
+
+    function openDropdown() {
+      dropdown.classList.add('open');
+      pillBtn.setAttribute('aria-expanded', 'true');
+    }
+    function closeDropdown() {
+      dropdown.classList.remove('open');
+      pillBtn.setAttribute('aria-expanded', 'false');
+    }
+    function toggleDropdown() {
+      dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+    }
+
+    pillBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleDropdown();
+    });
+
+    /* Fermeture au clic extérieur */
+    document.addEventListener('click', function(e) {
+      if (!wrapper.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+
+    /* Fermeture avec Échap */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeDropdown();
+    });
+  })();
+</script>
+</body>
+</html>

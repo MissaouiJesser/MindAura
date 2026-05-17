@@ -1,0 +1,224 @@
+{# templates/admin/participation/index.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Liste des participations{% endblock %}
+{% block page_label %}Participations{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .part-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .part-stat {
+    background: #fff;
+    border-radius: 18px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 6px 18px -10px rgba(27,67,50,.18);
+    transition: transform .25s ease, box-shadow .25s ease;
+    animation: fadeUp .55s ease both;
+  }
+  .part-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px -14px rgba(27,67,50,.28);
+  }
+  .part-stat-icon { font-size: 22px; margin-bottom: 4px; }
+  .part-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green, #1B4332);
+    line-height: 1;
+  }
+  .part-stat-lbl {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  .part-avatar {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--green, #1B4332), var(--violet, #7B5EA7));
+    color: #fff;
+    display: grid; place-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Playfair Display', serif;
+    flex-shrink: 0;
+  }
+  .part-participant { display: flex; align-items: center; gap: 12px; }
+  .part-name { font-weight: 600; color: var(--green, #1B4332); font-size: 13.5px; }
+  .part-email { font-size: 12px; color: #6b7280; }
+
+  .part-event-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--violet-pale, #EDE9F6);
+    color: var(--violet, #7B5EA7);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .part-date { font-size: 12.5px; color: #475569; line-height: 1.4; }
+  .part-date strong { color: var(--green, #1B4332); }
+</style>
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">👥</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Participations</h1>
+      <p class="ds-hero-sub">Gestion de toutes les inscriptions aux événements.</p>
+      <span class="ds-hero-chip">{{ participations|length }} participation{{ participations|length > 1 ? 's' : '' }}</span>
+    </div>
+    <a href="{{ path('admin_participation_new') }}" class="ds-btn-primary">+ Ajouter</a>
+  </div>
+</div>
+
+{# Stats #}
+<div class="part-stats">
+  <div class="part-stat">
+    <div class="part-stat-icon">📋</div>
+    <div class="part-stat-val">{{ participations|length }}</div>
+    <div class="part-stat-lbl">Total</div>
+  </div>
+  <div class="part-stat">
+    <div class="part-stat-icon">✅</div>
+    <div class="part-stat-val">{{ participations|filter(p => p.statut == 'confirmee')|length }}</div>
+    <div class="part-stat-lbl">Confirmées</div>
+  </div>
+  <div class="part-stat">
+    <div class="part-stat-icon">⏳</div>
+    <div class="part-stat-val">{{ participations|filter(p => p.statut == 'en_attente')|length }}</div>
+    <div class="part-stat-lbl">En attente</div>
+  </div>
+  <div class="part-stat">
+    <div class="part-stat-icon">❌</div>
+    <div class="part-stat-val">{{ participations|filter(p => p.statut == 'annulee')|length }}</div>
+    <div class="part-stat-lbl">Annulées</div>
+  </div>
+</div>
+
+{# Filtres #}
+<div class="ds-filters-panel">
+  <form method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: end; flex: 1;">
+    <div style="flex: 1; min-width: 200px;">
+      <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--green, #1B4332); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Nom</label>
+      {{ form_widget(searchForm.nom, {'attr': {'class': 'ds-form-input', 'placeholder': 'Nom du participant…'}}) }}
+    </div>
+    <div style="min-width: 180px;">
+      <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--green, #1B4332); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Statut</label>
+      {{ form_widget(searchForm.statut, {'attr': {'class': 'ds-form-select'}}) }}
+    </div>
+    <div style="min-width: 200px;">
+      <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--green, #1B4332); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Événement</label>
+      {{ form_widget(searchForm.evenement, {'attr': {'class': 'ds-form-select'}}) }}
+    </div>
+    <button type="submit" class="ds-btn-primary" style="padding: 9px 18px;">🔍 Filtrer</button>
+    {{ form_rest(searchForm) }}
+  </form>
+</div>
+
+{# Table #}
+<div class="ds-table-card">
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Participant</th>
+        <th>Téléphone</th>
+        <th>Événement</th>
+        <th>Date</th>
+        <th>Statut</th>
+        <th style="text-align: right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for p in participations %}
+      <tr>
+        <td style="color: #6b7280; font-weight: 600; font-size: 12.5px;">#{{ p.id }}</td>
+        <td>
+          <div class="part-participant">
+            <div class="part-avatar">{{ p.prenom|first|upper }}</div>
+            <div>
+              <div class="part-name">{{ p.prenom }} {{ p.nom }}</div>
+              <div class="part-email">{{ p.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td style="color: #6b7280; font-size: 13px;">{{ p.telephone ?? '—' }}</td>
+        <td>
+          <span class="part-event-pill" title="{{ p.evenement.titreEvenement }}">
+            📅 {{ p.evenement.titreEvenement }}
+          </span>
+        </td>
+        <td>
+          <div class="part-date">
+            <strong>{{ p.dateInscription|date('d/m/Y') }}</strong><br>
+            <span style="color: #9ca3af;">{{ p.dateInscription|date('H:i') }}</span>
+          </div>
+        </td>
+        <td>
+          {% if p.statut == 'confirmee' %}
+            <span class="ds-badge ds-badge--green">Confirmée</span>
+          {% elseif p.statut == 'annulee' %}
+            <span class="ds-badge ds-badge--red">Annulée</span>
+          {% else %}
+            <span class="ds-badge ds-badge--yellow">En attente</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="ds-actions">
+            <a href="{{ path('admin_participation_show', {id: p.id}) }}" class="ds-action-btn ds-action-btn--view" title="Voir">👁</a>
+            <a href="{{ path('admin_participation_edit', {id: p.id}) }}" class="ds-action-btn ds-action-btn--edit" title="Modifier">✏️</a>
+            {% if p.codeQr %}
+              <a href="{{ path('admin_participation_download_qr', {id: p.id}) }}" class="ds-action-btn ds-action-btn--reply" title="Télécharger QR">
+                <span style="font-size: 14px;">🔳</span>
+              </a>
+            {% endif %}
+            <form method="post" action="{{ path('admin_participation_delete', {id: p.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer la participation de {{ p.prenom }} ?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_participation_' ~ p.id) }}">
+              <button type="submit" class="ds-action-btn ds-action-btn--del" title="Supprimer">🗑</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="7">
+          <div class="ds-empty">
+            <div style="font-size: 48px; margin-bottom: 12px;">🗂️</div>
+            <p style="font-weight: 600; color: var(--green, #1B4332);">Aucune participation trouvée</p>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if participations|length > 0 %}
+    <div style="padding: 12px 22px; background: #fafbfc; border-top: 1px solid var(--border, #D5DCE6); font-size: 12.5px; color: #6b7280; font-weight: 500; text-align: right;">
+      {{ participations|length }} participation{{ participations|length > 1 ? 's' : '' }} au total
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

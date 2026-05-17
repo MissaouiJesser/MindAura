@@ -1,0 +1,142 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Réponse{% endblock %}
+{% block page_label %}Réponse{% endblock %}
+
+{% block content %}
+<div class="page-hero" style="margin-bottom:20px;">
+  <div class="hero-inner" style="display:flex; justify-content:space-between; gap:16px; align-items:center;">
+    <div>
+      <h1 class="hero-title" style="margin:0;">Réponse</h1>
+      <p class="hero-sub" style="margin:6px 0 0;">Détail de la réponse liée à la réclamation</p>
+    </div>
+    <a href="{{ path('reclamation_show', {id: reponse.reclamation.id_reclamation}) }}" class="btn-new" style="background:#fff;color:#1B4332;">Retour à la réclamation</a>
+  </div>
+</div>
+
+<div class="table-card" style="padding:24px;">
+  <div style="display:grid; gap:20px;">
+    <div style="display:grid; gap:8px;">
+      <span style="font-weight:700; color:#1B4332;">Réclamation</span>
+      <p style="margin:0;">{{ reponse.reclamation ? reponse.reclamation.sujet_reclamation : 'N/A' }}</p>
+    </div>
+    <div style="display:grid; gap:8px;">
+      <span style="font-weight:700; color:#1B4332;">Auteur</span>
+      <p style="margin:0;">{{ reponse.nom_utilisateur ?: ('Utilisateur #' ~ reponse.id_utilisateur) }}</p>
+    </div>
+    <div style="display:grid; gap:8px;">
+      <span style="font-weight:700; color:#1B4332;">Date</span>
+      <p style="margin:0;">{{ reponse.date_reponse ? reponse.date_reponse|date('d/m/Y H:i') : '' }}</p>
+    </div>
+    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:18px; padding:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="margin:0; font-size:1rem; color:#1B4332;">Contenu de la réponse</h2>
+        <button type="button" id="translate-reponse-btn" class="btn-translate" title="Traduire le contenu">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
+            <circle cx="10" cy="10" r="7"/>
+            <path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/>
+          </svg>
+          Traduire
+        </button>
+      </div>
+      <p style="margin:0; line-height:1.75;" id="reponse-contenu">{{ reponse.contenu_reponse }}</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px;">
+      <div style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:16px;">
+        <span style="font-weight:700; color:#1B4332;">Note</span>
+        <p style="margin:8px 0 0;">{{ reponse.rate_reponse|number_format(1, ',', ' ') }}/5</p>
+      </div>
+      <div style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:16px;">
+        <span style="font-weight:700; color:#1B4332;">Total des notes</span>
+        <p style="margin:8px 0 0;">{{ reponse.rate_sum }}</p>
+      </div>
+      <div style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:16px;">
+        <span style="font-weight:700; color:#1B4332;">Nombre de notes</span>
+        <p style="margin:8px 0 0;">{{ reponse.rate_count }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-translate {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #52B788;
+    color: #fff;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-translate:hover {
+    background: #40916C;
+    transform: translateY(-1px);
+  }
+  .btn-translate.loading {
+    background: #6B7280;
+    cursor: not-allowed;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+// ── Traduction de la réponse ──────────────────────────────────────────────
+document.getElementById('translate-reponse-btn').addEventListener('click', async function() {
+  const btn = this;
+  const contenuEl = document.getElementById('reponse-contenu');
+  const originalText = contenuEl.dataset.original || contenuEl.textContent;
+
+  // Sauvegarder le texte original
+  if (!contenuEl.dataset.original) {
+    contenuEl.dataset.original = originalText;
+  }
+
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border:2px solid #fff;border-top:2px solid transparent;border-radius:50%;animation:spin 1s linear infinite;display:inline-block;margin-right:6px;"></span>Traduction...';
+
+  try {
+    const response = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: originalText,
+        target: 'en',
+        source: 'fr'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur HTTP: ' + response.status);
+    }
+
+    const data = await response.json();
+    const translatedText = data.translated || data;
+
+    contenuEl.textContent = translatedText;
+    btn.innerHTML = '🔄 Original';
+    btn.onclick = function() {
+      contenuEl.textContent = originalText;
+      btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="10" cy="10" r="7"/><path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/></svg>Traduire';
+      btn.onclick = arguments.callee.caller;
+    };
+
+  } catch (error) {
+    console.error('Erreur de traduction:', error);
+    alert('Erreur lors de la traduction. Vérifiez votre connexion et réessayez.');
+    btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="10" cy="10" r="7"/><path d="M10 3c-2 2.5-3 4.8-3 7s1 4.5 3 7M10 3c2 2.5 3 4.8 3 7s-1 4.5-3 7M3 10h14" stroke-linecap="round"/></svg>Traduire';
+  } finally {
+    btn.classList.remove('loading');
+  }
+});
+</script>
+
+{% endblock %}

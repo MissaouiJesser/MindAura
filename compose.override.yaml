@@ -1,0 +1,41 @@
+
+services:
+###> doctrine/doctrine-bundle ###
+  database:
+    ports:
+      - "5432"
+###< doctrine/doctrine-bundle ###
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/evenements_partcipations
+=======
+>>>>>>> origin/Ichrak/Gestion_Locaux_Salles
+###> symfony/mailer ###
+  mailer:
+    image: axllent/mailpit
+    ports:
+      - "1025"
+      - "8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< symfony/mailer ###
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+<<<<<<< HEAD
+
+=======
+###> symfony/mercure-bundle ###
+  mercure:
+    ports:
+      - "80"
+###< symfony/mercure-bundle ###
+>>>>>>> origin/Minyar/gestion-ressources-commentaires
+=======
+>>>>>>> origin/evenements_partcipations
+=======
+>>>>>>> origin/Ichrak/Gestion_Locaux_Salles

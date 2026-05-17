@@ -1,0 +1,84 @@
+{# Filtres front : GET compact, debounce, rechargement pleine page fluide #}
+{% set form_id = form_id|default('frontListForm') %}
+{% set skip_test_id_zero = skip_test_id_zero|default(false) %}
+<script>
+(function () {
+  var formId = {{ form_id|json_encode|raw }};
+  var skipTestZero = {{ skip_test_id_zero ? 'true' : 'false' }};
+  var form = document.getElementById(formId);
+  if (!form) return;
+  var DEBOUNCE_MS = 380;
+  var pageInput = form.querySelector('input[name="page"]');
+  var debounceTimer = null;
+  var searchHadPending = false;
+
+  function buildQuery() {
+    var fd = new FormData(form);
+    var params = new URLSearchParams();
+    fd.forEach(function (value, key) {
+      if (skipTestZero && key === 'testId' && String(value) === '0') return;
+      if (String(value).trim() !== '') params.append(key, value);
+    });
+    if (!params.has('page') || params.get('page') === '') params.set('page', '1');
+    return params;
+  }
+
+  function navigateFromForm() {
+    var u = new URL(form.getAttribute('action') || window.location.pathname, window.location.origin);
+    var params = buildQuery();
+    u.search = params.toString();
+    window.location.assign(u.pathname + u.search);
+  }
+
+  function goFirstPageAndNavigate() {
+    if (pageInput) pageInput.value = '1';
+    navigateFromForm();
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+    searchHadPending = false;
+    goFirstPageAndNavigate();
+  });
+
+  function bindDebouncedField(el) {
+    el.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      searchHadPending = true;
+      debounceTimer = setTimeout(function () {
+        debounceTimer = null;
+        searchHadPending = false;
+        goFirstPageAndNavigate();
+      }, DEBOUNCE_MS);
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+      searchHadPending = false;
+      goFirstPageAndNavigate();
+    });
+    el.addEventListener('blur', function () {
+      if (!searchHadPending || debounceTimer === null) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+      searchHadPending = false;
+      goFirstPageAndNavigate();
+    });
+  }
+
+  form.querySelectorAll('[data-front-debounce]').forEach(bindDebouncedField);
+
+  form.querySelectorAll('select.front-filter-select').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+      searchHadPending = false;
+      goFirstPageAndNavigate();
+    });
+  });
+})();
+</script>

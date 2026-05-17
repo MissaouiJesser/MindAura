@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #1e1e1e;
+            padding: 40px;
+        }
+
+        /* ── En-tête ── */
+        .header {
+            border-bottom: 3px solid #534AB7;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .header-brand {
+            font-size: 11px;
+            color: #534AB7;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+        .header-meta {
+            font-size: 10px;
+            color: #888;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .meta-item { margin-right: 12px; }
+
+        /* ── Contenu ── */
+        .content { margin-top: 20px; }
+        p  { margin-bottom: 12px; text-align: justify; }
+        h2 { font-size: 15px; font-weight: 700; color: #534AB7; margin: 20px 0 8px; }
+        h3 { font-size: 13px; font-weight: 700; color: #333; margin: 16px 0 6px; }
+        li { margin-bottom: 6px; margin-left: 20px; }
+        ul, ol { margin-bottom: 12px; }
+        strong { font-weight: 700; }
+        em { font-style: italic; }
+
+        /* ── Pied de page ── */
+        .footer {
+            margin-top: 40px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            font-size: 9px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        /* ── RTL pour arabe ── */
+        .rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-brand">MindAura — Ressource #{{ ressource.id }}</div>
+        <div class="header-title">{{ titre }}</div>
+        <div class="header-meta">
+            {% if ressource.categorie %}
+             <span class="meta-item">Catégorie : {{ ressource.categorie }}</span>
+            {% endif %}
+            {% if ressource.niveau %}
+             <span class="meta-item">Niveau : {{ ressource.niveau }}</span>
+            {% endif %}
+            <span class="meta-item">Exporté le {{ exportedAt|date('d/m/Y à H:i') }}</span>
+             </div>
+    </div>
+
+    <div class="content">
+        {{ contenu|raw }}
+    </div>
+
+    <div class="footer">
+        Généré par MindAura - {{ exportedAt|date('d/m/Y') }}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+{# templates/admin/participation/form.html.twig #}
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_label %}{{ title }}{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">👤</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">{{ title }}</h1>
+      <p class="ds-hero-sub">Formulaire d'inscription du participant à un événement.</p>
+    </div>
+    <a href="{{ path('admin_participation_index') }}" class="ds-back-link">← Retour</a>
+  </div>
+</div>
+
+{# Flash messages #}
+{% for label, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="ds-flash ds-flash--{{ label == 'success' ? 'success' : 'error' }}">
+      {{ label == 'success' ? '✅' : '⚠️' }} {{ message }}
+    </div>
+  {% endfor %}
+{% endfor %}
+
+<div class="ds-form-page">
+  <div class="ds-form-card" style="max-width: 900px; margin: 0 auto;">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'participationForm'}}) }}
+
+    <div style="display: none;">
+      {{ form_widget(form.dateInscription) }}
+      {{ form_widget(form.codeQr) }}
+      {{ form_widget(form.statut) }}
+    </div>
+
+    <div class="ds-form-body">
+      <h3 class="ds-form-section-title">Informations du participant</h3>
+
+      <div class="ds-form-row">
+        <div class="ds-form-group">
+          <label class="ds-form-label">👤 Nom <span style="color: #ef4444;">*</span></label>
+          {{ form_widget(form.nom, {'attr': {'class': 'ds-form-input', 'placeholder': 'Nom de famille'}}) }}
+          {% if form.nom.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.nom) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ds-form-group">
+          <label class="ds-form-label">👤 Prénom <span style="color: #ef4444;">*</span></label>
+          {{ form_widget(form.prenom, {'attr': {'class': 'ds-form-input', 'placeholder': 'Prénom'}}) }}
+          {% if form.prenom.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.prenom) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ds-form-group">
+          <label class="ds-form-label">✉️ Email <span style="color: #ef4444;">*</span></label>
+          {{ form_widget(form.email, {'attr': {'class': 'ds-form-input', 'placeholder': 'exemple@email.com'}}) }}
+          {% if form.email.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.email) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ds-form-group">
+          <label class="ds-form-label">📞 Téléphone</label>
+          {{ form_widget(form.telephone, {'attr': {'class': 'ds-form-input', 'placeholder': '+216 XX XXX XXX'}}) }}
+          {% if form.telephone.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.telephone) }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ds-form-row ds-form-row--full">
+        <div class="ds-form-group">
+          <label class="ds-form-label">📅 Événement <span style="color: #ef4444;">*</span></label>
+          {{ form_widget(form.evenement, {'attr': {'class': 'ds-form-select'}}) }}
+          {% if form.evenement.vars.errors|length %}
+            <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">{{ form_errors(form.evenement) }}</div>
+          {% endif %}
+          <div style="font-size: 12px; color: #6b7280; margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+            ℹ️ Sélectionnez l'événement auquel le participant souhaite s'inscrire.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-form-actions" style="justify-content: space-between;">
+      <div style="display: flex; gap: 10px;">
+        <a href="{{ path('admin_participation_index') }}" class="ds-btn-cancel">✕ Annuler</a>
+        <button type="submit" class="ds-btn-submit">💾 Enregistrer</button>
+      </div>
+      <div style="font-size: 11.5px; color: #6b7280; line-height: 1.6; text-align: right; max-width: 280px;">
+        ✉️ Un email de confirmation sera envoyé automatiquement.<br>
+        📱 Un QR code sera généré et joint à l'email.
+      </div>
+    </div>
+
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

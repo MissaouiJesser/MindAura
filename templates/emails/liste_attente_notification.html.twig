@@ -1,0 +1,62 @@
+{# templates/emails/liste_attente_notification.html.twig #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Une place s'est libérée !</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .wrapper { max-width: 600px; margin: 30px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); padding: 40px 30px; text-align: center; color: #fff; }
+        .header h1 { margin: 0; font-size: 26px; }
+        .header p { margin: 8px 0 0; opacity: 0.85; font-size: 15px; }
+        .body { padding: 35px 30px; color: #333; }
+        .body h2 { font-size: 20px; color: #444; margin-bottom: 6px; }
+        .info-box { background: #f0fff4; border-left: 4px solid #27ae60; padding: 18px 20px; border-radius: 6px; margin: 24px 0; }
+        .info-box p { margin: 6px 0; font-size: 14px; }
+        .info-box strong { color: #555; }
+        .btn-confirm { display: inline-block; margin: 20px 0; padding: 14px 32px; background: #27ae60; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; }
+        .alert-box { background: #fff8e1; border-left: 4px solid #f39c12; padding: 14px 18px; border-radius: 6px; margin: 20px 0; font-size: 13px; color: #7d6608; }
+        .footer { background: #f8f8f8; text-align: center; padding: 20px; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+
+    <div class="header">
+        <h1>🎉 Une place s'est libérée !</h1>
+        <p>Vous étiez en liste d'attente — c'est votre tour !</p>
+    </div>
+
+    <div class="body">
+        <h2>Bonjour {{ participation.prenom }} {{ participation.nom }},</h2>
+        <p>
+            Bonne nouvelle ! Une place s'est libérée pour l'événement
+            <strong>« {{ participation.evenement.titreEvenement }} »</strong>
+            et vous êtes maintenant <strong>inscrit(e) officiellement</strong>.
+        </p>
+
+        <div class="info-box">
+            <p><strong>📅 Date de début :</strong> {{ participation.evenement.datedebutEvenemnt|date('d/m/Y') }}</p>
+            <p><strong>📅 Date de fin :</strong> {{ participation.evenement.datefinEvenemnt|date('d/m/Y') }}</p>
+            <p><strong>📍 Lieu :</strong> {{ participation.evenement.lieuEvenement }}</p>
+            <p><strong>📧 Email inscrit :</strong> {{ participation.email }}</p>
+        </div>
+
+        <div class="alert-box">
+            ⚠️ <strong>Important :</strong> Votre inscription est maintenant confirmée. Votre QR code d'accès est joint à cet email — gardez-le précieusement pour le jour J. Si vous ne pouvez finalement pas participer, veuillez nous contacter dès que possible pour libérer la place.
+        </div>
+
+        <p style="font-size:14px; color:#666;">
+            À bientôt sur MindAura ! 🚀
+        </p>
+    </div>
+
+    <div class="footer">
+        © {{ "now"|date("Y") }} MindAura · Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+    </div>
+
+</div>
+</body>
+</html>

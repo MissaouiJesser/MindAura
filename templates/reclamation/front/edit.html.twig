@@ -1,0 +1,71 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Modifier la réclamation{% endblock %}
+{% block page_title %}Modifier la réclamation{% endblock %}
+
+{% block header_actions %}
+  <div class="page-head-actions">
+    <a href="{{ path('front_reclamation_show', {id: reclamation.id_reclamation}) }}" class="btn-secondary">← Retour au détail</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .form-shell { max-width:640px; margin:0 auto; }
+  .form-card {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:28px;
+    box-shadow:var(--shadow-card);
+  }
+  .form-group { margin-bottom:18px; }
+  .form-group label { display:block; font-weight:700; font-size:.88rem; color:var(--g1); margin-bottom:6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-family:'Outfit',sans-serif; font-size:.92rem;
+  }
+  .form-group textarea { min-height:160px; resize:vertical; line-height:1.55; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline:none; border-color:var(--g3); box-shadow:0 0 0 3px rgba(82,183,136,.15);
+  }
+  .info-pill {
+    display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px;
+    background:var(--g-pale); color:var(--g1); font-size:.84rem; margin-bottom:18px;
+  }
+  .submit-row { display:flex; gap:10px; justify-content:space-between; margin-top:22px; flex-wrap:wrap; align-items:center; }
+</style>
+
+<div class="form-shell">
+  <div class="info-pill">
+    Statut actuel : <strong>{{ reclamation.statut_reclamation }}</strong> — modifié par l’équipe depuis le back-office.
+  </div>
+  <div class="form-card">
+    {{ form_start(form) }}
+      {% if not form.vars.valid %}
+        <div style="background:#FEE2E2;color:#B91C1C;padding:12px 14px;border-radius:12px;margin-bottom:16px;font-size:.88rem;">{{ form_errors(form) }}</div>
+      {% endif %}
+
+      <div class="form-group">
+        {{ form_row(form.categorie) }}
+      </div>
+
+      <div class="form-group">
+        {{ form_row(form.sujet_reclamation) }}
+      </div>
+
+      <div class="form-group">
+        {{ form_row(form.description_reclamation) }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date de création</label>
+        <div style="padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text-sec);font-size:.88rem;">
+          {{ reclamation.dateCreation_reclamation|date('d/m/Y H:i:s') }} — non modifiable
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <a href="{{ path('front_reclamation_show', {id: reclamation.id_reclamation}) }}" class="btn-secondary" style="text-decoration:none;">Annuler</a>
+        <button type="submit" class="btn-primary" style="border:none;cursor:pointer;">Enregistrer</button>
+      </div>
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Mes réponses{% endblock %}
+{% block page_title %}Historique de mes réponses{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+  @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+  @keyframes scaleIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+
+  /* ── Hero ── */
+  .resp-hero {
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 55%,#7B5EA7 100%);
+    border-radius:22px; padding:32px 38px; margin-bottom:24px;
+    box-shadow:0 14px 44px rgba(27,67,50,.26);
+    animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  .resp-hero::before { content:''; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.05); top:-80px; right:-60px; pointer-events:none; }
+  .hero-dots { position:absolute; top:16px; left:34px; display:flex; gap:7px; }
+  .hero-dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.32); animation:shimmer 2s ease-in-out infinite; }
+  .hero-dots span:nth-child(2){animation-delay:.3s} .hero-dots span:nth-child(3){animation-delay:.6s}
+  .hero-row    { display:flex; align-items:center; gap:22px; position:relative; z-index:1; margin-top:8px; flex-wrap:wrap; }
+  .hero-icon   { width:60px; height:60px; border-radius:16px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.22); display:grid; place-items:center; flex-shrink:0; }
+  .hero-icon svg { width:27px; height:27px; color:#fff; }
+  .hero-text   { flex:1; min-width:200px; }
+  .hero-title  { font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:700; color:#fff; margin-bottom:5px; }
+  .hero-sub    { font-size:.88rem; color:rgba(255,255,255,.75); }
+  .hero-stats  { display:flex; gap:10px; flex-wrap:wrap; }
+  .hero-stat   { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:12px; padding:10px 16px; text-align:center; min-width:80px; }
+  .hero-stat-val { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:#fff; line-height:1; }
+  .hero-stat-lbl { font-size:.67rem; color:rgba(255,255,255,.65); font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-top:3px; }
+  .hero-actions { display:flex; gap:8px; flex-direction:column; align-items:flex-end; flex-shrink:0; }
+  .btn-hw { display:inline-flex; align-items:center; gap:7px; padding:10px 18px; border-radius:11px; background:#fff; color:var(--green); font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:700; text-decoration:none; transition:all .2s; box-shadow:0 3px 10px rgba(0,0,0,.1); white-space:nowrap; }
+  .btn-hw:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.15); }
+  .btn-hw svg { width:14px; height:14px; }
+  .btn-hg { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:11px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.25); color:#fff; font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600; text-decoration:none; transition:all .2s; white-space:nowrap; }
+  .btn-hg:hover { background:rgba(255,255,255,.22); }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:14px 18px;
+    margin-bottom:20px; box-shadow:var(--shadow-card);
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .08s both;
+  }
+  .tb-search-wrap { position:relative; flex:1; min-width:200px; max-width:320px; }
+  .tb-search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--text-sec); pointer-events:none; }
+  .tb-search { width:100%; padding:9px 13px 9px 34px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFAFA; outline:none; transition:border-color .2s,box-shadow .2s; }
+  .tb-search:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(27,67,50,.1); background:#fff; }
+  .tb-select { padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFAFA; outline:none; cursor:pointer; transition:border-color .2s; max-width:180px; }
+  .tb-select:focus { border-color:var(--green); }
+  .tb-reset { display:inline-flex; align-items:center; gap:6px; padding:9px 13px; border-radius:10px; border:1.5px solid var(--border); background:#fff; color:var(--text-sec); font-family:'Outfit',sans-serif; font-size:.83rem; font-weight:600; text-decoration:none; transition:all .2s; }
+  .tb-reset:hover { border-color:var(--green-light); color:var(--green); background:var(--green-hover); }
+  .tb-count { margin-left:auto; font-size:.78rem; color:var(--text-sec); font-weight:600; white-space:nowrap; }
+  .btn-export { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:10px; font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:700; text-decoration:none; transition:all .2s; border:1.5px solid transparent; }
+  .btn-export:hover { transform:translateY(-1px); }
+  .btn-export svg { width:13px; height:13px; }
+  .exp-pdf { background:#EDE9F6; color:#5B4A8F; border-color:#C4B5E0; }
+  .exp-pdf:hover { background:#DDD6FE; }
+  .exp-xls { background:#E0F2F1; color:#00695C; border-color:#80CBC4; }
+  .exp-xls:hover { background:#B2DFDB; }
+
+  /* ── Responses list ── */
+  .resp-list { display:flex; flex-direction:column; gap:12px; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both; }
+
+  .resp-item {
+    background:#fff; border:1.5px solid var(--border); border-radius:16px; overflow:hidden;
+    box-shadow:var(--shadow-card); transition:all .2s;
+    animation:scaleIn .35s cubic-bezier(.22,1,.36,1) both;
+  }
+  .resp-item:hover { border-color:rgba(82,183,136,.35); box-shadow:0 8px 24px rgba(27,67,50,.1); transform:translateY(-1px); }
+  .resp-item-header {
+    display:flex; align-items:center; gap:12px; padding:14px 18px;
+    border-bottom:1px solid var(--border); cursor:pointer;
+  }
+  .resp-test-icon { width:38px; height:38px; border-radius:10px; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; flex-shrink:0; }
+  .resp-test-icon svg { width:16px; height:16px; color:var(--green); }
+  .resp-test-name { font-size:.9rem; font-weight:700; color:var(--text); flex:1; }
+  .resp-score { display:inline-flex; align-items:center; gap:5px; background:var(--green-pale); color:var(--green); font-size:.75rem; font-weight:700; border-radius:99px; padding:4px 11px; }
+  .resp-score svg { width:10px; height:10px; }
+  .resp-body { padding:14px 18px; display:flex; flex-direction:column; gap:6px; }
+  .resp-question { font-size:.9rem; font-weight:600; color:var(--text); line-height:1.4; }
+  .resp-answer   { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .resp-answer-val { font-size:.87rem; color:var(--text-sec); flex:1; }
+  .resp-date { font-size:.75rem; color:var(--text-sec); display:inline-flex; align-items:center; gap:4px; }
+  .resp-date svg { width:10px; height:10px; }
+
+  /* ── Pagination ── */
+  .pagination { display:flex; gap:6px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
+  .page-btn { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px; border:1.5px solid var(--border); background:#fff; color:var(--text-sec); font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600; text-decoration:none; transition:all .2s; }
+  .page-btn:hover { border-color:var(--green-light); color:var(--green); background:var(--green-hover); }
+  .page-btn.active { background:linear-gradient(135deg,var(--green),var(--green-mid)); color:#fff; border-color:transparent; box-shadow:0 4px 12px rgba(27,67,50,.22); }
+
+  /* ── Empty ── */
+  .empty-state { display:flex; flex-direction:column; align-items:center; padding:60px 20px; text-align:center; gap:14px; background:#fff; border:1.5px solid var(--border); border-radius:18px; box-shadow:var(--shadow-card); }
+  .empty-icon  { width:64px; height:64px; border-radius:18px; background:var(--green-pale); border:1.5px solid rgba(82,183,136,.3); display:grid; place-items:center; }
+  .empty-icon svg { width:28px; height:28px; color:var(--green); }
+  .empty-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:var(--text); }
+  .empty-sub   { font-size:.87rem; color:var(--text-sec); max-width:300px; line-height:1.6; }
+</style>
+
+{% set totalScore = 0 %}
+{% for r in reponses %}{% set totalScore = totalScore + (r.scoreObtenu ?? 0) %}{% endfor %}
+
+{# ── Hero ── #}
+<div class="resp-hero">
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+  <div class="hero-row">
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="3" y="4" width="18" height="17" rx="3"/>
+        <path d="M3 8h18M8 2v4M16 2v4" stroke-linecap="round"/>
+        <path d="M7 13h3M7 17h5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">Mes réponses</div>
+      <div class="hero-sub">Retrouvez l'historique complet de vos évaluations et suivez votre progression.</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ total is defined ? total : reponses|length }}</div>
+        <div class="hero-stat-lbl">Réponses</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ tests|length }}</div>
+        <div class="hero-stat-lbl">Tests</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ totalScore }}</div>
+        <div class="hero-stat-lbl">Score total</div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a href="{{ path('front_tests_index') }}" class="btn-hw">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 5l7 5-7 5V5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Passer un test
+      </a>
+      <a href="{{ path('front_objectifs_index') }}" class="btn-hg">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round"/></svg>
+        Mes objectifs
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ── Toolbar ── #}
+<form method="get" id="frontListForm" action="{{ path('front_tests_my_responses') }}" autocomplete="off">
+  <div class="toolbar">
+    <input type="hidden" name="page" value="1">
+    <div class="tb-search-wrap">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+      <input class="tb-search" type="search" name="q" value="{{ q }}" placeholder="Rechercher question, réponse…" autocomplete="off" data-front-debounce>
+    </div>
+    <select class="tb-select" name="testId" data-front-debounce>
+      <option value="0">Tous les tests</option>
+      {% for test in tests %}
+        <option value="{{ test.idTest }}" {{ testId == test.idTest ? 'selected' }}>{{ test.titreTest }}</option>
+      {% endfor %}
+    </select>
+    <a class="tb-reset" href="{{ path('front_tests_my_responses') }}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 1012 0A6 6 0 002 8zM10 6L6 10M6 6l4 4" stroke-linecap="round"/></svg>
+      Tout
+    </a>
+    <a class="btn-export exp-pdf" href="{{ path('front_tests_my_responses_export_pdf', exportQuery) }}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="1" width="12" height="14" rx="2"/><path d="M5 5h6M5 8h6M5 11h4" stroke-linecap="round"/></svg>
+      PDF
+    </a>
+    <a class="btn-export exp-xls" href="{{ path('front_tests_my_responses_export_excel', exportQuery) }}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="1" width="12" height="14" rx="2"/><path d="M5 5l2 3-2 3M9 8h3" stroke-linecap="round"/></svg>
+      Excel
+    </a>
+    {% if total is defined %}<span class="tb-count">{{ total }} réponse{{ total != 1 ? 's' : '' }}</span>{% endif %}
+  </div>
+</form>
+
+{# ── Responses ── #}
+{% if reponses is empty %}
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 8h18M8 2v4M16 2v4M7 13h3M7 17h5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="empty-title">Aucune réponse trouvée</div>
+    <div class="empty-sub">Passez votre premier test pour voir vos réponses apparaître ici.</div>
+    <a href="{{ path('front_tests_index') }}" style="margin-top:4px;display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green-mid));color:#fff;font-family:'Outfit',sans-serif;font-size:.86rem;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(27,67,50,.22);">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M8 5l7 5-7 5V5z" stroke-linecap="round"/></svg>
+      Passer un test
+    </a>
+  </div>
+{% else %}
+  <div class="resp-list">
+    {% for reponse in reponses %}
+      <article class="resp-item" style="animation-delay:{{ loop.index0 * 0.04 }}s">
+        <div class="resp-item-header">
+          <div class="resp-test-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4H5a1 1 0 00-1 1v11a1 1 0 001 1h10a1 1 0 001-1V5a1 1 0 00-1-1h-2" stroke-linecap="round"/><rect x="7" y="2" width="6" height="4" rx="1"/></svg>
+          </div>
+          <span class="resp-test-name">{{ reponse.testPsychologique ? reponse.testPsychologique.titreTest : 'Test inconnu' }}</span>
+          {% if reponse.scoreObtenu is not null %}
+            <span class="resp-score">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6 9l-3 1.5.5-3.5L1 4.5l3.5-.5z"/></svg>
+              {{ reponse.scoreObtenu }} pts
+            </span>
+          {% endif %}
+        </div>
+        <div class="resp-body">
+          <div class="resp-question">{{ reponse.questionReponse ? reponse.questionReponse.texteQuestion : '—' }}</div>
+          <div class="resp-answer">
+            <span class="resp-answer-val">
+              <strong style="color:var(--green);margin-right:4px;">→</strong>
+              {{ reponse.optionChoisie ?? '—' }}
+            </span>
+            <span class="resp-date">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="4"/><path d="M6 4v2l1 1" stroke-linecap="round"/></svg>
+              {{ reponse.dateReponse ? reponse.dateReponse|date('d/m/Y à H:i') : '—' }}
+            </span>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if pages > 1 %}
+    <div class="pagination">
+      {% for p in 1..pages %}
+        <a class="page-btn {{ p == page ? 'active' : '' }}"
+           href="{{ path('front_tests_my_responses', {q: q, testId: testId, page: p}) }}">{{ p }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% include '_partials/front_dynamic_list_filters.html.twig' with { form_id: 'frontListForm', skip_test_id_zero: true } %}
+{% endblock %}

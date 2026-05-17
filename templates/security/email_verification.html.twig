@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindAura — Vérifiez votre e-mail</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #1B4332;
+      --green-mid:    #2D6A4F;
+      --green-light:  #52B788;
+      --green-pale:   #D8F3DC;
+      --green-xpale:  #EBF7F0;
+      --violet:       #7B5EA7;
+      --violet-light: rgba(123,94,167,.12);
+      --bg:           #F0F4F8;
+      --white:        #FFFFFF;
+      --text:         #1A1A2E;
+      --text-sec:     #5A6475;
+      --border:       #D5DCE6;
+      --hover-row:    #E8F5EE;
+      --shadow:       0 24px 64px rgba(27,67,50,.18), 0 0 0 1px rgba(255,255,255,.7);
+      --radius:       22px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* Background identique à auth.html.twig */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      background: url("{{ asset('images/background.jpg') }}") center center / cover no-repeat;
+    }
+    .bg-canvas::before {
+      content:''; position:absolute; inset:0;
+      background: rgba(0,0,0,0.35);
+    }
+
+    .wrapper {
+      position: relative; z-index: 1; height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%; max-width: 520px;
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: cardIn .7s cubic-bezier(.22,1,.36,1) both;
+      position: relative;
+    }
+
+    /* Barre de couleur en haut */
+    .card::before {
+      content:'';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green) 0%, var(--green-light) 50%, var(--violet) 100%);
+      z-index: 10;
+    }
+
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(30px) scale(.95); }
+      to   { opacity:1; transform: none; }
+    }
+
+    /* ── BODY ── */
+    .card-body {
+      padding: 48px 44px 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0;
+    }
+
+    /* ── ICON ENVELOPE ── */
+    .envelope-wrap {
+      width: 88px; height: 88px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--green-xpale), var(--green-pale));
+      border: 2px solid var(--green-pale);
+      display: grid; place-items: center;
+      margin-bottom: 28px;
+      animation: bounceIn .8s .2s cubic-bezier(.34,1.56,.64,1) both;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .envelope-wrap::after {
+      content: '✉';
+      position: absolute;
+      font-size: 2.4rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes bounceIn {
+      from { opacity:0; transform: scale(.4) rotate(-15deg); }
+      to   { opacity:1; transform: scale(1) rotate(0); }
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+
+    /* ── BADGE ── */
+    .step-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--violet-light); color: var(--violet);
+      font-size: .69rem; font-weight: 700; border-radius: 99px;
+      padding: 3px 12px; letter-spacing: .4px; text-transform: uppercase;
+      margin-bottom: 14px;
+      animation: fadeUp .5s .35s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    /* ── TITLE ── */
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem; line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 12px;
+      animation: fadeUp .5s .4s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .card-desc {
+      font-size: .9rem; color: var(--text-sec);
+      line-height: 1.6; max-width: 380px;
+      margin-bottom: 32px;
+      animation: fadeUp .5s .45s cubic-bezier(.22,1,.36,1) both;
+    }
+    .card-desc strong { color: var(--text); font-weight: 600; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: none; }
+    }
+
+    /* ── STEPS ── */
+    .steps-row {
+      display: flex; align-items: flex-start; gap: 0;
+      width: 100%; margin-bottom: 32px;
+      animation: fadeUp .5s .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    .step-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .step-connector {
+      flex: 1; height: 2px; margin-top: 15px;
+      background: var(--border); border-radius: 99px;
+    }
+    .step-connector.done { background: var(--green-light); }
+
+    .step-circle {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: .75rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-circle.done  { background: var(--green); color: #fff; }
+    .step-circle.active {
+      background: linear-gradient(135deg, var(--green), var(--green-mid));
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--green-xpale);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .step-circle.pending {
+      background: var(--bg); color: var(--text-sec);
+      border: 2px solid var(--border);
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 4px var(--green-xpale); }
+      50%      { box-shadow: 0 0 0 8px rgba(27,67,50,.08); }
+    }
+    .step-label { font-size: .67rem; font-weight: 600; color: var(--text-sec); letter-spacing: .3px; text-align: center; }
+    .step-label.active { color: var(--green); }
+
+    /* ── ALERT FLASH ── */
+    .flash-alert {
+      width: 100%; border-radius: 12px; padding: 12px 15px;
+      font-size: .84rem; display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; border: 1px solid;
+      animation: alertIn .35s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes alertIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
+    .flash-success {
+      background: var(--green-xpale); color: var(--green);
+      border-color: var(--green-pale); border-left: 3px solid var(--green-light);
+    }
+    .flash-error {
+      background: #FEF2F2; color: #991B1B;
+      border-color: #FCA5A5; border-left: 3px solid #EF4444;
+    }
+
+    /* ── INFO BOX ── */
+    .info-box {
+      width: 100%;
+      background: linear-gradient(135deg, var(--green-xpale), var(--bg));
+      border: 1px solid var(--green-pale); border-radius: 14px;
+      padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 24px;
+      animation: fadeUp .5s .55s cubic-bezier(.22,1,.36,1) both;
+    }
+    .info-icon {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--green); display: grid; place-items: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .info-icon svg { width: 15px; height: 15px; color: #fff; }
+    .info-text { font-size: .82rem; color: var(--text-sec); line-height: 1.55; text-align: left; }
+    .info-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── ACTIONS ── */
+    .actions {
+      width: 100%; display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .5s .6s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .btn-primary {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+      color: #fff; border: none; border-radius: 13px;
+      font-family: 'Outfit', sans-serif; font-size: .92rem; font-weight: 700;
+      cursor: pointer; letter-spacing: .4px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform .18s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+      transform: skewX(-20deg); transition: left .55s ease;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(27,67,50,.35); }
+    .btn-primary:hover::before { left: 140%; }
+
+    .btn-secondary {
+      width: 100%; padding: 12px;
+      background: transparent; color: var(--text-sec);
+      border: 1.5px solid var(--border); border-radius: 13px;
+      font-family: 'Outfit', sans-serif; font-size: .88rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-secondary:hover { border-color: var(--green-light); color: var(--green); background: var(--green-xpale); }
+
+    /* Countdown */
+    #resendCountdown { color: var(--text-sec); font-size: .82rem; text-align: center; }
+    #resendCountdown span { font-weight: 700; color: var(--green); }
+
+    .divider-text {
+      font-size: .76rem; color: var(--text-sec);
+      display: flex; align-items: center; gap: 8px; width: 100%;
+    }
+    .divider-text::before, .divider-text::after {
+      content:''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .bottom-link {
+      font-size: .82rem; color: var(--text-sec);
+      animation: fadeUp .5s .65s cubic-bezier(.22,1,.36,1) both;
+      margin-top: 8px;
+    }
+    .link { color: var(--green); text-decoration: none; font-weight: 600; transition: opacity .2s; }
+    .link:hover { opacity: .72; }
+
+    @media (max-width: 560px) {
+      .card-body { padding: 36px 22px 32px; }
+      .card-title { font-size: 1.45rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+
+<div class="wrapper">
+  <div class="card">
+    <div class="card-body">
+
+      {# ── Flash messages ── #}
+      {% for msg in app.flashes('success') %}
+        <div class="flash-alert flash-success" style="animation-delay:.1s">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="#1B4332" stroke-width="1.5"/>
+            <path d="M5 8l2.5 2.5L11 5" stroke="#1B4332" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ msg }}
+        </div>
+      {% endfor %}
+      {% for msg in app.flashes('error') %}
+        <div class="flash-alert flash-error" style="animation-delay:.1s">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="#991B1B" stroke-width="1.5"/>
+            <path d="M8 5v4M8 11v.5" stroke="#991B1B" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          {{ msg }}
+        </div>
+      {% endfor %}
+
+      {# ── Icône envelope animée ── #}
+      <div class="envelope-wrap"></div>
+
+      {# ── Badge étape ── #}
+      <div class="step-badge">
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 2l2 4h4l-3.3 2.4 1.3 4L8 10.3 4 12.4l1.3-4L2 6h4z"/>
+        </svg>
+        Étape 2 sur 3
+      </div>
+
+      <h1 class="card-title">Vérifiez votre e-mail</h1>
+
+      <p class="card-desc">
+        Un e-mail de confirmation a été envoyé à votre adresse.<br/>
+        <strong>Cliquez sur le lien dans l'e-mail</strong> pour confirmer
+        votre identité et accéder à la prochaine étape.
+      </p>
+
+      {# ── Progression ── #}
+      <div class="steps-row">
+        <div class="step-item">
+          <div class="step-circle done">✓</div>
+          <div class="step-label">Inscription</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step-item">
+          <div class="step-circle active">2</div>
+          <div class="step-label active">E-mail</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item">
+          <div class="step-circle pending">3</div>
+          <div class="step-label">2FA Setup</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item">
+          <div class="step-circle pending">4</div>
+          <div class="step-label">Connexion</div>
+        </div>
+      </div>
+
+      {# ── Info box ── #}
+      <div class="info-box">
+        <div class="info-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12a1 1 0 102 0V9a1 1 0 10-2 0v3zm1-7a1 1 0 100 2 1 1 0 000-2z"/>
+            <circle cx="10" cy="10" r="8" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <p class="info-text">
+          <strong>Vous ne trouvez pas l'e-mail ?</strong> Vérifiez votre dossier
+          <strong>Spam / Courrier indésirable</strong>. Le lien est valide pendant
+          <strong>24 heures</strong>.
+        </p>
+      </div>
+
+      {# ── Actions ── #}
+      <div class="actions">
+
+        {# Bouton renvoyer (formulaire POST) #}
+        <form method="post" action="{{ path('app_resend_verification') }}" id="resendForm">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification') }}"/>
+          <button type="button" class="btn-primary" id="resendBtn" onclick="startResend()">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2">
+              <path d="M2 4l8 5 8-5M2 4v12a2 2 0 002 2h12a2 2 0 002-2V4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Renvoyer l'e-mail
+          </button>
+        </form>
+
+        <div id="resendCountdown" style="display:none">
+          Vous pourrez renvoyer dans <span id="countNum">60</span>s
+        </div>
+
+        <div class="divider-text">ou</div>
+
+        <a href="{{ path('app_register') }}" class="btn-secondary">
+          ← Modifier mon adresse e-mail
+        </a>
+      </div>
+
+      <p class="bottom-link">
+        Déjà confirmé ? <a href="{{ path('app_login') }}" class="link">Se connecter →</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let countdownRunning = false;
+
+function startResend() {
+  if (countdownRunning) return;
+  document.getElementById('resendForm').submit();
+  countdownRunning = true;
+  const btn       = document.getElementById('resendBtn');
+  const countdown = document.getElementById('resendCountdown');
+  const numEl     = document.getElementById('countNum');
+  btn.style.display = 'none';
+  countdown.style.display = 'block';
+  let remaining = 60;
+  numEl.textContent = remaining;
+  const interval = setInterval(() => {
+    remaining--;
+    numEl.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(interval);
+      countdown.style.display = 'none';
+      btn.style.display       = 'flex';
+      countdownRunning        = false;
+    }
+  }, 1000);
+}
+</script>
+
+</body>
+</html>

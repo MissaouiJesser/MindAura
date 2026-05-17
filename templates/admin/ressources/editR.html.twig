@@ -1,0 +1,506 @@
+{# templates/admin/ressources/editR.html.twig
+   Édition d'une ressource — Back-office
+   Design harmonisé avec admin/utilisateurs/
+   JS (preview image, label fichier, tags chips, drag&drop) préservé #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Modifier — {{ ressource.titre }}{% endblock %}
+{% block page_label %}Modification : {{ ressource.titre }}{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .edit-layout {
+    display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:start;
+  }
+  @media (max-width:900px) { .edit-layout { grid-template-columns:1fr; } }
+
+  .glass-card {
+    background:var(--white); border:1.5px solid var(--border); border-radius:18px;
+    padding:0; box-shadow:var(--shadow-card); overflow:hidden;
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+  }
+  .edit-card-header {
+    display:flex; align-items:center; gap:12px;
+    padding:18px 22px; background:var(--bg);
+    border-bottom:1.5px solid var(--border);
+  }
+  .edit-card-icon {
+    width:38px; height:38px; border-radius:10px;
+    background:var(--green-pale); color:var(--green);
+    display:grid; place-items:center; flex-shrink:0;
+  }
+  .edit-card-icon svg { width:18px; height:18px; }
+  .edit-card-title {
+    font-size:.96rem; font-weight:700; color:var(--text);
+    font-family:'Playfair Display',serif;
+  }
+  .edit-card-subtitle { font-size:.78rem; color:var(--text-sec); margin-top:2px; }
+  .edit-card-body { padding:20px 22px; }
+
+  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .field-grid.cols-3 { grid-template-columns:1fr 1fr 1fr; }
+  .field-full { grid-column:1/-1; }
+  @media (max-width:700px) {
+    .field-grid, .field-grid.cols-3 { grid-template-columns:1fr; }
+  }
+
+  .field label {
+    display:block; font-size:.78rem; font-weight:700; color:var(--text);
+    margin-bottom:6px;
+  }
+  .field .required { color:#EF4444; }
+  .field-hint { font-size:.7rem; color:var(--text-sec); margin-top:4px; }
+
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="number"],
+  .field input[type="date"],
+  .field select,
+  .field textarea {
+    width:100%; padding:10px 14px; box-sizing:border-box;
+    border:1.5px solid var(--border); border-radius:10px;
+    background:var(--bg); font-family:'Outfit',sans-serif;
+    font-size:.88rem; color:var(--text); outline:none;
+    transition:border-color .2s, box-shadow .2s, background .2s;
+  }
+  .field textarea { resize:vertical; min-height:90px; }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color:var(--green-light); background:var(--white);
+    box-shadow:0 0 0 3px rgba(82,183,136,.1);
+  }
+
+  .image-drop-zone {
+    border:2px dashed var(--border); border-radius:14px;
+    padding:30px; text-align:center;
+    background:var(--bg); cursor:pointer;
+    position:relative; transition:all .2s;
+  }
+  .image-drop-zone:hover { border-color:var(--green-light); }
+  .image-drop-zone.has-image { padding:0; border-style:solid; }
+  .image-preview-wrap { position:relative; border-radius:12px; overflow:hidden; }
+  .image-preview-wrap img { width:100%; height:200px; object-fit:cover; display:block; }
+  .image-preview-wrap:hover .image-overlay { opacity:1 !important; }
+  .drop-placeholder { color:var(--text-sec); }
+
+  .stat-chip {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:5px 12px; border-radius:99px;
+    font-size:.75rem; font-weight:600;
+    background:var(--bg); color:var(--text);
+    border:1px solid var(--border);
+  }
+  .stat-chip svg { width:12px; height:12px; }
+  .stat-chip.violet { background:var(--violet-pale); color:var(--violet); border-color:transparent; }
+  .stat-chip.green { background:var(--green-pale); color:var(--green); border-color:transparent; }
+
+  .tag-chip {
+    display:inline-block; padding:3px 10px; border-radius:99px;
+    background:var(--violet-pale); color:var(--violet);
+    font-size:.74rem; font-weight:600; margin:3px 4px 0 0;
+  }
+  .tags-display { margin-top:8px; }
+
+  .btn-cancel {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:9px 18px; border-radius:10px;
+    background:var(--bg); color:var(--text);
+    border:1.5px solid var(--border); text-decoration:none;
+    font-family:'Outfit',sans-serif; font-size:.85rem; font-weight:600;
+    transition:all .2s; cursor:pointer;
+  }
+  .btn-cancel:hover { border-color:var(--green-light); color:var(--green); }
+  .btn-cancel svg { width:14px; height:14px; }
+
+  .btn-save {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:11px 22px; border-radius:10px;
+    background:var(--green); color:#fff; border:none;
+    font-family:'Outfit',sans-serif; font-size:.88rem; font-weight:700;
+    cursor:pointer; transition:all .2s;
+  }
+  .btn-save:hover { background:var(--green-mid); transform:translateY(-1px); }
+  .btn-save svg { width:14px; height:14px; }
+
+  .action-bar {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; padding:14px 22px; background:var(--bg);
+    border-top:1.5px solid var(--border); flex-wrap:wrap;
+  }
+</style>
+
+<div class="ds-hero">
+  <div class="ds-hero-dots"><span></span><span></span><span></span></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+    </div>
+    <div class="ds-hero-text">
+      <div class="ds-hero-title">Modifier la ressource</div>
+      <div class="ds-hero-sub">
+        <strong style="color:#fff">{{ ressource.titre }}</strong>
+        {% if ressource.contenu %}<span class="ds-hero-chip">{{ ressource.contenu }}</span>{% endif %}
+        {% if ressource.categorie %}<span class="ds-hero-chip" style="background:rgba(255,255,255,.2)">🏷️ {{ ressource.categorie }}</span>{% endif %}
+        {% if ressource.likes is defined %}<span class="ds-hero-chip">❤️ {{ ressource.likes }}</span>{% endif %}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;flex-wrap:wrap">
+      <a href="{{ path('admin_ressources_show', {id: ressource.id}) }}" class="ds-btn-primary" style="background:rgba(255,255,255,.13);color:#fff;border:1.5px solid rgba(255,255,255,.3)">
+        <div class="ds-btn-primary-icon" style="background:rgba(255,255,255,.2)">
+          <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/></svg>
+        </div>
+        Voir
+      </a>
+      <a href="{{ path('admin_ressources_index') }}" class="ds-btn-primary">
+        <div class="ds-btn-primary-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </div>
+        Retour
+      </a>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="{{ path('admin_ressources_update', {id: ressource.id}) }}" enctype="multipart/form-data" id="editForm">
+  <input type="hidden" name="_token" value="{{ csrf_token('update' ~ ressource.id) }}">
+
+  <div class="edit-layout">
+
+    {# ════ COLONNE PRINCIPALE ════ #}
+    <div style="display:flex;flex-direction:column;gap:18px;">
+
+      {# Informations générales #}
+      <div class="glass-card" style="animation-delay:.05s">
+        <div class="edit-card-header">
+          <div class="edit-card-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h12v12H4z M4 8h12M8 8v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="edit-card-title">Informations générales</div>
+            <div class="edit-card-subtitle">Titre, type et description de la ressource</div>
+          </div>
+        </div>
+        <div class="edit-card-body">
+          <div class="field-grid">
+            <div class="field field-full">
+              <label>Titre <span class="required">*</span></label>
+              <input type="text" name="titre" required maxlength="255" value="{{ ressource.titre }}" placeholder="Titre de la ressource…">
+            </div>
+            <div class="field">
+              <label>Type de contenu</label>
+              <select name="contenu">
+                <option value="">— Choisir —</option>
+                {% for label, value in contenuChoices %}
+                  <option value="{{ value }}" {{ ressource.contenu == value ? 'selected' }}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label>Catégorie</label>
+              <select name="categorie">
+                <option value="">— Choisir —</option>
+                {% for label, value in categorieChoices %}
+                  <option value="{{ value }}" {{ ressource.categorie == value ? 'selected' }}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field field-full">
+              <label>Résumé</label>
+              <textarea name="resume" rows="4" placeholder="Description courte de la ressource…">{{ ressource.resume }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Métadonnées #}
+      <div class="glass-card" style="animation-delay:.1s">
+        <div class="edit-card-header">
+          <div class="edit-card-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="edit-card-title">Métadonnées</div>
+            <div class="edit-card-subtitle">Niveau, durée, auteur et date</div>
+          </div>
+        </div>
+        <div class="edit-card-body">
+          <div class="field-grid cols-3">
+            <div class="field">
+              <label>Niveau</label>
+              <select name="niveau">
+                <option value="">— Choisir —</option>
+                {% for label, value in niveauChoices %}
+                  <option value="{{ value }}" {{ ressource.niveau == value ? 'selected' }}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label>Durée de lecture (min)</label>
+              <input type="number" name="duree_lecture" min="0" value="{{ ressource.dureeLecture|default(0) }}" placeholder="0">
+            </div>
+            <div class="field">
+              <label>Date de publication</label>
+              <input type="date" name="date_publication" value="{{ ressource.datePublication ? ressource.datePublication|date('Y-m-d') : '' }}">
+            </div>
+            <div class="field" style="grid-column: span 2;">
+              <label>Email auteur</label>
+              <input type="email" name="email_auteur" value="{{ ressource.emailAuteur }}" placeholder="auteur@exemple.com">
+            </div>
+            <div class="field">
+              <label>Tags</label>
+              <input type="text" name="tags" id="tagsInput" value="{{ ressource.tags }}" placeholder="tag1, tag2…">
+              <div class="field-hint">Séparés par des virgules</div>
+              <div class="tags-display" id="tagsPreview"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Source & fichier #}
+      <div class="glass-card" style="animation-delay:.15s">
+        <div class="edit-card-header">
+          <div class="edit-card-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 3h4v14h-4M9 14l4-4-4-4M13 10H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="edit-card-title">Source & Fichier</div>
+            <div class="edit-card-subtitle">Lien externe ou fichier uploadé</div>
+          </div>
+        </div>
+        <div class="edit-card-body">
+          <div class="field-grid">
+            <div class="field field-full">
+              <label>URL / Chemin du fichier</label>
+              <input type="text" name="url" value="{{ ressource.url }}" placeholder="https://… ou /uploads/fichier.pdf">
+            </div>
+            <div class="field field-full">
+              <label>Remplacer le fichier (PDF / Vidéo)</label>
+              <div class="image-drop-zone" onclick="document.getElementById('resourceFile').click()">
+                <input type="file" name="resource_file" id="resourceFile" accept=".pdf,.mp4,.webm" style="display:none;">
+                <div style="text-align:center">
+                  <div class="edit-card-icon" style="margin: 0 auto 12px;width:50px;height:50px;">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" style="width:24px;height:24px;"><path d="M10 3v10M6 7l4-4 4 4M5 17h10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <p style="font-family:'Playfair Display',serif; font-weight:700; color:var(--green); font-size:.92rem; margin:0;">Cliquez pour uploader</p>
+                  <span style="font-size:.74rem; color:var(--text-sec);">PDF, MP4, WEBM — Laissez vide pour conserver l'actuel</span>
+                  <div id="fileLabel" style="margin-top:10px; font-weight:700; color:var(--green); font-size:.85rem"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <div style="font-size:.78rem; color:var(--text-sec); display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;color:var(--green);"><path d="M10 17s-7-4.35-7-8.5A4.5 4.5 0 0110 5a4.5 4.5 0 017 3.5C17 12.65 10 17 10 17z"/></svg>
+            Modifications sauvegardées au clic sur Enregistrer
+          </div>
+          <div style="display:flex;gap:10px;">
+            <a href="{{ path('admin_ressources_index') }}" class="btn-cancel">Annuler</a>
+            <button type="submit" class="btn-save">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 14v2h12v-2M10 3v10M6 9l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Enregistrer les modifications
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# ════ COLONNE LATÉRALE ════ #}
+    <div class="sidebar-cards" style="display:flex;flex-direction:column;gap:18px;">
+
+      {# Image de couverture #}
+      <div class="glass-card" style="animation-delay:.07s">
+        <div class="edit-card-header">
+          <div class="edit-card-icon" style="background:var(--violet-pale); color:var(--violet);">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="16" height="13" rx="2"/><circle cx="7" cy="9" r="1.5"/><path d="M2 14l4-4 3 3 3-3 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="edit-card-title">Image de couverture</div>
+            <div class="edit-card-subtitle">JPG, PNG, WEBP — max 5 Mo</div>
+          </div>
+        </div>
+        <div class="edit-card-body">
+          <div class="image-drop-zone {% if ressource.imageUrl %}has-image{% endif %}" id="imageDropZone">
+            <input type="file" name="image_file" id="imageFile" accept="image/*" style="position: absolute;inset: 0;opacity: 0;cursor: pointer;z-index: 2;">
+            {% if ressource.imageUrl %}
+              <div class="image-preview-wrap" id="imagePreviewWrap">
+                <img src="{{ asset(ressource.imageUrl) }}" alt="Couverture actuelle" id="imagePreviewImg">
+                <div class="image-overlay" style="position: absolute;inset: 0;background: rgba(27,67,50,.5);display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 8px;opacity: 0;transition: opacity .3s;border-radius: 12px;">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" style="width:24px;color:white;"><path d="M3 14l4-4 3 3 3-3 4 4M3 4h14v12H3z" stroke-linecap="round"/></svg>
+                  <span style="color:white;font-size:.78rem;font-weight:700;">Changer l'image</span>
+                </div>
+              </div>
+            {% else %}
+              <div class="drop-placeholder" id="dropPlaceholder">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" style="width:32px;color:var(--text-sec);margin-bottom:12px;"><rect x="2" y="4" width="16" height="13" rx="2"/><circle cx="7" cy="9" r="1.5"/><path d="M2 14l4-4 3 3 3-3 4 4" stroke-linecap="round"/></svg>
+                <p style="font-size:.82rem;color:var(--text-sec);line-height:1.5; margin:0;"><strong style="color:var(--green)">Cliquez pour ajouter</strong><br>ou glissez une image ici</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Aperçu rapide #}
+      <div class="glass-card" style="animation-delay:.12s">
+        <div class="edit-card-header">
+          <div class="edit-card-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="14" height="14" rx="3"/><path d="M3 8h14M8 3v5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="edit-card-title">Aperçu rapide</div>
+            <div class="edit-card-subtitle">Résumé des infos clés</div>
+          </div>
+        </div>
+        <div class="edit-card-body" style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:.84rem;align-items:center;">
+            <span style="color:var(--text-sec); font-weight:600;">ID Unique</span>
+            <span style="font-weight:800; color:var(--green);">#{{ ressource.id }}</span>
+          </div>
+          <div style="height:1px; background:var(--border);"></div>
+          <div style="display:flex;justify-content:space-between;font-size:.84rem;align-items:center;">
+            <span style="color:var(--text-sec); font-weight:600;">Vues totales</span>
+            <span style="font-weight:800; color:var(--green);">👁️ {{ ressource.nbrVues|default(0) }}</span>
+          </div>
+          <div style="height:1px; background:var(--border);"></div>
+          <div style="display:flex;justify-content:space-between;font-size:.84rem;align-items:center;">
+            <span style="color:var(--text-sec); font-weight:600;">Interactions</span>
+            <span style="font-weight:800; color:var(--green);">❤️ {{ ressource.likes|default(0) }}</span>
+          </div>
+          <div style="height:1px; background:var(--border);"></div>
+          <div style="display:flex;justify-content:space-between;font-size:.84rem;align-items:center;">
+            <span style="color:var(--text-sec); font-weight:600;">Statut</span>
+            <span class="ds-badge ds-badge-green">Publié</span>
+          </div>
+
+          <div style="margin-top:6px;">
+            <a href="{{ path('ressources_show', {id: ressource.id}) }}" target="_blank" class="btn-cancel"
+               style="justify-content:center;width:100%;padding:11px;text-align:center;">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2" stroke-linecap="round"/></svg>
+              Voir la ressource publique
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</form>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+  // ── Preview image à la sélection ──
+  const imageFile     = document.getElementById('imageFile');
+  const imageDropZone = document.getElementById('imageDropZone');
+  const previewWrap   = document.getElementById('imagePreviewWrap');
+
+  if (imageFile) {
+    imageFile.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        imageDropZone.classList.add('has-image');
+
+        let wrap = previewWrap;
+        if (!wrap) {
+          const placeholder = document.getElementById('dropPlaceholder');
+          if (placeholder) placeholder.style.display = 'none';
+
+          wrap = document.createElement('div');
+          wrap.className = 'image-preview-wrap';
+          wrap.id = 'imagePreviewWrap';
+
+          const img = document.createElement('img');
+          img.id = 'imagePreviewImg';
+          img.alt = 'Nouvelle image';
+
+          const overlay = document.createElement('div');
+          overlay.className = 'image-overlay';
+          overlay.style.cssText = 'position:absolute;inset:0;background:rgba(27,67,50,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;opacity:0;transition:opacity .3s;border-radius:12px;color:#fff;font-size:.78rem;font-weight:700';
+          overlay.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" style="width:24px"><path d="M3 14l4-4 3 3 3-3 4 4M3 4h14v12H3z" stroke-linecap="round"/></svg><span>Changer l\'image</span>';
+
+          wrap.appendChild(img);
+          wrap.appendChild(overlay);
+          imageDropZone.appendChild(wrap);
+        }
+
+        document.getElementById('imagePreviewImg').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ── Label fichier ressource ──
+  const resourceFile = document.getElementById('resourceFile');
+  const fileLabel    = document.getElementById('fileLabel');
+  if (resourceFile && fileLabel) {
+    resourceFile.addEventListener('change', function () {
+      if (this.files[0]) {
+        fileLabel.textContent = '✓ ' + this.files[0].name;
+        fileLabel.style.display = 'block';
+      }
+    });
+  }
+
+  // ── Tags preview ──
+  const tagsInput   = document.getElementById('tagsInput');
+  const tagsPreview = document.getElementById('tagsPreview');
+
+  function renderTags(value) {
+    if (!tagsPreview) return;
+    tagsPreview.innerHTML = '';
+    const tags = value.split(',').map(t => t.trim().replace(/^\[|\]$/g, '')).filter(Boolean);
+    tags.forEach(tag => {
+      const chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.textContent = tag;
+      tagsPreview.appendChild(chip);
+    });
+  }
+
+  if (tagsInput) {
+    renderTags(tagsInput.value);
+    tagsInput.addEventListener('input', () => renderTags(tagsInput.value));
+  }
+
+  // ── Drag & drop sur la zone image ──
+  if (imageDropZone) {
+    imageDropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      imageDropZone.style.borderColor = 'var(--green-light)';
+      imageDropZone.style.background  = 'var(--green-pale)';
+    });
+    imageDropZone.addEventListener('dragleave', () => {
+      if (!imageDropZone.classList.contains('has-image')) {
+        imageDropZone.style.borderColor = '';
+        imageDropZone.style.background  = '';
+      }
+    });
+    imageDropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        imageFile.files = dt.files;
+        imageFile.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}

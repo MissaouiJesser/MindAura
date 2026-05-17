@@ -1,0 +1,898 @@
+{% extends 'base_frontoffice.html.twig' %}
+
+{% block title %}Tests psychologiques{% endblock %}
+{% block page_title %}Parcours coaching personnel{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Outfit:wght@400;600;700&display=swap');
+
+  :root {
+    --green-deep:   #0D5C3A;
+    --green-mid:    #1A7A4E;
+    --green-bright: #22A06B;
+    --green-light:  #D6F5E8;
+    --green-pale:   #EAF9F2;
+    --yellow:       #F5C842;
+    --yellow-pale:  #FFF8DC;
+    --yellow-dark:  #B8920A;
+    --violet:       #7C3AED;
+    --violet-pale:  #EDE9FF;
+    --violet-mid:   #A07DF5;
+    --rose:         #E8538A;
+    --rose-pale:    #FFE8F2;
+    --rose-mid:     #F49BBF;
+  }
+
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+  @keyframes shimmer { 0%,100%{opacity:.45} 50%{opacity:1} }
+  @keyframes scaleIn { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:none} }
+
+  /* ── HERO ── */
+  .tests-hero {
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 55%, #145C3E 100%);
+    border-radius:22px; padding:32px 38px; margin-bottom:24px;
+    box-shadow:0 14px 44px rgba(13,92,58,.35);
+    animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  .tests-hero::before {
+    content:''; position:absolute; width:340px; height:340px; border-radius:50%;
+    background:rgba(255,255,255,.05); top:-100px; right:-80px; pointer-events:none;
+  }
+  .tests-hero::after {
+    content:''; position:absolute; width:180px; height:180px; border-radius:50%;
+    background:rgba(34,160,107,.3); bottom:-60px; left:20px; pointer-events:none;
+  }
+  .hero-accent-yellow {
+    position:absolute; width:90px; height:90px; border-radius:50%;
+    background:radial-gradient(circle, rgba(245,200,66,.45) 0%, transparent 70%);
+    top:10px; right:200px; pointer-events:none;
+  }
+  .hero-accent-rose {
+    position:absolute; width:70px; height:70px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,83,138,.35) 0%, transparent 70%);
+    bottom:15px; right:80px; pointer-events:none;
+  }
+  .hero-dots { position:absolute; top:16px; left:34px; display:flex; gap:7px; }
+  .hero-dots span { width:7px; height:7px; border-radius:50%; animation:shimmer 2s ease-in-out infinite; }
+  .hero-dots span:nth-child(1){ background:var(--yellow); }
+  .hero-dots span:nth-child(2){ background:var(--rose); animation-delay:.3s; }
+  .hero-dots span:nth-child(3){ background:var(--violet-mid); animation-delay:.6s; }
+  .hero-row  { display:flex; align-items:center; gap:22px; position:relative; z-index:1; margin-top:8px; flex-wrap:wrap; }
+  .hero-icon {
+    width:60px; height:60px; border-radius:16px;
+    background:rgba(255,255,255,.14); border:1.5px solid rgba(255,255,255,.25);
+    display:grid; place-items:center; flex-shrink:0;
+    box-shadow:0 0 0 6px rgba(245,200,66,.15);
+  }
+  .hero-icon svg { width:27px; height:27px; color:#fff; }
+  .hero-text  { flex:1; min-width:200px; }
+  .hero-title {
+    font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:700;
+    color:#fff; margin-bottom:5px; text-shadow:0 2px 12px rgba(0,0,0,.2);
+  }
+  .hero-sub { font-size:.88rem; color:rgba(255,255,255,.78); max-width:560px; line-height:1.55; }
+  .hero-stats { display:flex; gap:10px; flex-wrap:wrap; }
+  .hero-stat  {
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+    border-radius:12px; padding:10px 16px; text-align:center; min-width:80px;
+  }
+  .hero-stat-val {
+    font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700;
+    color:var(--yellow); line-height:1; text-shadow:0 0 16px rgba(245,200,66,.5);
+  }
+  .hero-stat-lbl { font-size:.67rem; color:rgba(255,255,255,.65); font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-top:3px; }
+  .hero-actions { display:flex; gap:8px; flex-direction:column; align-items:flex-end; flex-shrink:0; }
+  .btn-hw {
+    display:inline-flex; align-items:center; gap:7px; padding:10px 18px;
+    border-radius:11px; background:#fff; color:var(--green-deep);
+    font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:700;
+    text-decoration:none; transition:all .2s;
+    box-shadow:0 3px 10px rgba(0,0,0,.12); white-space:nowrap; border:2px solid transparent;
+  }
+  .btn-hw:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.18); border-color:var(--yellow); }
+  .btn-hw svg  { width:14px; height:14px; }
+  .btn-hg {
+    display:inline-flex; align-items:center; gap:7px; padding:9px 16px;
+    border-radius:11px; background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.28);
+    color:#fff; font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600;
+    text-decoration:none; transition:all .2s; white-space:nowrap;
+  }
+  .btn-hg:hover { background:rgba(245,200,66,.22); border-color:var(--yellow); }
+
+  /* ── CITATION ── */
+  .quote-banner {
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg, #0a4a2f 0%, var(--green-mid) 60%, #0f5235 100%);
+    border-radius:16px; padding:20px 26px; margin-bottom:20px;
+    border-left:4px solid var(--yellow);
+    box-shadow:0 6px 22px rgba(13,92,58,.2);
+    animation:fadeUp .45s cubic-bezier(.22,1,.36,1) .05s both;
+  }
+  .quote-banner::after {
+    content:''; position:absolute; width:180px; height:180px; border-radius:50%;
+    background:rgba(255,255,255,.04); top:-60px; right:-40px; pointer-events:none;
+  }
+  .qb-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:12px; position:relative; z-index:1;
+  }
+  .qb-label {
+    display:flex; align-items:center; gap:7px;
+    font-family:'Outfit',sans-serif; font-size:.7rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:1.1px; color:rgba(255,255,255,.55);
+  }
+  .qb-dot {
+    width:6px; height:6px; border-radius:50%; background:var(--yellow);
+    animation:shimmer 2s ease-in-out infinite;
+  }
+  .qb-tag {
+    font-family:'Outfit',sans-serif; font-size:.7rem; font-weight:700;
+    padding:3px 10px; border-radius:99px; text-transform:capitalize;
+    background:rgba(245,200,66,.18); color:var(--yellow);
+    border:1px solid rgba(245,200,66,.3);
+  }
+  .qb-body { position:relative; z-index:1; padding-left:22px; }
+  .qb-mark {
+    position:absolute; top:-16px; left:0;
+    font-family:'Playfair Display',serif; font-size:72px; line-height:1;
+    color:rgba(255,255,255,.12); user-select:none; pointer-events:none;
+  }
+  .qb-text {
+    font-family:'Playfair Display',serif; font-style:italic;
+    font-size:1rem; color:#fff; line-height:1.7;
+  }
+  .qb-author {
+    margin-top:8px;
+    font-family:'Outfit',sans-serif; font-size:.78rem; font-weight:600;
+    color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px;
+  }
+  .qb-author::before {
+    content:''; display:inline-block; width:22px; height:1px;
+    background:rgba(245,200,66,.5);
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:14px 18px;
+    margin-bottom:20px; box-shadow:var(--shadow-card);
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .08s both;
+    border-top:3px solid var(--green-bright);
+  }
+  .tb-search-wrap { position:relative; flex:1; min-width:200px; max-width:320px; }
+  .tb-search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--green-bright); pointer-events:none; }
+  .tb-search {
+    width:100%; padding:9px 13px 9px 34px; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFDF9; outline:none;
+    transition:border-color .2s,box-shadow .2s;
+  }
+  .tb-search:focus { border-color:var(--green-bright); box-shadow:0 0 0 3px rgba(34,160,107,.15); background:#fff; }
+  .tb-select {
+    padding:9px 12px; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Outfit',sans-serif; font-size:.86rem; color:var(--text); background:#FAFDF9;
+    outline:none; cursor:pointer; max-width:200px;
+  }
+  .tb-select:focus { border-color:var(--green-bright); }
+  .tb-reset {
+    display:inline-flex; align-items:center; gap:6px; padding:9px 13px; border-radius:10px;
+    border:1.5px solid var(--border); background:#fff; color:var(--text-sec);
+    font-family:'Outfit',sans-serif; font-size:.83rem; font-weight:600;
+    text-decoration:none; transition:all .2s;
+  }
+  .tb-reset:hover { border-color:var(--rose); color:var(--rose); background:var(--rose-pale); }
+
+  /* ── GRILLE CARTES TESTS ── */
+  .flow-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:16px; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .14s both;
+  }
+  .flow-card {
+    background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:0; overflow:hidden;
+    box-shadow:var(--shadow-card); display:flex; flex-direction:column; transition:all .22s;
+    animation:scaleIn .35s cubic-bezier(.22,1,.36,1) both;
+    border-top:3px solid var(--green-bright);
+  }
+  .flow-card:hover {
+    border-color:var(--green-bright); border-top-color:var(--green-bright);
+    box-shadow:0 10px 28px rgba(13,92,58,.14); transform:translateY(-2px);
+  }
+  .flow-card-top { padding:16px 18px 12px; border-bottom:1px solid var(--border); }
+  .flow-badge {
+    display:inline-flex; padding:3px 10px; border-radius:99px;
+    font-size:.72rem; font-weight:700; margin-bottom:8px;
+    background:var(--green-pale); color:var(--green-deep);
+  }
+  .flow-badge.type-personnalite { background:var(--violet-pale); color:var(--violet); }
+  .flow-badge.type-stress        { background:var(--rose-pale);   color:var(--rose); }
+  .flow-badge.type-logique       { background:var(--yellow-pale); color:var(--yellow-dark); }
+  .flow-badge.type-memoire       { background:var(--green-pale);  color:var(--green-deep); }
+  .flow-title { font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem; color:var(--text); line-height:1.35; margin-bottom:6px; }
+  .flow-desc  { font-size:.87rem; color:var(--text-sec); line-height:1.55; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .flow-meta  { display:flex; gap:8px; flex-wrap:wrap; padding:12px 18px; }
+  .flow-meta span { font-size:.76rem; font-weight:600; padding:4px 10px; border-radius:99px; background:var(--green-pale); color:var(--green-deep); }
+  .flow-actions {
+    margin-top:auto; display:flex; gap:8px; flex-wrap:wrap;
+    padding:14px 18px 16px; border-top:1px solid var(--border);
+    background:var(--green-pale);
+  }
+  .btn-primary {
+    display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:10px;
+    background:linear-gradient(135deg, var(--green-deep), var(--green-bright));
+    color:#fff; font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:700;
+    text-decoration:none; border:none; cursor:pointer; transition:all .2s;
+    box-shadow:0 3px 10px rgba(13,92,58,.22);
+  }
+  .btn-primary:hover { filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 6px 16px rgba(13,92,58,.3); }
+  .btn-secondary {
+    display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:10px;
+    border:1.5px solid var(--rose-mid); background:#fff;
+    color:var(--rose); font-family:'Outfit',sans-serif; font-size:.83rem; font-weight:600;
+    text-decoration:none; transition:all .2s;
+  }
+  .btn-secondary:hover { background:var(--rose-pale); border-color:var(--rose); }
+
+  /* ── PAGINATION TESTS ── */
+  .pagination { display:flex; gap:6px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+  .page-btn {
+    display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px;
+    border:1.5px solid var(--border); background:#fff; color:var(--text-sec);
+    font-family:'Outfit',sans-serif; font-size:.84rem; font-weight:600; text-decoration:none; transition:all .2s;
+  }
+  .page-btn:hover { border-color:var(--green-bright); color:var(--green-bright); background:var(--green-pale); }
+  .page-btn.active {
+    background:linear-gradient(135deg, var(--green-deep), var(--green-bright));
+    color:#fff; border-color:transparent;
+    box-shadow:0 4px 12px rgba(13,92,58,.28);
+  }
+
+  /* ── ÉTAT VIDE ── */
+  .empty-state {
+    display:flex; flex-direction:column; align-items:center; padding:70px 20px; text-align:center; gap:14px;
+    background:#fff; border:1.5px solid var(--border); border-radius:20px;
+    box-shadow:var(--shadow-card); animation:fadeUp .5s both;
+    border-top:3px solid var(--green-bright);
+  }
+  .empty-icon {
+    width:70px; height:70px; border-radius:20px;
+    background:linear-gradient(135deg, var(--green-pale), var(--yellow-pale));
+    border:1.5px solid rgba(34,160,107,.25); display:grid; place-items:center;
+  }
+  .empty-icon svg { width:30px; height:30px; color:var(--green-bright); }
+  .empty-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--text); }
+  .empty-sub   { font-size:.87rem; color:var(--text-sec); max-width:320px; line-height:1.65; }
+
+  /* ── BANDEAU COULEUR ── */
+  .color-strip {
+    display:flex; height:5px; border-radius:99px; overflow:hidden;
+    margin-bottom:20px; animation:fadeUp .4s both;
+  }
+  .color-strip span:nth-child(1){ background:var(--green-bright); flex:4; }
+  .color-strip span:nth-child(2){ background:var(--yellow);       flex:2; }
+  .color-strip span:nth-child(3){ background:var(--violet);       flex:2; }
+  .color-strip span:nth-child(4){ background:var(--rose);         flex:2; }
+
+  /* ══════════════════════════════════════
+     ── SECTION NEWS ──
+  ══════════════════════════════════════ */
+
+  .news-section {
+    margin-top: 48px;
+    animation: fadeUp .5s cubic-bezier(.22,1,.36,1) .2s both;
+  }
+
+  /* ── En-tête section news ── */
+  .news-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .news-header-left { display: flex; align-items: center; gap: 14px; }
+  .news-header-icon {
+    width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--green-deep), var(--green-bright));
+    display: grid; place-items: center;
+    box-shadow: 0 4px 14px rgba(13,92,58,.28);
+  }
+  .news-header-icon svg { width: 20px; height: 20px; color: #fff; }
+  .news-header-title {
+    font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700;
+    color: var(--text); margin-bottom: 2px;
+  }
+  .news-header-sub {
+    font-size: .78rem; color: var(--text-sec);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .news-live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--green-bright);
+    animation: shimmer 2s ease-in-out infinite; flex-shrink: 0;
+  }
+
+  /* ── Tabs thèmes ── */
+  .news-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+    animation: fadeUp .4s cubic-bezier(.22,1,.36,1) .25s both;
+  }
+  .news-tab {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 99px;
+    border: 1.5px solid var(--border); background: #fff;
+    font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 600;
+    color: var(--text-sec); cursor: pointer; text-decoration: none;
+    transition: all .2s; white-space: nowrap;
+  }
+  .news-tab:hover {
+    border-color: var(--green-bright); color: var(--green-deep);
+    background: var(--green-pale);
+  }
+  .news-tab.active {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-bright));
+    color: #fff; border-color: transparent;
+    box-shadow: 0 3px 10px rgba(13,92,58,.22);
+  }
+
+  /* ── Grille news ── */
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── Carte news ── */
+  .news-card {
+    background: #fff; border: 1.5px solid var(--border); border-radius: 16px;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-card); transition: all .22s;
+    animation: scaleIn .35s cubic-bezier(.22,1,.36,1) both;
+    border-top: 3px solid var(--green-bright);
+    text-decoration: none; color: inherit;
+  }
+  .news-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(13,92,58,.15);
+    border-color: var(--green-bright);
+  }
+
+  /* Image de la carte */
+  .news-card-img {
+    width: 100%; height: 160px; object-fit: cover;
+    background: linear-gradient(135deg, var(--green-pale), var(--green-light));
+    flex-shrink: 0;
+  }
+  .news-card-img-placeholder {
+    width: 100%; height: 160px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--green-pale) 0%, var(--green-light) 50%, var(--yellow-pale) 100%);
+    display: grid; place-items: center;
+  }
+  .news-card-img-placeholder svg { width: 36px; height: 36px; color: var(--green-bright); opacity: .5; }
+
+  .news-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+  .news-card-source {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .72rem; font-weight: 700; color: var(--green-mid);
+    text-transform: uppercase; letter-spacing: .6px;
+  }
+  .news-card-source span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green-bright); flex-shrink: 0;
+  }
+
+  .news-card-title {
+    font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .92rem;
+    color: var(--text); line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .news-card-desc {
+    font-size: .82rem; color: var(--text-sec); line-height: 1.55; flex: 1;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .news-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px 14px; border-top: 1px solid var(--border);
+    background: var(--green-pale);
+  }
+  .news-card-date {
+    font-size: .72rem; color: var(--text-sec); font-weight: 600;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .news-card-date svg { width: 11px; height: 11px; }
+
+  .news-card-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--green-deep), var(--green-bright));
+    color: #fff; font-family: 'Outfit', sans-serif; font-size: .76rem; font-weight: 700;
+    text-decoration: none; transition: all .2s;
+    box-shadow: 0 2px 8px rgba(13,92,58,.22);
+  }
+  .news-card-link:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .news-card-link svg { width: 10px; height: 10px; }
+
+  /* ── État chargement ── */
+  .news-loading {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 50px 20px; gap: 14px; text-align: center;
+    background: #fff; border: 1.5px solid var(--border); border-radius: 16px;
+    border-top: 3px solid var(--green-bright);
+  }
+  .news-spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--green-light);
+    border-top-color: var(--green-bright);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .news-loading-text {
+    font-family: 'Outfit', sans-serif; font-size: .88rem;
+    color: var(--text-sec); font-weight: 600;
+  }
+
+  /* ── État vide news ── */
+  .news-empty {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 50px 20px; gap: 12px; text-align: center;
+    background: #fff; border: 1.5px solid var(--border); border-radius: 16px;
+    border-top: 3px solid var(--green-bright);
+    grid-column: 1 / -1;
+  }
+  .news-empty svg { width: 32px; height: 32px; color: var(--green-bright); opacity: .5; }
+  .news-empty-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .95rem; color: var(--text); }
+  .news-empty-sub   { font-size: .82rem; color: var(--text-sec); }
+
+  /* ── Pagination news ── */
+  .news-pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .news-page-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 9px;
+    border: 1.5px solid var(--border); background: #fff;
+    font-family: 'Outfit', sans-serif; font-size: .82rem; font-weight: 600;
+    color: var(--text-sec); cursor: pointer; transition: all .2s;
+    text-decoration: none;
+  }
+  .news-page-btn:hover { border-color: var(--green-bright); color: var(--green-deep); background: var(--green-pale); }
+  .news-page-btn.active {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-bright));
+    color: #fff; border-color: transparent;
+    box-shadow: 0 3px 10px rgba(13,92,58,.25);
+  }
+  .news-page-btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
+  /* ── Bandeau séparateur ── */
+  .section-divider {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+  }
+  .section-divider::before,
+  .section-divider::after {
+    content: ''; flex: 1; height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--border));
+  }
+  .section-divider::after {
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .section-divider-label {
+    font-family: 'Outfit', sans-serif; font-size: .72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec);
+    white-space: nowrap;
+  }
+</style>
+
+{# ── Hero ── #}
+<div class="tests-hero">
+  <div class="hero-accent-yellow"></div>
+  <div class="hero-accent-rose"></div>
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+  <div class="hero-row">
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke-linecap="round"/>
+        <circle cx="10" cy="10" r="2.5"/>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">Tests psychologiques</div>
+      <div class="hero-sub">Choisissez un parcours pour recevoir des objectifs personnalisés adaptés à votre profil.</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ total }}</div>
+        <div class="hero-stat-lbl">Tests</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">{{ tests|length }}</div>
+        <div class="hero-stat-lbl">Sur cette page</div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a href="{{ path('front_objectifs_index') }}" class="btn-hw">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round"/></svg>
+        Mes objectifs
+      </a>
+      <a href="{{ path('front_tests_my_responses') }}" class="btn-hg">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="12" height="14" rx="2"/><path d="M7 7h6M7 10h6M7 13h4" stroke-linecap="round"/></svg>
+        Mes réponses
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ── Bandeau coloré ── #}
+<div class="color-strip">
+  <span></span><span></span><span></span><span></span>
+</div>
+
+{# ── Citation API ── #}
+{% if quote %}
+<div class="quote-banner">
+  <div class="qb-header">
+    <div class="qb-label">
+      <span class="qb-dot"></span>
+      Citation du moment
+    </div>
+    <span class="qb-tag">
+      {% if quote.tags is not empty %}
+        {{ quote.tags[0]|capitalize }}
+      {% else %}
+        Inspiration
+      {% endif %}
+    </span>
+  </div>
+  <div class="qb-body">
+    <div class="qb-mark">"</div>
+    <div class="qb-text">{{ quote.content }}</div>
+    <div class="qb-author">{{ quote.author }}</div>
+  </div>
+</div>
+{% endif %}
+
+{# ── Filtres ── #}
+<form method="get" id="frontListForm" action="{{ path('front_tests_index') }}" autocomplete="off">
+  <div class="toolbar">
+    <input type="hidden" name="page" value="{{ page }}">
+    <div class="tb-search-wrap">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/></svg>
+      <input class="tb-search" type="search" name="q" value="{{ q }}" placeholder="Rechercher un test…" autocomplete="off" data-front-debounce>
+    </div>
+    <select class="tb-select front-filter-select" name="type">
+      <option value="">Tous les types</option>
+      <option value="personnalité" {{ type == 'personnalité' ? 'selected' }}>Personnalité</option>
+      <option value="stress"       {{ type == 'stress'       ? 'selected' }}>Stress</option>
+      <option value="logique"      {{ type == 'logique'      ? 'selected' }}>Logique</option>
+      <option value="mémoire"      {{ type == 'mémoire'      ? 'selected' }}>Mémoire</option>
+      <option value="autre"        {{ type == 'autre'        ? 'selected' }}>Autre</option>
+    </select>
+    <a class="tb-reset" href="{{ path('front_tests_index') }}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 1012 0A6 6 0 002 8zM10 6L6 10M6 6l4 4" stroke-linecap="round"/></svg>
+      Tout afficher
+    </a>
+  </div>
+</form>
+
+{# ── Liste tests ── #}
+{% if tests is empty %}
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke-linecap="round"/><circle cx="10" cy="10" r="2.5"/></svg>
+    </div>
+    <div class="empty-title">Aucun test disponible</div>
+    <div class="empty-sub">Aucun test ne correspond à votre recherche, ou aucun test n'est encore publié.</div>
+  </div>
+{% else %}
+  <div class="flow-grid">
+    {% for test in tests %}
+      <article class="flow-card" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+        <div class="flow-card-top">
+          {% set badgeClass = '' %}
+          {% if test.typeTest|lower == 'personnalité' %}{% set badgeClass = 'type-personnalite' %}
+          {% elseif test.typeTest|lower == 'stress' %}{% set badgeClass = 'type-stress' %}
+          {% elseif test.typeTest|lower == 'logique' %}{% set badgeClass = 'type-logique' %}
+          {% elseif test.typeTest|lower == 'mémoire' %}{% set badgeClass = 'type-memoire' %}
+          {% endif %}
+          <span class="flow-badge {{ badgeClass }}">{{ test.typeTest|capitalize }}</span>
+          <div class="flow-title">{{ test.titreTest }}</div>
+          <div class="flow-desc">{{ test.descriptionTest|slice(0, 220) }}{% if test.descriptionTest|length > 220 %}…{% endif %}</div>
+        </div>
+        <div class="flow-meta">
+          <span>{{ test.dureeEstimee ?? '—' }} min</span>
+          <span>Actif</span>
+        </div>
+        <div class="flow-actions">
+          <a href="{{ path('front_tests_take', {'id': test.idTest}) }}" class="btn-primary">Passer le test</a>
+          <a href="{{ path('front_tests_responses', {'id': test.idTest}) }}" class="btn-secondary">Mes réponses</a>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if pages > 1 %}
+    <div class="pagination">
+      {% for p in 1..pages %}
+        <a class="page-btn {{ p == page ? 'active' : '' }}"
+           href="{{ path('front_tests_index', {q: q, type: type, page: p}) }}">{{ p }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endif %}
+
+{# ══════════════════════════════════════
+   ── SECTION ACTUALITÉS PSYCHOLOGIE ──
+══════════════════════════════════════ #}
+
+<div class="section-divider" style="margin-top:48px">
+  <span class="section-divider-label">Actualités & ressources</span>
+</div>
+
+<div class="news-section">
+
+  {# ── En-tête ── #}
+  <div class="news-header">
+    <div class="news-header-left">
+      <div class="news-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z" stroke-linecap="round"/>
+          <path d="M15 4v4h4M9 12h6M9 16h4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="news-header-title">Actualités Psychologie</div>
+        <div class="news-header-sub">
+          <span class="news-live-dot"></span>
+          Dernières actualités en psychologie & développement personnel
+        </div>
+      </div>
+    </div>
+    {# Lien vers la page dédiée news si tu en as une #}
+    {#{# <a href="{{ path('app_news_psychologie') }}" class="btn-hg" style="background:var(--green-pale);color:var(--green-deep);border-color:var(--green-bright)"> #}
+    {#   Voir tout #}
+    {# </a> #}
+  </div>
+
+  {# ── Tabs thèmes ── #}
+  <div class="news-tabs" id="newsTabs">
+    <a href="#" class="news-tab active" data-theme="all">🧠 Tout</a>
+    <a href="#" class="news-tab" data-theme="psychologie">💬 Psychologie</a>
+    <a href="#" class="news-tab" data-theme="developpement">🌱 Dév. personnel</a>
+    <a href="#" class="news-tab" data-theme="anxiete">😰 Anxiété</a>
+    <a href="#" class="news-tab" data-theme="stress">😤 Stress</a>
+    <a href="#" class="news-tab" data-theme="mindfulness">🧘 Mindfulness</a>
+    <a href="#" class="news-tab" data-theme="relations">🤝 Relations</a>
+    <a href="#" class="news-tab" data-theme="sommeil">😴 Sommeil</a>
+  </div>
+
+  {# ── Grille articles ── #}
+  <div class="news-grid" id="newsGrid">
+    <div class="news-loading" style="grid-column:1/-1">
+      <div class="news-spinner"></div>
+      <div class="news-loading-text">Chargement des actualités…</div>
+    </div>
+  </div>
+
+  {# ── Pagination news ── #}
+  <div class="news-pagination" id="newsPagination" style="display:none"></div>
+
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% include '_partials/front_dynamic_list_filters.html.twig' with { form_id: 'frontListForm', skip_test_id_zero: false } %}
+
+<script>
+(function () {
+  // ── Configuration ──
+  const ROUTES = {
+    all:           '/test-news/latest',
+    psychologie:   '/test-news/psychologie',
+    developpement: '/test-news/developpement',
+    anxiete:       '/test-news/theme/anxiete',
+    stress:        '/test-news/theme/stress',
+    mindfulness:   '/test-news/theme/mindfulness',
+    relations:     '/test-news/theme/relations',
+    sommeil:       '/test-news/theme/sommeil',
+  };
+
+  // ── État ──
+  let currentTheme = 'all';
+  let currentPage  = 1;
+  let totalPages   = 1;
+
+  // ── Éléments DOM ──
+  const grid       = document.getElementById('newsGrid');
+  const pagination = document.getElementById('newsPagination');
+  const tabs       = document.querySelectorAll('.news-tab');
+
+  // ── Chargement des news ──
+  async function loadNews(theme, page) {
+    // Afficher le spinner
+    grid.innerHTML = `
+      <div class="news-loading" style="grid-column:1/-1">
+        <div class="news-spinner"></div>
+        <div class="news-loading-text">Chargement des actualités…</div>
+      </div>`;
+    pagination.style.display = 'none';
+
+    try {
+      const url      = ROUTES[theme] || ROUTES['all'];
+      const response = await fetch(url);
+      const data     = await response.json();
+
+      if (data.error) {
+        showError(data.error);
+        return;
+      }
+
+      const articles = data.articles || [];
+      totalPages     = Math.ceil(Math.min(data.totalResults || 0, 100) / 12);
+
+      if (articles.length === 0) {
+        showEmpty();
+        return;
+      }
+
+      renderArticles(articles);
+      renderPagination(page, totalPages);
+
+    } catch (err) {
+      showError('Impossible de charger les actualités.');
+    }
+  }
+
+  // ── Rendu articles ──
+  // ── Rendu articles ──
+  function renderArticles(articles) {
+    grid.innerHTML = articles.map((a, i) => {
+      const date    = a.publishedAt ? formatDate(a.publishedAt) : '';
+      const source  = a.source?.name || '';
+      const title   = escHtml(a.title || '');
+      const desc    = escHtml(a.description || '');
+      const url     = escHtml(a.url || '#');
+      const imgSrc  = a.urlToImage || '';
+
+      const imgHtml = imgSrc
+        ? `<img class="news-card-img" src="${escHtml(imgSrc)}" alt="${title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`
+        : '';
+
+      const placeholder = `
+        <div class="news-card-img-placeholder" ${imgSrc ? 'style="display:none"' : ''}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/>
+            <path d="M9 12h6M9 16h4"/>
+          </svg>
+        </div>`;
+
+      return `
+        <div class="news-card" style="animation-delay:${i * 0.05}s">
+          ${imgHtml}
+          ${placeholder}
+          <div class="news-card-body">
+            ${source ? `<div class="news-card-source"><span></span>${escHtml(source)}</div>` : ''}
+            <div class="news-card-title">${title}</div>
+            ${desc ? `<div class="news-card-desc">${desc}</div>` : ''}
+          </div>
+          <div class="news-card-footer">
+            <div class="news-card-date">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="2" y="3" width="12" height="11" rx="2"/>
+                <path d="M5 1v4M11 1v4M2 7h12" stroke-linecap="round"/>
+              </svg>
+              ${date}
+            </div>
+            <a class="news-card-link" href="${url}" target="_blank" rel="noopener noreferrer">
+              Lire
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M2 6h8M6 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>`;
+    }).join('');
+
+    // ── IMPORTANT : notifier le translator que du contenu dynamique vient d'être injecté ──
+    document.dispatchEvent(new CustomEvent('dynamicContentLoaded', {
+      detail: { container: grid }
+    }));
+  }
+  // ── Pagination ──
+  function renderPagination(current, total) {
+    if (total <= 1) { pagination.style.display = 'none'; return; }
+
+    pagination.style.display = 'flex';
+    let html = '';
+
+    // Bouton précédent
+    html += `<button class="news-page-btn" ${current === 1 ? 'disabled' : ''} data-page="${current - 1}">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M8 2L4 6l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>`;
+
+    // Pages
+    for (let p = 1; p <= total; p++) {
+      if (total > 7 && p > 2 && p < total - 1 && Math.abs(p - current) > 1) {
+        if (p === 3 || p === total - 2) html += `<span style="color:var(--text-sec);padding:0 4px;align-self:center">…</span>`;
+        continue;
+      }
+      html += `<button class="news-page-btn ${p === current ? 'active' : ''}" data-page="${p}">${p}</button>`;
+    }
+
+    // Bouton suivant
+    html += `<button class="news-page-btn" ${current === total ? 'disabled' : ''} data-page="${current + 1}">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>`;
+
+    pagination.innerHTML = html;
+
+    // Événements pagination
+    pagination.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentPage = parseInt(btn.dataset.page);
+        loadNews(currentTheme, currentPage);
+        pagination.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+  }
+
+  // ── États ──
+  function showEmpty() {
+    grid.innerHTML = `
+      <div class="news-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/>
+        </svg>
+        <div class="news-empty-title">Aucun article trouvé</div>
+        <div class="news-empty-sub">Aucune actualité disponible pour ce thème pour le moment.</div>
+      </div>`;
+    pagination.style.display = 'none';
+  }
+
+  function showError(msg) {
+    grid.innerHTML = `
+      <div class="news-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <div class="news-empty-title">Erreur de chargement</div>
+        <div class="news-empty-sub">${escHtml(msg)}</div>
+      </div>`;
+  }
+
+  // ── Utilitaires ──
+  function formatDate(iso) {
+    try {
+      return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch { return ''; }
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Événements tabs ──
+  tabs.forEach(tab => {
+    tab.addEventListener('click', e => {
+      e.preventDefault();
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentTheme = tab.dataset.theme;
+      currentPage  = 1;
+      loadNews(currentTheme, currentPage);
+    });
+  });
+
+  // ── Chargement initial ──
+  loadNews(currentTheme, currentPage);
+
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Modifier la réponse{% endblock %}
+{% block page_label %}Modifier la réponse{% endblock %}
+
+{% block content %}
+<div class="page-hero" style="margin-bottom:24px;">
+  <div class="hero-inner" style="display:flex; justify-content:space-between; gap:16px; align-items:center; flex-wrap:wrap;">
+    <div>
+      <h1 class="hero-title" style="margin:0;">Modifier une réponse</h1>
+      <p class="hero-sub" style="margin:6px 0 0;">Mettez à jour le contenu et les informations associées.</p>
+    </div>
+    <a href="{{ path('reclamation_show', {id: reponse.reclamation.id_reclamation}) }}" class="btn-new" style="background:#fff;color:#1B4332;">Retour à la réclamation</a>
+  </div>
+</div>
+
+<div style="max-width:820px; margin:0 auto;">
+  {% for message in app.flashes('error') %}
+    <div style="background:#FEE2E2; color:#B91C1C; padding:14px 16px; border-radius:12px; margin-bottom:18px;">{{ message }}</div>
+  {% endfor %}
+
+  {{ form_start(form, { attr: { style: "background:#fff; border:1.5px solid var(--border); border-radius:18px; padding:32px; box-shadow:var(--shadow-card); display:grid; gap:24px;" } }) }}
+    {% if not form.vars.valid %}
+      <div style="background:#FEE2E2; color:#B91C1C; padding:14px 16px; border-radius:12px;">{{ form_errors(form) }}</div>
+    {% endif %}
+
+    <div style="display:grid; gap:18px;">
+      <label for="{{ form.reclamation.vars.id }}" style="font-weight:700; color:var(--text);">Réclamation</label>
+      {{ form_widget(form.reclamation, { attr: { style: "width:100%; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:.95rem; color:var(--text);" } }) }}
+      {{ form_errors(form.reclamation) }}
+    </div>
+
+    <div style="display:grid; gap:8px;">
+      <label for="{{ form.contenu_reponse.vars.id }}" style="font-weight:700; color:var(--text);">Contenu de la réponse</label>
+      {{ form_widget(form.contenu_reponse, { attr: { rows: 6, style: "width:100%; min-height:180px; padding:16px; border:1.5px solid var(--border); border-radius:14px; font-size:.95rem; color:var(--text);" } }) }}
+      {{ form_errors(form.contenu_reponse) }}
+    </div>
+
+    <div style="display:grid; gap:12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:18px; padding:20px;">
+      <span style="font-weight:700; color:#1B4332;">Auteur</span>
+      <span>{{ reponse.nom_utilisateur ?: 'Membre' }}</span>
+    </div>
+
+    <div style="display:grid; gap:8px;">
+      <label class="form-label">Date de la réponse</label>
+      <input type="text" readonly value="{{ reponse.date_reponse|date('d/m/Y H:i:s') }}" style="width:100%; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; background:var(--bg); color:var(--text-sec); cursor:not-allowed; font-size:.95rem;">
+      <span style="font-size:.78rem;color:var(--text-sec);">Non modifiable</span>
+    </div>
+
+    <div style="display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+      <div style="display:grid; gap:8px;">
+        <label for="{{ form.rate_reponse.vars.id }}" style="font-weight:700; color:var(--text);">Note</label>
+        {{ form_widget(form.rate_reponse, { attr: { style: "width:100%; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:.95rem; color:var(--text);" } }) }}
+      </div>
+      <div style="display:grid; gap:8px;">
+        <label for="{{ form.rate_sum.vars.id }}" style="font-weight:700; color:var(--text);">Somme des notes</label>
+        {{ form_widget(form.rate_sum, { attr: { style: "width:100%; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:.95rem; color:var(--text);" } }) }}
+      </div>
+      <div style="display:grid; gap:8px;">
+        <label for="{{ form.rate_count.vars.id }}" style="font-weight:700; color:var(--text);">Nombre de notes</label>
+        {{ form_widget(form.rate_count, { attr: { style: "width:100%; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:.95rem; color:var(--text);" } }) }}
+      </div>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:14px; justify-content:flex-end; margin-top:12px;">
+      <button type="submit" class="btn-new" style="padding:12px 22px; border-radius:14px; background:var(--green); color:#fff; border:none;">Enregistrer</button>
+      <a href="{{ path('reclamation_show', {id: reponse.reclamation.id_reclamation}) }}" class="btn-secondary" style="display:inline-flex; align-items:center; justify-content:center; padding:12px 22px; border-radius:14px; background:var(--border); color:var(--text); text-decoration:none;">Annuler</a>
+    </div>
+  {{ form_end(form) }}
+</div>
+{% endblock %}

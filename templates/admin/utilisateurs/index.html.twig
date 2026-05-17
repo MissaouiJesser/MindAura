@@ -1,0 +1,1546 @@
+{# templates/admin/utilisateurs/index.html.twig
+   Liste des utilisateurs — Back-office
+   Pagination + tri + recherche + filtres multi-attributs   #}
+
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Utilisateurs{% endblock %}
+{% block page_label %}Utilisateurs{% endblock %}
+
+{# ── Macro : URL d'un lien de tri (conserve tous les autres paramètres) ── #}
+{% macro sortUrl(col, currentSort, currentDir, params) %}
+  {% set newDir = (col == currentSort and currentDir == 'ASC') ? 'DESC' : 'ASC' %}
+  ?search={{ params.search|url_encode }}&role={{ params.role|url_encode }}&statut={{ params.statut|url_encode }}&dateDebut={{ params.dateDebut|url_encode }}&dateFin={{ params.dateFin|url_encode }}&sort={{ col }}&direction={{ newDir }}&page=1&perPage={{ params.perPage }}
+{% endmacro %}
+
+{% macro pageUrl(p, params) -%}
+    ?search={{ params.search|url_encode }}&role={{ params.role|url_encode }}&statut={{ params.statut|url_encode }}&dateDebut={{ params.dateDebut|url_encode }}&dateFin={{ params.dateFin|url_encode }}&sort={{ params.sort }}&direction={{ params.direction }}&page={{ p }}&perPage={{ params.perPage }}
+{%- endmacro %}
+
+{% import _self as self %}
+
+{% block content %}
+<style>
+  /* ══ Keyframes ══════════════════════════════════════════════════════ */
+  @keyframes fadeUp  { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+  @keyframes shimmer { 0%,100%{opacity:.55} 50%{opacity:1} }
+  @keyframes rowIn   { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:none; } }
+  @keyframes spin    { to { transform:rotate(360deg); } }
+
+  /* ══ Hero ═══════════════════════════════════════════════════════════ */
+  .users-hero {
+    position: relative;
+    background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 55%, #7B5EA7 100%);
+    border-radius: 20px; padding: 30px 34px; margin-bottom: 20px;
+    overflow: hidden; animation: fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+    box-shadow: 0 8px 32px rgba(27,67,50,.22);
+  }
+  .users-hero::before {
+    content:''; position:absolute; width:280px; height:280px; border-radius:50%;
+    background:rgba(255,255,255,.055); top:-80px; right:-60px; pointer-events:none;
+  }
+  .users-hero::after {
+    content:''; position:absolute; width:140px; height:140px; border-radius:50%;
+    background:rgba(255,255,255,.04); bottom:-40px; right:240px; pointer-events:none;
+  }
+  .hero-dots { position:absolute; top:16px; left:30px; display:flex; gap:6px; }
+  .hero-dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.32); animation:shimmer 2s ease-in-out infinite; }
+  .hero-dots span:nth-child(2){animation-delay:.3s} .hero-dots span:nth-child(3){animation-delay:.6s}
+
+  .hero-body { display:flex; align-items:center; gap:24px; position:relative; z-index:1; margin-top:8px; }
+  .hero-icon {
+    width:64px; height:64px; border-radius:18px; flex-shrink:0;
+    background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.2);
+    display:grid; place-items:center; backdrop-filter:blur(4px);
+  }
+  .hero-icon svg { width:28px; height:28px; color:#fff; }
+  .hero-text { flex:1; }
+  .hero-title { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:#fff; margin-bottom:6px; }
+  .hero-sub { font-size:.84rem; color:rgba(255,255,255,.7); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .hero-chip {
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+    border-radius:99px; padding:3px 10px; font-size:.73rem; font-weight:600; color:rgba(255,255,255,.9);
+  }
+  .hero-chip svg { width:11px; height:11px; }
+  .btn-new-user {
+    display:inline-flex; align-items:center; gap:9px;
+    padding:12px 22px; border-radius:13px; background:#fff; color:var(--green);
+    font-family:'Outfit',sans-serif; font-size:.87rem; font-weight:700;
+    text-decoration:none; white-space:nowrap; flex-shrink:0;
+    box-shadow:0 4px 18px rgba(0,0,0,.14);
+    transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s;
+    position:relative; overflow:hidden;
+  }
+  .btn-new-user:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.22); }
+  .btn-new-user-icon { width:27px; height:27px; border-radius:8px; background:var(--green-pale); display:grid; place-items:center; }
+  .btn-new-user-icon svg { width:14px; height:14px; color:var(--green); }
+
+  /* ══ Boutons export ═════════════════════════════════════════════════ */
+  .export-group { display:flex; gap:8px; flex-shrink:0; }
+  .btn-export {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 17px; border-radius:12px;
+    font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:700;
+    text-decoration:none; white-space:nowrap; flex-shrink:0;
+    transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, background .2s;
+    border: 2px solid transparent;
+  }
+  .btn-export-icon { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; flex-shrink:0; }
+  .btn-export-icon svg { width:13px; height:13px; }
+  .btn-export-csv {
+    background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.3);
+    color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.1);
+  }
+  .btn-export-csv .btn-export-icon { background:rgba(82,183,136,.35); }
+  .btn-export-csv .btn-export-icon svg { color:#fff; }
+  .btn-export-csv:hover { background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.5); transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.18); }
+  .btn-export-pdf {
+    background:rgba(123,94,167,.25); border-color:rgba(180,150,220,.45);
+    color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.1);
+  }
+  .btn-export-pdf .btn-export-icon { background:rgba(123,94,167,.45); }
+  .btn-export-pdf .btn-export-icon svg { color:#fff; }
+  .btn-export-pdf:hover { background:rgba(123,94,167,.4); border-color:rgba(200,170,240,.6); transform:translateY(-2px); box-shadow:0 6px 20px rgba(123,94,167,.3); }
+  .export-tooltip-wrap { position:relative; display:inline-flex; }
+  .export-tooltip {
+    display:none; position:absolute; bottom:calc(100% + 8px); left:50%;
+    transform:translateX(-50%); background:#1A1A2E; color:#fff;
+    font-size:.67rem; font-weight:500; line-height:1.4; white-space:nowrap;
+    padding:5px 10px; border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.25);
+    pointer-events:none; z-index:99;
+  }
+  .export-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#1A1A2E; }
+  .export-tooltip-wrap:hover .export-tooltip { display:block; animation:fadeIn .15s ease; }
+
+  /* ══ Panneau filtres ════════════════════════════════════════════════ */
+  .filters-panel {
+    background:var(--white); border:1.5px solid var(--border); border-radius:18px;
+    padding:0; margin-bottom:16px; overflow:hidden;
+    box-shadow:var(--shadow-card); animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .06s both;
+  }
+  .filters-top {
+    display:flex; align-items:center; gap:12px; padding:14px 18px;
+    border-bottom:1.5px solid var(--border); flex-wrap:wrap;
+  }
+  .filter-search {
+    flex:1; min-width:220px; display:flex; align-items:center; gap:9px;
+    background:var(--bg); border:1.5px solid var(--border);
+    border-radius:10px; padding:9px 14px;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .filter-search:focus-within { border-color:var(--green-light); box-shadow:0 0 0 3px rgba(82,183,136,.1); }
+  .filter-search svg { width:14px; height:14px; color:var(--text-sec); flex-shrink:0; }
+  .filter-search input {
+    border:none; background:none; outline:none;
+    font-family:'Outfit',sans-serif; font-size:.85rem; color:var(--text); width:100%;
+  }
+  .filter-search input::placeholder { color:var(--text-sec); }
+
+  .filter-select {
+    padding:9px 13px; border:1.5px solid var(--border); border-radius:10px;
+    background:var(--bg); font-family:'Outfit',sans-serif; font-size:.83rem; color:var(--text);
+    outline:none; cursor:pointer; transition:border-color .2s; min-width:148px;
+  }
+  .filter-select:focus { border-color:var(--green-light); }
+
+  .filters-advanced {
+    display:none; padding:14px 18px; gap:14px; flex-wrap:wrap; align-items:flex-end;
+    border-top:1.5px solid var(--border); background:#FAFBFC;
+  }
+  .filters-advanced.open { display:flex; }
+
+  .filter-group { display:flex; flex-direction:column; gap:5px; }
+  .filter-label { font-size:.71rem; font-weight:700; color:var(--text-sec); letter-spacing:.5px; text-transform:uppercase; }
+  .filter-date { padding:8px 12px; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'Outfit',sans-serif; font-size:.83rem; color:var(--text); outline:none; transition:border-color .2s; }
+  .filter-date:focus { border-color:var(--green-light); }
+
+  .filters-footer {
+    display:flex; align-items:center; gap:10px; padding:10px 18px;
+    border-top:1.5px solid var(--border);
+    justify-content:space-between; flex-wrap:wrap;
+  }
+  .filter-info { font-size:.8rem; color:var(--text-sec); }
+  .filter-info strong { color:var(--text); font-weight:700; }
+  .filter-info .active-filters { display:inline-flex; gap:6px; flex-wrap:wrap; margin-left:8px; }
+  .filter-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    background:var(--green-pale); color:var(--green);
+    font-size:.69rem; font-weight:700; border-radius:99px; padding:2px 8px;
+  }
+  .filter-tag button { background:none; border:none; cursor:pointer; color:inherit; font-size:.75rem; line-height:1; padding:0 0 0 2px; }
+
+  .btn-filter-toggle {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 14px; border-radius:9px; border:1.5px solid var(--border);
+    background:var(--white); font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:600;
+    color:var(--text-sec); cursor:pointer; transition:all .2s; white-space:nowrap;
+  }
+  .btn-filter-toggle svg { width:14px; height:14px; }
+  .btn-filter-toggle:hover { border-color:var(--green-light); color:var(--green); }
+  .btn-filter-toggle.active { background:var(--green-pale); border-color:var(--green-light); color:var(--green); }
+  .btn-filter-toggle .badge-count { background:var(--green); color:#fff; font-size:.6rem; border-radius:99px; padding:1px 6px; font-weight:700; }
+
+  .btn-reset {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:8px 12px; border-radius:9px; border:1.5px solid #FCA5A5;
+    background:#FEF2F2; font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:600;
+    color:#DC2626; cursor:pointer; transition:all .2s; text-decoration:none;
+  }
+  .btn-reset:hover { background:#FEE2E2; }
+  .btn-reset svg { width:13px; height:13px; }
+
+  /* ══ Tableau ════════════════════════════════════════════════════════ */
+  .table-card {
+    background:var(--white); border:1.5px solid var(--border); border-radius:18px;
+    overflow:hidden; box-shadow:var(--shadow-card);
+    animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .12s both;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg); }
+  thead th {
+    padding:12px 16px; text-align:left;
+    font-size:.69rem; font-weight:700; color:var(--text-sec);
+    text-transform:uppercase; letter-spacing:.9px;
+    border-bottom:1.5px solid var(--border); white-space:nowrap; user-select:none;
+  }
+  th.sortable { cursor:pointer; transition:color .18s; }
+  th.sortable:hover { color:var(--green); }
+  .sort-icon { display:inline-flex; flex-direction:column; gap:1px; margin-left:5px; vertical-align:middle; }
+  .sort-icon span { width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; opacity:.3; }
+  .sort-icon .up   { border-bottom:4px solid currentColor; }
+  .sort-icon .down { border-top:4px solid currentColor; }
+  th.sort-asc  .sort-icon .up   { opacity:1; }
+  th.sort-desc .sort-icon .down { opacity:1; }
+
+  tbody tr {
+    border-bottom:1px solid var(--border); transition:background .15s;
+    animation:rowIn .28s ease both;
+  }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:var(--green-hover); }
+  td { padding:13px 16px; vertical-align:middle; font-size:.845rem; }
+
+  .user-cell { display:flex; align-items:center; gap:11px; }
+  .user-avatar {
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    display:grid; place-items:center; font-size:.76rem; font-weight:800; color:#fff;
+    overflow:hidden; border:2px solid rgba(255,255,255,.6); box-shadow:0 2px 8px rgba(0,0,0,.1);
+  }
+  .user-avatar img { width:100%; height:100%; object-fit:cover; }
+  .user-name  { font-weight:700; color:var(--text); font-size:.85rem; }
+  .user-email { font-size:.73rem; color:var(--text-sec); margin-top:1px; }
+
+  .role-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:.68rem; font-weight:700; border-radius:99px; padding:4px 10px; letter-spacing:.3px;
+  }
+  .role-badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+  .role-PATIENT     { background:#EDE9F6; color:#7B5EA7; } .role-PATIENT::before     { background:#7B5EA7; }
+  .role-PSYCHOLOGUE { background:#E0F2F1; color:#00897B; } .role-PSYCHOLOGUE::before { background:#00897B; }
+  .role-COACH       { background:#FFF3E0; color:#E65100; } .role-COACH::before       { background:#E65100; }
+  .role-ADMIN       { background:#D8F3DC; color:#1B4332; } .role-ADMIN::before       { background:#1B4332; }
+  .role-USER        { background:#E3F2FD; color:#1565C0; } .role-USER::before        { background:#1565C0; }
+
+  .status-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:.71rem; font-weight:600; border-radius:99px; padding:4px 10px;
+  }
+  .status-badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+  .status-active   { background:#D8F3DC; color:#1B4332; } .status-active::before   { background:#1B4332; }
+  .status-inactive { background:#FEE2E2; color:#991B1B; } .status-inactive::before { background:#991B1B; }
+
+  /* ══ Boutons d'action ══════════════════════════════════════════════ */
+  .actions-cell { display:flex; align-items:center; gap:5px; justify-content:center; }
+  .action-btn {
+    width:30px; height:30px; border-radius:8px; border:1.5px solid var(--border);
+    background:var(--white); display:grid; place-items:center;
+    cursor:pointer; transition:all .17s; text-decoration:none; flex-shrink:0;
+  }
+  .action-btn svg { width:13px; height:13px; }
+
+  /* Voir le profil */
+  .action-btn.view  { color:var(--violet); }
+  .action-btn.view:hover  { background:var(--violet-pale); border-color:var(--violet); }
+
+  /* Modifier */
+  .action-btn.edit  { color:var(--green); }
+  .action-btn.edit:hover  { background:var(--green-pale); border-color:var(--green-light); }
+
+  /* Toggle statut — Activer */
+  .action-btn.activate { color:#059669; }
+  .action-btn.activate:hover { background:#D1FAE5; border-color:#6EE7B7; }
+
+  /* Toggle statut — Désactiver */
+  .action-btn.deactivate { color:#F59E0B; }
+  .action-btn.deactivate:hover { background:#FEF3C7; border-color:#FCD34D; }
+
+  /* Supprimer */
+  .action-btn.del   { color:#EF4444; }
+  .action-btn.del:hover   { background:#FEF2F2; border-color:#FCA5A5; }
+
+  /* Tooltip natif amélioré */
+  .action-btn[title] { position:relative; }
+
+  /* ══ Empty state ════════════════════════════════════════════════════ */
+  .empty-state { text-align:center; padding:56px 20px; animation:fadeIn .4s ease both; }
+  .empty-icon  { width:60px; height:60px; border-radius:16px; background:var(--green-pale); display:grid; place-items:center; margin:0 auto 16px; font-size:1.5rem; }
+  .empty-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .empty-sub   { font-size:.82rem; color:var(--text-sec); }
+
+  /* ══ Pagination ═════════════════════════════════════════════════════ */
+  .pagination-bar {
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    padding:14px 18px; border-top:1.5px solid var(--border); background:#FAFBFC;
+  }
+  .pag-info { font-size:.8rem; color:var(--text-sec); }
+  .pag-info strong { color:var(--text); font-weight:700; }
+
+  .pag-pages { display:flex; align-items:center; gap:5px; }
+  .pag-btn {
+    min-width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border);
+    background:var(--white); font-family:'Outfit',sans-serif; font-size:.82rem; font-weight:600;
+    color:var(--text-sec); cursor:pointer; transition:all .17s;
+    display:inline-flex; align-items:center; justify-content:center; padding:0 8px;
+    text-decoration:none; user-select:none;
+  }
+  .pag-btn:hover:not(.disabled):not(.active) { border-color:var(--green-light); color:var(--green); background:var(--green-hover); }
+  .pag-btn.active { background:var(--green); border-color:var(--green); color:#fff; font-weight:700; pointer-events:none; }
+  .pag-btn.disabled { opacity:.38; pointer-events:none; }
+  .pag-btn svg { width:13px; height:13px; }
+
+  .pag-perpage { display:flex; align-items:center; gap:8px; font-size:.8rem; color:var(--text-sec); }
+  .pag-perpage select {
+    padding:5px 10px; border:1.5px solid var(--border); border-radius:8px;
+    background:var(--white); font-family:'Outfit',sans-serif; font-size:.8rem; color:var(--text);
+    outline:none; cursor:pointer;
+  }
+
+  /* ══ Modale suppression ═════════════════════════════════════════════ */
+  .modal-overlay {
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,.42); backdrop-filter:blur(3px);
+    display:none; align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; animation:fadeIn .18s ease both; }
+  .modal-box {
+    background:var(--white); border-radius:20px; padding:30px;
+    max-width:390px; width:90%; text-align:center;
+    box-shadow:0 24px 64px rgba(0,0,0,.22);
+    animation:fadeUp .28s cubic-bezier(.22,1,.36,1) both;
+  }
+  .modal-icon { width:52px; height:52px; border-radius:14px; display:grid; place-items:center; margin:0 auto 14px; }
+  .modal-icon.danger  { background:#FEF2F2; }
+  .modal-icon.danger svg { width:24px; height:24px; color:#EF4444; }
+  .modal-icon.warning { background:#FEF3C7; }
+  .modal-icon.warning svg { width:24px; height:24px; color:#D97706; }
+  .modal-icon.success { background:#D1FAE5; }
+  .modal-icon.success svg { width:24px; height:24px; color:#059669; }
+  .modal-title { font-size:1rem; font-weight:800; color:var(--text); margin-bottom:7px; }
+  .modal-sub   { font-size:.82rem; color:var(--text-sec); margin-bottom:20px; line-height:1.6; }
+  .modal-actions { display:flex; gap:10px; justify-content:center; }
+  .modal-cancel  { padding:9px 20px; border-radius:9px; border:1.5px solid var(--border); background:var(--white); font-family:'Outfit',sans-serif; font-size:.875rem; font-weight:600; cursor:pointer; color:var(--text-sec); transition:all .2s; }
+  .modal-cancel:hover { border-color:var(--text-sec); }
+  .modal-confirm-del    { padding:9px 20px; border-radius:9px; border:none; background:#EF4444; color:#fff; font-family:'Outfit',sans-serif; font-size:.875rem; font-weight:700; cursor:pointer; transition:background .2s; }
+  .modal-confirm-del:hover { background:#DC2626; }
+  .modal-confirm-toggle { padding:9px 20px; border-radius:9px; border:none; color:#fff; font-family:'Outfit',sans-serif; font-size:.875rem; font-weight:700; cursor:pointer; transition:background .2s; }
+  .modal-confirm-toggle.activate   { background:#059669; }
+  .modal-confirm-toggle.activate:hover { background:#047857; }
+  .modal-confirm-toggle.deactivate { background:#D97706; }
+  .modal-confirm-toggle.deactivate:hover { background:#B45309; }
+
+  /* Spinner recherche */
+  .search-spinner { display:none; }
+  .search-spinner.active { display:block; animation:spin .7s linear infinite; }
+
+  /* ══════════════════════════════════════════════════════════════════
+     SYSTÈME DE NOTIFICATIONS
+  ══════════════════════════════════════════════════════════════════ */
+  @keyframes notifSlideIn {
+    from { opacity:0; transform:translateY(-10px) scale(.97); }
+    to   { opacity:1; transform:none; }
+  }
+  @keyframes notifItemIn {
+    from { opacity:0; transform:translateX(10px); }
+    to   { opacity:1; transform:none; }
+  }
+  @keyframes badgePop {
+    0%   { transform:scale(1); }
+    40%  { transform:scale(1.45); }
+    70%  { transform:scale(.88); }
+    100% { transform:scale(1); }
+  }
+  @keyframes ringShake {
+    0%,100%{ transform:rotate(0); }
+    20%    { transform:rotate(14deg); }
+    40%    { transform:rotate(-10deg); }
+    60%    { transform:rotate(8deg); }
+    80%    { transform:rotate(-5deg); }
+  }
+
+  /* ── Bouton cloche ── */
+  .notif-btn-wrap { position:relative; display:inline-flex; flex-shrink:0; }
+  .notif-btn {
+    width:44px; height:44px; border-radius:13px;
+    background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.28);
+    display:grid; place-items:center; cursor:pointer;
+    transition:background .2s, border-color .2s, transform .2s cubic-bezier(.22,1,.36,1);
+    position:relative; backdrop-filter:blur(4px);
+  }
+  .notif-btn:hover { background:rgba(255,255,255,.24); border-color:rgba(255,255,255,.48); transform:translateY(-1px); }
+  .notif-btn.active { background:rgba(255,255,255,.26); border-color:rgba(255,255,255,.55); }
+  .notif-btn svg { width:20px; height:20px; color:#fff; transition:transform .3s; }
+  .notif-btn:hover svg, .notif-btn.ringing svg { animation:ringShake .45s ease both; }
+
+  /* Badge compteur */
+  .notif-badge {
+    position:absolute; top:-6px; right:-6px;
+    min-width:18px; height:18px; border-radius:99px;
+    background:linear-gradient(135deg, #FF6B6B, #EF4444);
+    color:#fff; font-size:.6rem; font-weight:800;
+    display:none; align-items:center; justify-content:center;
+    padding:0 4px; border:2px solid rgba(27,67,50,1);
+    box-shadow:0 2px 8px rgba(239,68,68,.5);
+    font-family:'Outfit',sans-serif; letter-spacing:.3px;
+  }
+  .notif-badge.visible { display:flex; animation:badgePop .35s cubic-bezier(.22,1,.36,1) both; }
+
+  /* ── Panneau déroulant — FIXED pour déborder du hero ── */
+  .notif-panel {
+    position: fixed;
+    width: 380px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1.5px solid rgba(0,0,0,.08);
+    box-shadow: 0 24px 70px rgba(0,0,0,.2), 0 4px 20px rgba(0,0,0,.1);
+    z-index: 99999;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: notifSlideIn .22s cubic-bezier(.22,1,.36,1) both;
+    /* top/right positionnés dynamiquement par JS */
+  }
+  .notif-panel.open { display: flex; }
+
+  /* En-tête du panneau */
+  .notif-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 18px 12px; border-bottom:1.5px solid #F0F0F0;
+    background:linear-gradient(135deg, #1B4332 0%, #2D6A4F 60%, #7B5EA7 100%);
+  }
+  .notif-header-left { display:flex; align-items:center; gap:10px; }
+  .notif-header-icon {
+    width:34px; height:34px; border-radius:10px;
+    background:rgba(255,255,255,.15); display:grid; place-items:center;
+  }
+  .notif-header-icon svg { width:16px; height:16px; color:#fff; }
+  .notif-header-title { font-family:'Outfit',sans-serif; font-size:.92rem; font-weight:700; color:#fff; }
+  .notif-header-count {
+    font-size:.68rem; color:rgba(255,255,255,.7); font-weight:500; margin-top:1px;
+  }
+  .notif-header-actions { display:flex; align-items:center; gap:6px; }
+  .notif-clear-btn {
+    padding:5px 10px; border-radius:7px; border:1.5px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.1); color:rgba(255,255,255,.85);
+    font-family:'Outfit',sans-serif; font-size:.68rem; font-weight:600;
+    cursor:pointer; transition:all .18s; white-space:nowrap;
+  }
+  .notif-clear-btn:hover { background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.55); }
+  .notif-close-btn {
+    width:28px; height:28px; border-radius:7px; border:1.5px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.1); color:rgba(255,255,255,.8);
+    display:grid; place-items:center; cursor:pointer; transition:all .18s;
+  }
+  .notif-close-btn:hover { background:rgba(255,255,255,.22); }
+  .notif-close-btn svg { width:12px; height:12px; }
+
+  /* Corps — liste */
+  .notif-body { max-height:370px; overflow-y:auto; flex:1; }
+  .notif-body::-webkit-scrollbar { width:4px; }
+  .notif-body::-webkit-scrollbar-track { background:transparent; }
+  .notif-body::-webkit-scrollbar-thumb { background:#D4D4D4; border-radius:99px; }
+
+  /* Item de notification */
+  .notif-item {
+    display:flex; align-items:flex-start; gap:12px;
+    padding:13px 17px; border-bottom:1px solid #F5F5F5;
+    transition:background .15s; cursor:default;
+    animation:notifItemIn .2s ease both;
+  }
+  .notif-item:last-child { border-bottom:none; }
+  .notif-item:hover { background:#FAFAFA; }
+  .notif-item.unread { background:#F0FDF4; }
+  .notif-item.unread:hover { background:#DCFCE7; }
+
+  .notif-item-icon {
+    width:36px; height:36px; border-radius:10px; flex-shrink:0;
+    display:grid; place-items:center; margin-top:1px;
+  }
+  .notif-item-icon svg { width:16px; height:16px; }
+
+  /* Couleurs par type */
+  .notif-icon-add      { background:#D8F3DC; } .notif-icon-add svg      { color:#1B4332; }
+  .notif-icon-edit     { background:#E0F2FE; } .notif-icon-edit svg     { color:#0369A1; }
+  .notif-icon-delete   { background:#FEE2E2; } .notif-icon-delete svg   { color:#DC2626; }
+  .notif-icon-activate { background:#D1FAE5; } .notif-icon-activate svg { color:#059669; }
+  .notif-icon-deactivate { background:#FEF3C7; } .notif-icon-deactivate svg { color:#D97706; }
+  .notif-icon-export   { background:#EDE9F6; } .notif-icon-export svg   { color:#7B5EA7; }
+
+  .notif-item-body { flex:1; min-width:0; }
+  .notif-item-title { font-family:'Outfit',sans-serif; font-size:.815rem; font-weight:700; color:#1A1A2E; line-height:1.35; }
+  .notif-item-desc  { font-size:.75rem; color:#6B7280; margin-top:2px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .notif-item-time  { font-size:.67rem; color:#9CA3AF; margin-top:4px; display:flex; align-items:center; gap:4px; }
+  .notif-item-time svg { width:10px; height:10px; }
+
+  /* Unread dot */
+  .notif-unread-dot {
+    width:7px; height:7px; border-radius:50%;
+    background:linear-gradient(135deg,#52B788,#1B4332);
+    flex-shrink:0; margin-top:6px;
+    box-shadow:0 0 0 2px rgba(82,183,136,.2);
+  }
+
+  /* Empty state */
+  .notif-empty {
+    display:flex; flex-direction:column; align-items:center;
+    padding:44px 20px; text-align:center;
+  }
+  .notif-empty-icon { font-size:2.2rem; margin-bottom:10px; }
+  .notif-empty-title { font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; color:#374151; margin-bottom:4px; }
+  .notif-empty-sub   { font-size:.77rem; color:#9CA3AF; }
+
+  /* Footer du panneau */
+  .notif-footer {
+    padding:10px 17px; border-top:1.5px solid #F0F0F0;
+    display:flex; align-items:center; justify-content:space-between;
+    background:#FAFBFC;
+  }
+  .notif-footer-info { font-size:.72rem; color:#9CA3AF; }
+  .notif-mark-all {
+    font-size:.72rem; font-weight:700; color:#2D6A4F; cursor:pointer;
+    background:none; border:none; font-family:'Outfit',sans-serif;
+    padding:0; transition:color .15s;
+  }
+  .notif-mark-all:hover { color:#1B4332; text-decoration:underline; }
+</style>
+
+{# ── Paramètres transmis aux macros ─────────────────────────────────────── #}
+{% set p = {
+  search:    search,
+  role:      role,
+  statut:    statut,
+  dateDebut: dateDebut,
+  dateFin:   dateFin,
+  sort:      sort,
+  direction: direction,
+  perPage:   perPage,
+} %}
+
+{# Compte des filtres avancés actifs #}
+{% set advancedCount = (statut != '' ? 1 : 0) + (dateDebut != '' ? 1 : 0) + (dateFin != '' ? 1 : 0) %}
+
+{# ════════════════════════════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════════════════════════════ #}
+<div class="users-hero">
+  <div class="hero-dots"><span></span><span></span><span></span></div>
+  <div class="hero-body">
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2" stroke-linecap="round"/>
+        <path d="M19 8v6M16 11h6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">Gestion des utilisateurs</div>
+      <div class="hero-sub">
+        <span>Gérez les comptes de la plateforme MindAura</span>
+        <span class="hero-chip">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="4" r="2.2"/><path d="M1 11c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke-linecap="round"/></svg>
+          {{ total }} compte{{ total != 1 ? 's' : '' }} au total
+        </span>
+        {% if search or role or statut or dateDebut or dateFin %}
+          <span class="hero-chip" style="background:rgba(255,200,100,.18);border-color:rgba(255,200,100,.35)">
+            🔍 {{ utilisateurs|length }} résultat{{ utilisateurs|length != 1 ? 's' : '' }} filtrés
+          </span>
+        {% endif %}
+      </div>
+    </div>
+    {# Groupe boutons droite #}
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+
+      {# ── Bouton Notifications ── #}
+      <div class="notif-btn-wrap" id="notifWrap">
+        <button type="button" class="notif-btn" id="notifToggle" title="Notifications" aria-label="Ouvrir les notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="notif-badge" id="notifBadge">0</span>
+        </button>
+      </div>
+
+      {# ── Boutons export ── #}
+      <div class="export-group">
+
+        {# Export CSV #}
+        <div class="export-tooltip-wrap">
+          <a href="{{ path('app_admin_utilisateurs_export_csv',
+               {search: search, role: role, statut: statut, dateDebut: dateDebut, dateFin: dateFin, sort: sort, direction: direction}) }}"
+             class="btn-export btn-export-csv">
+            <div class="btn-export-icon">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M4 4h7l5 5v7a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke-linecap="round"/>
+                <polyline points="11 4 11 9 16 9" stroke-linecap="round"/>
+                <line x1="8" y1="13" x2="12" y2="13" stroke-linecap="round"/>
+                <line x1="8" y1="10.5" x2="12" y2="10.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            Export CSV
+          </a>
+          <div class="export-tooltip">
+            Télécharger la liste filtrée<br>au format CSV (Excel)
+          </div>
+        </div>
+
+        {# Export PDF #}
+        <div class="export-tooltip-wrap">
+          <a href="{{ path('app_admin_utilisateurs_export_pdf',
+               {search: search, role: role, statut: statut, dateDebut: dateDebut, dateFin: dateFin, sort: sort, direction: direction}) }}"
+             class="btn-export btn-export-pdf">
+            <div class="btn-export-icon">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M4 4h7l5 5v7a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke-linecap="round"/>
+                <polyline points="11 4 11 9 16 9" stroke-linecap="round"/>
+                <path d="M7 13h.5a1 1 0 000-2H7v4m4-4h1a1 1 0 110 2h-1m3-2v4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            Export PDF
+          </a>
+          <div class="export-tooltip">
+            Télécharger un rapport PDF<br>professionnel (A4 paysage)
+          </div>
+        </div>
+
+      </div>{# /export-group #}
+
+      {# ── Nouvel utilisateur ── #}
+      <a href="{{ path('app_admin_utilisateurs_new') }}" class="btn-new-user" data-spa>
+        <div class="btn-new-user-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+        </div>
+        Nouvel utilisateur
+      </a>
+
+    </div>{# /boutons droite #}
+  </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════
+   PANNEAU NOTIFICATIONS — placé hors du hero (overflow:hidden corrigé)
+   Positionné en position:fixed via JS pour s'afficher devant tout
+════════════════════════════════════════════════════════════════════════ #}
+<div class="notif-panel" id="notifPanel" role="dialog" aria-label="Centre de notifications">
+  <div class="notif-header">
+    <div class="notif-header-left">
+      <div class="notif-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </div>
+      <div>
+        <div class="notif-header-title">Notifications</div>
+        <div class="notif-header-count" id="notifHeaderCount">Aucune activité récente</div>
+      </div>
+    </div>
+    <div class="notif-header-actions">
+      <button type="button" class="notif-clear-btn" id="notifClearAll" title="Tout effacer">Tout effacer</button>
+      <button type="button" class="notif-close-btn" id="notifClose" title="Fermer">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M1 1l10 10M11 1L1 11"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="notif-body" id="notifBody">
+    <div class="notif-empty">
+      <div class="notif-empty-icon">🔔</div>
+      <div class="notif-empty-title">Aucune notification</div>
+      <div class="notif-empty-sub">Les actions de gestion apparaîtront ici</div>
+    </div>
+  </div>
+
+  <div class="notif-footer">
+    <span class="notif-footer-info" id="notifFooterInfo">Session en cours</span>
+    <button type="button" class="notif-mark-all" id="notifMarkAll">Tout marquer comme lu</button>
+  </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════
+   PANNEAU FILTRES
+════════════════════════════════════════════════════════════════════════ #}
+<form method="GET" action="{{ path('app_admin_utilisateurs') }}" class="filters-panel" id="filterForm" autocomplete="off">
+
+  {# Champs cachés : tri et pagination conservés #}
+  <input type="hidden" name="sort"      value="{{ sort }}"/>
+  <input type="hidden" name="direction" value="{{ direction }}"/>
+  <input type="hidden" name="page"      value="1"/>
+  <input type="hidden" name="perPage"   value="{{ perPage }}"/>
+
+  {# ── Ligne principale ── #}
+  <div class="filters-top">
+
+    {# Recherche textuelle #}
+    <div class="filter-search">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="9" r="5.5"/><path d="M16 16l-3-3" stroke-linecap="round"/></svg>
+      <input type="text" name="search" id="searchInput"
+             placeholder="Nom, prénom, email, téléphone…"
+             value="{{ search }}"/>
+      <svg class="search-spinner" id="searchSpinner" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M10 3a7 7 0 017 7" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    {# Filtre rôle #}
+    <select name="role" class="filter-select" id="roleSelect">
+      <option value="">Tous les rôles</option>
+      <option value="ROLE_PATIENT"     {{ role == 'ROLE_PATIENT'     ? 'selected' }}>👤 Patients</option>
+      <option value="ROLE_PSYCHOLOGUE" {{ role == 'ROLE_PSYCHOLOGUE' ? 'selected' }}>🧠 Psychologues</option>
+      <option value="ROLE_COACH"       {{ role == 'ROLE_COACH'       ? 'selected' }}>💪 Coachs</option>
+      <option value="ROLE_ADMIN"       {{ role == 'ROLE_ADMIN'       ? 'selected' }}>🛡 Administrateurs</option>
+      <option value="ROLE_USER"        {{ role == 'ROLE_USER'        ? 'selected' }}>🔵 Utilisateurs</option>
+    </select>
+
+    {# Bouton filtres avancés #}
+    <button type="button" class="btn-filter-toggle {{ advancedCount > 0 ? 'active' : '' }}" id="toggleAdvanced">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h12M7 10h6M9 14h2" stroke-linecap="round"/></svg>
+      Filtres avancés
+      {% if advancedCount > 0 %}
+        <span class="badge-count">{{ advancedCount }}</span>
+      {% endif %}
+    </button>
+
+    {# Réinitialiser (visible si au moins un filtre actif) #}
+    {% if search or role or statut or dateDebut or dateFin %}
+      <a href="{{ path('app_admin_utilisateurs') }}" class="btn-reset">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l12 12M16 4L4 16" stroke-linecap="round"/></svg>
+        Réinitialiser
+      </a>
+    {% endif %}
+
+  </div>
+
+  {# ── Filtres avancés (statut + dates) ── #}
+  <div class="filters-advanced {{ advancedCount > 0 ? 'open' : '' }}" id="advancedPanel">
+
+    <div class="filter-group">
+      <span class="filter-label">Statut du compte</span>
+      <select name="statut" class="filter-select">
+        <option value="">Tous</option>
+        <option value="1" {{ statut == '1' ? 'selected' }}>✅ Actif</option>
+        <option value="0" {{ statut == '0' ? 'selected' }}>🔴 Inactif</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Inscrit après le</span>
+      <input type="date" name="dateDebut" class="filter-date" value="{{ dateDebut }}"/>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Inscrit avant le</span>
+      <input type="date" name="dateFin"   class="filter-date" value="{{ dateFin }}"/>
+    </div>
+
+    <div class="filter-group" style="justify-content:flex-end">
+      <button type="submit" style="padding:9px 18px;border-radius:10px;background:var(--green);color:#fff;border:none;font-family:'Outfit',sans-serif;font-size:.84rem;font-weight:700;cursor:pointer;transition:background .2s">
+        Appliquer
+      </button>
+    </div>
+
+  </div>
+
+  {# ── Pied : résumé des filtres actifs ── #}
+  <div class="filters-footer">
+    <div class="filter-info">
+      <strong>{{ utilisateurs|length }}</strong> sur <strong>{{ total }}</strong> utilisateurs
+      {% if search or role or statut or dateDebut or dateFin %}
+        <span class="active-filters">
+          {% if search %}
+            <span class="filter-tag">
+              🔍 "{{ search }}"
+              <button type="button" onclick="clearField('search')">×</button>
+            </span>
+          {% endif %}
+          {% if role %}
+            {% set roleLabels = {'ROLE_PATIENT':'Patient','ROLE_PSYCHOLOGUE':'Psychologue','ROLE_COACH':'Coach','ROLE_ADMIN':'Admin','ROLE_USER':'Utilisateur'} %}
+            <span class="filter-tag">
+              {{ roleLabels[role] ?? role }}
+              <button type="button" onclick="clearField('role')">×</button>
+            </span>
+          {% endif %}
+          {% if statut != '' %}
+            <span class="filter-tag">
+              {{ statut == '1' ? 'Actif' : 'Inactif' }}
+              <button type="button" onclick="clearField('statut')">×</button>
+            </span>
+          {% endif %}
+          {% if dateDebut %}
+            <span class="filter-tag">
+              Après {{ dateDebut }}
+              <button type="button" onclick="clearField('dateDebut')">×</button>
+            </span>
+          {% endif %}
+          {% if dateFin %}
+            <span class="filter-tag">
+              Avant {{ dateFin }}
+              <button type="button" onclick="clearField('dateFin')">×</button>
+            </span>
+          {% endif %}
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+</form>
+
+{# ════════════════════════════════════════════════════════════════════════
+   TABLEAU
+════════════════════════════════════════════════════════════════════════ #}
+<div class="table-card">
+  {% if utilisateurs is empty %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Aucun utilisateur trouvé</div>
+      <div class="empty-sub">
+        {% if search or role or statut or dateDebut or dateFin %}
+          Essayez d'élargir vos critères de recherche.
+        {% else %}
+          Aucun utilisateur n'a encore été créé.
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+
+    <table>
+      <thead>
+        <tr>
+
+          {# ── Macro locale : en-tête de colonne triable ── #}
+          {% macro th(label, col, currentSort, currentDir, p) %}
+            {% set isActive = (col == currentSort) %}
+            {% set newDir = (isActive and currentDir == 'ASC') ? 'DESC' : 'ASC' %}
+            {% set url = '?search=' ~ p.search|url_encode
+              ~ '&role='      ~ p.role|url_encode
+              ~ '&statut='    ~ p.statut|url_encode
+              ~ '&dateDebut=' ~ p.dateDebut|url_encode
+              ~ '&dateFin='   ~ p.dateFin|url_encode
+              ~ '&sort='      ~ col
+              ~ '&direction=' ~ newDir
+              ~ '&page=1&perPage=' ~ p.perPage %}
+            <th class="sortable {{ isActive ? (currentDir == 'ASC' ? 'sort-asc' : 'sort-desc') : '' }}"
+                onclick="window.location='{{ url }}'">
+              {{ label }}
+              <span class="sort-icon">
+                <span class="up"></span>
+                <span class="down"></span>
+              </span>
+            </th>
+          {% endmacro %}
+
+          {% import _self as m %}
+          {{ m.th('Utilisateur', 'nom',         sort, direction, p) }}
+          {{ m.th('Téléphone',   'telephone',    sort, direction, p) }}
+          {{ m.th('Rôle',        'role',         sort, direction, p) }}
+          {{ m.th('Naissance',   'naissance',    sort, direction, p) }}
+          {{ m.th('Inscription', 'inscription',  sort, direction, p) }}
+          {{ m.th('Statut',      'statut',       sort, direction, p) }}
+          <th style="text-align:center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody id="tableBody">
+        {% set avatarColors = {
+          'PATIENT':     '#7B5EA7',
+          'PSYCHOLOGUE': '#00897B',
+          'COACH':       '#E65100',
+          'ADMIN':       '#1B4332',
+          'USER':        '#1565C0',
+        } %}
+        {% set roleLabels = {
+          'PATIENT':     'Patient',
+          'PSYCHOLOGUE': 'Psychologue',
+          'COACH':       'Coach',
+          'ADMIN':       'Administrateur',
+          'USER':        'Utilisateur',
+        } %}
+
+        {% for u in utilisateurs %}
+          {% set roleKey = u.roleUtilisateur|replace({'ROLE_': ''}) %}
+          {% set avatarBg = avatarColors[roleKey] ?? '#5A6475' %}
+
+          <tr style="animation-delay:{{ loop.index0 * 0.03 }}s">
+
+            {# Utilisateur #}
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar" style="background:{{ avatarBg }}">
+                  {% if u.photoProfilUtilisateur != 'default.png' %}
+                    <img src="{{ asset('avatars/' ~ u.photoProfilUtilisateur) }}" alt="avatar"/>
+                  {% else %}
+                    {{ u.prenomUtilisateur|first|upper }}{{ u.nomUtilisateur|first|upper }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="user-name">{{ u.prenomUtilisateur }} {{ u.nomUtilisateur }}</div>
+                  <div class="user-email">{{ u.emailUtilisateur }}</div>
+                </div>
+              </div>
+            </td>
+
+            {# Téléphone #}
+            <td style="color:var(--text-sec)">{{ u.telephoneUtilisateur }}</td>
+
+            {# Rôle #}
+            <td>
+              <span class="role-badge role-{{ roleKey }}">
+                {{ roleLabels[roleKey] ?? roleKey }}
+              </span>
+            </td>
+
+            {# Date de naissance #}
+            <td style="color:var(--text-sec); font-size:.79rem">
+              {{ u.dateNaissanceUtilisateur ? u.dateNaissanceUtilisateur|date('d/m/Y') : '—' }}
+            </td>
+
+            {# Date d'inscription #}
+            <td style="color:var(--text-sec); font-size:.79rem">
+              {{ u.dateInscriptionUtilisateur|date('d/m/Y') }}
+            </td>
+
+            {# Statut #}
+            <td>
+              <span class="status-badge {{ u.estActifUtilisateur ? 'status-active' : 'status-inactive' }}">
+                {{ u.estActifUtilisateur ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+
+            {# Actions #}
+            <td>
+              <div class="actions-cell">
+
+                {# ── Voir le profil ── #}
+                <a href="{{ path('app_admin_utilisateurs_show', {id: u.idUtilisateur}) }}"
+                   class="action-btn view" title="Voir le profil" data-spa>
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="10" r="2.5"/>
+                  </svg>
+                </a>
+
+                {# ── Modifier ── #}
+                <a href="{{ path('app_admin_utilisateurs_edit', {id: u.idUtilisateur}) }}"
+                   class="action-btn edit" title="Modifier" data-spa>
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M14.5 2.5a2.12 2.12 0 013 3L6 17H3v-3L14.5 2.5z" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+
+                {# ── Toggle statut ── #}
+                {% if u.estActifUtilisateur %}
+                  <button type="button"
+                          class="action-btn deactivate"
+                          title="Désactiver le compte"
+                          onclick="openToggleModal({{ u.idUtilisateur }}, '{{ u.prenomUtilisateur|e('html_attr') }} {{ u.nomUtilisateur|e('html_attr') }}', false)">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                      <path d="M10 3v5M10 12v5M3 10h5m4 0h5" stroke-linecap="round"/>
+                      <circle cx="10" cy="10" r="7"/>
+                    </svg>
+                  </button>
+                {% else %}
+                  <button type="button"
+                          class="action-btn activate"
+                          title="Activer le compte"
+                          onclick="openToggleModal({{ u.idUtilisateur }}, '{{ u.prenomUtilisateur|e('html_attr') }} {{ u.nomUtilisateur|e('html_attr') }}', true)">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                      <path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="10" cy="10" r="7"/>
+                    </svg>
+                  </button>
+                {% endif %}
+
+                {# ── Supprimer ── #}
+                <button type="button" class="action-btn del" title="Supprimer"
+                        onclick="openDeleteModal({{ u.idUtilisateur }}, '{{ u.prenomUtilisateur|e('html_attr') }} {{ u.nomUtilisateur|e('html_attr') }}')">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M4 5h12M8 5V3h4v2M6 5l1 11h6l1-11" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {# ════════════════════════════════════════════════════════════════
+       BARRE DE PAGINATION
+    ════════════════════════════════════════════════════════════════ #}
+    {% if pages > 1 or utilisateurs|length > 0 %}
+    <div class="pagination-bar">
+
+      {# Info résultats #}
+      <div class="pag-info">
+        {% set from = ((page - 1) * perPage) + 1 %}
+        {% set to   = min(page * perPage, total) %}
+        <strong>{{ from }}–{{ to }}</strong> sur <strong>{{ total }}</strong>
+      </div>
+
+      {# Numéros de page #}
+      <div class="pag-pages">
+
+        {# Précédent #}
+        {% if page > 1 %}
+          <a class="pag-btn" href="{{ path('app_admin_utilisateurs') ~ self.pageUrl(page - 1, p) }}" data-spa>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5" stroke-linecap="round"/></svg>
+          </a>
+        {% else %}
+          <span class="pag-btn disabled">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5" stroke-linecap="round"/></svg>
+          </span>
+        {% endif %}
+
+        {# Numéros — fenêtre glissante ±2 autour de la page courante #}
+        {% set winStart = max(1, page - 2) %}
+        {% set winEnd   = min(pages, page + 2) %}
+
+        {% if winStart > 1 %}
+          <a class="pag-btn" href="{{ path('app_admin_utilisateurs') ~ self.pageUrl(1, p) }}" data-spa>1</a>
+          {% if winStart > 2 %}<span class="pag-btn disabled" style="border:none;background:none">…</span>{% endif %}
+        {% endif %}
+
+        {% for i in winStart..winEnd %}
+          <a class="pag-btn {{ i == page ? 'active' : '' }}"
+             href="{{ path('app_admin_utilisateurs') ~ self.pageUrl(i, p) }}"
+             data-spa>{{ i }}</a>
+        {% endfor %}
+
+        {% if winEnd < pages %}
+          {% if winEnd < pages - 1 %}<span class="pag-btn disabled" style="border:none;background:none">…</span>{% endif %}
+          <a class="pag-btn" href="{{ path('app_admin_utilisateurs') ~ self.pageUrl(pages, p) }}" data-spa>{{ pages }}</a>
+        {% endif %}
+
+        {# Suivant #}
+        {% if page < pages %}
+          <a class="pag-btn" href="{{ path('app_admin_utilisateurs') ~ self.pageUrl(page + 1, p) }}" data-spa>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l5 5-5 5" stroke-linecap="round"/></svg>
+          </a>
+        {% else %}
+          <span class="pag-btn disabled">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l5 5-5 5" stroke-linecap="round"/></svg>
+          </span>
+        {% endif %}
+
+      </div>
+
+      {# Résultats par page #}
+      <div class="pag-perpage">
+        <span>Par page</span>
+        <select onchange="changePerPage(this.value)">
+          {% for n in [5, 10, 25, 50] %}
+            <option value="{{ n }}" {{ perPage == n ? 'selected' }}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+    </div>
+    {% endif %}
+
+  {% endif %}
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════
+   TOKENS CSRF (générés côté serveur, utilisés par le JS)
+════════════════════════════════════════════════════════════════════════ #}
+<script>
+const CSRF_DELETE = {
+  {% for u in utilisateurs %}
+    {{ u.idUtilisateur }}: '{{ csrf_token('delete_user_' ~ u.idUtilisateur) }}'{{ not loop.last ? ',' }}
+  {% endfor %}
+};
+const CSRF_TOGGLE = {
+  {% for u in utilisateurs %}
+    {{ u.idUtilisateur }}: '{{ csrf_token('toggle_user_' ~ u.idUtilisateur) }}'{{ not loop.last ? ',' }}
+  {% endfor %}
+};
+</script>
+
+{# ════════════════════════════════════════════════════════════════════════
+   MODALE SUPPRESSION
+════════════════════════════════════════════════════════════════════════ #}
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon danger">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M4 5h12M8 5V3h4v2M6 5l1 11h6l1-11" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="modal-title">Supprimer l'utilisateur ?</div>
+    <div class="modal-sub" id="deleteModalSub">Cette action est irréversible.</div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" onclick="closeDeleteModal()">Annuler</button>
+      <form id="deleteForm" method="POST" style="display:contents">
+        <input type="hidden" name="_token"   id="deleteToken"/>
+        <input type="hidden" name="_referer" id="deleteReferer"/>
+        <button type="submit" class="modal-confirm-del">Supprimer</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════════
+   MODALE TOGGLE STATUT
+════════════════════════════════════════════════════════════════════════ #}
+<div class="modal-overlay" id="toggleModal">
+  <div class="modal-box">
+    <div class="modal-icon" id="toggleModalIcon">
+      {# L'icône est injectée dynamiquement par JS #}
+    </div>
+    <div class="modal-title" id="toggleModalTitle">Modifier le statut ?</div>
+    <div class="modal-sub"   id="toggleModalSub">Confirmer cette action.</div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" onclick="closeToggleModal()">Annuler</button>
+      <form id="toggleForm" method="POST" style="display:contents">
+        <input type="hidden" name="_token"   id="toggleToken"/>
+        <input type="hidden" name="_referer" id="toggleReferer"/>
+        <button type="submit" class="modal-confirm-toggle" id="toggleConfirmBtn">Confirmer</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// ══════════════════════════════════════════════════════════════════════
+//  MODALE SUPPRESSION
+// ══════════════════════════════════════════════════════════════════════
+function openDeleteModal(id, name) {
+  document.getElementById('deleteForm').action    = `/admin/utilisateurs/${id}/delete`;
+  document.getElementById('deleteToken').value    = CSRF_DELETE[id] ?? '';
+  document.getElementById('deleteReferer').value  = window.location.href;
+  document.getElementById('deleteModalSub').textContent =
+    `Vous allez supprimer « ${name} ». Cette action est irréversible.`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+}
+document.getElementById('deleteModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeDeleteModal();
+});
+
+// ══════════════════════════════════════════════════════════════════════
+//  MODALE TOGGLE STATUT
+// ══════════════════════════════════════════════════════════════════════
+function openToggleModal(id, name, willActivate) {
+  const icon    = document.getElementById('toggleModalIcon');
+  const title   = document.getElementById('toggleModalTitle');
+  const sub     = document.getElementById('toggleModalSub');
+  const btn     = document.getElementById('toggleConfirmBtn');
+
+  document.getElementById('toggleForm').action   = `/admin/utilisateurs/${id}/toggle`;
+  document.getElementById('toggleToken').value   = CSRF_TOGGLE[id] ?? '';
+  document.getElementById('toggleReferer').value = window.location.href;
+
+  if (willActivate) {
+    icon.className  = 'modal-icon success';
+    icon.innerHTML  = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                         <path d="M7 10l2.5 2.5L14 7" stroke-linecap="round" stroke-linejoin="round"/>
+                         <circle cx="10" cy="10" r="7"/>
+                       </svg>`;
+    title.textContent = 'Activer le compte ?';
+    sub.textContent   = `Le compte de « ${name} » sera réactivé et l'utilisateur pourra se connecter à nouveau.`;
+    btn.className     = 'modal-confirm-toggle activate';
+    btn.textContent   = 'Activer';
+  } else {
+    icon.className  = 'modal-icon warning';
+    icon.innerHTML  = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                         <path d="M10 6v5M10 14v.5" stroke-linecap="round"/>
+                         <circle cx="10" cy="10" r="7"/>
+                       </svg>`;
+    title.textContent = 'Désactiver le compte ?';
+    sub.textContent   = `Le compte de « ${name} » sera suspendu. L'utilisateur ne pourra plus se connecter.`;
+    btn.className     = 'modal-confirm-toggle deactivate';
+    btn.textContent   = 'Désactiver';
+  }
+
+  document.getElementById('toggleModal').classList.add('open');
+}
+function closeToggleModal() {
+  document.getElementById('toggleModal').classList.remove('open');
+}
+document.getElementById('toggleModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeToggleModal();
+});
+
+// Fermer les deux modales avec Echap
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDeleteModal(); closeToggleModal(); }
+});
+
+// ══════════════════════════════════════════════════════════════════════
+//  FILTRES AVANCÉS (toggle)
+// ══════════════════════════════════════════════════════════════════════
+const toggleBtn     = document.getElementById('toggleAdvanced');
+const advancedPanel = document.getElementById('advancedPanel');
+toggleBtn?.addEventListener('click', () => {
+  const isOpen = advancedPanel.classList.toggle('open');
+  toggleBtn.classList.toggle('active', isOpen);
+});
+
+// ══════════════════════════════════════════════════════════════════════
+//  RECHERCHE LIVE (debounce 420 ms)
+// ══════════════════════════════════════════════════════════════════════
+let searchTimer;
+const searchInput   = document.getElementById('searchInput');
+const searchSpinner = document.getElementById('searchSpinner');
+const filterForm    = document.getElementById('filterForm');
+
+searchInput?.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchSpinner.classList.add('active');
+  searchTimer = setTimeout(() => {
+    filterForm.submit();
+  }, 420);
+});
+
+// Auto-submit sur changement du select rôle
+document.getElementById('roleSelect')?.addEventListener('change', () => {
+  filterForm.submit();
+});
+
+// ══════════════════════════════════════════════════════════════════════
+//  CLEAR D'UN FILTRE INDIVIDUEL (tag ×)
+// ══════════════════════════════════════════════════════════════════════
+function clearField(name) {
+  const el = filterForm.querySelector(`[name="${name}"]`);
+  if (el) { el.value = ''; }
+  filterForm.submit();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  CHANGEMENT DU NB DE RÉSULTATS PAR PAGE
+// ══════════════════════════════════════════════════════════════════════
+function changePerPage(val) {
+  const perPageInput = filterForm.querySelector('[name="perPage"]');
+  const pageInput    = filterForm.querySelector('[name="page"]');
+  if (perPageInput) perPageInput.value = val;
+  if (pageInput)    pageInput.value    = 1;
+  filterForm.submit();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  ANIMATION EN CASCADE des lignes du tableau
+// ══════════════════════════════════════════════════════════════════════
+document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
+  tr.style.opacity  = '0';
+  tr.style.transform = 'translateX(-6px)';
+  setTimeout(() => {
+    tr.style.transition = 'opacity .25s ease, transform .25s cubic-bezier(.22,1,.36,1)';
+    tr.style.opacity    = '1';
+    tr.style.transform  = 'none';
+  }, 60 + i * 35);
+});
+
+// ══════════════════════════════════════════════════════════════════════
+//  SYSTÈME DE NOTIFICATIONS
+//  Stockage : localStorage (clé 'mindaura_admin_notifs')
+//  Format   : [{ id, type, title, desc, time, read }]
+// ══════════════════════════════════════════════════════════════════════
+const NOTIF_KEY = 'mindaura_admin_notifs';
+const MAX_NOTIFS = 50;
+
+// ── Icônes SVG par type ──────────────────────────────────────────────
+const NOTIF_ICONS = {
+  add: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>`,
+  edit: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14.3 5.3a1 1 0 011.4 1.4l-8 8L5 15l.3-2.7 8-7z"/></svg>`,
+  delete: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h10M8 6V4h4v2M7 6l.7 9h4.6L13 6"/></svg>`,
+  activate: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 10l2.5 2.5L14 7"/><circle cx="10" cy="10" r="7"/></svg>`,
+  deactivate: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 6v5M10 14v.5"/><circle cx="10" cy="10" r="7"/></svg>`,
+  export: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3v10M6 9l4 4 4-4M4 16h12"/></svg>`,
+};
+
+// ── Helpers stockage ────────────────────────────────────────────────
+function notifLoad() {
+  try { return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]'); }
+  catch { return []; }
+}
+function notifSave(list) {
+  try { localStorage.setItem(NOTIF_KEY, JSON.stringify(list.slice(0, MAX_NOTIFS))); }
+  catch {}
+}
+
+// ── Formater l'heure relative ────────────────────────────────────────
+function notifTimeAgo(isoString) {
+  const diff = Math.floor((Date.now() - new Date(isoString)) / 1000);
+  if (diff < 60)   return "À l'instant";
+  if (diff < 3600) return `Il y a ${Math.floor(diff / 60)} min`;
+  if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)} h`;
+  return `Il y a ${Math.floor(diff / 86400)} j`;
+}
+
+// ── Ajouter une notification ────────────────────────────────────────
+function notifAdd(type, title, desc) {
+  const list = notifLoad();
+  list.unshift({
+    id:   Date.now() + Math.random().toString(36).slice(2),
+    type, title, desc,
+    time: new Date().toISOString(),
+    read: false,
+  });
+  notifSave(list);
+  notifRender();
+  // Animation cloche
+  const btn = document.getElementById('notifToggle');
+  btn.classList.add('ringing');
+  setTimeout(() => btn.classList.remove('ringing'), 500);
+}
+
+// ── Rendre la liste dans le panneau ────────────────────────────────
+function notifRender() {
+  const list   = notifLoad();
+  const body   = document.getElementById('notifBody');
+  const badge  = document.getElementById('notifBadge');
+  const hcount = document.getElementById('notifHeaderCount');
+  const finfo  = document.getElementById('notifFooterInfo');
+  const empty  = document.getElementById('notifEmpty');
+
+  const unread = list.filter(n => !n.read).length;
+
+  // Badge
+  if (unread > 0) {
+    badge.textContent = unread > 99 ? '99+' : unread;
+    badge.classList.add('visible');
+  } else {
+    badge.classList.remove('visible');
+  }
+
+  // Header count
+  hcount.textContent = list.length === 0
+    ? 'Aucune activité récente'
+    : `${list.length} action${list.length > 1 ? 's' : ''} • ${unread} non lue${unread > 1 ? 's' : ''}`;
+
+  // Footer info
+  finfo.textContent = list.length > 0
+    ? `${list.length} notification${list.length > 1 ? 's' : ''} conservée${list.length > 1 ? 's' : ''}`
+    : 'Session en cours';
+
+  // Empty state
+  if (list.length === 0) {
+    body.innerHTML = `
+      <div class="notif-empty" id="notifEmpty">
+        <div class="notif-empty-icon">🔔</div>
+        <div class="notif-empty-title">Aucune notification</div>
+        <div class="notif-empty-sub">Les actions de gestion apparaîtront ici</div>
+      </div>`;
+    return;
+  }
+
+  // Construire les items
+  body.innerHTML = list.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n.id}">
+      <div class="notif-item-icon notif-icon-${n.type}">${NOTIF_ICONS[n.type] || NOTIF_ICONS.add}</div>
+      <div class="notif-item-body">
+        <div class="notif-item-title">${escHtml(n.title)}</div>
+        <div class="notif-item-desc">${escHtml(n.desc)}</div>
+        <div class="notif-item-time">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5v2.8l1.5 1" stroke-linecap="round"/></svg>
+          ${notifTimeAgo(n.time)}
+        </div>
+      </div>
+      ${!n.read ? '<div class="notif-unread-dot"></div>' : ''}
+    </div>
+  `).join('');
+
+  // Clic sur un item → marquer comme lu
+  body.querySelectorAll('.notif-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.id;
+      const lst = notifLoad();
+      const idx = lst.findIndex(n => n.id === id);
+      if (idx !== -1 && !lst[idx].read) {
+        lst[idx].read = true;
+        notifSave(lst);
+        notifRender();
+      }
+    });
+  });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Positionner le panneau sous le bouton ────────────────────────────
+function notifPositionPanel() {
+  const btn    = document.getElementById('notifToggle');
+  const panel  = document.getElementById('notifPanel');
+  if (!btn || !panel) return;
+  const rect   = btn.getBoundingClientRect();
+  const panelW = 380;
+  let   left   = rect.right - panelW;
+  // Eviter de sortir à gauche de l'écran
+  if (left < 8) left = 8;
+  // Eviter de sortir à droite
+  if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
+  panel.style.top  = (rect.bottom + 10) + 'px';
+  panel.style.left = left + 'px';
+}
+
+// ── Toggle du panneau ────────────────────────────────────────────────
+const notifToggle = document.getElementById('notifToggle');
+const notifPanel  = document.getElementById('notifPanel');
+
+notifToggle?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const isOpen = notifPanel.classList.toggle('open');
+  notifToggle.classList.toggle('active', isOpen);
+  if (isOpen) {
+    notifPositionPanel();
+    notifRender();
+  }
+});
+
+// Repositionner si la fenêtre est redimensionnée
+window.addEventListener('resize', () => {
+  if (notifPanel.classList.contains('open')) notifPositionPanel();
+});
+
+document.getElementById('notifClose')?.addEventListener('click', () => {
+  notifPanel.classList.remove('open');
+  notifToggle.classList.remove('active');
+});
+
+// Fermer si clic en dehors
+document.addEventListener('click', (e) => {
+  const wrap  = document.getElementById('notifWrap');
+  const panel = document.getElementById('notifPanel');
+  if (!wrap?.contains(e.target) && !panel?.contains(e.target)) {
+    panel?.classList.remove('open');
+    notifToggle?.classList.remove('active');
+  }
+});
+
+// Fermer avec Échap
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    notifPanel.classList.remove('open');
+    notifToggle?.classList.remove('active');
+  }
+});
+
+// ── Tout effacer ────────────────────────────────────────────────────
+document.getElementById('notifClearAll')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  notifSave([]);
+  notifRender();
+});
+
+// ── Tout marquer comme lu ────────────────────────────────────────────
+document.getElementById('notifMarkAll')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const lst = notifLoad().map(n => ({ ...n, read: true }));
+  notifSave(lst);
+  notifRender();
+});
+
+// ── Intercepter les actions existantes ──────────────────────────────
+// 1. Export CSV
+document.querySelectorAll('a[href*="export/csv"]').forEach(link => {
+  link.addEventListener('click', () => {
+    notifAdd('export', 'Export CSV lancé', 'Téléchargement de la liste des utilisateurs au format CSV');
+  });
+});
+
+// 2. Export PDF
+document.querySelectorAll('a[href*="export/pdf"]').forEach(link => {
+  link.addEventListener('click', () => {
+    notifAdd('export', 'Export PDF lancé', 'Génération du rapport PDF des utilisateurs');
+  });
+});
+
+// 3. Création : on injecte dans openDeleteModal / openToggleModal et les formulaires
+// Pour l'ajout d'un utilisateur, on surveille le bouton "Nouvel utilisateur"
+document.querySelector('.btn-new-user')?.addEventListener('click', () => {
+  notifAdd('add', 'Création d\'un utilisateur', 'Ouverture du formulaire de création de compte');
+});
+
+// 4. Surcharger openDeleteModal pour enregistrer avant confirmation
+const _origOpenDeleteModal = window.openDeleteModal;
+window.openDeleteModal = function(id, name) {
+  // On ne loggue pas encore — on attend la confirmation (submit)
+  _origOpenDeleteModal(id, name);
+};
+
+// Écouter le submit du formulaire de suppression
+document.getElementById('deleteForm')?.addEventListener('submit', () => {
+  const name = document.getElementById('deleteModalSub')?.textContent?.match(/«\s*(.+?)\s*»/)?.[1] || 'Utilisateur';
+  notifAdd('delete', 'Compte supprimé', `Le compte de « ${name} » a été supprimé définitivement`);
+});
+
+// 5. Toggle statut — écouter le submit du formulaire toggle
+document.getElementById('toggleForm')?.addEventListener('submit', () => {
+  const title = document.getElementById('toggleModalTitle')?.textContent || '';
+  const sub   = document.getElementById('toggleModalSub')?.textContent || '';
+  const isActivate = title.toLowerCase().includes('activer') && !title.toLowerCase().includes('désactiver');
+  const name  = sub.match(/«\s*(.+?)\s*»/)?.[1] || 'Utilisateur';
+  if (isActivate) {
+    notifAdd('activate', 'Compte activé', `Le compte de « ${name} » a été réactivé`);
+  } else {
+    notifAdd('deactivate', 'Compte désactivé', `Le compte de « ${name} » a été suspendu`);
+  }
+});
+
+// 6. Édition — détecter les liens "Modifier" dans le tableau
+document.querySelectorAll('.action-btn.edit').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const row   = link.closest('tr');
+    const name  = row?.querySelector('.user-name')?.textContent?.trim() || 'Utilisateur';
+    notifAdd('edit', 'Modification d\'un compte', `Ouverture de l\'édition de « ${name} »`);
+  });
+});
+
+// ── Vérification des flash Symfony (actions déjà réalisées au chargement) ──
+// Détecte les messages flash de succès dans le DOM pour retrouver les actions passées
+(function detectFlashActions() {
+  const flashes = document.querySelectorAll('.flash-success, .alert-success, [data-flash="success"]');
+  flashes.forEach(el => {
+    const msg = el.textContent?.trim() || '';
+    if (!msg) return;
+
+    if (/créé/i.test(msg)) {
+      notifAdd('add', 'Utilisateur créé', msg);
+    } else if (/mis à jour|modifié/i.test(msg)) {
+      notifAdd('edit', 'Profil modifié', msg);
+    } else if (/supprimé/i.test(msg)) {
+      notifAdd('delete', 'Compte supprimé', msg);
+    } else if (/activé/i.test(msg)) {
+      notifAdd('activate', 'Compte activé', msg);
+    } else if (/désactivé/i.test(msg)) {
+      notifAdd('deactivate', 'Compte désactivé', msg);
+    }
+  });
+})();
+
+// ── Rendu initial ────────────────────────────────────────────────────
+notifRender();
+</script>
+{% endblock %}

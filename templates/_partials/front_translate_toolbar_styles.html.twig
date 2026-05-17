@@ -1,0 +1,29 @@
+<style>
+@keyframes spin-tr { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.translate-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.translate-lang {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: 'Outfit', sans-serif;
+  background: #fff;
+  color: var(--text);
+  min-width: 148px;
+  cursor: pointer;
+}
+.translate-lang:focus {
+  outline: none;
+  border-color: var(--g3);
+  box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.12);
+}
+.translate-lang:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+</style>

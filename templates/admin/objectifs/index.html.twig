@@ -1,0 +1,381 @@
+{% extends 'base_backoffice.html.twig' %}
+
+{% block title %}Objectifs{% endblock %}
+{% block page_label %}Objectifs{% endblock %}
+
+{% block content %}
+{% include '_partials/_admin_design_system.html.twig' %}
+
+<style>
+  .obj-title-cell { display: flex; align-items: center; gap: 12px; }
+  .obj-title-avatar {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--green, #1B4332), var(--violet, #7B5EA7));
+    color: #fff;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .obj-title-avatar svg { width: 18px; height: 18px; }
+  .obj-title-name {
+    font-weight: 600;
+    color: var(--green, #1B4332);
+    font-size: 13.5px;
+  }
+
+  .filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--green-pale, #D8F3DC);
+    color: var(--green, #1B4332);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 3px 10px;
+    margin-left: 6px;
+  }
+  .filter-tag button {
+    background: none;
+    border: none;
+    color: var(--green, #1B4332);
+    cursor: pointer;
+    font-weight: 700;
+    padding: 0 0 0 4px;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    border-top: 1.5px solid var(--border, #D5DCE6);
+    background: #fafbfc;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .pag-left { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .pag-info { font-size: 12.5px; color: #6b7280; }
+  .pag-info strong { color: var(--green, #1B4332); font-weight: 700; }
+  .pag-pages { display: flex; gap: 4px; }
+  .pag-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 9px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    background: #fff;
+    color: #475569;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .pag-btn:hover { background: var(--green-pale, #D8F3DC); color: var(--green, #1B4332); border-color: var(--green-light, #52B788); }
+  .pag-btn.active {
+    background: var(--green, #1B4332);
+    color: #fff;
+    border-color: var(--green, #1B4332);
+  }
+  .pag-btn.disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+  .pag-btn svg { width: 12px; height: 12px; }
+  .pag-perpage {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12.5px;
+    color: #6b7280;
+  }
+  .pag-perpage select {
+    padding: 5px 10px;
+    border: 1.5px solid var(--border, #D5DCE6);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 12.5px;
+    color: var(--green, #1B4332);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .search-spinner {
+    width: 14px; height: 14px;
+    color: var(--green-light, #52B788);
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .search-spinner.active {
+    opacity: 1;
+    animation: spin 1s linear infinite;
+  }
+</style>
+
+{# Hero #}
+<div class="ds-hero">
+  <div class="ds-hero-dots"></div>
+  <div class="ds-hero-body">
+    <div class="ds-hero-icon">🎯</div>
+    <div class="ds-hero-text">
+      <h1 class="ds-hero-title">Objectifs</h1>
+      <p class="ds-hero-sub">Gestion des objectifs personnels — recommandations admin & patient.</p>
+      <span class="ds-hero-chip">{{ total }} objectif{{ total != 1 ? 's' : '' }}</span>
+    </div>
+    <a href="{{ path('admin_objectif_new') }}" class="ds-btn-primary">+ Nouvel objectif</a>
+  </div>
+</div>
+
+{# Filtres #}
+<form method="GET" action="{{ path('admin_objectif_index') }}" class="ds-filters-panel" id="filterForm" autocomplete="off">
+  <input type="hidden" name="page" value="1"/>
+  <input type="hidden" name="perPage" value="{{ perPage }}"/>
+
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex: 1;">
+    <div class="ds-filter-search" style="flex: 1; min-width: 220px; position: relative;">
+      <input type="text" name="q" id="searchInput"
+             placeholder="🔍 Rechercher un objectif…"
+             value="{{ q }}" autocomplete="off"/>
+      <svg class="search-spinner" id="searchSpinner" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%);">
+        <path d="M10 3a7 7 0 017 7" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <select name="type" class="ds-filter-select" id="typeSelect">
+      <option value="">Toutes les catégories</option>
+      <option value="developpement" {{ type == 'developpement' ? 'selected' }}>Développement</option>
+      <option value="performance"   {{ type == 'performance'   ? 'selected' }}>Performance</option>
+      <option value="bien-etre"     {{ type == 'bien-etre'     ? 'selected' }}>Bien-être</option>
+      <option value="relations"     {{ type == 'relations'     ? 'selected' }}>Relations</option>
+      <option value="autre"         {{ type == 'autre'         ? 'selected' }}>Autre</option>
+    </select>
+
+    <select name="statut" class="ds-filter-select" id="statutSelect">
+      <option value="">Tous les statuts</option>
+      <option value="actif"   {{ statut == 'actif'   ? 'selected' }}>✅ Actif</option>
+      <option value="inactif" {{ statut == 'inactif' ? 'selected' }}>🔴 Inactif</option>
+    </select>
+
+    <select name="source" class="ds-filter-select" id="sourceSelect">
+      <option value="">Toutes sources</option>
+      <option value="admin"   {{ source == 'admin'   ? 'selected' }}>Admin</option>
+      <option value="patient" {{ source == 'patient' ? 'selected' }}>Patient</option>
+    </select>
+
+    {% if q or type or statut or source %}
+      <a href="{{ path('admin_objectif_index') }}" class="ds-btn-reset">✕ Réinitialiser</a>
+    {% endif %}
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0 0; margin-top: 8px; border-top: 1.5px solid var(--border, #D5DCE6); width: 100%; font-size: 12.5px; color: #6b7280;">
+    <strong style="color: var(--green, #1B4332);">{{ objectifs|length }}</strong> sur <strong style="color: var(--green, #1B4332);">{{ total }}</strong> objectif{{ total != 1 ? 's' : '' }}
+    {% if q %}
+      <span class="filter-tag">🔍 "{{ q }}" <button type="button" onclick="clearField('q')">×</button></span>
+    {% endif %}
+    {% if type %}
+      <span class="filter-tag">{{ type|capitalize }} <button type="button" onclick="clearField('type')">×</button></span>
+    {% endif %}
+    {% if statut %}
+      <span class="filter-tag">{{ statut == 'actif' ? 'Actif' : 'Inactif' }} <button type="button" onclick="clearField('statut')">×</button></span>
+    {% endif %}
+    {% if source %}
+      <span class="filter-tag">{{ source|capitalize }} <button type="button" onclick="clearField('source')">×</button></span>
+    {% endif %}
+  </div>
+</form>
+
+{# Table #}
+<div class="ds-table-card">
+  {% if objectifs is empty %}
+    <div class="ds-empty">
+      <div style="font-size: 48px; margin-bottom: 12px;">🎯</div>
+      <p style="font-weight: 600; color: var(--green, #1B4332);">Aucun objectif trouvé</p>
+      <p style="font-size: 13px; color: #6b7280; margin-top: 6px;">
+        {% if q or type or statut or source %}
+          Essayez d'élargir vos critères de recherche.
+        {% else %}
+          Commencez par créer votre premier objectif.
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <table class="ds-table">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Catégorie</th>
+          <th>Source</th>
+          <th>Niveau</th>
+          <th>Statut</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {% for objectif in objectifs %}
+          {% set statutVal = (objectif.statut ?? 'inactif')|lower %}
+          {% set catKey = (objectif.categorie ?? 'autre')|lower %}
+          <tr>
+            <td>
+              <div class="obj-title-cell">
+                <div class="obj-title-avatar">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" stroke-linecap="round"/>
+                    <path d="M2 12l10 5 10-5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="obj-title-name">{{ objectif.titre }}</span>
+              </div>
+            </td>
+            <td>
+              {% set badgeClass = {
+                'developpement': 'ds-badge--violet',
+                'performance':   'ds-badge--orange',
+                'bien-etre':     'ds-badge--green',
+                'relations':     'ds-badge--blue'
+              } %}
+              <span class="ds-badge {{ badgeClass[catKey] ?? 'ds-badge--gray' }}">
+                {{ objectif.categorie ?? '—' }}
+              </span>
+            </td>
+            <td style="font-size: 13px; color: #6b7280;">{{ objectif.source ?? '—' }}</td>
+            <td>
+              {% if objectif.niveau_recommande %}
+                <span class="ds-badge ds-badge--teal">{{ objectif.niveau_recommande }}</span>
+              {% else %}
+                <span style="color: #9ca3af; font-size: 12.5px;">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if statutVal == 'actif' %}
+                <span class="ds-badge ds-badge--green">Actif</span>
+              {% else %}
+                <span class="ds-badge ds-badge--gray">Inactif</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="ds-actions">
+                <a class="ds-action-btn ds-action-btn--view" href="{{ path('admin_objectif_show', {'id': objectif.idObjectif}) }}" title="Détails">👁</a>
+                <a class="ds-action-btn ds-action-btn--edit" href="{{ path('admin_objectif_edit', {'id': objectif.idObjectif}) }}" title="Modifier">✏️</a>
+                <form method="post" action="{{ path('admin_objectif_delete', {'id': objectif.idObjectif}) }}"
+                      style="display:inline;" onsubmit="return confirm('Supprimer cet objectif ?');">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete_objectif_' ~ objectif.idObjectif) }}">
+                  <button class="ds-action-btn ds-action-btn--del" type="submit" title="Supprimer">🗑</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if pages > 1 or objectifs|length > 0 %}
+      <div class="pagination-bar">
+        <div class="pag-left">
+          <div class="pag-info">
+            {% set from = ((page - 1) * perPage) + 1 %}
+            {% set to = min(page * perPage, total) %}
+            <strong>{{ from }}–{{ to }}</strong> sur <strong>{{ total }}</strong>
+          </div>
+
+          <div class="pag-pages">
+            {% if page > 1 %}
+              <a class="pag-btn" href="{{ path('admin_objectif_index', {q:q, type:type, statut:statut, source:source, page:page-1, perPage:perPage}) }}">‹</a>
+            {% else %}
+              <span class="pag-btn disabled">‹</span>
+            {% endif %}
+
+            {% set winStart = max(1, page - 2) %}
+            {% set winEnd = min(pages, page + 2) %}
+            {% if winStart > 1 %}
+              <a class="pag-btn" href="{{ path('admin_objectif_index', {q:q, type:type, statut:statut, source:source, page:1, perPage:perPage}) }}">1</a>
+              {% if winStart > 2 %}<span class="pag-btn disabled" style="border:none;background:none">…</span>{% endif %}
+            {% endif %}
+            {% for i in winStart..winEnd %}
+              <a class="pag-btn {{ i == page ? 'active' : '' }}"
+                 href="{{ path('admin_objectif_index', {q:q, type:type, statut:statut, source:source, page:i, perPage:perPage}) }}">{{ i }}</a>
+            {% endfor %}
+            {% if winEnd < pages %}
+              {% if winEnd < pages - 1 %}<span class="pag-btn disabled" style="border:none;background:none">…</span>{% endif %}
+              <a class="pag-btn" href="{{ path('admin_objectif_index', {q:q, type:type, statut:statut, source:source, page:pages, perPage:perPage}) }}">{{ pages }}</a>
+            {% endif %}
+
+            {% if page < pages %}
+              <a class="pag-btn" href="{{ path('admin_objectif_index', {q:q, type:type, statut:statut, source:source, page:page+1, perPage:perPage}) }}">›</a>
+            {% else %}
+              <span class="pag-btn disabled">›</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="pag-perpage">
+          <span>Par page</span>
+          <select onchange="changePerPage(this.value)">
+            {% for n in [5, 10, 25, 50] %}
+              <option value="{{ n }}" {{ perPage == n ? 'selected' }}>{{ n }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+  'use strict';
+
+  var filterForm    = document.getElementById('filterForm');
+  var searchInput   = document.getElementById('searchInput');
+  var searchSpinner = document.getElementById('searchSpinner');
+  var searchTimer;
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      clearTimeout(searchTimer);
+      if (searchSpinner) searchSpinner.classList.add('active');
+      searchTimer = setTimeout(function () {
+        filterForm.querySelector('[name="page"]').value = 1;
+        filterForm.submit();
+      }, 420);
+    });
+  }
+
+  ['typeSelect', 'statutSelect', 'sourceSelect'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', function () {
+        filterForm.querySelector('[name="page"]').value = 1;
+        filterForm.submit();
+      });
+    }
+  });
+
+  window.clearField = function (name) {
+    var el = filterForm.querySelector('[name="' + name + '"]');
+    if (el) { el.value = ''; }
+    filterForm.querySelector('[name="page"]').value = 1;
+    filterForm.submit();
+  };
+
+  window.changePerPage = function (val) {
+    filterForm.querySelector('[name="perPage"]').value = val;
+    filterForm.querySelector('[name="page"]').value = 1;
+    filterForm.submit();
+  };
+
+  // Animation en cascade
+  document.querySelectorAll('#tableBody tr').forEach(function (tr, i) {
+    tr.style.opacity = '0';
+    tr.style.transform = 'translateX(-6px)';
+    setTimeout(function () {
+      tr.style.transition = 'opacity .25s ease, transform .25s cubic-bezier(.22,1,.36,1)';
+      tr.style.opacity = '1';
+      tr.style.transform = 'none';
+    }, 60 + i * 35);
+  });
+})();
+</script>
+{% endblock %}
