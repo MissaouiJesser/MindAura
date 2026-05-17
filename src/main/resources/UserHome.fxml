@@ -1,0 +1,953 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+
+<!--
+    UserHome.fxml — MindAura Front Office v3
+    - Avatar rond (Circle clip en Java)
+    - Navbar cliquable avec scroll-to-section
+    - 5 services : Locaux Psychiatries, Tests Psychologiques, Resources, Evenements, Reclamations
+    - 6 membres equipe en 2 rangées de 3, avec photos depuis resources/equipe/
+    - Boutons Facebook / Instagram par membre
+    - Profil : navigate dans la même fenêtre (pas de popup)
+-->
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.controllers.UserHomeController"
+           prefWidth="1200" prefHeight="720"
+           style="-fx-background-color:#F0F4F8;">
+
+    <!-- Cercles décoratifs fond -->
+    <StackPane mouseTransparent="true">
+        <Circle radius="360" fill="rgba(27,67,50,0.04)"
+                StackPane.alignment="TOP_LEFT" translateX="-130" translateY="-90"/>
+        <Circle radius="260" fill="rgba(123,94,167,0.04)"
+                StackPane.alignment="BOTTOM_RIGHT" translateX="110" translateY="90"/>
+        <Circle radius="170" fill="rgba(27,67,50,0.03)"
+                StackPane.alignment="TOP_RIGHT" translateX="-60" translateY="130"/>
+    </StackPane>
+
+    <!-- ═══════════════════════════ LAYOUT PRINCIPAL ═══════════════════════════ -->
+    <VBox spacing="0" StackPane.alignment="TOP_CENTER">
+
+        <!-- ══════════════════════════════ NAVBAR ══════════════════════════════ -->
+        <HBox fx:id="navbar" alignment="CENTER_LEFT" spacing="0"
+              style="-fx-background-color:#1B4332;
+                     -fx-border-color:#2D6A4F; -fx-border-width:0 0 1.5 0;
+                     -fx-padding:0 36 0 36;
+                     -fx-min-height:66; -fx-pref-height:66;
+                     -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.22),14,0,0,4);">
+
+            <!-- Logo -->
+            <HBox alignment="CENTER_LEFT" spacing="11">
+                <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                    <image><Image url="@logo.png" backgroundLoading="true"/></image>
+                </ImageView>
+                <VBox spacing="0" alignment="CENTER_LEFT">
+                    <HBox spacing="0">
+                        <Label fx:id="brandLabel" text="Mind"
+                               style="-fx-text-fill:#FFFFFF; -fx-font-size:21px;
+                                      -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                        <Label text="Aura"
+                               style="-fx-text-fill:#BBF7D0; -fx-font-size:21px;
+                                      -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                    </HBox>
+                    <Label text="PSYCHOLOGIE &amp; BIEN-ETRE"
+                           style="-fx-text-fill:rgba(187,247,208,0.75); -fx-font-size:7px; -fx-font-weight:800;"/>
+                </VBox>
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Liens navbar — tous avec fx:id pour scroll et highlight -->
+            <HBox spacing="28" alignment="CENTER" style="-fx-padding:0 32 0 0;">
+                <Label fx:id="navAccueil" text="Accueil"
+                       onMouseClicked="#scrollToAccueil"
+                       style="-fx-text-fill:#FFFFFF; -fx-font-size:13px; -fx-font-weight:700;
+                              -fx-cursor:hand; -fx-border-color:#BBF7D0;
+                              -fx-border-width:0 0 2 0; -fx-padding:4 2 4 2;"/>
+                <Label fx:id="navServices" text="Services"
+                       onMouseClicked="#scrollToServices"
+                       style="-fx-text-fill:rgba(187,247,208,0.8); -fx-font-size:13px;
+                              -fx-font-weight:600; -fx-cursor:hand; -fx-padding:4 2 4 2;"/>
+                <Label fx:id="navEquipe" text="Equipe"
+                       onMouseClicked="#scrollToEquipe"
+                       style="-fx-text-fill:rgba(187,247,208,0.8); -fx-font-size:13px;
+                              -fx-font-weight:600; -fx-cursor:hand; -fx-padding:4 2 4 2;"/>
+                <Label fx:id="navContact" text="Contact"
+                       onMouseClicked="#scrollToContact"
+                       style="-fx-text-fill:rgba(187,247,208,0.8); -fx-font-size:13px;
+                              -fx-font-weight:600; -fx-cursor:hand; -fx-padding:4 2 4 2;"/>
+            </HBox>
+
+            <!-- Bouton session -->
+            <StackPane fx:id="sessionBtn" onMouseClicked="#toggleDropdown"
+                       style="-fx-cursor:hand;">
+                <HBox fx:id="sessionHBox" alignment="CENTER" spacing="9"
+                      style="-fx-background-color:rgba(255,255,255,0.12);
+                             -fx-background-radius:30;
+                             -fx-border-color:rgba(187,247,208,0.4); -fx-border-radius:30; -fx-border-width:1.5;
+                             -fx-padding:6 14 6 8;">
+
+                    <!-- Avatar : StackPane contenant un ImageView circulaire -->
+                    <StackPane>
+                        <!-- ImageView circulaire via clip appliqué en Java -->
+                        <ImageView fx:id="avatarImage"
+                                   fitWidth="38" fitHeight="38"
+                                   preserveRatio="false" visible="false"/>
+                        <Label fx:id="avatarInitials" text="?"
+                               style="-fx-text-fill:#FFFFFF; -fx-font-weight:900; -fx-font-size:14px;"/>
+                    </StackPane>
+
+                    <VBox spacing="1" alignment="CENTER_LEFT">
+                        <Label fx:id="sessionName" text="Utilisateur"
+                               style="-fx-text-fill:#FFFFFF; -fx-font-size:12.5px;
+                                      -fx-font-weight:700; -fx-max-width:130;"/>
+                        <Label fx:id="sessionRole" text=""
+                               style="-fx-text-fill:#BBF7D0; -fx-font-size:10px; -fx-font-weight:600;"/>
+                    </VBox>
+
+                    <Label text="&#9660;"
+                           style="-fx-text-fill:#BBF7D0; -fx-font-size:9px; -fx-padding:0 0 0 2;"/>
+                </HBox>
+            </StackPane>
+
+        </HBox>
+
+        <!-- ══════════════════════════ ZONE SCROLLABLE ══════════════════════════ -->
+        <StackPane fx:id="contentHolder" VBox.vgrow="ALWAYS">
+            <ScrollPane fx:id="mainScroll"
+                        fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color:transparent; -fx-background:transparent;
+                               -fx-border-color:transparent;">
+                <VBox spacing="0" style="-fx-background-color:transparent;">
+
+                    <!-- ════════════════ SECTION HERO IMAGE ════════════════ -->
+                    <StackPane fx:id="sectionAccueil" minHeight="500" prefHeight="500"
+                               maxWidth="1.7976931348623157E308"
+                               style="-fx-background-color:black;">
+
+                        <!-- Image de fond pleine largeur -->
+                        <ImageView fx:id="heroBgImage"
+                                   preserveRatio="false"
+                                   fitHeight="500"
+                                   fitWidth="1200"
+                                   StackPane.alignment="CENTER">
+                            <image><Image url="@hero_bg.jpg" backgroundLoading="true"/></image>
+                        </ImageView>
+
+                        <!-- Overlay sombre pour lisibilité -->
+                        <Pane style="-fx-background-color:rgba(10,35,20,0.54);"
+                              maxWidth="1.7976931348623157E308"
+                              minHeight="500" prefHeight="500"
+                              StackPane.alignment="CENTER"/>
+
+                        <!-- Contenu centré -->
+                        <VBox alignment="CENTER" spacing="20"
+                              StackPane.alignment="CENTER"
+                              style="-fx-padding:0 80 0 80;">
+
+                            <!-- Badge plateforme -->
+                            <HBox alignment="CENTER">
+                                <HBox alignment="CENTER" spacing="8"
+                                      style="-fx-background-color:rgba(255,255,255,0.14);
+                                             -fx-background-radius:30;
+                                             -fx-border-color:rgba(187,247,208,0.55);
+                                             -fx-border-radius:30; -fx-border-width:1.2;
+                                             -fx-padding:6 22 6 16;">
+                                    <Circle radius="5" fill="#52D080"/>
+                                    <Label text="Plateforme de Psychologie &amp; D&#233;veloppement Personnel"
+                                           style="-fx-text-fill:#FFFFFF; -fx-font-size:12.5px;
+                                                  -fx-font-weight:700;"/>
+                                </HBox>
+                            </HBox>
+
+                            <!-- Titre principal -->
+                            <VBox alignment="CENTER" spacing="2">
+                                <HBox alignment="CENTER" spacing="0">
+                                    <Label text="Bienvenue sur "
+                                           style="-fx-text-fill:#FFFFFF; -fx-font-size:48px;
+                                                  -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                    <Label text="MindAura"
+                                           style="-fx-text-fill:#52D080; -fx-font-size:48px;
+                                                  -fx-font-weight:900; -fx-font-family:'Georgia';
+                                                  -fx-font-style:italic;"/>
+                                    <Label text=","
+                                           style="-fx-text-fill:#FFFFFF; -fx-font-size:48px;
+                                                  -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                </HBox>
+                                <Label text="votre espace de bien-&#234;tre"
+                                       style="-fx-text-fill:#FFFFFF; -fx-font-size:48px;
+                                              -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                            </VBox>
+
+                            <!-- Description -->
+                            <Label text="Une plateforme d&#233;di&#233;e &#224; votre sant&#233; mentale et votre &#233;panouissement personnel. Connectez-vous avec des&#10;psychologues, coachs et th&#233;rapeutes qualifi&#233;s pour un accompagnement sur-mesure et confidentiel."
+                                   wrapText="true" textAlignment="CENTER"
+                                   style="-fx-text-fill:rgba(255,255,255,0.88); -fx-font-size:14px;
+                                          -fx-max-width:760; -fx-line-spacing:5;"/>
+
+                            <!-- Boutons -->
+                            <HBox alignment="CENTER" spacing="18" style="-fx-padding:10 0 0 0;">
+                                <Button text="&#8594;  D&#233;couvrir nos services"
+                                        onAction="#scrollToServices"
+                                        style="-fx-background-color:#FFFFFF; -fx-text-fill:#1A1A2E;
+                                               -fx-font-size:14px; -fx-font-weight:800;
+                                               -fx-background-radius:30; -fx-border-radius:30;
+                                               -fx-padding:12 28 12 28; -fx-cursor:hand;
+                                               -fx-border-color:transparent;
+                                               -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.18),10,0,0,3);"/>
+                                <Button text="&#128222;  Nous contacter"
+                                        onAction="#scrollToContact"
+                                        style="-fx-background-color:rgba(255,255,255,0.16);
+                                               -fx-text-fill:#FFFFFF; -fx-font-size:14px; -fx-font-weight:700;
+                                               -fx-background-radius:30;
+                                               -fx-border-color:rgba(255,255,255,0.55);
+                                               -fx-border-radius:30; -fx-border-width:1.5;
+                                               -fx-padding:12 28 12 28; -fx-cursor:hand;"/>
+                            </HBox>
+
+                        </VBox>
+                    </StackPane>
+
+                    <!-- ════════════════ SECTION CITATIONS ════════════════ -->
+                    <VBox alignment="CENTER" spacing="24"
+                          style="-fx-padding:60 80 52 80;
+                             -fx-background-color:linear-gradient(to bottom,
+                               rgba(27,67,50,0.05), rgba(240,244,248,1));
+                             -fx-border-color:#E2E8F0; -fx-border-width:0 0 1.5 0;">
+
+                        <HBox alignment="CENTER">
+                            <Label text="CITATION DU MOMENT"
+                                   style="-fx-text-fill:#7B5EA7; -fx-font-size:10px; -fx-font-weight:800;
+                                      -fx-background-color:#EDE9FE; -fx-background-radius:20;
+                                      -fx-padding:5 18 5 18;
+                                      -fx-border-color:#DDD6FE; -fx-border-radius:20; -fx-border-width:1;"/>
+                        </HBox>
+
+                        <Label fx:id="quoteText"
+                               text="&#10077;  La sante mentale est une priorite, pas un luxe.  &#10078;"
+                               wrapText="true" textAlignment="CENTER"
+                               style="-fx-text-fill:#1A1A2E; -fx-font-size:21px; -fx-font-style:italic;
+                                  -fx-font-family:'Georgia'; -fx-max-width:800; -fx-line-spacing:6;"/>
+
+                        <Label fx:id="quoteAuthor" text="&#8212; MindAura"
+                               style="-fx-text-fill:#1B4332; -fx-font-size:13px; -fx-font-weight:700;"/>
+
+                        <HBox alignment="CENTER" spacing="10">
+                            <Region style="-fx-background-color:#BBF7D0;
+                                       -fx-pref-width:80; -fx-pref-height:1.5;"/>
+                            <Region style="-fx-background-color:#BBF7D0;
+                                       -fx-pref-width:80; -fx-pref-height:1.5;"/>
+                        </HBox>
+
+                        <!-- Carte bienvenue -->
+                        <VBox alignment="CENTER" spacing="10"
+                              style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                 -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                 -fx-padding:24 52 24 52; -fx-max-width:540;
+                                 -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.08),14,0,0,4);">
+                            <Label text="Votre espace personnel MindAura"
+                                   style="-fx-text-fill:#5A6475; -fx-font-size:11px; -fx-font-weight:700;"/>
+                            <Label fx:id="welcomeLabel" text="Bienvenue !"
+                                   style="-fx-text-fill:#1A1A2E; -fx-font-size:27px;
+                                      -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                            <Label fx:id="roleLabel" text=""
+                                   style="-fx-text-fill:#7B5EA7; -fx-font-size:11.5px; -fx-font-weight:700;
+                                      -fx-background-color:#EDE9FE; -fx-background-radius:12;
+                                      -fx-padding:4 18 4 18;
+                                      -fx-border-color:#DDD6FE; -fx-border-radius:12; -fx-border-width:1;"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- ══════════════════ SECTION SERVICES ══════════════════ -->
+                    <VBox fx:id="sectionServices" alignment="CENTER" spacing="36"
+                          style="-fx-padding:60 60 60 60; -fx-background-color:transparent;">
+
+                        <VBox alignment="CENTER" spacing="8">
+                            <Label text="NOS SERVICES"
+                                   style="-fx-text-fill:#1B4332; -fx-font-size:10px; -fx-font-weight:800;"/>
+                            <Label text="Explorez nos domaines d'expertise"
+                                   style="-fx-text-fill:#1A1A2E; -fx-font-size:28px;
+                                      -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                            <Label text="Des solutions adaptees a chaque besoin de sante mentale"
+                                   style="-fx-text-fill:#5A6475; -fx-font-size:14px;"/>
+                        </VBox>
+
+                        <!-- 5 cards services -->
+                        <HBox spacing="18" alignment="CENTER">
+
+                            <!-- 1 — Locaux Psychiatries -->
+                            <VBox spacing="14" alignment="TOP_CENTER"
+                                  onMouseClicked="#goLocaux"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-padding:28 20 22 20; -fx-pref-width:210; -fx-min-width:190;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);
+                                     -fx-cursor:hand;">
+                                <StackPane style="-fx-background-color:#F0FFF4; -fx-background-radius:16;
+                                             -fx-min-width:56; -fx-min-height:56;
+                                             -fx-pref-width:56; -fx-pref-height:56;"
+                                           StackPane.alignment="CENTER">
+                                    <FontIcon iconLiteral="fas-hospital"
+                                              iconSize="26"
+                                              iconColor="#1B4332"/>
+                                </StackPane>
+                                <Label text="Locaux"
+                                       style="-fx-text-fill:#1B4332; -fx-font-size:9px; -fx-font-weight:800;
+                                          -fx-background-color:#D1FAE5; -fx-background-radius:10;
+                                          -fx-padding:3 10 3 10;"/>
+                                <Label text="Locaux Psychiatries"
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#1A1A2E; -fx-font-size:15px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';
+                                          -fx-max-width:170;"/>
+                                <Label text="Trouvez les centres psychiatriques et cliniques agrees pres de chez vous."
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:11px;
+                                          -fx-line-spacing:3; -fx-max-width:170;"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Acceder"
+                                        onAction="#goLocaux"
+                                        style="-fx-background-color:#1B4332; -fx-text-fill:#FFFFFF;
+                                           -fx-font-size:11.5px; -fx-font-weight:700;
+                                           -fx-background-radius:10; -fx-padding:8 0 8 0;
+                                           -fx-cursor:hand; -fx-pref-width:9999; -fx-border-color:transparent;"/>
+                            </VBox>
+
+                            <!-- 2 — Tests Psychologiques -->
+                            <VBox spacing="14" alignment="TOP_CENTER"
+                                  onMouseClicked="#goTests"
+                                  style="-fx-background-color:#1B4332; -fx-background-radius:18;
+                                     -fx-border-color:#2D6A4F; -fx-border-radius:18; -fx-border-width:2;
+                                     -fx-padding:28 20 22 20; -fx-pref-width:210; -fx-min-width:190;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.35),22,0,0,8);
+                                     -fx-cursor:hand;">
+                                <StackPane style="-fx-background-color:rgba(255,255,255,0.12);
+                                             -fx-background-radius:16;
+                                             -fx-min-width:56; -fx-min-height:56;
+                                             -fx-pref-width:56; -fx-pref-height:56;"
+                                           StackPane.alignment="CENTER">
+                                    <FontIcon iconLiteral="fas-brain"
+                                              iconSize="26"
+                                              iconColor="white"/>
+                                </StackPane>
+                                <Label text="Populaire"
+                                       style="-fx-text-fill:#D4A843; -fx-font-size:9px; -fx-font-weight:800;
+                                          -fx-background-color:rgba(212,168,67,0.15);
+                                          -fx-background-radius:10; -fx-padding:3 10 3 10;
+                                          -fx-border-color:rgba(212,168,67,0.4);
+                                          -fx-border-radius:10; -fx-border-width:1;"/>
+                                <Label text="Tests Psychologiques"
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#FFFFFF; -fx-font-size:15px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';
+                                          -fx-max-width:170;"/>
+                                <Label text="Evaluez votre sante mentale avec nos tests valides scientifiquement."
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:rgba(255,255,255,0.75); -fx-font-size:11px;
+                                          -fx-line-spacing:3; -fx-max-width:170;"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Acceder"
+                                        onAction="#goTests"
+                                        style="-fx-background-color:#FFFFFF; -fx-text-fill:#1B4332;
+                                           -fx-font-size:11.5px; -fx-font-weight:800;
+                                           -fx-background-radius:10; -fx-padding:8 0 8 0;
+                                           -fx-cursor:hand; -fx-pref-width:9999; -fx-border-color:transparent;"/>
+                            </VBox>
+
+                            <!-- 3 — Resources -->
+                            <VBox spacing="14" alignment="TOP_CENTER"
+                                  onMouseClicked="#goResources"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-padding:28 20 22 20; -fx-pref-width:210; -fx-min-width:190;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);
+                                     -fx-cursor:hand;">
+                                <StackPane style="-fx-background-color:#EDE9FE; -fx-background-radius:16;
+                                             -fx-min-width:56; -fx-min-height:56;
+                                             -fx-pref-width:56; -fx-pref-height:56;"
+                                           StackPane.alignment="CENTER">
+                                    <FontIcon iconLiteral="fas-book-open"
+                                              iconSize="24"
+                                              iconColor="#7B5EA7"/>
+                                </StackPane>
+                                <Label text="Nouveau"
+                                       style="-fx-text-fill:#7B5EA7; -fx-font-size:9px; -fx-font-weight:800;
+                                          -fx-background-color:#EDE9FE; -fx-background-radius:10;
+                                          -fx-padding:3 10 3 10;"/>
+                                <Label text="Resources"
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#1A1A2E; -fx-font-size:15px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';
+                                          -fx-max-width:170;"/>
+                                <Label text="Articles, guides et outils pour accompagner votre parcours de bien-etre."
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:11px;
+                                          -fx-line-spacing:3; -fx-max-width:170;"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Acceder"
+                                        onAction="#goResources"
+                                        style="-fx-background-color:#7B5EA7; -fx-text-fill:#FFFFFF;
+                                           -fx-font-size:11.5px; -fx-font-weight:700;
+                                           -fx-background-radius:10; -fx-padding:8 0 8 0;
+                                           -fx-cursor:hand; -fx-pref-width:9999; -fx-border-color:transparent;"/>
+                            </VBox>
+
+                            <!-- 4 — Evenements -->
+                            <VBox spacing="14" alignment="TOP_CENTER"
+                                  onMouseClicked="#goEvenements"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-padding:28 20 22 20; -fx-pref-width:210; -fx-min-width:190;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);
+                                     -fx-cursor:hand;">
+                                <StackPane style="-fx-background-color:#FFF7ED; -fx-background-radius:16;
+                                             -fx-min-width:56; -fx-min-height:56;
+                                             -fx-pref-width:56; -fx-pref-height:56;"
+                                           StackPane.alignment="CENTER">
+                                    <FontIcon iconLiteral="fas-calendar-alt"
+                                              iconSize="24"
+                                              iconColor="#D4A843"/>
+                                </StackPane>
+                                <Label text="Agenda"
+                                       style="-fx-text-fill:#D4A843; -fx-font-size:9px; -fx-font-weight:800;
+                                          -fx-background-color:#FEF9C3; -fx-background-radius:10;
+                                          -fx-padding:3 10 3 10;"/>
+                                <Label text="Evenements"
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#1A1A2E; -fx-font-size:15px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';
+                                          -fx-max-width:170;"/>
+                                <Label text="Ateliers, conferences et groupes de soutien a ne pas manquer."
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:11px;
+                                          -fx-line-spacing:3; -fx-max-width:170;"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Acceder"
+                                        onAction="#goEvenements"
+                                        style="-fx-background-color:#1B4332; -fx-text-fill:#FFFFFF;
+                                           -fx-font-size:11.5px; -fx-font-weight:700;
+                                           -fx-background-radius:10; -fx-padding:8 0 8 0;
+                                           -fx-cursor:hand; -fx-pref-width:9999; -fx-border-color:transparent;"/>
+                            </VBox>
+
+                            <!-- 5 — Reclamations -->
+                            <VBox spacing="14" alignment="TOP_CENTER"
+                                  onMouseClicked="#goReclamations"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-padding:28 20 22 20; -fx-pref-width:210; -fx-min-width:190;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);
+                                     -fx-cursor:hand;">
+                                <StackPane style="-fx-background-color:#FEF2F2; -fx-background-radius:16;
+                                             -fx-min-width:56; -fx-min-height:56;
+                                             -fx-pref-width:56; -fx-pref-height:56;"
+                                           StackPane.alignment="CENTER">
+                                    <FontIcon iconLiteral="fas-exclamation-circle"
+                                              iconSize="26"
+                                              iconColor="#DC2626"/>
+                                </StackPane>
+                                <Label text="Support"
+                                       style="-fx-text-fill:#DC2626; -fx-font-size:9px; -fx-font-weight:800;
+                                          -fx-background-color:#FEE2E2; -fx-background-radius:10;
+                                          -fx-padding:3 10 3 10;"/>
+                                <Label text="Reclamations"
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#1A1A2E; -fx-font-size:15px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';
+                                          -fx-max-width:170;"/>
+                                <Label text="Signalez un probleme ou soumettez une reclamation a notre equipe."
+                                       wrapText="true" textAlignment="CENTER"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:11px;
+                                          -fx-line-spacing:3; -fx-max-width:170;"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Acceder"
+                                        onAction="#goReclamations"
+                                        style="-fx-background-color:#DC2626; -fx-text-fill:#FFFFFF;
+                                           -fx-font-size:11.5px; -fx-font-weight:700;
+                                           -fx-background-radius:10; -fx-padding:8 0 8 0;
+                                           -fx-cursor:hand; -fx-pref-width:9999; -fx-border-color:transparent;"/>
+                            </VBox>
+
+                        </HBox>
+
+                        <!-- Stats -->
+                        <HBox spacing="0" alignment="CENTER"
+                              style="-fx-background-color:#FFFFFF; -fx-background-radius:16;
+                                 -fx-border-color:#E2E8F0; -fx-border-radius:16; -fx-border-width:1.5;
+                                 -fx-padding:26 0 26 0; -fx-max-width:860;
+                                 -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.06),12,0,0,2);">
+                            <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="500+"
+                                       style="-fx-text-fill:#1B4332; -fx-font-size:30px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                <Label text="Patients accompagnes"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:12px; -fx-font-weight:600;"/>
+                            </VBox>
+                            <Region style="-fx-background-color:#E2E8F0; -fx-pref-width:1; -fx-pref-height:44;"/>
+                            <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="98%"
+                                       style="-fx-text-fill:#7B5EA7; -fx-font-size:30px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                <Label text="Taux de satisfaction"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:12px; -fx-font-weight:600;"/>
+                            </VBox>
+                            <Region style="-fx-background-color:#E2E8F0; -fx-pref-width:1; -fx-pref-height:44;"/>
+                            <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="15"
+                                       style="-fx-text-fill:#1B4332; -fx-font-size:30px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                <Label text="Specialistes certifies"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:12px; -fx-font-weight:600;"/>
+                            </VBox>
+                            <Region style="-fx-background-color:#E2E8F0; -fx-pref-width:1; -fx-pref-height:44;"/>
+                            <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="24/7"
+                                       style="-fx-text-fill:#7B5EA7; -fx-font-size:30px;
+                                          -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                <Label text="Support disponible"
+                                       style="-fx-text-fill:#5A6475; -fx-font-size:12px; -fx-font-weight:600;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ══════════════════════ SECTION EQUIPE ══════════════════════ -->
+                    <VBox fx:id="sectionEquipe" alignment="CENTER" spacing="36"
+                          style="-fx-padding:60 60 60 60;
+                             -fx-background-color:rgba(27,67,50,0.025);
+                             -fx-border-color:#E2E8F0; -fx-border-width:1.5 0 1.5 0;">
+
+                        <VBox alignment="CENTER" spacing="8">
+                            <Label text="NOTRE EQUIPE"
+                                   style="-fx-text-fill:#1B4332; -fx-font-size:10px; -fx-font-weight:800;"/>
+                            <Label text="Des experts devoues a votre epanouissement"
+                                   style="-fx-text-fill:#1A1A2E; -fx-font-size:28px;
+                                      -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                            <Label text="Une equipe pluridisciplinaire qui vous accompagne avec bienveillance"
+                                   style="-fx-text-fill:#5A6475; -fx-font-size:13px;"/>
+                        </VBox>
+
+                        <!-- Rangée 1 — 3 membres -->
+                        <HBox spacing="24" alignment="CENTER">
+
+                            <!-- Membre 1 — Laifi Azer -->
+                            <VBox spacing="0" alignment="CENTER"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-pref-width:340; -fx-min-width:340; -fx-max-width:340;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);">
+
+                                <!-- Conteneur d'image avec coins supérieurs arrondis -->
+                                <StackPane fx:id="avatarM1"
+                                           style="-fx-background-color:linear-gradient(to bottom right,#2D6A4F,#1B4332);
+                                              -fx-background-radius:16 16 0 0;
+                                              -fx-min-width:340; -fx-min-height:200;
+                                              -fx-pref-width:340; -fx-pref-height:200;
+                                              -fx-max-width:340; -fx-max-height:200;
+                                              -fx-border-color:transparent; -fx-border-width:0;">
+
+                                    <!-- ImageView -->
+                                    <ImageView fx:id="imgM1"
+                                               fitWidth="340" fitHeight="200"
+                                               preserveRatio="false"
+                                               visible="false"/>
+                                </StackPane>
+
+                                <!-- Contenu texte sous la photo -->
+                                <VBox spacing="12" alignment="CENTER"
+                                      style="-fx-padding:24 22 24 22; -fx-background-color:#FFFFFF;">
+
+                                    <!-- Nom et titre -->
+                                    <VBox spacing="4" alignment="CENTER">
+                                        <Label text="Laifi Azer"
+                                               style="-fx-text-fill:#1A1A2E; -fx-font-size:18px;
+                                                  -fx-font-weight:800; -fx-font-family:'Georgia';"/>
+                                        <Label text="Psychologue Clinicien"
+                                               style="-fx-text-fill:#1B4332; -fx-font-size:13px;
+                                                  -fx-font-weight:700; -fx-background-color:#D1FAE5;
+                                                  -fx-background-radius:12; -fx-padding:4 14 4 14;"/>
+                                    </VBox>
+
+                                    <!-- Description -->
+                                    <Label text="Spécialiste en thérapie cognitive avec 10 ans d'expérience auprès des adultes."
+                                           wrapText="true" textAlignment="CENTER"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px;
+                                              -fx-line-spacing:4; -fx-max-width:290;"/>
+
+                                    <!-- Boutons réseaux sociaux -->
+                                    <HBox spacing="12" alignment="CENTER" style="-fx-padding:8 0 0 0;">
+                                        <Button text="Facebook"
+                                                onAction="#openFacebookAzer"
+                                                style="-fx-background-color:#1877F2; -fx-text-fill:#FFFFFF;
+                                                   -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                        <Button text="Instagram"
+                                                onAction="#openInstagramAzer"
+                                                style="-fx-background-color:linear-gradient(to bottom right,#833AB4,#E1306C);
+                                                   -fx-text-fill:#FFFFFF; -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Membre 2 — Chaffai Ichrak -->
+                            <VBox spacing="0" alignment="CENTER"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-pref-width:340; -fx-min-width:340; -fx-max-width:340;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);">
+
+                                <StackPane fx:id="avatarM2"
+                                           style="-fx-background-color:linear-gradient(to bottom right,#D4A843,#B8860B);
+                                              -fx-background-radius:16 16 0 0;
+                                              -fx-min-width:340; -fx-min-height:200;
+                                              -fx-pref-width:340; -fx-pref-height:200;
+                                              -fx-max-width:340; -fx-max-height:200;">
+                                    <ImageView fx:id="imgM2" fitWidth="340" fitHeight="200"
+                                               preserveRatio="false" visible="false"/>
+                                </StackPane>
+
+                                <VBox spacing="12" alignment="CENTER"
+                                      style="-fx-padding:24 22 24 22; -fx-background-color:#FFFFFF;">
+                                    <VBox spacing="4" alignment="CENTER">
+                                        <Label text="Chaffai Ichrak"
+                                               style="-fx-text-fill:#1A1A2E; -fx-font-size:18px;
+                                                  -fx-font-weight:800; -fx-font-family:'Georgia';"/>
+                                        <Label text="Psychiatre &amp; Fondatrice"
+                                               style="-fx-text-fill:#D4A843; -fx-font-size:13px;
+                                                  -fx-font-weight:700; -fx-background-color:#FEF9C3;
+                                                  -fx-background-radius:12; -fx-padding:4 14 4 14;"/>
+                                    </VBox>
+
+                                    <Label text="Pionnier de la santé mentale en Tunisie, fondateur de MindAura."
+                                           wrapText="true" textAlignment="CENTER"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px;
+                                              -fx-line-spacing:4; -fx-max-width:290;"/>
+
+                                    <HBox spacing="12" alignment="CENTER" style="-fx-padding:8 0 0 0;">
+                                        <Button text="Facebook"
+                                                onAction="#openFacebookIchrak"
+                                                style="-fx-background-color:#1877F2; -fx-text-fill:#FFFFFF;
+                                                   -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                        <Button text="Instagram"
+                                                onAction="#openInstagramIchrak"
+                                                style="-fx-background-color:linear-gradient(to bottom right,#833AB4,#E1306C);
+                                                   -fx-text-fill:#FFFFFF; -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Membre 3 — Guesmi Menyar -->
+                            <VBox spacing="0" alignment="CENTER"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-pref-width:340; -fx-min-width:340; -fx-max-width:340;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);">
+
+                                <StackPane fx:id="avatarM3"
+                                           style="-fx-background-color:linear-gradient(to bottom right,#7B5EA7,#5B3E87);
+                                              -fx-background-radius:16 16 0 0;
+                                              -fx-min-width:340; -fx-min-height:200;
+                                              -fx-pref-width:340; -fx-pref-height:200;
+                                              -fx-max-width:340; -fx-max-height:200;">
+                                    <ImageView fx:id="imgM3" fitWidth="340" fitHeight="200"
+                                               preserveRatio="false" visible="false"/>
+                                </StackPane>
+
+                                <VBox spacing="12" alignment="CENTER"
+                                      style="-fx-padding:24 22 24 22; -fx-background-color:#FFFFFF;">
+                                    <VBox spacing="4" alignment="CENTER">
+                                        <Label text="Guesmi Menyar"
+                                               style="-fx-text-fill:#1A1A2E; -fx-font-size:18px;
+                                                  -fx-font-weight:800; -fx-font-family:'Georgia';"/>
+                                        <Label text="Coach de Vie Certifiée"
+                                               style="-fx-text-fill:#7B5EA7; -fx-font-size:13px;
+                                                  -fx-font-weight:700; -fx-background-color:#EDE9FE;
+                                                  -fx-background-radius:12; -fx-padding:4 14 4 14;"/>
+                                    </VBox>
+
+                                    <Label text="Experte en développement personnel et gestion des émotions au quotidien."
+                                           wrapText="true" textAlignment="CENTER"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px;
+                                              -fx-line-spacing:4; -fx-max-width:290;"/>
+
+                                    <HBox spacing="12" alignment="CENTER" style="-fx-padding:8 0 0 0;">
+                                        <Button text="Facebook"
+                                                onAction="#openFacebookMenyar"
+                                                style="-fx-background-color:#1877F2; -fx-text-fill:#FFFFFF;
+                                                   -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                        <Button text="Instagram"
+                                                onAction="#openInstagramMenyar"
+                                                style="-fx-background-color:linear-gradient(to bottom right,#833AB4,#E1306C);
+                                                   -fx-text-fill:#FFFFFF; -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Rangée 2 — 3 membres -->
+                        <HBox spacing="24" alignment="CENTER">
+
+                            <!-- Membre 4 — Missaoui Jasser -->
+                            <VBox spacing="0" alignment="CENTER"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-pref-width:340; -fx-min-width:340; -fx-max-width:340;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);">
+
+                                <StackPane fx:id="avatarM4"
+                                           style="-fx-background-color:linear-gradient(to bottom right,#1B4332,#40916C);
+                                              -fx-background-radius:16 16 0 0;
+                                              -fx-min-width:340; -fx-min-height:200;
+                                              -fx-pref-width:340; -fx-pref-height:200;
+                                              -fx-max-width:340; -fx-max-height:200;">
+                                    <ImageView fx:id="imgM4" fitWidth="340" fitHeight="200"
+                                               preserveRatio="false" visible="false"/>
+                                </StackPane>
+
+                                <VBox spacing="12" alignment="CENTER"
+                                      style="-fx-padding:24 22 24 22; -fx-background-color:#FFFFFF;">
+                                    <VBox spacing="4" alignment="CENTER">
+                                        <Label text="Missaoui Jasser"
+                                               style="-fx-text-fill:#1A1A2E; -fx-font-size:18px;
+                                                  -fx-font-weight:800; -fx-font-family:'Georgia';"/>
+                                        <Label text="Neuropsychologue"
+                                               style="-fx-text-fill:#1B4332; -fx-font-size:13px;
+                                                  -fx-font-weight:700; -fx-background-color:#D1FAE5;
+                                                  -fx-background-radius:12; -fx-padding:4 14 4 14;"/>
+                                    </VBox>
+
+                                    <Label text="Spécialiste des troubles cognitifs et thérapies de remédiation neuronale."
+                                           wrapText="true" textAlignment="CENTER"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px;
+                                              -fx-line-spacing:4; -fx-max-width:290;"/>
+
+                                    <HBox spacing="12" alignment="CENTER" style="-fx-padding:8 0 0 0;">
+                                        <Button text="Facebook"
+                                                onAction="#openFacebookJasser"
+                                                style="-fx-background-color:#1877F2; -fx-text-fill:#FFFFFF;
+                                                   -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                        <Button text="Instagram"
+                                                onAction="#openInstagramJasser"
+                                                style="-fx-background-color:linear-gradient(to bottom right,#833AB4,#E1306C);
+                                                   -fx-text-fill:#FFFFFF; -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Membre 5 — BenRabeh Yassine -->
+                            <VBox spacing="0" alignment="CENTER"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-pref-width:340; -fx-min-width:340; -fx-max-width:340;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);">
+
+                                <StackPane fx:id="avatarM5"
+                                           style="-fx-background-color:linear-gradient(to bottom right,#D4A843,#92621A);
+                                              -fx-background-radius:16 16 0 0;
+                                              -fx-min-width:340; -fx-min-height:200;
+                                              -fx-pref-width:340; -fx-pref-height:200;
+                                              -fx-max-width:340; -fx-max-height:200;">
+                                    <ImageView fx:id="imgM5" fitWidth="340" fitHeight="200"
+                                               preserveRatio="false" visible="false"/>
+                                </StackPane>
+
+                                <VBox spacing="12" alignment="CENTER"
+                                      style="-fx-padding:24 22 24 22; -fx-background-color:#FFFFFF;">
+                                    <VBox spacing="4" alignment="CENTER">
+                                        <Label text="BenRabeh Yassine"
+                                               style="-fx-text-fill:#1A1A2E; -fx-font-size:18px;
+                                                  -fx-font-weight:800; -fx-font-family:'Georgia';"/>
+                                        <Label text="Thérapeute Familiale"
+                                               style="-fx-text-fill:#D4A843; -fx-font-size:13px;
+                                                  -fx-font-weight:700; -fx-background-color:#FEF9C3;
+                                                  -fx-background-radius:12; -fx-padding:4 14 4 14;"/>
+                                    </VBox>
+
+                                    <Label text="Accompagne les familles dans la résolution des conflits et la communication saine."
+                                           wrapText="true" textAlignment="CENTER"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px;
+                                              -fx-line-spacing:4; -fx-max-width:290;"/>
+
+                                    <HBox spacing="12" alignment="CENTER" style="-fx-padding:8 0 0 0;">
+                                        <Button text="Facebook"
+                                                onAction="#openFacebookYassine"
+                                                style="-fx-background-color:#1877F2; -fx-text-fill:#FFFFFF;
+                                                   -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                        <Button text="Instagram"
+                                                onAction="#openInstagramYassine"
+                                                style="-fx-background-color:linear-gradient(to bottom right,#833AB4,#E1306C);
+                                                   -fx-text-fill:#FFFFFF; -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Membre 6 — Zairi Rania -->
+                            <VBox spacing="0" alignment="CENTER"
+                                  style="-fx-background-color:#FFFFFF; -fx-background-radius:18;
+                                     -fx-border-color:#E2E8F0; -fx-border-radius:18; -fx-border-width:1.5;
+                                     -fx-pref-width:340; -fx-min-width:340; -fx-max-width:340;
+                                     -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.07),14,0,0,3);">
+
+                                <StackPane fx:id="avatarM6"
+                                           style="-fx-background-color:linear-gradient(to bottom right,#2D6A4F,#7B5EA7);
+                                              -fx-background-radius:16 16 0 0;
+                                              -fx-min-width:340; -fx-min-height:200;
+                                              -fx-pref-width:340; -fx-pref-height:200;
+                                              -fx-max-width:340; -fx-max-height:200;">
+                                    <ImageView fx:id="imgM6" fitWidth="340" fitHeight="200"
+                                               preserveRatio="false" visible="false"/>
+                                </StackPane>
+
+                                <VBox spacing="12" alignment="CENTER"
+                                      style="-fx-padding:24 22 24 22; -fx-background-color:#FFFFFF;">
+                                    <VBox spacing="4" alignment="CENTER">
+                                        <Label text="Zairi Rania"
+                                               style="-fx-text-fill:#1A1A2E; -fx-font-size:18px;
+                                                  -fx-font-weight:800; -fx-font-family:'Georgia';"/>
+                                        <Label text="Psychologue du Travail"
+                                               style="-fx-text-fill:#2D6A4F; -fx-font-size:13px;
+                                                  -fx-font-weight:700; -fx-background-color:#D1FAE5;
+                                                  -fx-background-radius:12; -fx-padding:4 14 4 14;"/>
+                                    </VBox>
+
+                                    <Label text="Expert en prévention du burnout et en santé mentale en milieu professionnel."
+                                           wrapText="true" textAlignment="CENTER"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px;
+                                              -fx-line-spacing:4; -fx-max-width:290;"/>
+
+                                    <HBox spacing="12" alignment="CENTER" style="-fx-padding:8 0 0 0;">
+                                        <Button text="Facebook"
+                                                onAction="#openFacebookRania"
+                                                style="-fx-background-color:#1877F2; -fx-text-fill:#FFFFFF;
+                                                   -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                        <Button text="Instagram"
+                                                onAction="#openInstagramRania"
+                                                style="-fx-background-color:linear-gradient(to bottom right,#833AB4,#E1306C);
+                                                   -fx-text-fill:#FFFFFF; -fx-font-size:11px; -fx-font-weight:700;
+                                                   -fx-background-radius:20; -fx-padding:8 20 8 20;
+                                                   -fx-cursor:hand; -fx-border-color:transparent;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ══════════════════ FOOTER / CONTACT ══════════════════ -->
+                    <VBox fx:id="sectionContact" alignment="CENTER" spacing="22"
+                          style="-fx-padding:44 60 32 60; -fx-background-color:#1A1A2E;">
+
+                        <HBox spacing="0" alignment="CENTER">
+                            <VBox alignment="CENTER_LEFT" spacing="6" HBox.hgrow="ALWAYS">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <ImageView fitWidth="26" fitHeight="26" preserveRatio="true">
+                                        <image><Image url="@logo.png" backgroundLoading="true"/></image>
+                                    </ImageView>
+                                    <HBox spacing="0">
+                                        <Label text="Mind" style="-fx-text-fill:#FFFFFF; -fx-font-size:17px;
+                                                   -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                        <Label text="Aura" style="-fx-text-fill:#2D6A4F; -fx-font-size:17px;
+                                                   -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                                    </HBox>
+                                </HBox>
+                                <Label text="Psychologie &amp; Developpement Personnel"
+                                       style="-fx-text-fill:rgba(255,255,255,0.4);
+                                          -fx-font-size:11px; -fx-font-style:italic;"/>
+                            </VBox>
+
+                            <HBox spacing="40" alignment="CENTER" HBox.hgrow="ALWAYS">
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="ADRESSE" style="-fx-text-fill:#2D6A4F; -fx-font-size:9px; -fx-font-weight:800;"/>
+                                    <Label text="1,2 Rue André Ampère, Ariana Essoghra 2080"
+                                           style="-fx-text-fill:rgba(255,255,255,0.7); -fx-font-size:12px;"/>
+                                    <Label text="Tunisie" style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:11px;"/>
+                                </VBox>
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="TELEPHONE" style="-fx-text-fill:#2D6A4F; -fx-font-size:9px; -fx-font-weight:800;"/>
+                                    <Label text="+216 29269297"
+                                           style="-fx-text-fill:rgba(255,255,255,0.7); -fx-font-size:12px;"/>
+                                    <Label text="Lun - Sam : 8h00 - 20h00"
+                                           style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:11px;"/>
+                                </VBox>
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="EMAIL" style="-fx-text-fill:#2D6A4F; -fx-font-size:9px; -fx-font-weight:800;"/>
+                                    <Label text="contact@mindaura.tn"
+                                           style="-fx-text-fill:rgba(255,255,255,0.7); -fx-font-size:12px;"/>
+                                    <Label text="Reponse sous 24h"
+                                           style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:11px;"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+
+                                <Button onAction="#openFacebook"
+                                        style="-fx-background-color:rgba(24,119,242,0.2);
+                   -fx-min-width:36; -fx-min-height:36;
+                   -fx-background-radius:50%; -fx-cursor:hand;
+                   -fx-border-color:rgba(24,119,242,0.4);
+                   -fx-border-radius:50%; -fx-border-width:1;">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fab-facebook-f"
+                                                  iconSize="16"
+                                                  iconColor="white"/>
+                                    </graphic>
+                                </Button>
+
+                                <Button onAction="#openInstagram"
+                                        style="-fx-background-color:rgba(131,58,180,0.2);
+                   -fx-min-width:36; -fx-min-height:36;
+                   -fx-background-radius:50%; -fx-cursor:hand;
+                   -fx-border-color:rgba(131,58,180,0.4);
+                   -fx-border-radius:50%; -fx-border-width:1;">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fab-instagram"
+                                                  iconSize="16"
+                                                  iconColor="white"/>
+                                    </graphic>
+                                </Button>
+
+                            </HBox>
+                        </HBox>
+
+                        <Region style="-fx-background-color:rgba(255,255,255,0.08);
+                                   -fx-pref-height:1; -fx-pref-width:9999;"/>
+
+                        <HBox alignment="CENTER" spacing="10">
+                            <Label text="&#169; 2026 MindAura &#8212; Tous droits reserves"
+                                   style="-fx-text-fill:rgba(255,255,255,0.3); -fx-font-size:11px;"/>
+                            <Circle radius="2" fill="rgba(45,106,79,0.5)"/>
+                            <Label text="Fait avec soin par Laifi Azer"
+                                   style="-fx-text-fill:rgba(45,106,79,0.7); -fx-font-size:11px; -fx-font-weight:700;"/>
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+        </StackPane>
+    </VBox>
+</StackPane>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+
+<!--
+    PALETTE MINDAURA :
+    Fond principal       : #0F1A17  (vert très sombre)
+    Surface / cards      : #1A2E28  (vert foncé)
+    Surface secondaire   : #213B33  (vert moyen-foncé)
+    Bordures             : #2E4F45  (vert bordure)
+    Accent primaire      : #2D6A4F  (vert MindAura)
+    Accent hover         : #3A8A67  (vert clair accent)
+    Bouton CTA           : #27AE60  (vert vif)
+    Texte principal      : #E8F0EE  (blanc cassé vert)
+    Texte secondaire     : #8AA89F  (gris-vert)
+    Erreur               : #E57373  (rouge doux)
+-->
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.PodcastPlayerController"
+            style="-fx-background-color: #0F1A17;">
+
+    <!-- ── HEADER ── -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #1A2E28;
+                     -fx-padding: 16 28;
+                     -fx-border-color: transparent transparent #2E4F45 transparent;
+                     -fx-border-width: 0 0 1 0;">
+
+            <Button fx:id="btnRetour" text="← Retour" onAction="#handleRetour"
+                    style="-fx-background-color: #213B33;
+                           -fx-text-fill: #E8F0EE;
+                           -fx-background-radius: 8;
+                           -fx-padding: 8 16;
+                           -fx-font-size: 13px;
+                           -fx-cursor: hand;
+                           -fx-border-color: #2E4F45;
+                           -fx-border-width: 1;
+                           -fx-border-radius: 8;"/>
+
+            <Label text="🎧" style="-fx-font-size: 20px;"/>
+
+            <Label fx:id="lblTitre" text="Podcast"
+                   style="-fx-font-size: 18px;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #E8F0EE;"/>
+        </HBox>
+    </top>
+
+    <!-- ── CONTENU PRINCIPAL ── -->
+    <center>
+        <VBox fx:id="conteneurPrincipal"
+              alignment="CENTER" spacing="28"
+              style="-fx-padding: 40;
+                     -fx-background-color: #0F1A17;">
+
+            <!-- Pochette -->
+            <StackPane>
+                <Circle fx:id="cercleImage" radius="130"
+                        fill="#1A2E28"
+                        stroke="#2E4F45" strokeWidth="2"/>
+                <ImageView fx:id="imgPochette"
+                           fitWidth="240" fitHeight="240"
+                           preserveRatio="true"/>
+            </StackPane>
+
+            <!-- Titre + résumé -->
+            <VBox alignment="CENTER" spacing="8">
+                <Label fx:id="lblNomEpisode" text="Chargement..."
+                       style="-fx-font-size: 22px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #E8F0EE;
+                              -fx-wrap-text: true;"
+                       maxWidth="620" wrapText="true"/>
+
+                <Label fx:id="lblDescription" text=""
+                       style="-fx-font-size: 13px;
+                              -fx-text-fill: #8AA89F;
+                              -fx-wrap-text: true;"
+                       maxWidth="620" wrapText="true"/>
+            </VBox>
+
+            <!-- Barre de progression -->
+            <VBox spacing="6" maxWidth="620">
+                <Slider fx:id="sliderProgression"
+                        min="0" max="100" value="0"
+                        style="-fx-accent: #27AE60;"
+                        maxWidth="Infinity"/>
+                <HBox>
+                    <Label fx:id="lblTempsActuel" text="0:00"
+                           style="-fx-text-fill: #8AA89F; -fx-font-size: 12px;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblDureeTotal" text="0:00"
+                           style="-fx-text-fill: #8AA89F; -fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Contrôles -->
+            <HBox alignment="CENTER" spacing="20">
+
+                <!-- -15s -->
+                <Button fx:id="btnReculer" text="⏪ 15s" onAction="#handleReculer"
+                        style="-fx-background-color: #213B33;
+                               -fx-text-fill: #8AA89F;
+                               -fx-background-radius: 20;
+                               -fx-padding: 10 18;
+                               -fx-font-size: 13px;
+                               -fx-cursor: hand;
+                               -fx-border-color: #2E4F45;
+                               -fx-border-width: 1;
+                               -fx-border-radius: 20;"/>
+
+                <!-- PLAY/PAUSE -->
+                <StackPane>
+                    <Circle radius="38" fill="#2D6A4F"/>
+                    <Button fx:id="btnPlayPause" text="▶"
+                            onAction="#handlePlayPause"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: #E8F0EE;
+                                   -fx-font-size: 22px;
+                                   -fx-cursor: hand;
+                                   -fx-padding: 0 0 0 4;"/>
+                </StackPane>
+
+                <!-- +15s -->
+                <Button fx:id="btnAvancer" text="15s ⏩" onAction="#handleAvancer"
+                        style="-fx-background-color: #213B33;
+                               -fx-text-fill: #8AA89F;
+                               -fx-background-radius: 20;
+                               -fx-padding: 10 18;
+                               -fx-font-size: 13px;
+                               -fx-cursor: hand;
+                               -fx-border-color: #2E4F45;
+                               -fx-border-width: 1;
+                               -fx-border-radius: 20;"/>
+
+                <!-- Volume -->
+                <HBox alignment="CENTER" spacing="8">
+                    <Label text="🔊"
+                           style="-fx-font-size: 16px; -fx-text-fill: #8AA89F;"/>
+                    <Slider fx:id="sliderVolume"
+                            min="0" max="1" value="0.8"
+                            prefWidth="100"
+                            style="-fx-accent: #27AE60;"/>
+                </HBox>
+
+                <!-- Vitesse -->
+                <ComboBox fx:id="comboVitesse"
+                          style="-fx-background-color: #213B33;
+                                 -fx-text-fill: #E8F0EE;
+                                 -fx-background-radius: 8;
+                                 -fx-border-color: #2E4F45;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 8;"/>
+            </HBox>
+
+            <!-- Message erreur -->
+            <Label fx:id="lblErreur" text="" wrapText="true" maxWidth="520"
+                   style="-fx-text-fill: #E57373;
+                          -fx-font-size: 12px;
+                          -fx-text-alignment: CENTER;"/>
+
+        </VBox>
+    </center>
+</BorderPane>

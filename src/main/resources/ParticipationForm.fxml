@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ParticipationFormController"
+      spacing="0"
+      style="-fx-background-color: #F0F4F8; -fx-padding: 20 30 20 30;">
+
+    <!-- ══ EN-TÊTE ══ -->
+    <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-padding: 0 0 10 0;">
+        <StackPane alignment="CENTER"
+                   style="-fx-background-color: linear-gradient(to bottom right, #7B5EA7, #4C1D95);
+                          -fx-background-radius: 12;
+                          -fx-min-width: 44; -fx-min-height: 44;
+                          -fx-max-width: 44; -fx-max-height: 44;
+                          -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.40), 10, 0, 0, 3);">
+            <Label text="🎫" style="-fx-font-size: 18px;"/>
+        </StackPane>
+
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Participants"
+                       style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                <Label text="›" style="-fx-text-fill: #A0AEC0; -fx-font-size: 10px;"/>
+                <Label text="Nouvelle inscription"
+                       style="-fx-font-size: 10px; -fx-text-fill: #7B5EA7; -fx-font-weight: 700;"/>
+            </HBox>
+            <Label text="Rejoindre l'Événement"
+                   style="-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;"/>
+            <Label fx:id="eventNameLabel" text=""
+                   style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #7B5EA7;"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="2"
+              style="-fx-background-color: #F0ECF8; -fx-background-radius: 10;
+                     -fx-border-color: #D6CAF0; -fx-border-width: 1.5; -fx-border-radius: 10;
+                     -fx-padding: 8 12; -fx-min-width: 60;">
+            <Label text="🎟" style="-fx-font-size: 18px; -fx-alignment: CENTER;"/>
+            <Label text="TICKET"
+                   style="-fx-font-size: 7px; -fx-font-weight: 900;
+                          -fx-text-fill: #7B5EA7; -fx-alignment: CENTER;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Séparateur dégradé -->
+    <Region style="-fx-background-color: linear-gradient(to right, #7B5EA7, #2D6A4F, rgba(240,244,248,0));
+                   -fx-pref-height: 2; -fx-max-height: 2; -fx-background-radius: 2;"/>
+    <Region style="-fx-pref-height: 12;"/>
+
+    <!-- ══ CARTE FORMULAIRE ══ -->
+    <VBox spacing="0" VBox.vgrow="ALWAYS"
+          style="-fx-background-color: #FFFFFF;
+                 -fx-background-radius: 16; -fx-border-color: #E2E8F0;
+                 -fx-border-width: 1.5; -fx-border-radius: 16;
+                 -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.09), 14, 0, 0, 4);">
+
+        <!-- ── Bannière période ── -->
+        <HBox spacing="12" alignment="CENTER_LEFT"
+              style="-fx-background-color: linear-gradient(to right, #E8F5EE 0%, #FFFFFF 70%);
+                     -fx-background-radius: 16 16 0 0;
+                     -fx-border-color: transparent transparent #E2E8F0 transparent;
+                     -fx-border-width: 0 0 1.5 0; -fx-padding: 10 22;">
+            <StackPane alignment="CENTER"
+                       style="-fx-background-color: #E8F5EE; -fx-background-radius: 7;
+                              -fx-min-width: 30; -fx-min-height: 30; -fx-max-width: 30; -fx-max-height: 30;">
+                <Label text="📅" style="-fx-font-size: 13px;"/>
+            </StackPane>
+            <VBox spacing="1">
+                <Label text="PÉRIODE DE L'ÉVÉNEMENT"
+                       style="-fx-font-size: 9px; -fx-font-weight: 700; -fx-text-fill: #1B4332;"/>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label fx:id="eventDatesLabel" text=""
+                           style="-fx-font-size: 11.5px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                    <Label fx:id="periodLabel" text=""
+                           style="-fx-font-size: 11.5px; -fx-text-fill: #5A6475;"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- ══ SECTION : Coordonnées ══ -->
+        <HBox alignment="CENTER_LEFT" spacing="10"
+              style="-fx-padding: 10 22 8 22;
+                     -fx-background-color: linear-gradient(to right, #F0ECF8 0%, #FFFFFF 60%);
+                     -fx-border-color: transparent transparent #E2E8F0 transparent;
+                     -fx-border-width: 0 0 1.5 0;">
+            <StackPane alignment="CENTER"
+                       style="-fx-background-color: #F0ECF8; -fx-background-radius: 7;
+                              -fx-min-width: 28; -fx-min-height: 28; -fx-max-width: 28; -fx-max-height: 28;">
+                <Label text="👤" style="-fx-font-size: 12px;"/>
+            </StackPane>
+            <Label text="Vos coordonnées"
+                   style="-fx-font-size: 13px; -fx-font-weight: 800; -fx-text-fill: #1A1A2E;"/>
+        </HBox>
+
+        <VBox style="-fx-padding: 14 22 14 22;" spacing="10">
+
+            <!-- Erreur / Succès global -->
+            <Label fx:id="errorLabel" visible="false" managed="false" wrapText="true"
+                   style="-fx-background-color: #FEF2F2; -fx-border-color: #FECACA;
+                          -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1.5;
+                          -fx-padding: 8 12; -fx-text-fill: #DC2626; -fx-font-size: 11.5px;
+                          -fx-font-weight: 600;"/>
+
+            <!-- Nom complet -->
+            <VBox spacing="4">
+                <Label text="Nom complet *"
+                       style="-fx-font-size: 11.5px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                <TextField fx:id="nomField" promptText="Ex: Ahmed Ben Salah"
+                           style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                                  -fx-border-width: 1.5; -fx-border-radius: 9; -fx-background-radius: 9;
+                                  -fx-font-size: 12.5px; -fx-text-fill: #1A1A2E;
+                                  -fx-prompt-text-fill: #A0AEC0;
+                                  -fx-padding: 8 12; -fx-pref-height: 36;"/>
+            </VBox>
+
+            <!-- Email -->
+            <VBox spacing="4">
+                <Label text="Adresse e-mail"
+                       style="-fx-font-size: 11.5px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                <TextField fx:id="emailField" promptText="Ex: ahmed@email.com"
+                           style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                                  -fx-border-width: 1.5; -fx-border-radius: 9; -fx-background-radius: 9;
+                                  -fx-font-size: 12.5px; -fx-text-fill: #1A1A2E;
+                                  -fx-prompt-text-fill: #A0AEC0;
+                                  -fx-padding: 8 12; -fx-pref-height: 36;"/>
+                <HBox spacing="5" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #EFF6FF; -fx-background-radius: 7; -fx-padding: 5 10;">
+                    <Label text="✉" style="-fx-font-size: 10px;"/>
+                    <Label text="Un e-mail de confirmation + ticket QR vous sera envoyé automatiquement"
+                           style="-fx-font-size: 10px; -fx-text-fill: #3B82F6;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Téléphone -->
+            <VBox spacing="4">
+                <Label text="Téléphone"
+                       style="-fx-font-size: 11.5px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                <TextField fx:id="telephoneField" promptText="Ex: +21698765432"
+                           style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                                  -fx-border-width: 1.5; -fx-border-radius: 9; -fx-background-radius: 9;
+                                  -fx-font-size: 12.5px; -fx-text-fill: #1A1A2E;
+                                  -fx-prompt-text-fill: #A0AEC0;
+                                  -fx-padding: 8 12; -fx-pref-height: 36;"/>
+            </VBox>
+        </VBox>
+
+        <!-- ══ SECTION : Nom de l'événement ══ -->
+        <HBox alignment="CENTER_LEFT" spacing="10"
+              style="-fx-padding: 10 22 8 22;
+                     -fx-background-color: linear-gradient(to right, #E8F5EE 0%, #FFFFFF 60%);
+                     -fx-border-color: #E2E8F0 transparent #E2E8F0 transparent;
+                     -fx-border-width: 1.5 0;">
+            <StackPane alignment="CENTER"
+                       style="-fx-background-color: #E8F5EE; -fx-background-radius: 7;
+                              -fx-min-width: 28; -fx-min-height: 28; -fx-max-width: 28; -fx-max-height: 28;">
+                <Label text="🎪" style="-fx-font-size: 12px;"/>
+            </StackPane>
+            <Label text="Nom de l'événement"
+                   style="-fx-font-size: 13px; -fx-font-weight: 800; -fx-text-fill: #1A1A2E;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="* Obligatoire"
+                   style="-fx-font-size: 10px; -fx-text-fill: #A0AEC0;"/>
+        </HBox>
+
+        <VBox style="-fx-padding: 14 22 14 22;" spacing="6">
+            <Label text="Nom de l'événement *"
+                   style="-fx-font-size: 11.5px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+            <TextField fx:id="eventNameField"
+                       promptText="Saisir le nom exact de l'événement"
+                       style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                              -fx-border-width: 1.5; -fx-border-radius: 9; -fx-background-radius: 9;
+                              -fx-font-size: 12.5px; -fx-text-fill: #1A1A2E;
+                              -fx-prompt-text-fill: #A0AEC0;
+                              -fx-padding: 8 12; -fx-pref-height: 36;"/>
+            <Label fx:id="eventNameErrorLabel"
+                   text="⚠  Aucun événement trouvé avec ce nom"
+                   style="-fx-text-fill: #EF4444; -fx-font-size: 10.5px; -fx-font-weight: 600;"
+                   visible="false" managed="false"/>
+            <Label fx:id="eventNameOkLabel"
+                   text="✓  Événement trouvé"
+                   style="-fx-text-fill: #15803D; -fx-font-size: 10.5px; -fx-font-weight: 600;"
+                   visible="false" managed="false"/>
+        </VBox>
+
+        <!-- Spacer pour pousser la barre d'actions vers le bas -->
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <!-- ══ BARRE D'ACTIONS ══ -->
+        <HBox style="-fx-padding: 12 22 14 22; -fx-background-color: #F8FAFC;
+                     -fx-border-color: #E2E8F0 transparent transparent transparent;
+                     -fx-border-width: 1.5 0 0 0; -fx-background-radius: 0 0 16 16;"
+              spacing="10" alignment="CENTER_RIGHT">
+            <HBox spacing="6" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <HBox spacing="4" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #E8F5EE; -fx-background-radius: 7; -fx-padding: 4 8;">
+                    <Label text="📧" style="-fx-font-size: 11px;"/>
+                    <Label text="E-mail auto"
+                           style="-fx-font-size: 10px; -fx-font-weight: 600; -fx-text-fill: #1B4332;"/>
+                </HBox>
+                <HBox spacing="4" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #F0ECF8; -fx-background-radius: 7; -fx-padding: 4 8;">
+                    <Label text="🔲" style="-fx-font-size: 11px;"/>
+                    <Label text="QR Ticket auto"
+                           style="-fx-font-size: 10px; -fx-font-weight: 600; -fx-text-fill: #7B5EA7;"/>
+                </HBox>
+            </HBox>
+            <Button text="Annuler" onAction="#cancel"
+                    style="-fx-background-color: #FFFFFF; -fx-text-fill: #5A6475;
+                           -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 9;
+                           -fx-cursor: hand; -fx-padding: 8 18;
+                           -fx-border-color: #CBD5E1; -fx-border-width: 1.5; -fx-border-radius: 9;"/>
+            <Button text="✓  Confirmer l'inscription" onAction="#saveParticipation"
+                    style="-fx-background-color: linear-gradient(to bottom, #7B5EA7, #4C1D95);
+                           -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;
+                           -fx-background-radius: 9; -fx-cursor: hand; -fx-padding: 8 20;
+                           -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.40), 10, 0, 0, 3);"/>
+        </HBox>
+
+    </VBox>
+
+</VBox>

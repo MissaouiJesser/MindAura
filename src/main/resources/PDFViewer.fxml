@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: #E8ECEF;" stylesheets="@/css/pdf-viewer.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.PDFViewerController">
+
+    <!-- ═══ HEADER ═══ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-background-color: linear-gradient(to right, #0A1F16, #1B4332);                      -fx-padding: 14 30;                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.30), 12, 0, 0, 4);">
+            <Button fx:id="btnRetour" onAction="#handleRetour" style="-fx-background-color: rgba(255,255,255,0.12);                            -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;                            -fx-background-radius: 50; -fx-min-width: 40; -fx-min-height: 40;                            -fx-max-width: 40; -fx-max-height: 40;                            -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.22);                            -fx-border-radius: 50; -fx-border-width: 1.5;" text="←" />
+
+            <!-- Icône PDF -->
+            <StackPane maxHeight="42" maxWidth="42" minHeight="42" minWidth="42" style="-fx-background-color: rgba(255,255,255,0.12);                               -fx-background-radius: 10;                               -fx-border-color: rgba(255,255,255,0.18);                               -fx-border-width: 1; -fx-border-radius: 10;">
+                <Label style="-fx-font-size: 20px;" text="📄" />
+            </StackPane>
+
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label fx:id="lblTitrePDF" style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: white;" text="Titre" />
+                <Label fx:id="lblInfoPDF" style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.50);" text="0 vues" />
+            </VBox>
+
+            <Button fx:id="btnOuvrirPDF" onAction="#handleOuvrirPDF" style="-fx-background-color: #2D6A4F; -fx-text-fill: white;                            -fx-background-radius: 10; -fx-padding: 9 20;                            -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;" text="📄  Ouvrir" />
+
+            <Button fx:id="btnTelecharger" onAction="#handleTelecharger" style="-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: white;                            -fx-background-radius: 10; -fx-padding: 9 20;                            -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;                            -fx-border-color: rgba(255,255,255,0.22); -fx-border-width: 1;                            -fx-border-radius: 10;" text="⬇  Télécharger" />
+        </HBox>
+    </top>
+
+    <!-- ═══ LAYOUT PRINCIPAL ═══ -->
+    <center>
+        <HBox style="-fx-background-color: #E8ECEF;">
+
+            <!-- ── COLONNE GAUCHE : Lecteur PDF ── -->
+            <ScrollPane fitToWidth="true" style="-fx-background-color: #D8DDE2;                                -fx-background: #D8DDE2;                                -fx-border-color: transparent;" HBox.hgrow="ALWAYS">
+                <VBox spacing="16" style="-fx-padding: 24 40 40 40;                              -fx-background-color: #D8DDE2;                              -fx-alignment: CENTER;">
+
+                    <!-- ══ BLOC DESCRIPTION AMÉLIORÉ ══ -->
+                    <VBox style="-fx-background-color: white;                                  -fx-background-radius: 16;                                  -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.08),12,0,0,4);                                  -fx-border-color: #E0EAE5;                                  -fx-border-width: 1;                                  -fx-border-radius: 16;">
+
+                        <!-- Bandeau titre description -->
+                        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);                                      -fx-background-radius: 16 16 0 0;                                      -fx-padding: 14 20;">
+                            <StackPane maxHeight="32" maxWidth="32" minHeight="32" minWidth="32" style="-fx-background-color: rgba(255,255,255,0.15);                                               -fx-background-radius: 8;">
+                                <Label style="-fx-font-size: 15px;" text="📋" />
+                            </StackPane>
+                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold;                                           -fx-text-fill: white;" text="Description" />
+                        </HBox>
+
+                        <!-- Contenu description -->
+                        <VBox spacing="12" style="-fx-padding: 20 24 20 24;">
+
+                            <!-- Texte description -->
+                            <Label fx:id="lblDescription" style="-fx-font-size: 13.5px;                                           -fx-text-fill: #3D5040;                                           -fx-line-spacing: 4;                                           -fx-font-family: 'Georgia';" wrapText="true" />
+
+                            <!-- Séparateur -->
+                            <Separator style="-fx-opacity: 0.3;" />
+
+                            <!-- Tags / méta infos en bas -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label style="-fx-background-color: #EAF4EE;                                               -fx-text-fill: #2D6A4F;                                               -fx-background-radius: 20;                                               -fx-padding: 4 12;                                               -fx-font-size: 11px;                                               -fx-font-weight: bold;                                               -fx-border-color: #B2D9C4;                                               -fx-border-width: 1;                                               -fx-border-radius: 20;" text="📄 Document PDF" />
+                                <Label fx:id="lblInfoPDF2" style="-fx-background-color: #F0F4FF;                                               -fx-text-fill: #4A6A9A;                                               -fx-background-radius: 20;                                               -fx-padding: 4 12;                                               -fx-font-size: 11px;                                               -fx-border-color: #C4D0E8;                                               -fx-border-width: 1;                                               -fx-border-radius: 20;" text="" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Bandeau nombre de pages -->
+                    <HBox alignment="CENTER" spacing="10">
+                        <Label fx:id="lblPageInfo" style="-fx-font-size: 12px; -fx-text-fill: #7A8B9F;                                       -fx-background-color: white;                                       -fx-background-radius: 20;                                       -fx-padding: 5 16;                                       -fx-border-color: #C8D0CF;                                       -fx-border-width: 1;                                       -fx-border-radius: 20;" text="Chargement..." />
+                    </HBox>
+
+                    <!-- Pages PDF -->
+                    <VBox fx:id="pdfPagesContainer" alignment="CENTER" spacing="16" style="-fx-padding: 0 0 20 0;" />
+
+                </VBox>
+            </ScrollPane>
+
+            <!-- ── COLONNE DROITE : Sidebar ── -->
+            <!-- ── COLONNE DROITE : Sidebar ── -->
+            <ScrollPane fitToWidth="true" maxWidth="380" minWidth="300" prefWidth="340" style="-fx-background-color: #F4F7F5; -fx-background: #F4F7F5;                                -fx-border-color: transparent;">
+                <VBox spacing="16" style="-fx-padding: 20 16; -fx-background-color: #F4F7F5;">
+
+                    <!-- ── Bloc Statistiques ── -->
+                    <VBox spacing="14" style="-fx-background-color: white; -fx-background-radius: 16;                                  -fx-padding: 20;                                  -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),10,0,0,3);                                  -fx-border-color: #E8EFF0; -fx-border-width: 1;                                  -fx-border-radius: 16;">
+
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label style="-fx-font-size: 16px;" text="📊" />
+                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold;                                           -fx-text-fill: #1B4332;" text="Statistiques" />
+                        </HBox>
+
+                        <!-- Vues -->
+                        <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-background-color: #F0F7F2; -fx-background-radius: 12;                                      -fx-padding: 14 16;">
+                            <StackPane maxHeight="44" maxWidth="44" minHeight="44" minWidth="44" style="-fx-background-color: #D1F0E0;                                               -fx-background-radius: 50;">
+                                <Label style="-fx-font-size: 20px;" text="👁" />
+                            </StackPane>
+                            <VBox spacing="1">
+                                <Label fx:id="lblNbrVues" style="-fx-font-size: 26px; -fx-font-weight: bold;                                               -fx-text-fill: #1B4332;" text="0" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #9AA89F;" text="Vues totales" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Likes -->
+                        <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-background-color: #FFF5F5; -fx-background-radius: 12;                                      -fx-padding: 14 16;">
+                            <StackPane maxHeight="44" maxWidth="44" minHeight="44" minWidth="44" style="-fx-background-color: #947dbc;                                               -fx-background-radius: 50;">
+                                <Label style="-fx-font-size: 20px;" text="❤" />
+                            </StackPane>
+                            <VBox spacing="1">
+                                <Label fx:id="lblNbrLikes" style="-fx-font-size: 26px; -fx-font-weight: bold;                                               -fx-text-fill: #6d4ba3;" text="0" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #9AA89F;" text="J'aime reçus" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Bouton J'aime -->
+                        <Button fx:id="btnLike" maxWidth="Infinity" onAction="#handleLike" style="-fx-background-color: #6d4ba3; -fx-text-fill: white;                                        -fx-background-radius: 12; -fx-padding: 13;                                        -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand;                                        -fx-effect: dropshadow(gaussian,rgb(109,75,163),8,0,0,3);" text="❤  J'aime cette ressource" />
+                    </VBox>
+
+                    <!-- Bloc Commentaires -->
+                    <VBox spacing="12" styleClass="comments-card">
+                        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="comments-header">
+                            <Label styleClass="comments-icon" text="💬" />
+                            <Label styleClass="comments-title" text="Commentaires" />
+                        </HBox>
+
+                        <TextField fx:id="txtNouveauCommentaire" promptText="Écrire un commentaire..." styleClass="comment-input" />
+
+                        <Button fx:id="btnAjouterCommentaire" maxWidth="Infinity" onAction="#handleAjouterCommentaire" styleClass="btn-publish" text="Publier" />
+
+                        <!-- Conteneur des commentaires dynamiques -->
+                        <VBox fx:id="commentairesContainer" spacing="12" styleClass="comment-list" />
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+
+
+        </HBox>
+    </center>
+
+</BorderPane>

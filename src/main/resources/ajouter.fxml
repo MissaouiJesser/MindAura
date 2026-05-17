@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane prefWidth="1420" prefHeight="1080"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.ajouter"
+            style="-fx-background-color: #F4F6F9;">
+
+    <!-- ========== CONTENU PRINCIPAL ========== -->
+    <ScrollPane fitToWidth="true" pannable="false" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                style="-fx-background-color: transparent; -fx-background: #F4F6F9; -fx-border-color: transparent;">
+        <content>
+            <VBox spacing="24" style="-fx-padding: 35 60 50 60; -fx-background-color: #F4F6F9;">
+
+                <!-- ===== SECTION 1 : INFORMATIONS PRINCIPALES ===== -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 20;
+                             -fx-effect: dropshadow(gaussian, rgba(15, 45, 31, 0.08), 20, 0, 2, 6);
+                             -fx-border-color: #E8F0EC; -fx-border-width: 1; -fx-border-radius: 20;">
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(to right, #F0F9F4, #FAFFFE);
+                                 -fx-background-radius: 20 20 0 0;
+                                 -fx-border-color: transparent transparent #E8F0EC transparent;
+                                 -fx-border-width: 0 0 1.5 0; -fx-padding: 20 32;">
+                        <StackPane style="-fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+                                          -fx-background-radius: 12;" prefWidth="40" prefHeight="40">
+                            <Label text="1" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Informations principales"
+                                   style="-fx-text-fill: #0F2D1F; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                            <Label text="Définissez le titre, le résumé et la catégorie de votre ressource"
+                                   style="-fx-text-fill: #7A8B7F; -fx-font-size: 11.5px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="* Champs obligatoires"
+                               style="-fx-text-fill: #E53E3E; -fx-font-size: 11px; -fx-font-style: italic;"/>
+                    </HBox>
+
+                    <VBox spacing="22" style="-fx-padding: 28 32 32 32;">
+                        <!-- Titre -->
+                        <VBox spacing="8">
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <Label text="Titre de la ressource"
+                                       style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            </HBox>
+                            <Label text="Donnez un titre accrocheur, clair et descriptif (max 100 caractères)"
+                                   style="-fx-text-fill: #9AA89F; -fx-font-size: 11.5px;"/>
+                            <TextField fx:id="titreField"
+                                       promptText="Ex : 5 techniques pour gérer le stress au quotidien"
+                                       style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                              -fx-border-width: 1.8; -fx-border-radius: 12; -fx-background-radius: 12;
+                                              -fx-padding: 14 18; -fx-font-size: 14px; -fx-text-fill: #1A2E25;
+                                              -fx-prompt-text-fill: #B0BDB5;">
+                                <font><Font size="14"/></font>
+                            </TextField>
+                        </VBox>
+
+                        <!-- Résumé -->
+                        <VBox spacing="8">
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <Label text="Résumé"
+                                       style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            </HBox>
+                            <TextArea fx:id="resumeField"
+                                      promptText="Décrivez en quelques lignes l'objectif de cette ressource..."
+                                      wrapText="true" prefRowCount="4"
+                                      style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                             -fx-border-width: 1.8; -fx-border-radius: 12; -fx-background-radius: 12;
+                                             -fx-padding: 14 18; -fx-font-size: 14px; -fx-text-fill: #1A2E25;
+                                             -fx-control-inner-background: #FAFCFB; -fx-prompt-text-fill: #B0BDB5;"/>
+                        </VBox>
+
+                        <!-- Catégorie + Tags -->
+                        <HBox spacing="24">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="Catégorie"
+                                           style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                    <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <ComboBox fx:id="categorieCombo" promptText="Choisissez une catégorie..."
+                                          maxWidth="Infinity"
+                                          style="-fx-background-color: #FAFCFB; -fx-border-color: #2D6A4F;
+                                                 -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                 -fx-background-radius: 12; -fx-padding: 12 16; -fx-font-size: 13.5px;"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Mots-clés"
+                                       style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                <TextField fx:id="tagsField" promptText="méditation, relaxation, anxiété, bien-être"
+                                           style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                                  -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                  -fx-background-radius: 12; -fx-padding: 14 18;
+                                                  -fx-font-size: 14px; -fx-text-fill: #1A2E25; -fx-prompt-text-fill: #B0BDB5;">
+                                    <font><Font size="14"/></font>
+                                </TextField>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- ===== SECTION 2 : DÉTAILS ===== -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 20;
+                             -fx-effect: dropshadow(gaussian, rgba(15, 45, 31, 0.08), 20, 0, 2, 6);
+                             -fx-border-color: #E8F0EC; -fx-border-width: 1; -fx-border-radius: 20;">
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(to right, #F0F9F4, #FAFFFE);
+                                 -fx-background-radius: 20 20 0 0;
+                                 -fx-border-color: transparent transparent #E8F0EC transparent;
+                                 -fx-border-width: 0 0 1.5 0; -fx-padding: 20 32;">
+                        <StackPane style="-fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+                                          -fx-background-radius: 12;" prefWidth="40" prefHeight="40">
+                            <Label text="2" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Détails de la ressource"
+                                   style="-fx-text-fill: #0F2D1F; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                            <Label text="Type de contenu, niveau et informations temporelles"
+                                   style="-fx-text-fill: #7A8B7F; -fx-font-size: 11.5px;"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="22" style="-fx-padding: 28 32 32 32;">
+                        <HBox spacing="24">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="Type de contenu"
+                                           style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                    <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <Label text="La section Fichier s'adapte automatiquement selon votre choix"
+                                       style="-fx-text-fill: #9AA89F; -fx-font-size: 11.5px;"/>
+                                <ComboBox fx:id="typeContenuCombo" promptText="Sélectionnez le format..."
+                                          maxWidth="Infinity"
+                                          style="-fx-background-color: #FAFCFB; -fx-border-color: #2D6A4F;
+                                                 -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                 -fx-background-radius: 12; -fx-padding: 12 16; -fx-font-size: 13.5px;"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Niveau"
+                                       style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                <ComboBox fx:id="niveauCombo" promptText="Sélectionnez le niveau..."
+                                          maxWidth="Infinity"
+                                          style="-fx-background-color: #FAFCFB; -fx-border-color: #2D6A4F;
+                                                 -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                 -fx-background-radius: 12; -fx-padding: 12 16; -fx-font-size: 13.5px;"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="24">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Durée de lecture"
+                                       style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <TextField fx:id="dureeField" prefWidth="160" promptText="Ex : 15"
+                                               style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                                      -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                      -fx-background-radius: 12; -fx-padding: 14 18;
+                                                      -fx-font-size: 14px; -fx-text-fill: #1A2E25;"/>
+                                    <VBox alignment="CENTER"
+                                          style="-fx-background-color: #E8F5EE; -fx-background-radius: 10; -fx-padding: 10 14;">
+                                        <Label text="min" style="-fx-text-fill: #2D6A4F; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Date de publication"
+                                       style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                <DatePicker fx:id="datePublicationPicker" maxWidth="Infinity"
+                                            style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                                   -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                   -fx-background-radius: 12; -fx-padding: 4 8; -fx-font-size: 13.5px;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- ===== SECTION 3 : IMAGE ===== -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 20;
+                             -fx-effect: dropshadow(gaussian, rgba(15, 45, 31, 0.08), 20, 0, 2, 6);
+                             -fx-border-color: #E8F0EC; -fx-border-width: 1; -fx-border-radius: 20;">
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(to right, #F0F9F4, #FAFFFE);
+                                 -fx-background-radius: 20 20 0 0;
+                                 -fx-border-color: transparent transparent #E8F0EC transparent;
+                                 -fx-border-width: 0 0 1.5 0; -fx-padding: 20 32;">
+                        <StackPane style="-fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+                                          -fx-background-radius: 12;" prefWidth="40" prefHeight="40">
+                            <Label text="3" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Image de couverture"
+                                   style="-fx-text-fill: #0F2D1F; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                            <Label text="Une belle image augmente l'engagement de 3x"
+                                   style="-fx-text-fill: #7A8B7F; -fx-font-size: 11.5px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="✓ Recommandé"
+                               style="-fx-background-color: #E6F7EE; -fx-text-fill: #2D6A4F;
+                                      -fx-background-radius: 20; -fx-padding: 5 12;
+                                      -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                    </HBox>
+
+                    <HBox spacing="28" style="-fx-padding: 28 32 32 32;">
+                        <VBox spacing="14" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+                            <VBox fx:id="imageDropZone" spacing="14" alignment="CENTER"
+                                  minHeight="180"
+                                  style="-fx-background-color: #F7FBF9;
+                                         -fx-border-color: #52B788; -fx-border-width: 2;
+                                         -fx-border-style: dashed; -fx-border-radius: 16;
+                                         -fx-background-radius: 16; -fx-padding: 30 30;
+                                         -fx-cursor: hand;">
+                                <StackPane>
+                                    <Circle fill="#E8F5EE" radius="32"/>
+                                    <Label text="🖼" style="-fx-font-size: 26px;"/>
+                                </StackPane>
+                                <VBox spacing="4" alignment="CENTER">
+                                    <Label text="Glissez votre image ici"
+                                           style="-fx-text-fill: #1B4332; -fx-font-size: 14px; -fx-font-weight: bold;"
+                                           alignment="CENTER" textAlignment="CENTER"/>
+                                    <Label text="ou cliquez pour parcourir"
+                                           style="-fx-text-fill: #7A8B7F; -fx-font-size: 12px;"
+                                           alignment="CENTER" textAlignment="CENTER"/>
+                                    <Label text="PNG · JPG · JPEG · Max 5 MB"
+                                           style="-fx-text-fill: #B0BDB5; -fx-font-size: 11px;"
+                                           alignment="CENTER" textAlignment="CENTER"/>
+                                </VBox>
+                                <Button fx:id="choisirImageBtn" text="  Choisir une image"
+                                        onAction="#choisirImage"
+                                        style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+                                               -fx-text-fill: white; -fx-background-radius: 25;
+                                               -fx-padding: 11 28; -fx-font-size: 13px; -fx-font-weight: bold;
+                                               -fx-cursor: hand;">
+                                    <font><Font name="System Bold" size="13"/></font>
+                                </Button>
+                            </VBox>
+                            <Label fx:id="imageLabel" text=""
+                                   style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;"/>
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="8">
+                            <StackPane minWidth="280" minHeight="200" maxWidth="280" maxHeight="200"
+                                       style="-fx-background-color: #E8EDEB; -fx-background-radius: 14;
+                                              -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.12), 10, 0, 0, 4);">
+                                <VBox fx:id="emptyImageState" alignment="CENTER" spacing="8"
+                                      StackPane.alignment="CENTER">
+                                    <Label text="🖼" style="-fx-font-size: 36px; -fx-text-fill: #C8D0CC;"/>
+                                    <Label text="Aucune image sélectionnée"
+                                           style="-fx-text-fill: #B0BDB5; -fx-font-size: 12px;"
+                                           alignment="CENTER" textAlignment="CENTER"/>
+                                </VBox>
+                                <ImageView fx:id="imagePreview"
+                                           fitWidth="280" fitHeight="200"
+                                           preserveRatio="true"
+                                           visible="false"
+                                           StackPane.alignment="CENTER"/>
+                            </StackPane>
+                            <Label text="Format recommandé : 16:9"
+                                   style="-fx-text-fill: #B0BDB5; -fx-font-size: 10px;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- ===== SECTION 4 : FICHIER (DYNAMIQUE) ===== -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 20;
+                             -fx-effect: dropshadow(gaussian, rgba(15, 45, 31, 0.08), 20, 0, 2, 6);
+                             -fx-border-color: #E8F0EC; -fx-border-width: 1; -fx-border-radius: 20;">
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(to right, #F0F9F4, #FAFFFE);
+                                 -fx-background-radius: 20 20 0 0;
+                                 -fx-border-color: transparent transparent #E8F0EC transparent;
+                                 -fx-border-width: 0 0 1.5 0; -fx-padding: 20 32;">
+                        <StackPane style="-fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+                                          -fx-background-radius: 12;" prefWidth="40" prefHeight="40">
+                            <Label text="4" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Fichier de la ressource"
+                                   style="-fx-text-fill: #0F2D1F; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                            <Label fx:id="sousTitreSection4"
+                                   text="Sélectionnez le type de contenu pour voir les options"
+                                   style="-fx-text-fill: #7A8B7F; -fx-font-size: 11.5px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="badgeTypeContenu" text=""
+                               style="-fx-background-radius: 20; -fx-padding: 5 14;
+                                      -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                    </HBox>
+
+                    <VBox spacing="18" style="-fx-padding: 28 32 32 32;">
+
+                        <!-- Message : aucun type sélectionné -->
+                        <VBox fx:id="panneauAucun" spacing="12" alignment="CENTER"
+                              style="-fx-background-color: #F8FAFC; -fx-background-radius: 16;
+                                     -fx-border-color: #CBD5E1; -fx-border-radius: 16;
+                                     -fx-border-width: 2; -fx-border-style: dashed; -fx-padding: 40 30;">
+                            <Label text="⬆" style="-fx-font-size: 32px; -fx-text-fill: #CBD5E1;"/>
+                            <Label text="Choisissez d'abord un type de contenu (Section 2)"
+                                   style="-fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-font-weight: bold;"
+                                   alignment="CENTER" textAlignment="CENTER"/>
+                            <Label text="La section fichier s'adaptera automatiquement"
+                                   style="-fx-text-fill: #B0BDB5; -fx-font-size: 11.5px;"
+                                   alignment="CENTER" textAlignment="CENTER"/>
+                        </VBox>
+
+                        <!-- Panneau Podcast -->
+                        <VBox fx:id="panneauPodcast" spacing="16" visible="false" managed="false">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Sources compatibles :"
+                                       style="-fx-text-fill: #7A8B7F; -fx-font-size: 12px;"/>
+                                <Label text="Spotify"    style="-fx-background-color:#1DB954; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="Deezer"     style="-fx-background-color:#EF5466; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="YouTube"    style="-fx-background-color:#FF0000; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="SoundCloud" style="-fx-background-color:#FF5500; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="Lien .mp3"  style="-fx-background-color:#6C5CE7; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                            </HBox>
+                            <VBox spacing="8">
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="URL du podcast"
+                                           style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                    <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <Label text="Collez ici le lien vers l'épisode en ligne ou un fichier .mp3 hébergé"
+                                       style="-fx-text-fill: #9AA89F; -fx-font-size: 11.5px;"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="🔗"
+                                           style="-fx-background-color: #E8F5EE; -fx-background-radius: 10;
+                                                  -fx-padding: 13 14; -fx-font-size: 16px;"/>
+                                    <TextField fx:id="urlPodcastField"
+                                               promptText="https://open.spotify.com/episode/..."
+                                               HBox.hgrow="ALWAYS"
+                                               style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                                      -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                      -fx-background-radius: 12; -fx-padding: 14 18;
+                                                      -fx-font-size: 13px; -fx-text-fill: #1A2E25;
+                                                      -fx-prompt-text-fill: #B0BDB5;">
+                                        <font><Font size="13"/></font>
+                                    </TextField>
+                                    <Button text="✓ Valider" onAction="#validerUrlPodcast"
+                                            style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+                                                   -fx-text-fill: white; -fx-font-weight: bold;
+                                                   -fx-background-radius: 12; -fx-padding: 14 20;
+                                                   -fx-cursor: hand; -fx-font-size: 13px;"/>
+                                </HBox>
+                            </VBox>
+                            <HBox fx:id="urlFeedbackBox" spacing="12" alignment="CENTER_LEFT"
+                                  visible="false" managed="false"
+                                  style="-fx-background-color: #F0FDF4; -fx-background-radius: 12;
+                                         -fx-border-color: #86EFAC; -fx-border-radius: 12;
+                                         -fx-border-width: 1; -fx-padding: 14 20;">
+                                <Label fx:id="urlFeedbackIcon"  text="" style="-fx-font-size: 20px;"/>
+                                <VBox spacing="3">
+                                    <Label fx:id="urlFeedbackTitre" text=""
+                                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #15803D;"/>
+                                    <Label fx:id="urlFeedbackDesc"  text=""
+                                           style="-fx-font-size: 11.5px; -fx-text-fill: #15803D;"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Panneau Article -->
+                        <VBox fx:id="panneauArticle" spacing="16" visible="false" managed="false">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Sources compatibles :"
+                                       style="-fx-text-fill: #7A8B7F; -fx-font-size: 12px;"/>
+                                <Label text="Medium"      style="-fx-background-color:#000000; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="LinkedIn"    style="-fx-background-color:#0077B5; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="Wikipedia"   style="-fx-background-color:#636466; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="Blog / Site" style="-fx-background-color:#2980B9; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                                <Label text="PubMed"      style="-fx-background-color:#3498DB; -fx-text-fill:white; -fx-background-radius:6; -fx-padding:3 8; -fx-font-size:11px; -fx-font-weight:bold;"/>
+                            </HBox>
+                            <VBox spacing="8">
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="URL de l'article"
+                                           style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                                    <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <Label text="Collez ici le lien vers l'article en ligne"
+                                       style="-fx-text-fill: #9AA89F; -fx-font-size: 11.5px;"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="📰"
+                                           style="-fx-background-color: #E8F5EE; -fx-background-radius: 10;
+                                                  -fx-padding: 13 14; -fx-font-size: 16px;"/>
+                                    <TextField fx:id="urlArticleField"
+                                               promptText="https://medium.com/article/..."
+                                               HBox.hgrow="ALWAYS"
+                                               style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                                      -fx-border-width: 1.8; -fx-border-radius: 12;
+                                                      -fx-background-radius: 12; -fx-padding: 14 18;
+                                                      -fx-font-size: 13px; -fx-text-fill: #1A2E25;
+                                                      -fx-prompt-text-fill: #B0BDB5;"/>
+                                    <Button text="✓ Valider" onAction="#validerUrlArticle"
+                                            style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+                                                   -fx-text-fill: white; -fx-font-weight: bold;
+                                                   -fx-background-radius: 12; -fx-padding: 14 20;
+                                                   -fx-cursor: hand; -fx-font-size: 13px;"/>
+                                </HBox>
+                            </VBox>
+                            <HBox fx:id="urlArticleFeedbackBox" spacing="12" alignment="CENTER_LEFT"
+                                  visible="false" managed="false"
+                                  style="-fx-background-color: #F0FDF4; -fx-background-radius: 12;
+                                         -fx-border-color: #86EFAC; -fx-border-radius: 12;
+                                         -fx-border-width: 1; -fx-padding: 14 20;">
+                                <Label fx:id="urlArticleFeedbackIcon" text="" style="-fx-font-size: 20px;"/>
+                                <VBox spacing="3">
+                                    <Label fx:id="urlArticleFeedbackTitre" text=""
+                                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #15803D;"/>
+                                    <Label fx:id="urlArticleFeedbackDesc"  text=""
+                                           style="-fx-font-size: 11.5px; -fx-text-fill: #15803D;"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Panneau Fichier (Video / PDF) -->
+                        <VBox fx:id="panneauFichier" spacing="16" visible="false" managed="false">
+                            <HBox fx:id="badgesFormats" spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Formats acceptés :"
+                                       style="-fx-text-fill: #7A8B7F; -fx-font-size: 12px;"/>
+                            </HBox>
+                            <VBox spacing="16" alignment="CENTER"
+                                  style="-fx-background-color: #F7FBF9; -fx-border-color: #52B788;
+                                         -fx-border-width: 2; -fx-border-style: dashed; -fx-border-radius: 16;
+                                         -fx-background-radius: 16; -fx-padding: 35 30;">
+                                <StackPane>
+                                    <Circle fill="#E8F5EE" radius="36"/>
+                                    <Label fx:id="iconeFichier" text="📁" style="-fx-font-size: 28px;"/>
+                                </StackPane>
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="Glissez votre fichier ici"
+                                           style="-fx-text-fill: #1B4332; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                    <Label text="ou cliquez sur le bouton ci-dessous"
+                                           style="-fx-text-fill: #7A8B7F; -fx-font-size: 12px;"/>
+                                </VBox>
+                                <HBox fx:id="fileBox" alignment="CENTER">
+                                    <Button fx:id="choisirFichierBtn"
+                                            text="  Parcourir les fichiers"
+                                            onAction="#choisirFichier"
+                                            style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+                                                   -fx-text-fill: white; -fx-background-radius: 25;
+                                                   -fx-padding: 12 32; -fx-font-size: 13px; -fx-font-weight: bold;
+                                                   -fx-cursor: hand;
+                                                   -fx-effect: dropshadow(gaussian, rgba(27, 67, 50, 0.35), 12, 0, 0, 4);">
+                                        <font><Font name="System Bold" size="13"/></font>
+                                    </Button>
+                                </HBox>
+                                <Label fx:id="fichierLabel" text=""
+                                       style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;"/>
+                            </VBox>
+                        </VBox>
+
+                    </VBox>
+                </VBox>
+
+                <!-- ===== SECTION 5 : EMAIL AUTEUR ===== -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 20;
+                             -fx-effect: dropshadow(gaussian, rgba(15, 45, 31, 0.08), 20, 0, 2, 6);
+                             -fx-border-color: #E8F0EC; -fx-border-width: 1; -fx-border-radius: 20;">
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(to right, #F0F9F4, #FAFFFE);
+                                 -fx-background-radius: 20 20 0 0;
+                                 -fx-border-color: transparent transparent #E8F0EC transparent;
+                                 -fx-border-width: 0 0 1.5 0; -fx-padding: 20 32;">
+                        <StackPane style="-fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+                                          -fx-background-radius: 12;" prefWidth="40" prefHeight="40">
+                            <Label text="5" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Informations auteur"
+                                   style="-fx-text-fill: #0F2D1F; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                            <Label text="Pour les notifications et la communication"
+                                   style="-fx-text-fill: #7A8B7F; -fx-font-size: 11.5px;"/>
+                        </VBox>
+                    </HBox>
+                    <VBox spacing="8" style="-fx-padding: 28 32 32 32;">
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="Adresse email de l'auteur"
+                                   style="-fx-text-fill: #1B4332; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
+                            <Label text="*" style="-fx-text-fill: #E53E3E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        </HBox>
+                        <Label text="Vous recevrez une confirmation et les notifications importantes à cette adresse"
+                               style="-fx-text-fill: #9AA89F; -fx-font-size: 11.5px;"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="✉"
+                                   style="-fx-background-color: #E8F5EE; -fx-background-radius: 10;
+                                          -fx-padding: 12 14; -fx-font-size: 16px;"/>
+                            <TextField fx:id="Emailtx" promptText="auteur@exemple.com"
+                                       HBox.hgrow="ALWAYS"
+                                       style="-fx-background-color: #FAFCFB; -fx-border-color: #D0E8D8;
+                                              -fx-border-width: 1.8; -fx-border-radius: 12; -fx-background-radius: 12;
+                                              -fx-padding: 14 18; -fx-font-size: 14px; -fx-text-fill: #1A2E25;
+                                              -fx-prompt-text-fill: #B0BDB5;">
+                                <font><Font size="14"/></font>
+                            </TextField>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- ===== RÉSUMÉ ===== -->
+                <VBox spacing="12"
+                      style="-fx-background-color: linear-gradient(to right, #0F2D1F, #1B4332);
+                             -fx-background-radius: 20; -fx-padding: 24 32;
+                             -fx-effect: dropshadow(gaussian, rgba(15, 45, 31, 0.35), 20, 0, 0, 8);">
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="✓"
+                               style="-fx-background-color: #52B788; -fx-text-fill: white;
+                                      -fx-background-radius: 20; -fx-padding: 4 10;
+                                      -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                        <Label text="Prêt à publier votre ressource ?"
+                               style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <Label text="Vérifiez que tous les champs obligatoires sont remplis. Votre ressource sera visible immédiatement après validation."
+                           style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12.5px;" wrapText="true"/>
+                </VBox>
+
+                <!-- ===== BOUTONS ===== -->
+                <HBox spacing="18" alignment="CENTER" style="-fx-padding: 8 0 15 0;">
+                    <Button fx:id="annulerBtn" text="← Annuler" onAction="#annuler" prefWidth="200"
+                            style="-fx-background-color: white; -fx-text-fill: #5A7A6A;
+                                   -fx-border-color: #C8DFCF; -fx-border-width: 2;
+                                   -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 16 35;
+                                   -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 3);">
+                        <font><Font name="System Bold" size="14"/></font>
+                    </Button>
+                    <Button fx:id="ajouterBtn" text="Créer la ressource  →"
+                            onAction="#ajouterRessource" prefWidth="320"
+                            style="-fx-background-color: linear-gradient(to right, #1B4332 0%, #2D6A4F 60%, #40916C 100%);
+                                   -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;
+                                   -fx-padding: 17 50; -fx-background-radius: 50; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(27, 67, 50, 0.55), 22, 0, 0, 8);">
+                        <font><Font name="System Bold" size="16"/></font>
+                    </Button>
+                </HBox>
+
+                <Label text="* Les champs marqués sont obligatoires · Vos données sont sécurisées et confidentielles"
+                       style="-fx-text-fill: #B0BDB5; -fx-font-size: 11.5px;" alignment="CENTER"/>
+
+            </VBox>
+        </content>
+    </ScrollPane>
+
+</AnchorPane>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AjouterTestController"
+            stylesheets="@style22.css">
+
+
+
+    <!-- Center - Formulaire -->
+    <center>
+        <Label fx:id="lblTitre" text=" " textFill="white" styleClass="label-title"/>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #F0F4F8;">
+            <VBox spacing="25" style="-fx-padding: 30;">
+
+                <!-- Informations de base -->
+                <VBox spacing="20" styleClass="card">
+                    <Label text="Informations de Base" styleClass="card-header"/>
+                    <Separator/>
+
+                    <VBox spacing="8">
+                        <Label text="Titre du Test *" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                        <TextField fx:id="txtTitre" promptText="Ex: Test d'Anxiété GAD-7" styleClass="text-field"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Description" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                        <TextArea fx:id="txtDescription" promptText="Description détaillée du test..."
+                                  prefRowCount="3" wrapText="true" styleClass="text-area"/>
+                    </VBox>
+
+                    <HBox spacing="25">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Type de Test *" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                            <ComboBox fx:id="cmbType" prefWidth="250">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Anxiété"/>
+                                        <String fx:value="Dépression"/>
+                                        <String fx:value="Stress"/>
+                                        <String fx:value="Personnalité"/>
+                                        <String fx:value="Intelligence émotionnelle"/>
+                                        <String fx:value="Confiance en soi"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label text="Durée Estimée (minutes) *" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                            <Spinner fx:id="spinDuree" prefWidth="150" styleClass="spinner"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Instructions -->
+                <VBox spacing="20" styleClass="card">
+                    <Label text="Instructions pour le Test" styleClass="card-header"/>
+                    <Separator/>
+
+                    <VBox spacing="8">
+                        <Label text="Instructions" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                        <TextArea fx:id="txtInstructions"
+                                  promptText="Instructions à afficher avant de commencer le test..."
+                                  prefRowCount="4" wrapText="true" styleClass="text-area"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Statut -->
+                <VBox spacing="20" styleClass="card">
+                    <Label text="Statut" styleClass="card-header"/>
+                    <Separator/>
+
+                    <CheckBox fx:id="chkActif" text="Test actif (disponible pour les utilisateurs)"
+                              selected="true" style="-fx-font-size: 14;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Footer - Boutons -->
+    <bottom>
+        <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-background-color: white; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, -3);">
+            <Button text="Annuler" onAction="#annuler" styleClass="btn-neutral"/>
+            <Button fx:id="btnEnregistrer" text="Enregistrer" onAction="#enregistrer"
+                    styleClass="btn-primary" prefWidth="150"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

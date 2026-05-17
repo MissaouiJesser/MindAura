@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ListeTraitementsController"
+      style="-fx-background-color:#F0F4F8;" spacing="0">
+
+    <!-- ═══════════════ EN-TÊTE PAGE ═══════════════ -->
+    <HBox style="-fx-padding:20 28 14 28;" alignment="CENTER_LEFT" spacing="0">
+        <VBox HBox.hgrow="ALWAYS" spacing="3">
+        </VBox>
+        <Button text="＋  Nouveau traitement" styleClass="btn-add-primary" onAction="#handleAjouter"/>
+    </HBox>
+
+    <!-- ═══════════════ BARRE FILTRES ═══════════════ -->
+    <HBox style="-fx-padding:0 28 14 28; -fx-background-color:#F0F4F8;" spacing="10" alignment="CENTER_LEFT">
+
+        <!-- Recherche -->
+        <TextField fx:id="searchField"
+                   promptText="🔍  Rechercher (type, objectif, description)..."
+                   styleClass="search-box"
+                   onKeyReleased="#handleSearch"
+                   HBox.hgrow="ALWAYS"
+                   style="-fx-max-width:310;"/>
+
+        <!-- Filtre état -->
+        <ComboBox fx:id="filterEtat" styleClass="form-combo"
+                  style="-fx-pref-width:150;" promptText="État"/>
+
+        <!-- Filtre type -->
+        <ComboBox fx:id="filterType" styleClass="form-combo"
+                  style="-fx-pref-width:160;" promptText="Type"/>
+
+        <!-- Tri -->
+        <ComboBox fx:id="sortCombo" styleClass="form-combo"
+                  style="-fx-pref-width:175;" promptText="Trier par"/>
+
+        <!-- Réinitialiser -->
+        <Button text="↺  Réinitialiser" styleClass="btn-filter" onAction="#handleResetFilters">
+            <tooltip><Tooltip text="Effacer tous les filtres"/></tooltip>
+        </Button>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <!-- Export CSV -->
+        <Button text="📊  CSV" styleClass="btn-export-csv" onAction="#handleExportCSV">
+            <tooltip><Tooltip text="Exporter en CSV"/></tooltip>
+        </Button>
+
+        <!-- Export PDF -->
+        <Button text="📄  PDF" styleClass="btn-export-pdf" onAction="#handleExportPDF">
+            <tooltip><Tooltip text="Exporter en PDF"/></tooltip>
+        </Button>
+    </HBox>
+
+    <!-- ═══════════════ TABLE CARD ═══════════════ -->
+    <VBox style="-fx-padding:0 28 0 28;" VBox.vgrow="ALWAYS" spacing="0">
+        <VBox styleClass="table-card" VBox.vgrow="ALWAYS" spacing="0">
+
+            <!-- En-tête tableau -->
+            <HBox styleClass="table-card-header" alignment="CENTER_LEFT" spacing="0">
+                <Label text="Liste des traitements" styleClass="table-card-title" HBox.hgrow="ALWAYS"/>
+                <Label fx:id="countLabel" text="(0 traitements)"
+                       style="-fx-text-fill:#95A3B0; -fx-font-size:12px;"/>
+            </HBox>
+
+            <!-- TableView -->
+            <TableView fx:id="traitementsTable" styleClass="custom-table"
+                       VBox.vgrow="ALWAYS" fixedCellSize="50">
+                <columns>
+                    <TableColumn fx:id="colType"        text="Type"        prefWidth="140"/>
+                    <TableColumn fx:id="colObjectif"    text="Objectif"    prefWidth="155"/>
+                    <TableColumn fx:id="colDescription" text="Description" prefWidth="190"/>
+                    <TableColumn fx:id="colDateDebut"   text="Début"       prefWidth="105"/>
+                    <TableColumn fx:id="colDateFin"     text="Fin"         prefWidth="105"/>
+                    <TableColumn fx:id="colEtat"        text="État"        prefWidth="110"/>
+                    <TableColumn fx:id="colActions"     text="Actions"     prefWidth="185"/>
+                </columns>
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="12" style="-fx-padding:50;">
+                        <Label text="Aucun traitement trouvé" styleClass="empty-text"/>
+                        <Label text="Modifiez vos critères de recherche"
+                               style="-fx-text-fill:#CBD5E1; -fx-font-size:12px;"/>
+                    </VBox>
+                </placeholder>
+            </TableView>
+
+            <!-- PAGINATION -->
+            <HBox styleClass="pagination-box" alignment="CENTER" spacing="6">
+                <Label fx:id="pageInfoLabel" text="Page 1 / 1" styleClass="page-info-label"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox fx:id="paginationBox" spacing="4" alignment="CENTER"/>
+            </HBox>
+
+        </VBox>
+    </VBox>
+
+    <Region style="-fx-pref-height:20; -fx-min-height:20;"/>
+</VBox>

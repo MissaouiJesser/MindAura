@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.RecommandationController"
+            stylesheets="@style.css"
+            prefWidth="900" prefHeight="700">
+
+    <!--
+        Le header violet (logo + titre + bouton retour) a été supprimé
+        car UserHome.fxml fournit déjà la navbar principale.
+        Le bouton ← Retour est intégré dans la barre de contrôle ci-dessous,
+        qui s'affiche directement sous la navbar de UserHome.
+    -->
+
+    <!-- ═══════════ BARRE DE NAVIGATION SECONDAIRE ═══════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="15"
+              style="-fx-background-color: linear-gradient(to right, #5A3A7B, #7B5EA7);
+                     -fx-padding: 14px 30px;">
+
+            <!-- Bouton Retour — revient à FrontOfficeAccueil -->
+            <Button fx:id="btnRetour" text="← Retour"
+                    onAction="#handleRetour"
+                    style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
+                           -fx-background-radius: 8px; -fx-padding: 8px 16px;
+                           -fx-font-weight: bold; -fx-cursor: hand;
+                           -fx-border-color: rgba(255,255,255,0.4); -fx-border-width: 1px;
+                           -fx-border-radius: 8px;"/>
+
+            <!-- Titre section -->
+            <VBox spacing="2">
+                <Label fx:id="lblTitreSection" text="✨ Recommandations Personnalisées"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Label fx:id="lblSousTitle" text="Analyse en cours..."
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+            </VBox>
+        </HBox>
+    </top>
+
+    <!-- ═══════════ CONTENU PRINCIPAL ═══════════ -->
+    <center>
+        <VBox spacing="15" style="-fx-padding: 20px; -fx-background-color: #F9FAFB;">
+
+            <!-- Barre de contrôle : profil + analyser -->
+            <HBox spacing="15" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 15px 20px;
+                         -fx-background-radius: 12px;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+
+                <Label text="Profil de recommandation :"
+                       style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #374151;"/>
+
+                <ComboBox fx:id="comboProfil" prefWidth="280"
+                          style="-fx-font-size: 13px;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button fx:id="btnAnalyser" text="🔍 Analyser"
+                        onAction="#lancerAnalyse"
+                        style="-fx-background-color: #7B5EA7; -fx-text-fill: white;
+                               -fx-padding: 9px 22px; -fx-background-radius: 10px;
+                               -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+                <Label fx:id="lblStatuts" text=""
+                       style="-fx-font-size: 12px; -fx-text-fill: #6B7280;"/>
+            </HBox>
+
+            <!-- Barre de progression -->
+            <ProgressBar fx:id="progressAnalyse" prefWidth="Infinity" prefHeight="4"
+                         visible="false"
+                         style="-fx-accent: #7B5EA7;"/>
+
+            <!-- ScrollPane des recommandations -->
+            <ScrollPane fx:id="scrollPane" fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox fx:id="containerRecommandations" spacing="14"
+                      style="-fx-padding: 5px 10px 20px 10px;"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+
+</BorderPane>

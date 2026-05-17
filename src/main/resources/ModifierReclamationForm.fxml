@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import java.lang.String?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ModifierReclamationFormController"
+      spacing="0" style="-fx-background-color: #F0F4F8;">
+    <stylesheets><String fx:value="/app.css"/></stylesheets>
+
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: #1A1A2E; -fx-padding: 12 20;">
+        <Button fx:id="btnRetour" text="← Retour"
+                style="-fx-background-color: #5A6475; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" style="-fx-background: #F0F4F8; -fx-padding: 24;">
+        <VBox spacing="20" style="-fx-padding: 20; -fx-max-width: 600;">
+            <Label text="Modifier la réclamation" style="-fx-text-fill: #1A1A2E; -fx-font-size: 22; -fx-font-weight: bold;"/>
+            <Label fx:id="lblId" text="" style="-fx-text-fill: #5A6475; -fx-font-size: 12;"/>
+
+            <VBox spacing="12" style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                <Label text="Sujet (min 3 caractères)" style="-fx-text-fill: #1A1A2E; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                <TextField fx:id="tfSujet" style="-fx-padding: 10; -fx-font-size: 13; -fx-background-radius: 6;"/>
+
+                <Label text="Description (min 10 caractères)" style="-fx-text-fill: #1A1A2E; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                <TextArea fx:id="taDescription" wrapText="true" prefRowCount="5"
+                          style="-fx-padding: 10; -fx-font-size: 13; -fx-background-radius: 6;"/>
+
+                <Label text="Catégorie" style="-fx-text-fill: #1A1A2E; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                <ComboBox fx:id="cbCategorie" prefWidth="280" style="-fx-padding: 8; -fx-font-size: 13; -fx-background-radius: 6;"/>
+
+                <!-- Statut - VBox avec fx:id pour pouvoir être caché/affiché -->
+                <VBox fx:id="vboxStatut" spacing="6">
+                    <Label text="Statut (Admin uniquement)" style="-fx-text-fill: #1A1A2E; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                    <ComboBox fx:id="cbStatut" prefWidth="280" style="-fx-padding: 8; -fx-font-size: 13; -fx-background-radius: 6;"/>
+                </VBox>
+
+                <Label text="Note (0-5)" style="-fx-text-fill: #1A1A2E; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                <Spinner fx:id="spRate" editable="true" prefWidth="80"/>
+
+                <Label fx:id="lblMessage" text="" style="-fx-font-size: 12;"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Button fx:id="btnValider" text="Enregistrer"
+                            style="-fx-background-color: #1B4332; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 24; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                    <Button fx:id="btnAnnuler" text="Annuler"
+                            style="-fx-background-color: #5A6475; -fx-text-fill: white; -fx-padding: 10 24; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

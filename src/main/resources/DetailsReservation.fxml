@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.DetailsReservationController"
+            prefHeight="750" prefWidth="800"
+            style="-fx-background-color: #F9FAFB;"
+            stylesheets="@style.css">
+
+    <top>
+        <VBox spacing="15" styleClass="header-gradient">
+            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 35px 40px;">
+                <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-padding: 12px; -fx-background-radius: 12px;">
+                    <Label text="📅" style="-fx-font-size: 36px;"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Détails de la Réservation" style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'Poppins';"/>
+                    <Label text="Informations complètes et détaillées" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13px;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 30px;">
+
+                <!-- Carte Local Réservé -->
+                <VBox spacing="18" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🏥" style="-fx-font-size: 22px;"/>
+                        <Label text="Local Réservé" styleClass="section-title"/>
+                    </HBox>
+                    <Separator/>
+                    <VBox alignment="CENTER" spacing="10" style="-fx-background-color: #F0F9FF; -fx-padding: 20px; -fx-background-radius: 12px; -fx-border-color: #2D6A4F; -fx-border-width: 2px; -fx-border-radius: 12px;">
+                        <Label fx:id="lblNomLocal" text="Chargement..." style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Carte Informations Client -->
+                <VBox spacing="18" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="👤" style="-fx-font-size: 22px;"/>
+                        <Label text="Informations du Client" styleClass="section-title"/>
+                    </HBox>
+                    <Separator/>
+                    <GridPane hgap="20" vgap="16" style="-fx-padding: 10px 0 0 0;">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="35"/>
+                            <ColumnConstraints percentWidth="65"/>
+                        </columnConstraints>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="🔢" style="-fx-font-size: 16px;"/>
+                            <Label text="ID:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblId" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-text-fill: #2563EB; -fx-font-weight: bold;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="👨" style="-fx-font-size: 16px;"/>
+                            <Label text="Nom:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblNomClient" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label text="👤" style="-fx-font-size: 16px;"/>
+                            <Label text="Prénom:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblPrenomClient" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+                    </GridPane>
+                </VBox>
+
+                <!-- Carte Détails de la Réservation -->
+                <VBox spacing="18" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="📋" style="-fx-font-size: 22px;"/>
+                        <Label text="Détails de la Réservation" styleClass="section-title"/>
+                    </HBox>
+                    <Separator/>
+                    <GridPane hgap="20" vgap="16" style="-fx-padding: 10px 0 0 0;">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="35"/>
+                            <ColumnConstraints percentWidth="65"/>
+                        </columnConstraints>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="📆" style="-fx-font-size: 16px;"/>
+                            <Label text="Date:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblDateReservation" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="🕐" style="-fx-font-size: 16px;"/>
+                            <Label text="Heure Début:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblHeureDebut" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-text-fill: #059669; -fx-font-weight: bold;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label text="🕐" style="-fx-font-size: 16px;"/>
+                            <Label text="Heure Fin:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblHeureFin" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-text-fill: #DC2626; -fx-font-weight: bold;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                            <Label text="⏱️" style="-fx-font-size: 16px;"/>
+                            <Label text="Durée:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblDuree" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-font-weight: bold; -fx-text-fill: #D97706;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                            <Label text="🎯" style="-fx-font-size: 16px;"/>
+                            <Label text="Motif:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblMotif" GridPane.columnIndex="1" GridPane.rowIndex="4" wrapText="true"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="5">
+                            <Label text="📊" style="-fx-font-size: 16px;"/>
+                            <Label text="Statut:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblStatut" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="badge"/>
+                    </GridPane>
+                </VBox>
+
+                <!-- Carte Prix -->
+                <VBox spacing="18" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="💰" style="-fx-font-size: 22px;"/>
+                        <Label text="Informations Financières" styleClass="section-title"/>
+                    </HBox>
+                    <Separator/>
+                    <VBox alignment="CENTER" spacing="10" style="-fx-background-color: #D8F3DC; -fx-padding: 25px; -fx-background-radius: 12px; -fx-border-color: #2D6A4F; -fx-border-width: 2px; -fx-border-radius: 12px;">
+                        <Label text="Prix Total" style="-fx-font-size: 13px; -fx-text-fill: #1B4332; -fx-font-weight: 600;"/>
+                        <Label fx:id="lblPrix" text="0 DT" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Carte Références Système -->
+                <VBox spacing="18" styleClass="card" style="-fx-opacity: 0.7;">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🔧" style="-fx-font-size: 22px;"/>
+                        <Label text="Références Système" styleClass="section-title"/>
+                    </HBox>
+                    <Separator/>
+                    <GridPane hgap="20" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="35"/>
+                            <ColumnConstraints percentWidth="65"/>
+                        </columnConstraints>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="🏥" style="-fx-font-size: 16px;"/>
+                            <Label text="ID Local:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblIdLocal" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-text-fill: #6B7280;"/>
+
+                        <HBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="👨‍💼" style="-fx-font-size: 16px;"/>
+                            <Label text="ID Utilisateur:" styleClass="field-label"/>
+                        </HBox>
+                        <Label fx:id="lblIdUtilisateur" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-text-fill: #6B7280;"/>
+                    </GridPane>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" styleClass="footer-bar">
+            <Button fx:id="btnFermer" text="✖ Fermer" onAction="#handleFermer" prefWidth="180" styleClass="btn-annuler"/>
+        </HBox>
+    </bottom>
+</BorderPane>

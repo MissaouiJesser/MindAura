@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="tn.esprit.controllers.QRCodeController"
+      prefWidth="420"
+      alignment="CENTER"
+      spacing="16"
+      style="-fx-background-color: #F9FAFB; -fx-padding: 30 30 24 30;">
+
+    <!-- ── TITRE ─────────────────────────────────────────────────────────── -->
+    <Label text="📱 QR Code — Locaux Disponibles"
+           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+
+    <!-- ── STATUT ─────────────────────────────────────────────────────────── -->
+    <Label fx:id="lblStatut"
+           text="⏳ Démarrage du serveur..."
+           style="-fx-font-size: 13px; -fx-text-fill: #2D6A4F;"/>
+
+    <!-- ── QR CODE IMAGE ──────────────────────────────────────────────────── -->
+    <VBox alignment="CENTER"
+          style="-fx-background-color: white; -fx-border-color: #D8F3DC;
+                 -fx-border-width: 2; -fx-border-radius: 16; -fx-background-radius: 16;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10, 0, 0, 4);"
+          minHeight="340" minWidth="340">
+        <ImageView fx:id="imgQRCode"
+                   fitWidth="320" fitHeight="320"
+                   preserveRatio="true" smooth="false">
+            <VBox.margin><Insets top="10" bottom="10"/></VBox.margin>
+        </ImageView>
+    </VBox>
+
+    <!-- ── URL ───────────────────────────────────────────────────────────── -->
+    <VBox alignment="CENTER" spacing="4">
+        <Label text="URL encodée :"
+               style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+        <Label fx:id="lblUrl"
+               wrapText="true"
+               maxWidth="360"
+               style="-fx-font-size: 12px; -fx-text-fill: #2D6A4F; -fx-font-weight: bold;
+                      -fx-background-color: #D8F3DC; -fx-padding: 6 14; -fx-background-radius: 20;"/>
+    </VBox>
+
+    <!-- ── INSTRUCTIONS ──────────────────────────────────────────────────── -->
+    <Label fx:id="lblInstructions"
+           wrapText="true"
+           maxWidth="360"
+           textAlignment="CENTER"
+           style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+
+    <Separator/>
+
+    <!-- ── BOUTONS ────────────────────────────────────────────────────────── -->
+    <HBox spacing="10" alignment="CENTER">
+
+        <Button fx:id="btnSauvegarder"
+                text="💾 Sauvegarder PNG"
+                onAction="#handleSauvegarder"
+                style="-fx-background-color: #2D6A4F; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-background-radius: 8;
+                       -fx-padding: 8 16; -fx-cursor: hand;"/>
+
+        <Button fx:id="btnRelancer"
+                text="🔄 Relancer"
+                onAction="#handleRelancer"
+                style="-fx-background-color: #B794F4; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-background-radius: 8;
+                       -fx-padding: 8 16; -fx-cursor: hand;"/>
+
+        <Button fx:id="btnArreterServeur"
+                text="🛑 Arrêter"
+                onAction="#handleArreterServeur"
+                style="-fx-background-color: #E53E3E; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-background-radius: 8;
+                       -fx-padding: 8 16; -fx-cursor: hand;"/>
+
+    </HBox>
+
+    <Button fx:id="btnFermer"
+            text="Fermer"
+            onAction="#handleFermer"
+            maxWidth="200"
+            style="-fx-background-color: transparent; -fx-text-fill: #888;
+                   -fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 8;
+                   -fx-background-radius: 8; -fx-padding: 6 20; -fx-cursor: hand;"/>
+
+</VBox>

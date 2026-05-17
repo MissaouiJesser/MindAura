@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.ModifierReservationController"
+            prefHeight="820" prefWidth="880"
+            style="-fx-background-color: #F0F4F8;"
+            stylesheets="@style.css">
+
+    <!-- ═══════════════════════════  EN-TÊTE  ═══════════════════════════ -->
+    <top>
+        <VBox style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F); -fx-padding: 28px 35px 22px 35px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 12, 0, 0, 4);">
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <VBox alignment="CENTER"
+                      style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 14px; -fx-padding: 10px 14px;">
+                    <Label text="✏️" style="-fx-font-size: 32px;"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="Modifier la Réservation"
+                           style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblIdReservation" text="Réservation #—"
+                           style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <Label text="Modifiez les informations de la réservation"
+                           style="-fx-text-fill: rgba(216,243,220,0.90); -fx-font-size: 13px;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ═══════════════════════════  FORMULAIRE  ═══════════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+            <VBox spacing="22" style="-fx-padding: 28px 32px;">
+
+                <!-- ── SECTION : Informations du Client ── -->
+                <VBox spacing="18"
+                      style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px 28px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 14, 0, 0, 4); -fx-border-color: #E8F0EC; -fx-border-width: 1.5px; -fx-border-radius: 16px;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="👤" style="-fx-font-size: 20px;"/>
+                        <Label text="Informations du Client"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </HBox>
+                    <Separator style="-fx-background-color: #D8F3DC;"/>
+
+                    <GridPane hgap="22" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Nom du Client *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtNomClient" promptText="Nom du client"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Prénom du Client *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtPrenomClient" promptText="Prénom du client"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- ── SECTION : Détails de la Réservation ── -->
+                <VBox spacing="18"
+                      style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px 28px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 14, 0, 0, 4); -fx-border-color: #E8F0EC; -fx-border-width: 1.5px; -fx-border-radius: 16px;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="📋" style="-fx-font-size: 20px;"/>
+                        <Label text="Détails de la Réservation"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </HBox>
+                    <Separator style="-fx-background-color: #D8F3DC;"/>
+
+                    <GridPane hgap="22" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Local -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Local à Réserver *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <ComboBox fx:id="comboLocal" maxWidth="Infinity"
+                                      style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Date -->
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Date de Réservation *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <DatePicker fx:id="dateReservation" maxWidth="Infinity"
+                                        style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Heure Début -->
+                        <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="Heure de Début *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 8px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px;">
+                                <Spinner fx:id="spinnerHeureDebut" prefWidth="85" editable="true"
+                                         style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+                                <Label text=":" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;"/>
+                                <Spinner fx:id="spinnerMinuteDebut" prefWidth="85" editable="true"
+                                         style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+                                <Label text="hh : mm" style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Heure Fin -->
+                        <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label text="Heure de Fin *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 8px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px;">
+                                <Spinner fx:id="spinnerHeureFin" prefWidth="85" editable="true"
+                                         style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+                                <Label text=":" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;"/>
+                                <Spinner fx:id="spinnerMinuteFin" prefWidth="85" editable="true"
+                                         style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+                                <Label text="hh : mm" style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Motif -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label text="Motif de Réservation *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <ComboBox fx:id="comboMotif" maxWidth="Infinity"
+                                      style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Statut -->
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <Label text="Statut de la Réservation *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <ComboBox fx:id="comboStatut" maxWidth="Infinity"
+                                      style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- ── SECTION : Prix — couleur ORANGE (cohérent avec AjouterReservation) ── -->
+                <VBox spacing="16"
+                      style="-fx-background-color: linear-gradient(to bottom right, #FFF7ED, #FFEDD5); -fx-background-radius: 16px; -fx-padding: 24px 28px; -fx-effect: dropshadow(gaussian, rgba(194,65,12,0.18), 14, 0, 0, 4); -fx-border-color: #F97316; -fx-border-width: 2px; -fx-border-radius: 16px;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="💰" style="-fx-font-size: 20px;"/>
+                        <Label text="Informations Financières"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #C2410C;"/>
+                    </HBox>
+                    <Separator style="-fx-background-color: #FB923C; -fx-opacity: 0.6;"/>
+
+                    <VBox spacing="14" alignment="CENTER">
+
+                        <!-- Montant principal -->
+                        <VBox alignment="CENTER" spacing="4">
+                            <Label text="Prix Calculé Automatiquement"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #92400E; -fx-font-weight: 600;"/>
+                            <HBox spacing="10" alignment="CENTER">
+                                <Label text="💵" style="-fx-font-size: 34px;"/>
+                                <Label fx:id="lblPrixCalcule" text="0 DT"
+                                       style="-fx-font-size: 42px; -fx-font-weight: 900; -fx-text-fill: #EA580C;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Badges tarifs -->
+                        <HBox spacing="12" alignment="CENTER">
+                            <VBox alignment="CENTER" spacing="3"
+                                  style="-fx-background-color: #FED7AA; -fx-background-radius: 12px; -fx-padding: 10px 18px; -fx-border-color: #FB923C; -fx-border-width: 1.5px; -fx-border-radius: 12px;">
+                                <Label text="⏰ Tarif Horaire"
+                                       style="-fx-font-size: 11px; -fx-text-fill: #9A3412; -fx-font-weight: 600;"/>
+                                <Label text="80 DT / heure"
+                                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #C2410C;"/>
+                            </VBox>
+                            <VBox alignment="CENTER" spacing="3"
+                                  style="-fx-background-color: #FFEDD5; -fx-background-radius: 12px; -fx-padding: 10px 18px; -fx-border-color: #F97316; -fx-border-width: 1.5px; -fx-border-radius: 12px;">
+                                <Label text="➕ Heure Supplémentaire"
+                                       style="-fx-font-size: 11px; -fx-text-fill: #9A3412; -fx-font-weight: 600;"/>
+                                <Label text="+ 20 DT / heure"
+                                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #C2410C;"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Note -->
+                        <Label text="💡  Le prix est recalculé automatiquement à chaque modification d'horaire"
+                               style="-fx-font-size: 11px; -fx-text-fill: #92400E; -fx-font-weight: 600; -fx-background-color: rgba(251,146,60,0.2); -fx-padding: 7px 16px; -fx-background-radius: 20px;"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Message validation -->
+                <Label fx:id="lblMessage" text="" wrapText="true"
+                       style="-fx-font-size: 13px; -fx-padding: 12px 18px; -fx-background-radius: 10px;"/>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- ═══════════════════════════  BOUTONS  ═══════════════════════════ -->
+    <bottom>
+        <HBox spacing="16" alignment="CENTER"
+              style="-fx-background-color: white; -fx-padding: 18px 32px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 12, 0, 0, -3); -fx-border-color: #E8EEF2; -fx-border-width: 1px 0 0 0;">
+            <Button fx:id="btnAnnuler" text="✖  Annuler" onAction="#handleAnnuler"
+                    prefWidth="155"
+                    style="-fx-background-color: transparent; -fx-border-color: #94A3B8; -fx-border-width: 2px; -fx-border-radius: 10px; -fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 10px; -fx-padding: 13px 24px; -fx-cursor: hand;"/>
+            <Button fx:id="btnModifier" text="✓  Enregistrer les Modifications" onAction="#handleModifier"
+                    prefWidth="280"
+                    style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 10px; -fx-padding: 13px 28px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 12, 0, 0, 4);"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

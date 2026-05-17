@@ -1,0 +1,312 @@
+/* ===== GLOBAL ===== */
+.root {
+    -fx-background-color: #E8ECEF;
+}
+
+/* ===== HEADER ===== */
+.header {
+    -fx-background-color: linear-gradient(to right, #0A1F16, #1B4332);
+    -fx-padding: 14 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.30), 12, 0, 0, 4);
+}
+
+.btn-round {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 50;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(255,255,255,0.22);
+    -fx-border-radius: 50;
+    -fx-border-width: 1.5;
+}
+
+.pdf-icon {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+}
+
+.pdf-icon-label {
+    -fx-font-size: 20px;
+}
+
+.title-label {
+    -fx-font-size: 19px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.author-label {
+    -fx-text-fill: rgba(255,255,255,0.70);
+    -fx-font-size: 12px;
+}
+
+.info-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(255,255,255,0.50);
+}
+
+.btn-primary {
+    -fx-background-color: #2D6A4F;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 9 20;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-secondary {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 9 20;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(255,255,255,0.22);
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+/* ===== COLONNE GAUCHE ===== */
+.main-container {
+    -fx-background-color: #E8ECEF;
+}
+
+.pdf-scroll {
+    -fx-background-color: #D8DDE2;
+    -fx-background: #D8DDE2;
+    -fx-border-color: transparent;
+}
+
+.pdf-content {
+    -fx-padding: 24 40 40 40;
+    -fx-background-color: #D8DDE2;
+    -fx-alignment: center;
+}
+
+.description-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 4);
+    -fx-border-color: #E0EAE5;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+}
+
+.description-header {
+    -fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+    -fx-background-radius: 16 16 0 0;
+    -fx-padding: 14 20;
+}
+
+.description-icon {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-radius: 8;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+}
+
+.description-icon Label {
+    -fx-font-size: 15px;
+}
+
+.description-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.description-body {
+    -fx-padding: 20 24 20 24;
+}
+
+.description-text {
+    -fx-font-size: 13.5px;
+    -fx-text-fill: #3D5040;
+    -fx-line-spacing: 4;
+    -fx-font-family: 'Georgia';
+}
+
+.separator-light {
+    -fx-opacity: 0.3;
+}
+
+.badge-pdf {
+    -fx-background-color: #EAF4EE;
+    -fx-text-fill: #2D6A4F;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-border-color: #B2D9C4;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.badge-info {
+    -fx-background-color: #F0F4FF;
+    -fx-text-fill: #4A6A9A;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-size: 11px;
+    -fx-border-color: #C4D0E8;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.page-info {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7A8B9F;
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 5 16;
+    -fx-border-color: #C8D0CF;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.pdf-pages-container {
+    -fx-padding: 0 0 20 0;
+}
+
+/* ===== COLONNE DROITE ===== */
+.sidebar-scroll {
+    -fx-background-color: #F0F4F2;
+    -fx-background: #F0F4F2;
+    -fx-border-color: #E0E6E3;
+    -fx-border-width: 0 0 0 1;
+}
+
+.sidebar-content {
+    -fx-padding: 18 16;
+    -fx-background-color: #F0F4F2;
+}
+
+.stats-card, .comments-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 3);
+    -fx-border-color: #E8EFF0;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+}
+
+.stats-header, .comments-header {
+    -fx-padding: 0 0 6 0;
+}
+
+.stats-icon, .comments-icon {
+    -fx-font-size: 14px;
+}
+
+.stats-title, .comments-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B4332;
+}
+
+.stat-item {
+    -fx-background-color: #F0F7F2;
+    -fx-background-radius: 12;
+    -fx-padding: 12 14;
+}
+
+.stat-icon-view {
+    -fx-background-color: #C8EDD8;
+    -fx-background-radius: 50;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+}
+
+.stat-icon-like {
+    -fx-background-color: #FFCDD2;
+    -fx-background-radius: 50;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+}
+
+.stat-icon-view Label, .stat-icon-like Label {
+    -fx-font-size: 17px;
+}
+
+.stat-number {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B4332;
+}
+
+.stat-number-like {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #E53E3E;
+}
+
+.stat-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #9AA89F;
+}
+
+.btn-like {
+    -fx-background-color: #E53E3E;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 11;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(229,62,62,0.35), 8, 0, 0, 3);
+}
+
+.comment-input {
+    -fx-background-color: #F5F8F6;
+    -fx-background-radius: 10;
+    -fx-padding: 10 12;
+    -fx-font-size: 12px;
+    -fx-border-color: #D4E0DA;
+    -fx-border-radius: 10;
+    -fx-border-width: 1.5;
+}
+
+.btn-publish {
+    -fx-background-color: #1B4332;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 11;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.comment-list {
+    -fx-padding: 5 0 0 0;
+}/* Compteur de commentaires */
+.comments-count {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9AA89F;
+    -fx-padding: 0 0 0 4;
+}
+
+/* Bouton Annuler (caché par défaut, apparaît en mode édition) */
+.btn-cancel {
+    -fx-background-color: #E0E6E3;
+    -fx-text-fill: #2C3E35;
+    -fx-background-radius: 10;
+    -fx-padding: 11;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-cancel:hover {
+    -fx-background-color: #CCD7D2;
+}

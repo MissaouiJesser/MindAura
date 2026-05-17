@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.FrontOfficeAccueilController"
+            styleClass="root"
+            prefWidth="1400" prefHeight="850">
+
+    <!-- CONTENU PRINCIPAL -->
+    <center>
+        <VBox spacing="0" VBox.vgrow="ALWAYS">
+
+            <!-- ══ BARRE DE NAVIGATION ══ -->
+            <HBox alignment="CENTER_RIGHT" spacing="10"
+                  style="-fx-padding: 18px 40px; -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);">
+
+                <!-- Mes Réservations — BLEU -->
+                <Button fx:id="btnMesReservations" text="📋  Mes Réservations"
+                        onAction="#handleNavigateToReservations"
+                        style="-fx-background-color: linear-gradient(to bottom right, #2563EB, #1D4ED8);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.5), 10, 0, 0, 3);"/>
+
+                <!-- Recommandations — VIOLET -->
+                <Button text="✨  Recommandations"
+                        onAction="#handleNavigateToRecommandations"
+                        style="-fx-background-color: linear-gradient(to bottom right, #9333EA, #7C3AED);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.5), 10, 0, 0, 3);"/>
+
+                <!-- ★ NOUVEAU : Salles — VERT ÉMERAUDE (même palette que l'app) -->
+                <Button fx:id="btnSalles" text="🏠  Salles"
+                        onAction="#handleNavigateToSalles"
+                        style="-fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.5), 10, 0, 0, 3);"/>
+
+                <!-- Calendrier — JAUNE DORÉ -->
+                <Button text="📅  Calendrier"
+                        onAction="#handleNavigateToCalendrier"
+                        style="-fx-background-color: linear-gradient(to bottom right, #D97706, #B45309);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(217,119,6,0.5), 10, 0, 0, 3);"/>
+
+                <!-- Carte — CYAN -->
+                <Button text="🗺️  Carte"
+                        onAction="#handleNavigateToCarte"
+                        style="-fx-background-color: linear-gradient(to bottom right, #0891B2, #0E7490);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(8,145,178,0.5), 10, 0, 0, 3);"/>
+
+                <!-- SÉLECTEUR DE LANGUE -->
+                <ComboBox fx:id="comboLangue"
+                          prefWidth="145" prefHeight="42"
+                          style="-fx-background-color: rgba(255,255,255,0.15);
+                                 -fx-border-color: rgba(255,255,255,0.4);
+                                 -fx-border-width: 1.5px;
+                                 -fx-border-radius: 10px;
+                                 -fx-background-radius: 10px;
+                                 -fx-font-size: 12px;
+                                 -fx-font-weight: 700;
+                                 -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 VUE 1 : LISTE DES LOCAUX (visible par défaut)
+                 ══════════════════════════════════════════════════════════ -->
+            <StackPane fx:id="vueLocaux" VBox.vgrow="ALWAYS">
+
+                <VBox spacing="0">
+                    <!-- barre de recherche / filtres locaux -->
+                    <HBox fx:id="barreRecherche" alignment="CENTER_LEFT" spacing="14"
+                          style="-fx-background-color: white; -fx-padding: 14px 40px;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Locaux Disponibles"
+                                   style="-fx-font-size: 21px; -fx-font-weight: 900;
+                                          -fx-text-fill: #1A1A2E; -fx-font-family: 'Poppins';"/>
+                            <Label fx:id="lblStatistiques" text="Chargement..."
+                                   style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 500;"/>
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="0"
+                              style="-fx-background-color: #F8FAFC;
+                                     -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                                     -fx-border-radius: 12px; -fx-background-radius: 12px;
+                                     -fx-padding: 0 12px; -fx-min-width: 290px; -fx-pref-height: 42px;">
+                            <Label text="🔍" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;"/>
+                            <TextField fx:id="searchField"
+                                       promptText="Rechercher un local..."
+                                       HBox.hgrow="ALWAYS"
+                                       style="-fx-background-color: transparent; -fx-border-color: transparent;
+                                              -fx-font-size: 13px; -fx-text-fill: #1A1A2E;
+                                              -fx-prompt-text-fill: #9CA3AF; -fx-padding: 0 8px;"/>
+                        </HBox>
+
+                        <ComboBox fx:id="filterTypeComboBox" promptText="Type de local"
+                                  style="-fx-background-color: white; -fx-background-radius: 10px;
+                                         -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                                         -fx-border-radius: 10px; -fx-min-width: 170px; -fx-pref-height: 42px;"/>
+
+                        <ComboBox fx:id="filterVilleComboBox" promptText="Ville"
+                                  style="-fx-background-color: white; -fx-background-radius: 10px;
+                                         -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                                         -fx-border-radius: 10px; -fx-min-width: 135px; -fx-pref-height: 42px;"/>
+
+                        <Button fx:id="btnRafraichir" text="🔄" onAction="#handleRafraichir"
+                                style="-fx-background-color: #F1F5F9; -fx-background-radius: 10px;
+                                       -fx-padding: 10px 15px; -fx-cursor: hand;
+                                       -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                                       -fx-border-radius: 10px; -fx-font-size: 16px; -fx-pref-height: 42px;"/>
+                    </HBox>
+
+                    <StackPane VBox.vgrow="ALWAYS">
+                        <!-- Grille des cartes locaux -->
+                        <ScrollPane fitToWidth="true"
+                                    style="-fx-background-color: #F0F4F8; -fx-background: #F0F4F8;">
+                            <VBox spacing="25" style="-fx-background-color: #F0F4F8;">
+                                <padding>
+                                    <Insets top="28" bottom="100" left="40" right="40"/>
+                                </padding>
+
+                                <!-- Etat vide -->
+                                <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="18"
+                                      managed="false" visible="false"
+                                      style="-fx-background-color: white; -fx-background-radius: 20px;
+                                             -fx-padding: 70px;
+                                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 18, 0, 0, 4);">
+                                    <Label text="🏥" style="-fx-font-size: 64px;"/>
+                                    <Label text="Aucun local disponible"
+                                           style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;"/>
+                                    <Label text="Modifiez vos critères de recherche ou réessayez plus tard"
+                                           style="-fx-font-size: 14px; -fx-text-fill: #6B7280;"/>
+                                </VBox>
+
+                                <!-- Grille dynamique -->
+                                <GridPane fx:id="locauxGridPane" hgap="25" vgap="25"/>
+                            </VBox>
+                        </ScrollPane>
+
+                        <!-- Boutons flottants -->
+                        <VBox alignment="BOTTOM_RIGHT" pickOnBounds="false"
+                              style="-fx-padding: 0 32px 28px 0;">
+
+                            <!-- Bulle QR Code -->
+                            <HBox alignment="CENTER_RIGHT" pickOnBounds="false" style="-fx-padding: 0 8px 8px 0;">
+                                <VBox alignment="CENTER" spacing="1" mouseTransparent="true"
+                                      style="-fx-background-color: white;
+                                             -fx-background-radius: 14px 14px 4px 14px;
+                                             -fx-padding: 9px 14px;
+                                             -fx-effect: dropshadow(gaussian, rgba(255,140,0,0.18), 12, 0, -1, 3);
+                                             -fx-border-color: #FFE0B2; -fx-border-width: 1.5px;
+                                             -fx-border-radius: 14px 14px 4px 14px;">
+                                    <Label text="▦  Locaux disponibles"
+                                           style="-fx-font-size: 11px; -fx-font-weight: 800; -fx-text-fill: #E65C00;"/>
+                                    <Label text="Scannez pour voir la liste"
+                                           style="-fx-font-size: 10px; -fx-text-fill: #9CA3AF;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Bouton QR Code FAB -->
+                            <HBox alignment="CENTER_RIGHT" pickOnBounds="false" style="-fx-padding: 0 0 14px 0;">
+                                <Button fx:id="btnQRCode" onAction="#handleQRCode"
+                                        style="-fx-background-color: linear-gradient(to bottom right, #FF8C00, #E65C00);
+                                               -fx-background-radius: 100px;
+                                               -fx-pref-width: 64px; -fx-pref-height: 64px;
+                                               -fx-min-width: 64px; -fx-min-height: 64px;
+                                               -fx-cursor: hand;
+                                               -fx-effect: dropshadow(gaussian, rgba(230,92,0,0.65), 20, 0, 0, 5);
+                                               -fx-border-color: rgba(255,255,255,0.35);
+                                               -fx-border-width: 2.5px; -fx-border-radius: 100px;">
+                                    <graphic>
+                                        <Label text="▦" style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: 900;"/>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+
+                            <!-- Bulle chatbot -->
+                            <HBox alignment="CENTER_RIGHT" pickOnBounds="false" style="-fx-padding: 0 8px 10px 0;">
+                                <VBox alignment="CENTER" spacing="1" mouseTransparent="true"
+                                      style="-fx-background-color: white;
+                                             -fx-background-radius: 14px 14px 4px 14px;
+                                             -fx-padding: 10px 15px;
+                                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 14, 0, -1, 3);
+                                             -fx-border-color: #EDE9FE; -fx-border-width: 1.5px;
+                                             -fx-border-radius: 14px 14px 4px 14px;">
+                                    <Label text="💬  Besoin d'aide ?"
+                                           style="-fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #6D28D9;"/>
+                                    <Label text="Notre assistant IA vous écoute"
+                                           style="-fx-font-size: 10px; -fx-text-fill: #9CA3AF;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Bouton chatbot FAB -->
+                            <HBox alignment="CENTER_RIGHT" pickOnBounds="false">
+                                <Button fx:id="btnChatbotFlottant" onAction="#handleNavigateToChatbot"
+                                        style="-fx-background-color: linear-gradient(to bottom right, #7C3AED, #4338CA);
+                                               -fx-background-radius: 100px;
+                                               -fx-pref-width: 68px; -fx-pref-height: 68px;
+                                               -fx-min-width: 68px; -fx-min-height: 68px;
+                                               -fx-cursor: hand;
+                                               -fx-effect: dropshadow(gaussian, rgba(109,40,217,0.65), 22, 0, 0, 6);
+                                               -fx-border-color: rgba(255,255,255,0.35);
+                                               -fx-border-width: 2.5px; -fx-border-radius: 100px;">
+                                    <graphic>
+                                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                                            <image><Image url="@/logo.png"/></image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+                </VBox>
+            </StackPane>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 VUE 2 : SALLES (cachée par défaut)
+                 ══════════════════════════════════════════════════════════ -->
+            <StackPane fx:id="vueSalles" visible="false" managed="false" VBox.vgrow="ALWAYS">
+                <!-- Le contenu sera chargé dynamiquement via FXMLLoader dans le controller -->
+                <!-- Un StackPane vide suffit : le controller y injecte FrontOfficeSalles.fxml -->
+            </StackPane>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 VUE 3 : RÉSERVATION INLINE (cachée par défaut)
+                 ══════════════════════════════════════════════════════════ -->
+            <VBox fx:id="vueReservation" visible="false" managed="false"
+                  style="-fx-background-color: #F0F4F8;">
+
+                <!-- ══ HERO BANNER ══ -->
+                <HBox alignment="CENTER_LEFT" spacing="22"
+                      style="-fx-background-color: linear-gradient(to right, #1B4332 0%, #2D6A4F 55%, #0D2B1F 100%);
+                             -fx-padding: 22px 40px;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 14, 0, 0, 4);
+                             -fx-min-height: 88px;">
+
+                    <!-- Icône -->
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.13);
+                                      -fx-background-radius: 14px;
+                                      -fx-border-color: rgba(255,255,255,0.22);
+                                      -fx-border-width: 1.5px; -fx-border-radius: 14px;
+                                      -fx-min-width: 52px; -fx-pref-width: 52px;
+                                      -fx-min-height: 52px; -fx-pref-height: 52px;">
+                        <Label text="🏥" style="-fx-font-size: 24px;"/>
+                    </StackPane>
+
+                    <!-- Titre + sous-titre -->
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Voir les Détails"
+                                   style="-fx-font-size: 24px; -fx-font-weight: 900;
+                                          -fx-text-fill: white; -fx-font-family: 'Poppins';"/>
+                            <Label text="et"
+                                   style="-fx-font-size: 16px; -fx-font-weight: 400;
+                                          -fx-text-fill: rgba(255,255,255,0.55);"/>
+                            <Label text="Réserver"
+                                   style="-fx-font-size: 24px; -fx-font-weight: 900;
+                                          -fx-text-fill: #FF8C00; -fx-font-family: 'Poppins';"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label fx:id="lblBreadcrumbLocal" text=""
+                                   style="-fx-font-size: 12px; -fx-text-fill: #86EFAC;
+                                          -fx-font-weight: 700;"/>
+                            <Label text="·" style="-fx-text-fill: rgba(255,255,255,0.25); -fx-font-size: 14px;"/>
+                            <Label text="Choisissez vos préférences et confirmez votre réservation"
+                                   style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.5);"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Bouton retour -->
+                    <Button onAction="#handleRetourListe"
+                            style="-fx-background-color: rgba(255,255,255,0.1);
+                                   -fx-border-color: rgba(255,255,255,0.28); -fx-border-width: 1.5px;
+                                   -fx-border-radius: 11px; -fx-background-radius: 11px;
+                                   -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                                   -fx-padding: 10px 20px; -fx-cursor: hand;">
+                        <graphic>
+                            <HBox spacing="7" alignment="CENTER">
+                                <Label text="←" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
+                                <Label text="Retour" style="-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: 700;"/>
+                            </HBox>
+                        </graphic>
+                    </Button>
+                </HBox>
+
+                <!-- Conteneur dynamique : le FXML de réservation est injecté ici -->
+                <StackPane fx:id="reservationContainer" VBox.vgrow="ALWAYS"/>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

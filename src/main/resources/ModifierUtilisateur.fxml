@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ModifierUtilisateurController"
+      spacing="0"
+      style="-fx-background-color:#F2F5F9; -fx-pref-width:680;">
+
+    <!-- ═══════════════ EN-TÊTE ═══════════════ -->
+    <HBox style="-fx-background-color:#FFFFFF; -fx-padding:18 24 18 24;
+                 -fx-border-color:transparent transparent #EDF1F5 transparent; -fx-border-width:0 0 1 0;"
+          alignment="CENTER_LEFT" spacing="12">
+        <!-- Icône cercle vert -->
+        <StackPane style="-fx-background-color:linear-gradient(to bottom right,#40916C,#1B4332);
+                          -fx-background-radius:50; -fx-min-width:38; -fx-min-height:38;
+                          -fx-pref-width:38; -fx-pref-height:38;
+                          -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.30),8,0,0,2);">
+            <Label text="✎" style="-fx-font-size:16px; -fx-text-fill:#FFFFFF; -fx-font-weight:bold;"/>
+        </StackPane>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="Modifier l'utilisateur"
+                   style="-fx-font-size:17px; -fx-font-weight:bold; -fx-text-fill:#1A2E3D;"/>
+            <Label fx:id="headerSubtitle" text="Modifier les informations du compte"
+                   style="-fx-font-size:11px; -fx-text-fill:#7A96A8;"/>
+        </VBox>
+        <!-- Identité affichée (prénom nom, pas l'ID) -->
+        <HBox spacing="8" alignment="CENTER">
+            <StackPane fx:id="headerAvatarPane"
+                       style="-fx-min-width:36; -fx-min-height:36; -fx-pref-width:36; -fx-pref-height:36;">
+                <StackPane style="-fx-background-color:linear-gradient(to bottom right,#2D6A4F,#1B4332);
+                                  -fx-background-radius:50; -fx-min-width:36; -fx-min-height:36;
+                                  -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.25),6,0,0,2);">
+                    <Label fx:id="headerInitiales" text="?"
+                           style="-fx-text-fill:#FFFFFF; -fx-font-size:13px; -fx-font-weight:bold;"/>
+                </StackPane>
+            </StackPane>
+            <Label fx:id="headerNomComplet" text=""
+                   style="-fx-text-fill:#1A2E3D; -fx-font-size:13px; -fx-font-weight:bold;"/>
+        </HBox>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:transparent; -fx-background-color:transparent;">
+        <VBox spacing="16" style="-fx-padding: 20 24 20 24;">
+
+            <!-- ═══ PHOTO ═══ -->
+            <VBox styleClass="form-card" spacing="12">
+                <Label text="Photo de profil" styleClass="form-section-label"/>
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <StackPane fx:id="photoPreviewPane"
+                               style="-fx-min-width:90; -fx-min-height:90; -fx-pref-width:90; -fx-pref-height:90;">
+                        <StackPane fx:id="photoPlaceholder"
+                                   style="-fx-background-color:linear-gradient(to bottom right,#2D6A4F,#1B4332);
+                                          -fx-background-radius:50; -fx-min-width:90; -fx-min-height:90;
+                                          -fx-pref-width:90; -fx-pref-height:90;
+                                          -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.30),10,0,0,3);">
+                            <Label fx:id="photoInitiales" text="?"
+                                   style="-fx-text-fill:#FFFFFF; -fx-font-size:32px; -fx-font-weight:bold;"/>
+                        </StackPane>
+                        <ImageView fx:id="photoImageView" fitWidth="90" fitHeight="90"
+                                   preserveRatio="false" visible="false"/>
+                    </StackPane>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label fx:id="photoNameLabel" text="Photo actuelle"
+                               style="-fx-text-fill:#8BAABA; -fx-font-size:12px;" wrapText="true"/>
+                        <HBox spacing="8">
+                            <Button text="📷  Changer la photo" styleClass="btn-change-photo"
+                                    onAction="#handleChoosePhoto"/>
+                            <Button fx:id="btnRemovePhoto" text="✕  Supprimer" styleClass="btn-danger"
+                                    style="-fx-font-size:11px; -fx-padding:6 12 6 12;"
+                                    onAction="#handleRemovePhoto" visible="false" managed="false"/>
+                        </HBox>
+                        <Label text="Formats acceptés : JPG, PNG, GIF — Max 5 MB"
+                               style="-fx-text-fill:#AABCC8; -fx-font-size:10px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- ═══ INFORMATIONS PERSONNELLES ═══ -->
+            <VBox styleClass="form-card" spacing="14">
+                <Label text="Informations personnelles" styleClass="form-section-label"/>
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Prénom *" styleClass="form-label"/>
+                        <TextField fx:id="fieldPrenom" promptText="Prénom" styleClass="form-field"/>
+                        <Label fx:id="errPrenom" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Nom *" styleClass="form-label"/>
+                        <TextField fx:id="fieldNom" promptText="Nom" styleClass="form-field"/>
+                        <Label fx:id="errNom" text="" styleClass="error-label"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Adresse email *" styleClass="form-label"/>
+                        <TextField fx:id="fieldEmail" promptText="email@exemple.com" styleClass="form-field"/>
+                        <Label fx:id="errEmail" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Téléphone" styleClass="form-label"/>
+                        <TextField fx:id="fieldTelephone" promptText="+216 XX XXX XXX" styleClass="form-field"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Date de naissance *" styleClass="form-label"/>
+                        <DatePicker fx:id="fieldDateNaissance" styleClass="date-picker" maxWidth="Infinity"/>
+                        <Label fx:id="errDate" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Rôle *" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldRole" styleClass="form-combo" maxWidth="Infinity"/>
+                        <Label fx:id="errRole" text="" styleClass="error-label"/>
+                    </VBox>
+                </HBox>
+                <CheckBox fx:id="fieldActif" text="Compte actif"
+                          style="-fx-font-size:13px; -fx-text-fill:#1A2E3D;"/>
+            </VBox>
+
+            <!-- ═══ MOT DE PASSE ═══ -->
+            <VBox styleClass="form-card" spacing="10">
+                <Label text="Changer le mot de passe (optionnel)" styleClass="form-section-label"/>
+                <Label text="Laissez vide pour conserver le mot de passe actuel"
+                       style="-fx-text-fill:#8BAABA; -fx-font-size:11px;"/>
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Nouveau mot de passe" styleClass="form-label"/>
+                        <PasswordField fx:id="fieldPassword" promptText="Laisser vide = inchangé" styleClass="form-field"/>
+                        <Label fx:id="errPassword" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Confirmer" styleClass="form-label"/>
+                        <PasswordField fx:id="fieldPasswordConfirm" promptText="Répéter" styleClass="form-field"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- ═══ BIO ═══ -->
+            <VBox styleClass="form-card" spacing="10">
+                <Label text="Bio / Notes" styleClass="form-section-label"/>
+                <TextArea fx:id="fieldBio" promptText="Informations supplémentaires..."
+                          styleClass="form-textarea" prefHeight="80" wrapText="true"/>
+            </VBox>
+
+            <!-- Erreur globale -->
+            <Label fx:id="errGlobal" text="" styleClass="error-label"
+                   style="-fx-font-weight:bold; -fx-font-size:12px;"/>
+
+            <!-- ═══ BOUTONS D'ACTION ═══ -->
+            <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding:4 0 12 0;">
+                <Button text="✕  Annuler" styleClass="btn-secondary" onAction="#handleAnnuler"
+                        prefHeight="40"/>
+                <Button text="✔  Enregistrer les modifications" styleClass="btn-primary" onAction="#handleSave"
+                        prefHeight="40"/>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="tn.esprit.controllers.FrontOfficeSallesController"
+      spacing="0"
+      style="-fx-background-color: #F0F4F8;">
+
+    <!-- ══ BARRE TITRE + RECHERCHE (toujours visible) ══ -->
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color: white; -fx-padding: 14px 40px;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="&#x1F3E0;  Salles Disponibles"
+                   style="-fx-font-size: 21px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;"/>
+            <Label fx:id="lblStatistiques" text="Chargement..."
+                   style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 500;"/>
+        </VBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="0"
+              style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                     -fx-border-width: 1.5px; -fx-border-radius: 12px; -fx-background-radius: 12px;
+                     -fx-padding: 0 12px; -fx-min-width: 250px; -fx-pref-height: 42px;">
+            <Label text="&#x1F50D;" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;"/>
+            <TextField fx:id="searchField" promptText="Rechercher une salle..."
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: transparent; -fx-border-color: transparent;
+                              -fx-font-size: 13px; -fx-padding: 0 8px;"/>
+        </HBox>
+
+        <ComboBox fx:id="filterTypeComboBox" promptText="Type de salle"
+                  style="-fx-background-color: white; -fx-border-color: #E2E8F0;
+                         -fx-border-width: 1.5px; -fx-border-radius: 10px;
+                         -fx-background-radius: 10px; -fx-min-width: 170px; -fx-pref-height: 42px;"/>
+
+        <ComboBox fx:id="filterDispoComboBox" promptText="Disponibilité"
+                  style="-fx-background-color: white; -fx-border-color: #E2E8F0;
+                         -fx-border-width: 1.5px; -fx-border-radius: 10px;
+                         -fx-background-radius: 10px; -fx-min-width: 150px; -fx-pref-height: 42px;"/>
+
+        <Button onAction="#handleRafraichir" text="&#x1F504;"
+                style="-fx-background-color: #F1F5F9; -fx-border-color: #E2E8F0;
+                       -fx-border-width: 1.5px; -fx-border-radius: 10px; -fx-background-radius: 10px;
+                       -fx-padding: 10px 15px; -fx-cursor: hand; -fx-font-size: 16px; -fx-pref-height: 42px;"/>
+    </HBox>
+
+    <!-- ══ ZONE DE SWAP : liste (visible) / détails (caché) ══ -->
+    <StackPane VBox.vgrow="ALWAYS">
+
+        <!-- VUE LISTE -->
+        <VBox fx:id="vueListeSalles" VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: #F0F4F8; -fx-background: #F0F4F8;">
+                <VBox spacing="25" style="-fx-background-color: #F0F4F8;">
+                    <padding><Insets top="28" bottom="60" left="40" right="40"/></padding>
+
+                    <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="18"
+                          managed="false" visible="false"
+                          style="-fx-background-color: white; -fx-background-radius: 20px;
+                                 -fx-padding: 70px;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 18, 0, 0, 4);">
+                        <Label text="&#x1F3E0;" style="-fx-font-size: 64px;"/>
+                        <Label text="Aucune salle disponible"
+                               style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;"/>
+                        <Label text="Modifiez vos criteres ou reessayez plus tard"
+                               style="-fx-font-size: 14px; -fx-text-fill: #6B7280;"/>
+                    </VBox>
+
+                    <GridPane fx:id="sallesGridPane" hgap="25" vgap="25"/>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+
+        <!-- VUE DETAILS + FORMULAIRE (injectee dynamiquement) -->
+        <StackPane fx:id="vueDetails" visible="false" managed="false" VBox.vgrow="ALWAYS"/>
+
+    </StackPane>
+</VBox>

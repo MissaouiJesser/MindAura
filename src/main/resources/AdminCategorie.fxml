@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="0"
+      style="-fx-background-color: #F2F5F9; -fx-padding: 28 32 28 32;"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.AfficherCategorieController">
+
+    <!-- ── En-tête ── -->
+    <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 0 0 20 0;">
+
+        <!-- Titre + compteur -->
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Catégories de Réclamation"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;" />
+            <Label fx:id="lblTotal" text="0 catégorie"
+                   style="-fx-font-size: 13px; -fx-text-fill: #5A6475;" />
+        </VBox>
+
+        <!-- Barre de recherche -->
+        <TextField fx:id="tfRecherche"
+                   promptText="🔍  Rechercher une catégorie..."
+                   prefWidth="280"
+                   style="-fx-background-color: white;
+                          -fx-border-color: #E2E8F0; -fx-border-radius: 8;
+                          -fx-background-radius: 8; -fx-padding: 9 14;
+                          -fx-font-size: 13px;" />
+    </HBox>
+
+    <!-- ── Message d'erreur (caché si vide) ── -->
+    <Label fx:id="lblMessage" text=""
+           style="-fx-text-fill: #c62828; -fx-font-size: 12px; -fx-padding: 0 0 8 0;" />
+
+    <!-- ── Grille de cartes ── -->
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                style="-fx-background: transparent; -fx-background-color: transparent;
+                       -fx-border-color: transparent;"
+                VBox.vgrow="ALWAYS">
+        <FlowPane fx:id="flowCategories"
+                  hgap="18" vgap="18"
+                  style="-fx-background-color: transparent; -fx-padding: 4 0 4 0;" />
+    </ScrollPane>
+
+</VBox>

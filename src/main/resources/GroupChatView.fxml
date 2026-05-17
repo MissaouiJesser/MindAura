@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.GroupChatController"
+      spacing="0" prefWidth="500" prefHeight="620" styleClass="glass-dialog-root">
+
+
+    <HBox alignment="CENTER_LEFT" spacing="12"
+          style="-fx-background-color: rgba(27,67,50,0.90);
+                 -fx-padding: 14 18;
+                 -fx-border-color: rgba(82,183,136,0.25);
+                 -fx-border-width: 0 0 1 0;">
+        <Button text="✕" onAction="#closeChat"
+                style="-fx-background-color: rgba(255,255,255,0.10);
+                       -fx-border-color: rgba(255,255,255,0.18); -fx-border-width:1;
+                       -fx-border-radius:20; -fx-background-radius:20;
+                       -fx-text-fill: rgba(255,255,255,0.75); -fx-font-size:11px;
+                       -fx-font-weight:800; -fx-cursor:hand; -fx-padding:4 9;"/>
+        <StackPane style="-fx-background-color: rgba(82,183,136,0.22);
+                          -fx-background-radius: 50;
+                          -fx-border-color: rgba(82,183,136,0.40);
+                          -fx-border-radius: 50; -fx-border-width: 1;
+                          -fx-min-width:36; -fx-min-height:36;
+                          -fx-max-width:36; -fx-max-height:36;">
+            <Label text="💬" style="-fx-font-size:15px;"/>
+        </StackPane>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label fx:id="chatTitleLabel" text="Chat de groupe"
+                   style="-fx-font-size:14px; -fx-font-weight:800; -fx-text-fill:white;"/>
+            <Label fx:id="chatSubtitleLabel" text="participants inscrits uniquement"
+                   style="-fx-font-size:10px; -fx-text-fill:rgba(255,255,255,0.45);"/>
+        </VBox>
+        <VBox spacing="3" alignment="CENTER_RIGHT">
+            <HBox alignment="CENTER" spacing="5"
+                  style="-fx-background-color: rgba(82,183,136,0.15);
+                         -fx-background-radius:20; -fx-padding:4 10;
+                         -fx-border-color: rgba(82,183,136,0.30);
+                         -fx-border-width:1; -fx-border-radius:20;">
+                <Label text="●" style="-fx-text-fill:#52B788; -fx-font-size:7px;"/>
+                <Label fx:id="memberCountLabel" text="En ligne"
+                       style="-fx-font-size:10px; -fx-text-fill:#A8D5BE; -fx-font-weight:700;"/>
+            </HBox>
+            <Label fx:id="participantCountLabel" text=""
+                   style="-fx-font-size:9px; -fx-text-fill:rgba(255,255,255,0.30); -fx-alignment:CENTER;"/>
+        </VBox>
+    </HBox>
+
+
+    <HBox alignment="CENTER" spacing="8"
+          style="-fx-background-color: rgba(245,158,11,0.08);
+                 -fx-border-color: rgba(245,158,11,0.20);
+                 -fx-border-width: 0 0 1 0;
+                 -fx-padding: 7 18;">
+        <Label text="🔒" style="-fx-font-size: 12px;"/>
+        <Label text="Chat privé — Accès réservé aux participants inscrits à cet événement"
+               style="-fx-text-fill: rgba(253,230,138,0.75); -fx-font-size: 11px; -fx-font-weight: 600;"/>
+    </HBox>
+
+
+    <VBox fx:id="usernameRow" alignment="CENTER" spacing="12"
+          style="-fx-background-color: rgba(0,0,0,0.20);
+                 -fx-border-color: rgba(255,255,255,0.07);
+                 -fx-border-width: 0 0 1 0; -fx-padding: 20 24;">
+        <Label text="👤  Entrez votre nom complet tel qu'il apparaît dans votre inscription"
+               style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12px; -fx-font-weight: 600;
+                      -fx-wrap-text: true;" wrapText="true" maxWidth="380" textAlignment="CENTER"/>
+        <HBox spacing="10" alignment="CENTER">
+            <TextField fx:id="usernameField"
+                       promptText="Nom complet (ex: Ahmed Ben Salah)…"
+                       onAction="#setUsername"
+                       styleClass="glass-field"
+                       style="-fx-pref-width: 260;"/>
+            <Button text="Vérifier →" onAction="#setUsername" styleClass="btn-primary-glass"/>
+        </HBox>
+        <Label fx:id="usernameErrorLabel"
+               style="-fx-text-fill: #FCA5A5; -fx-font-size: 12px; -fx-font-weight: 600;"
+               visible="false" managed="false" wrapText="true" maxWidth="380"/>
+    </VBox>
+
+
+    <ScrollPane fx:id="scrollPane" fitToWidth="true" VBox.vgrow="ALWAYS"
+                hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="scroll-glass"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <content>
+            <VBox fx:id="messagesContainer" spacing="6">
+                <padding><Insets top="14" right="16" bottom="14" left="16"/></padding>
+            </VBox>
+        </content>
+    </ScrollPane>
+
+
+    <HBox fx:id="messageRow" spacing="10" alignment="CENTER"
+          managed="false" visible="false"
+          style="-fx-background-color: rgba(0,0,0,0.28);
+                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width: 1 0 0 0;
+                 -fx-padding: 12 16;">
+        <TextField fx:id="messageField" promptText="Écrire un message…"
+                   HBox.hgrow="ALWAYS" onAction="#sendMessage" styleClass="glass-field"/>
+        <Button onAction="#sendMessage"
+                style="-fx-background-color: rgba(82,183,136,0.85);
+                       -fx-background-radius:50;
+                       -fx-min-width:42; -fx-min-height:42;
+                       -fx-max-width:42; -fx-max-height:42;
+                       -fx-cursor:hand;
+                       -fx-effect: dropshadow(gaussian,rgba(82,183,136,0.40),8,0,0,2);
+                       -fx-border-color: rgba(82,183,136,0.55); -fx-border-width:1; -fx-border-radius:50;">
+            <graphic>
+                <Label text="➤" style="-fx-text-fill:white; -fx-font-size:14px; -fx-font-weight:800;"/>
+            </graphic>
+        </Button>
+    </HBox>
+</VBox>

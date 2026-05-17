@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane stylesheets="@style22.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.MesResultatsController">
+
+    <!-- ═════════════════ NAVBAR (STYLE ORIGINAL CONSERVÉ) ═════════════════ -->
+    <top>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-padding: 18px 40px;
+                         -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);">
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button text="📋  Passer un Test"
+                        onAction="#handleNavigateToChoisirTest"
+                        style="-fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.5), 10, 0, 0, 3);" />
+
+                <Button fx:id="btnMesResultats"
+                        text="📊  Mes Résultats"
+                        style="-fx-background-color: linear-gradient(to bottom right, #2563EB, #1D4ED8);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.5), 10, 0, 0, 3);" />
+
+                <Button text="🎯  Mes Objectifs"
+                        onAction="#handleNavigateToMesObjectifs"
+                        style="-fx-background-color: linear-gradient(to bottom right, #9333EA, #7C3AED);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.5), 10, 0, 0, 3);" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button text="📄 PDF"
+                        onAction="#telechargerPDF"
+                        style="-fx-background-color: rgba(255,255,255,0.12);
+                               -fx-text-fill: white; -fx-font-weight: 700;
+                               -fx-font-size: 12px; -fx-background-radius: 12px;
+                               -fx-padding: 11px 18px; -fx-cursor: hand;" />
+
+                <Button text="📊 Excel"
+                        onAction="#telechargerExcel"
+                        style="-fx-background-color: rgba(255,255,255,0.12);
+                               -fx-text-fill: white; -fx-font-weight: 700;
+                               -fx-font-size: 12px; -fx-background-radius: 12px;
+                               -fx-padding: 11px 18px; -fx-cursor: hand;" />
+            </HBox>
+        </VBox>
+    </top>
+
+
+    <!-- ═════════════════ CONTENU (LAYOUT AMÉLIORÉ) ═════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: #F0F4F8; -fx-background: #F0F4F8;">
+
+            <VBox spacing="20"
+                  style="-fx-padding: 25; -fx-background-color: #F0F4F8;">
+
+                <Label text="Liste de toutes vos réponses"
+                       style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748;" />
+
+
+                <!-- LISTE PLUS GRANDE -->
+                <ListView fx:id="listViewReponses"
+                          prefHeight="520"
+                          style="-fx-font-size: 14;
+                                 -fx-background-color: white;
+                                 -fx-background-radius: 10;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);" />
+
+                <HBox fx:id="paginationContainer"
+                      alignment="CENTER"
+                      style="-fx-padding: 8 0 0 0;" />
+
+
+                <!-- SECTION IA COMPACTE -->
+                <VBox spacing="12"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 12;
+                             -fx-border-color: #7B5EA7;
+                             -fx-border-width: 1.5;
+                             -fx-border-radius: 12;
+                             -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.15), 12, 0, 0, 3);
+                             -fx-padding: 16;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🤖 Analyse Intelligente par IA"
+                               style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #7B5EA7;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <ProgressIndicator fx:id="aiLoading" prefHeight="24" prefWidth="24" visible="false" />
+                    </HBox>
+
+                    <Label text="Sélectionnez un test puis cliquez sur analyser."
+                           style="-fx-text-fill: #888; -fx-font-size: 12;" />
+
+                    <Button fx:id="analyzeBtn"
+                            text="✨ Analyser avec l'IA"
+                            onAction="#analyserAvecIA"
+                            style="-fx-background-color: #7B5EA7;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-padding: 8 20;
+                                   -fx-background-radius: 8;" />
+
+                    <TextArea fx:id="aiAnalysisArea"
+                              editable="false"
+                              prefHeight="120"
+                              maxHeight="140"
+                              wrapText="true"
+                              promptText="L'analyse IA apparaîtra ici..."
+                              style="-fx-font-size: 13;
+                                     -fx-background-color: #F8F5FF;
+                                     -fx-border-color: #e0d4f5;
+                                     -fx-border-radius: 8;
+                                     -fx-background-radius: 8;" />
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

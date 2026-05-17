@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.CalendrierReservationController"
+            stylesheets="@style.css"
+            prefWidth="1100" prefHeight="750">
+
+    <!--
+        Le header (gradient vert + titre) a été supprimé car UserHome fournit la navbar principale.
+        Le bouton Retour et le bouton Aujourd'hui sont conservés dans la barre secondaire ci-dessous,
+        qui s'affiche directement sous la navbar de UserHome.
+    -->
+
+    <!-- ═══════════ BARRE DE NAVIGATION SECONDAIRE ═══════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+                     -fx-padding: 14px 30px;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 3);">
+
+            <Button fx:id="btnRetour" text="← Retour" onAction="#handleRetour"
+                    style="-fx-background-color: rgba(255,255,255,0.18);
+                           -fx-text-fill: white;
+                           -fx-background-radius: 8px;
+                           -fx-border-color: rgba(255,255,255,0.35);
+                           -fx-border-radius: 8px;
+                           -fx-border-width: 1px;
+                           -fx-padding: 8px 18px;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 13px;
+                           -fx-cursor: hand;"/>
+
+            <Label text="📅  Calendrier des Réservations"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;
+                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="📍 Aujourd'hui" onAction="#handleAujourdHui"
+                    style="-fx-background-color: #F57C00;
+                           -fx-text-fill: white;
+                           -fx-background-radius: 8px;
+                           -fx-padding: 8px 18px;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 13px;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);"/>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox spacing="0">
+
+            <!-- ═══ CALENDRIER (gauche) ═══ -->
+            <VBox spacing="12" HBox.hgrow="ALWAYS"
+                  style="-fx-padding: 20px; -fx-background-color: #F0F7F4;">
+
+                <!-- Navigation mois + Filtre -->
+                <HBox spacing="12" alignment="CENTER"
+                      style="-fx-background-color: white;
+                             -fx-padding: 12px 18px;
+                             -fx-background-radius: 12px;
+                             -fx-border-color: #D8F3DC;
+                             -fx-border-radius: 12px;
+                             -fx-border-width: 1px;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);">
+
+                    <Button fx:id="btnMoisPrecedent" text="◀" onAction="#handleMoisPrecedent"
+                            style="-fx-background-color: #D8F3DC;
+                                   -fx-text-fill: #1B4332;
+                                   -fx-font-size: 15px;
+                                   -fx-font-weight: bold;
+                                   -fx-background-radius: 8px;
+                                   -fx-border-color: #52B788;
+                                   -fx-border-radius: 8px;
+                                   -fx-border-width: 1px;
+                                   -fx-padding: 7px 14px;
+                                   -fx-cursor: hand;"/>
+                    <Label fx:id="lblMoisAnnee" text="Mois Année"
+                           style="-fx-font-size: 18px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #1B4332;
+                                  -fx-min-width: 210px;
+                                  -fx-alignment: center;"/>
+                    <Button fx:id="btnMoisSuivant" text="▶" onAction="#handleMoisSuivant"
+                            style="-fx-background-color: #D8F3DC;
+                                   -fx-text-fill: #1B4332;
+                                   -fx-font-size: 15px;
+                                   -fx-font-weight: bold;
+                                   -fx-background-radius: 8px;
+                                   -fx-border-color: #52B788;
+                                   -fx-border-radius: 8px;
+                                   -fx-border-width: 1px;
+                                   -fx-padding: 7px 14px;
+                                   -fx-cursor: hand;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Filtrer :"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4E342E;"/>
+                    <ComboBox fx:id="comboFiltreLocal" prefWidth="200"
+                              style="-fx-background-color: #FFF8E1;
+                                     -fx-border-color: #FFCC80;
+                                     -fx-border-radius: 8px;
+                                     -fx-background-radius: 8px;
+                                     -fx-font-size: 13px;"/>
+                </HBox>
+
+                <!-- Grille calendrier -->
+                <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background-color: transparent;
+                                   -fx-background: transparent;
+                                   -fx-border-color: transparent;">
+                    <GridPane fx:id="calendrierGrid"
+                              style="-fx-background-color: transparent; -fx-padding: 5px;"
+                              hgap="5" vgap="5"/>
+                </ScrollPane>
+
+                <!-- Légende -->
+                <HBox spacing="24" alignment="CENTER"
+                      style="-fx-background-color: white;
+                             -fx-padding: 11px 20px;
+                             -fx-background-radius: 10px;
+                             -fx-border-color: #D8F3DC;
+                             -fx-border-radius: 10px;
+                             -fx-border-width: 1px;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 1);">
+                    <Label text="● Confirmée"
+                           style="-fx-text-fill: #1B4332; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <Label text="● En attente"
+                           style="-fx-text-fill: #F57C00; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <Label text="● Annulée"
+                           style="-fx-text-fill: #C62828; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <Label text="● Terminée"
+                           style="-fx-text-fill: #6A1B9A; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ═══ PANNEAU DÉTAIL (droite) ═══ -->
+            <VBox fx:id="detailJourContainer" spacing="12" prefWidth="330"
+                  style="-fx-background-color: white;
+                         -fx-padding: 22px 18px;
+                         -fx-border-color: #D8F3DC;
+                         -fx-border-width: 0 0 0 2px;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, -2, 0);">
+
+                <Label fx:id="lblDetailJour" text="👈 Sélectionnez un jour"
+                       style="-fx-font-size: 15px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #1B4332;
+                              -fx-wrap-text: true;"/>
+
+                <Separator style="-fx-background-color: #52B788;"/>
+
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="listeDetailReservations" spacing="10"
+                          style="-fx-padding: 0 5px 10px 0;"/>
+                </ScrollPane>
+            </VBox>
+
+        </HBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,66 @@
+/* Fond général */
+.root {
+    -fx-background-color: #F0F4F8;
+}
+
+/* Titres */
+.title-label {
+    -fx-text-fill: #1A1A2E;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* Labels */
+.form-label {
+    -fx-text-fill: #5A6475;
+    -fx-font-size: 14px;
+}
+
+/* Champs de texte */
+.text-field, .text-area, .combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #2D6A4F;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+/* Focus champs */
+.text-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: #1B4332;
+    -fx-border-width: 2px;
+}
+
+/* Bouton principal */
+.primary-btn {
+    -fx-background-color: #1B4332;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-padding: 10 20;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #2D6A4F;
+}
+
+/* Bouton secondaire */
+.delete-btn {
+    -fx-background-color: #7B5EA7;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+}
+
+.delete-btn:hover {
+    -fx-background-color: #6A4C94;
+}
+
+/* TextArea */
+.text-area {
+    -fx-control-inner-background: white;
+}
+
+/* Ajout si tu as des tables */
+.table-row-cell:hover {
+    -fx-background-color: #D4F2E2; /* Vert clair */
+}

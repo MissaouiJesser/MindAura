@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.controllers.VerificationCodeController"
+           styleClass="login-root"
+           prefWidth="520" prefHeight="520">
+
+    <VBox alignment="CENTER" spacing="0"
+          style="-fx-background-color:#FFFFFF;
+                 -fx-background-radius:20;
+                 -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.13),30,0,0,8);
+                 -fx-max-width:460;">
+
+        <!-- EN-TÊTE -->
+        <VBox alignment="CENTER" spacing="10"
+              style="-fx-background-color:linear-gradient(to bottom right,#1B4332,#2D6A4F);
+                     -fx-background-radius:20 20 0 0;
+                     -fx-padding:36 40 36 40;">
+            <Label text="📧" style="-fx-font-size:38px;"/>
+            <Label text="Vérification du code"
+                   style="-fx-text-fill:#FFFFFF; -fx-font-size:22px; -fx-font-weight:700;"/>
+            <Label fx:id="sousTitreLabel"
+                   text="Un code a été envoyé à votre adresse email"
+                   style="-fx-text-fill:rgba(255,255,255,0.82); -fx-font-size:13px;"
+                   wrapText="true" textAlignment="CENTER"/>
+        </VBox>
+
+        <!-- FORMULAIRE -->
+        <VBox spacing="20" style="-fx-padding:36 40 36 40;">
+
+            <!-- Info code expiration -->
+            <HBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color:#F0FFF4;
+                         -fx-border-color:#95D5B2; -fx-border-radius:10;
+                         -fx-background-radius:10; -fx-padding:12 16 12 16;">
+                <Label text="⏱" style="-fx-font-size:16px;"/>
+                <Label text="Le code expire dans 10 minutes"
+                       style="-fx-text-fill:#1B4332; -fx-font-size:12px; -fx-font-weight:600;"/>
+            </HBox>
+
+            <!-- Champ code -->
+            <VBox spacing="7">
+                <Label text="Code de vérification (6 chiffres)" styleClass="form-label"/>
+                <TextField fx:id="codeField"
+                           promptText="000000"
+                           styleClass="form-field"
+                           style="-fx-font-size:22px; -fx-font-weight:700;
+                                  -fx-alignment:CENTER; -fx-letter-spacing:8px;"/>
+                <Label fx:id="errorLabel" text=""
+                       style="-fx-text-fill:#E74C3C; -fx-font-size:11px; -fx-font-weight:bold;"/>
+            </VBox>
+
+            <!-- Bouton Vérifier -->
+            <Button text="Vérifier le code"
+                    styleClass="btn-login"
+                    onAction="#handleVerifier"/>
+
+            <!-- Renvoyer le code -->
+            <HBox alignment="CENTER" spacing="5">
+                <Label text="Pas reçu ? "
+                       style="-fx-text-fill:#5A6475; -fx-font-size:12px;"/>
+                <Label fx:id="btnRenvoyer"
+                       text="Renvoyer le code"
+                       styleClass="link-label"
+                       onMouseClicked="#handleRenvoyer"/>
+            </HBox>
+
+            <!-- Retour -->
+            <HBox alignment="CENTER" spacing="5">
+                <Label text="←" style="-fx-text-fill:#5A6475; -fx-font-size:13px;"/>
+                <Label text="Retour"
+                       styleClass="link-label"
+                       onMouseClicked="#handleRetour"/>
+            </HBox>
+
+        </VBox>
+    </VBox>
+</StackPane>

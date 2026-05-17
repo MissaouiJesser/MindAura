@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21.0.0"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.AdminEventsController"
+      spacing="0"
+      style="-fx-background-color: #F0F4F8;">
+
+    <padding><Insets top="28" right="32" bottom="28" left="32"/></padding>
+
+    <!-- ══ EN-TÊTE ══ -->
+    <HBox alignment="CENTER_LEFT" spacing="12"
+          style="-fx-padding: 0 0 24 0;">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+        </VBox>
+        <!-- Bouton Ajouter -->
+        <Button text="＋  Ajouter"
+                onAction="#goToAddEvent"
+                style="-fx-background-color: linear-gradient(to bottom, #2D6A4F, #1B4332);
+                       -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 700;
+                       -fx-background-radius: 11; -fx-cursor: hand;
+                       -fx-padding: 10 22 10 22;
+                       -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 12, 0, 0, 4);"/>
+        <!-- Bouton Actualiser -->
+        <Button text="⟳  Actualiser"
+                styleClass="btn-secondary"
+                onAction="#refreshEvents"
+                style="-fx-padding: 10 18 10 18;"/>
+    </HBox>
+
+    <!-- ══ STATS ══ -->
+    <HBox fx:id="statsRow" spacing="16"
+          style="-fx-padding: 0 0 22 0;"/>
+
+    <!-- ══ BARRE RECHERCHE + FILTRE ══ -->
+    <HBox spacing="12" alignment="CENTER_LEFT"
+          style="-fx-padding: 0 0 20 0;">
+
+        <!-- Champ recherche avec icône intégrée -->
+        <HBox HBox.hgrow="ALWAYS"
+              alignment="CENTER_LEFT" spacing="0"
+              style="-fx-background-color: #FFFFFF;
+                     -fx-background-radius: 12; -fx-border-radius: 12;
+                     -fx-border-color: #E2E8F0; -fx-border-width: 1.5;
+                     -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.07), 10, 0, 0, 3);
+                     -fx-padding: 0 12 0 16;">
+            <Label text="🔍"
+                   style="-fx-font-size: 14px; -fx-text-fill: #A0AEC0; -fx-padding: 0 8 0 0;"/>
+            <TextField fx:id="searchField"
+                       promptText="Rechercher un événement…"
+                       onKeyReleased="#searchEvents"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: transparent;
+                              -fx-border-color: transparent;
+                              -fx-font-size: 13.5px;
+                              -fx-text-fill: #1A1A2E;
+                              -fx-prompt-text-fill: #A0AEC0;
+                              -fx-padding: 12 0 12 0;"/>
+        </HBox>
+
+        <!-- ComboBox filtre stylisé -->
+        <ComboBox fx:id="filterCombo"
+                  promptText="⇅  Trier par…"
+                  onAction="#sortEvents"
+                  prefWidth="195"
+                  style="-fx-background-color: #FFFFFF;
+                         -fx-background-radius: 12; -fx-border-radius: 12;
+                         -fx-border-color: #E2E8F0; -fx-border-width: 1.5;
+                         -fx-font-size: 13px; -fx-text-fill: #1A1A2E;
+                         -fx-cursor: hand; -fx-padding: 4 0 4 0;
+                         -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.07), 10, 0, 0, 3);"/>
+    </HBox>
+
+    <!-- ══ GRILLE ÉVÉNEMENTS ══ -->
+    <ScrollPane styleClass="scroll-pane"
+                fitToWidth="true"
+                VBox.vgrow="ALWAYS"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                style="-fx-background: transparent; -fx-background-color: transparent;
+                       -fx-border-color: transparent;">
+        <content>
+            <FlowPane fx:id="eventsContainer"
+                      hgap="20" vgap="20"
+                      alignment="TOP_CENTER"
+                      style="-fx-padding: 6 4 20 4; -fx-background-color: transparent;"/>
+        </content>
+    </ScrollPane>
+
+</VBox>

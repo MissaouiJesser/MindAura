@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.ArticleViewerController"
+            stylesheets="@/css/pdf-viewer.css"
+            prefWidth="1280" prefHeight="820"
+            style="-fx-background-color: #F5F7F5;">
+
+    <!-- ═══ HEADER ═══ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: linear-gradient(to right, #0D2B1E, #1B4332, #2D6A4F);
+                     -fx-padding: 14 32 14 32;
+                     -fx-effect: dropshadow(gaussian, rgba(13,43,30,0.55), 20, 0, 0, 6);">
+
+            <Button fx:id="btnFermer" onAction="#fermer"
+                    style="-fx-background-color: rgba(255,255,255,0.10);
+                           -fx-background-radius: 50; -fx-cursor: hand;
+                           -fx-border-color: rgba(255,255,255,0.22); -fx-border-width: 1.5;
+                           -fx-border-radius: 50; -fx-padding: 8 13;">
+                <graphic>
+                    <Label text="✕" style="-fx-font-size: 15px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </graphic>
+            </Button>
+
+            <Rectangle fill="rgba(255,255,255,0.15)" width="1" height="34"/>
+
+            <StackPane prefWidth="40" prefHeight="40"
+                       style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 10;
+                              -fx-border-color: rgba(255,255,255,0.20); -fx-border-width: 1; -fx-border-radius: 10;">
+                <Label text="📰" style="-fx-font-size: 18px;"/>
+            </StackPane>
+
+            <VBox spacing="2">
+                <Label fx:id="labelTitreHeader" text="Chargement..."
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Label fx:id="labelUrlHeader" text=""
+                       style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.50);"/>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Progression de lecture -->
+            <VBox spacing="4" alignment="CENTER_RIGHT">
+                <Label text="Progression de lecture"
+                       style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.50);"/>
+                <ProgressBar fx:id="progressLecture" progress="0"
+                             prefWidth="140" prefHeight="6"
+                             style="-fx-accent: #52B788;
+                                    -fx-background-color: rgba(255,255,255,0.15);
+                                    -fx-background-radius: 3;"/>
+            </VBox>
+
+            <Button fx:id="btnOuvrirNavigateur" onAction="#ouvrirDansNavigateur"
+                    style="-fx-background-color: rgba(255,255,255,0.10);
+                           -fx-text-fill: rgba(255,255,255,0.85);
+                           -fx-background-radius: 20; -fx-padding: 8 16; -fx-cursor: hand;
+                           -fx-border-color: rgba(255,255,255,0.20); -fx-border-width: 1;
+                           -fx-border-radius: 20; -fx-font-size: 12px;">
+                <graphic>
+                    <HBox spacing="6" alignment="CENTER">
+                        <Label text="🌐" style="-fx-font-size: 12px;"/>
+                        <Label text="Navigateur"
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12px;"/>
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+    </top>
+
+    <!-- ═══ CONTENU PRINCIPAL ═══ -->
+    <center>
+        <SplitPane dividerPositions="0.75"
+                   style="-fx-background-color: #F5F7F5; -fx-padding: 0;">
+
+            <!-- ── COLONNE GAUCHE : Article ── -->
+            <StackPane>
+                <!-- WebView -->
+                <WebView fx:id="webView"/>
+
+                <!-- Overlay chargement -->
+                <VBox fx:id="overlayChargement" alignment="CENTER" spacing="20"
+                      style="-fx-background-color: #F5F7F5;">
+                    <StackPane prefWidth="72" prefHeight="72"
+                               style="-fx-background-color: #E8F0EC; -fx-background-radius: 50;">
+                        <Label text="📰" style="-fx-font-size: 32px;"/>
+                    </StackPane>
+                    <VBox spacing="8" alignment="CENTER">
+                        <Label text="Chargement de l'article..."
+                               style="-fx-font-size: 16px; -fx-font-weight: bold;
+                                      -fx-text-fill: #1B4332;"/>
+                        <Label fx:id="labelChargementUrl" text=""
+                               style="-fx-font-size: 12px; -fx-text-fill: #9AA89F;"/>
+                    </VBox>
+                    <ProgressBar prefWidth="280" prefHeight="6"
+                                 style="-fx-accent: #52B788; -fx-background-color: #D0E8D8;
+                                        -fx-background-radius: 3;"
+                                 progress="-1"/>
+                </VBox>
+            </StackPane>
+
+            <!-- ── COLONNE DROITE : Sidebar ── -->
+            <ScrollPane fitToWidth="true" maxWidth="550" minWidth="550" prefWidth="550"
+                        style="-fx-background-color: #F4F7F5; -fx-background: #F4F7F5;
+                               -fx-border-color: transparent;">
+                <VBox spacing="16" style="-fx-padding: 20 16; -fx-background-color: #F4F7F5;">
+
+                    <!-- ── Bloc Statistiques ── -->
+                    <VBox spacing="14"
+                          style="-fx-background-color: white; -fx-background-radius: 16;
+                                 -fx-padding: 20;
+                                 -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),10,0,0,3);
+                                 -fx-border-color: #E8EFF0; -fx-border-width: 1;
+                                 -fx-border-radius: 16;">
+
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="📊" style="-fx-font-size: 16px;"/>
+                            <Label text="Statistiques"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold;
+                                          -fx-text-fill: #1B4332;"/>
+                        </HBox>
+
+                        <!-- Vues -->
+                        <HBox alignment="CENTER_LEFT" spacing="14"
+                              style="-fx-background-color: #F0F7F2; -fx-background-radius: 12;
+                                     -fx-padding: 14 16;">
+                            <StackPane minWidth="44" minHeight="44" maxWidth="44" maxHeight="44"
+                                       style="-fx-background-color: #D1F0E0;
+                                              -fx-background-radius: 50;">
+                                <Label text="👁" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="1">
+                                <Label fx:id="lblNbrVues" text="0"
+                                       style="-fx-font-size: 26px; -fx-font-weight: bold;
+                                              -fx-text-fill: #1B4332;"/>
+                                <Label text="Vues totales"
+                                       style="-fx-font-size: 11px; -fx-text-fill: #9AA89F;"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Likes -->
+                        <HBox alignment="CENTER_LEFT" spacing="14"
+                              style="-fx-background-color: #FFF5F5; -fx-background-radius: 12;
+                                     -fx-padding: 14 16;">
+                            <StackPane minWidth="44" minHeight="44" maxWidth="44" maxHeight="44"
+                                       style="-fx-background-color: #FFD6D6;
+                                              -fx-background-radius: 50;">
+                                <Label text="❤" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="1">
+                                <Label fx:id="lblNbrLikes" text="0"
+                                       style="-fx-font-size: 26px; -fx-font-weight: bold;
+                                              -fx-text-fill: #6d4ba3;"/>
+                                <Label text="J'aime reçus"
+                                       style="-fx-font-size: 11px; -fx-text-fill: #9AA89F;"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Bouton J'aime -->
+                        <Button fx:id="btnLike" text="❤  J'aime cette ressource"
+                                onAction="#handleLike"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: #6d4ba3; -fx-text-fill: white;
+                                       -fx-background-radius: 12; -fx-padding: 13;
+                                       -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian,rgb(148,125,188),8,0,0,3);"/>
+                    </VBox>
+
+                    <!-- Bloc Commentaires -->
+                    <VBox spacing="12" styleClass="comments-card">
+                        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="comments-header">
+                            <Label styleClass="comments-icon" text="💬" />
+                            <Label styleClass="comments-title" text="Commentaires" />
+                        </HBox>
+
+                        <TextField fx:id="txtNouveauCommentaire" promptText="Écrire un commentaire..." styleClass="comment-input" />
+
+                        <Button fx:id="btnAjouterCommentaire" maxWidth="Infinity" onAction="#handleAjouterCommentaire" styleClass="btn-publish" text="Publier" />
+
+                        <!-- Conteneur des commentaires dynamiques -->
+                        <VBox fx:id="commentairesContainer" spacing="12" styleClass="comment-list" />
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+
+        </SplitPane>
+    </center>
+
+    <!-- ═══ PIED ═══ -->
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: white;
+                     -fx-padding: 10 32;
+                     -fx-border-color: #E2EDE7 transparent transparent transparent;
+                     -fx-border-width: 1 0 0 0;">
+
+            <Label fx:id="labelStatutPage" text="Prêt"
+                   style="-fx-font-size: 11px; -fx-text-fill: #9AA89F;"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Label fx:id="labelCategorie" text=""
+                       style="-fx-background-color: #E8F4EE; -fx-text-fill: #2D6A4F;
+                              -fx-background-radius: 12; -fx-padding: 3 10;
+                              -fx-font-size: 11px; -fx-font-weight: bold;
+                              -fx-border-color: #B2D9C4; -fx-border-width: 1;
+                              -fx-border-radius: 12;"/>
+                <Label fx:id="labelDuree" text=""
+                       style="-fx-font-size: 11px; -fx-text-fill: #9AA89F;"/>
+            </HBox>
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.EmailController"
+            prefWidth="600" prefHeight="660"
+            style="-fx-background-color:#F4F7F4;">
+
+    <VBox AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="0">
+
+        <!-- EN-TETE -->
+        <VBox style="-fx-background-color:#1B4332;-fx-padding:22 28 18 28;">
+            <Label text="Emails automatiques - MindAura"
+                   style="-fx-font-size:19px;-fx-font-weight:bold;-fx-text-fill:white;"/>
+            <Label text="Propulse par SendGrid"
+                   style="-fx-font-size:11px;-fx-text-fill:rgba(255,255,255,0.6);-fx-padding:3 0 0 0;"/>
+        </VBox>
+
+        <!-- ONGLETS -->
+        <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE"
+                 style="-fx-background-color:#F4F7F4;">
+
+            <!-- =========================================== -->
+            <!-- ONGLET 1 : CONFIRMATION                     -->
+            <!-- =========================================== -->
+            <Tab text="  Confirmation de reservation  ">
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color:transparent;-fx-border-color:transparent;">
+                    <VBox spacing="14" style="-fx-padding:20 24;">
+
+                        <!-- Card patient -->
+                        <VBox style="-fx-background-color:white;-fx-background-radius:12;
+                                     -fx-padding:18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);"
+                              spacing="8">
+                            <Label text="Patient"
+                                   style="-fx-font-size:12px;-fx-font-weight:bold;-fx-text-fill:#374151;"/>
+
+                            <Label text="Destination"
+                                   style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <Label text="chaffaiichrak298@gmail.com"
+                                   style="-fx-font-size:13px;-fx-font-weight:bold;
+                                          -fx-text-fill:#2D6A4F;-fx-background-color:#E8F5E9;
+                                          -fx-background-radius:8;-fx-padding:9 12;"/>
+
+                            <Label text="Nom complet *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <TextField fx:id="txtConfNomPatient" promptText="Prenom Nom"
+                                       style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                              -fx-border-radius:8;-fx-background-radius:8;
+                                              -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+                        </VBox>
+
+                        <!-- Card seance -->
+                        <VBox style="-fx-background-color:white;-fx-background-radius:12;
+                                     -fx-padding:18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);"
+                              spacing="8">
+                            <Label text="Details de la seance"
+                                   style="-fx-font-size:12px;-fx-font-weight:bold;-fx-text-fill:#374151;"/>
+
+                            <Label text="Professionnel *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <TextField fx:id="txtConfNomPsy" promptText="Dr. Nom Prenom"
+                                       style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                              -fx-border-radius:8;-fx-background-radius:8;
+                                              -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+
+                            <HBox spacing="12">
+                                <VBox HBox.hgrow="ALWAYS" spacing="4">
+                                    <Label text="Date *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                                    <DatePicker fx:id="dpConfDate" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox prefWidth="120" spacing="4">
+                                    <Label text="Heure (HH:mm)" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                                    <TextField fx:id="txtConfHeure" promptText="09:00"
+                                               style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                                      -fx-border-radius:8;-fx-background-radius:8;
+                                                      -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+                                </VBox>
+                            </HBox>
+
+                            <Label text="Type de seance *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <ComboBox fx:id="comboConfType" maxWidth="Infinity"
+                                      style="-fx-background-color:#F9FAFB;"/>
+
+                            <Label text="Lieu *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <TextField fx:id="txtConfLieu" promptText="Ex : En ligne (Zoom) ou adresse du cabinet"
+                                       style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                              -fx-border-radius:8;-fx-background-radius:8;
+                                              -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+                        </VBox>
+
+                        <Label fx:id="lblStatutConf" text="" wrapText="true"
+                               style="-fx-font-size:12px;"/>
+
+                        <Button fx:id="btnEnvoyerConf" text="Envoyer l'email de confirmation"
+                                onAction="#handleEnvoyerConfirmation" maxWidth="Infinity"
+                                style="-fx-background-color:#2D6A4F;-fx-text-fill:white;
+                                       -fx-font-weight:bold;-fx-font-size:13px;
+                                       -fx-background-radius:10;-fx-padding:12 0;-fx-cursor:hand;"/>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- =========================================== -->
+            <!-- ONGLET 2 : RAPPEL                           -->
+            <!-- =========================================== -->
+            <Tab text="  Rappel de seance  ">
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color:transparent;-fx-border-color:transparent;">
+                    <VBox spacing="14" style="-fx-padding:20 24;">
+
+                        <!-- Card patient -->
+                        <VBox style="-fx-background-color:white;-fx-background-radius:12;
+                                     -fx-padding:18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);"
+                              spacing="8">
+                            <Label text="Patient"
+                                   style="-fx-font-size:12px;-fx-font-weight:bold;-fx-text-fill:#374151;"/>
+
+                            <Label text="Destination"
+                                   style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <Label text="chaffaiichrak298@gmail.com"
+                                   style="-fx-font-size:13px;-fx-font-weight:bold;
+                                          -fx-text-fill:#2D6A4F;-fx-background-color:#E8F5E9;
+                                          -fx-background-radius:8;-fx-padding:9 12;"/>
+
+                            <Label text="Nom complet *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <TextField fx:id="txtRappNomPatient" promptText="Prenom Nom"
+                                       style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                              -fx-border-radius:8;-fx-background-radius:8;
+                                              -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+                        </VBox>
+
+                        <!-- Card seance et rappel -->
+                        <VBox style="-fx-background-color:white;-fx-background-radius:12;
+                                     -fx-padding:18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);"
+                              spacing="8">
+                            <Label text="Seance et configuration du rappel"
+                                   style="-fx-font-size:12px;-fx-font-weight:bold;-fx-text-fill:#374151;"/>
+
+                            <Label text="Professionnel *" style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <TextField fx:id="txtRappNomPsy" promptText="Dr. Nom Prenom"
+                                       style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                              -fx-border-radius:8;-fx-background-radius:8;
+                                              -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+
+                            <HBox spacing="12">
+                                <VBox HBox.hgrow="ALWAYS" spacing="4">
+                                    <Label text="Date de la seance *"
+                                           style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                                    <DatePicker fx:id="dpRappDate" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox prefWidth="120" spacing="4">
+                                    <Label text="Heure (HH:mm)"
+                                           style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                                    <TextField fx:id="txtRappHeure" promptText="09:00"
+                                               style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                                      -fx-border-radius:8;-fx-background-radius:8;
+                                                      -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+                                </VBox>
+                            </HBox>
+
+                            <Label text="Envoyer le rappel"
+                                   style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <ComboBox fx:id="comboRappDelai" maxWidth="Infinity"
+                                      style="-fx-background-color:#F9FAFB;"/>
+
+                            <Label text="Lien de visioconference (optionnel)"
+                                   style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                            <TextField fx:id="txtRappLienVisio" promptText="https://zoom.us/j/..."
+                                       style="-fx-background-color:#F9FAFB;-fx-border-color:#D1D5DB;
+                                              -fx-border-radius:8;-fx-background-radius:8;
+                                              -fx-padding:9 12;-fx-font-size:13px;-fx-border-width:1;"/>
+                        </VBox>
+
+                        <Label fx:id="lblStatutRapp" text="" wrapText="true"
+                               style="-fx-font-size:12px;"/>
+
+                        <Button fx:id="btnEnvoyerRapp" text="Envoyer le rappel"
+                                onAction="#handleEnvoyerRappel" maxWidth="Infinity"
+                                style="-fx-background-color:#1B4332;-fx-text-fill:white;
+                                       -fx-font-weight:bold;-fx-font-size:13px;
+                                       -fx-background-radius:10;-fx-padding:12 0;-fx-cursor:hand;"/>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+        </TabPane>
+
+        <!-- PIED DE PAGE -->
+        <HBox style="-fx-background-color:white;-fx-padding:14 24;
+                     -fx-border-color:#E5E7EB;-fx-border-width:1 0 0 0;"
+              alignment="CENTER_RIGHT" spacing="12">
+            <ProgressIndicator fx:id="progressIndicator" prefWidth="20" prefHeight="20" visible="false"/>
+            <Label text="SendGrid - Emails securises et trackes"
+                   style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnFermer" text="Fermer" onAction="#handleFermer"
+                    style="-fx-background-color:white;-fx-border-color:#D1D5DB;
+                           -fx-border-radius:8;-fx-background-radius:8;
+                           -fx-font-size:13px;-fx-padding:8 20;-fx-cursor:hand;"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

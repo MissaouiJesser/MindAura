@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.Afficher"
+            prefWidth="1920" prefHeight="1080"
+            style="-fx-background-color: #F2F5F9;">
+
+    <!-- ========== EN-TÊTE 2 LIGNES ========== -->
+    <top>
+        <VBox spacing="0">
+
+            <!-- ── LIGNE 1 : Filtres de type ── -->
+            <HBox spacing="10" alignment="CENTER_LEFT"
+                  style="-fx-background-color: #1B4332;
+                         -fx-padding: 14 32 14 32;
+                         -fx-border-color: transparent transparent rgba(255,255,255,0.10) transparent;
+                         -fx-border-width: 0 0 1 0;">
+
+                <Label text="Filtrer par :" style="-fx-text-fill: rgba(255,255,255,0.60); -fx-font-size: 12px; -fx-font-weight: bold;"/>
+
+                <Button fx:id="btnTous" text="✦  Tous" onAction="#filtrerTous"
+                        prefHeight="38"
+                        style="-fx-background-color: white; -fx-text-fill: #1B4332;
+                               -fx-background-radius: 20; -fx-padding: 8 24;
+                               -fx-font-weight: bold; -fx-font-size: 13px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
+
+                <Button fx:id="btnLivres" text="📚  PDF" onAction="#filtrerLivres"
+                        prefHeight="38"
+                        style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;
+                               -fx-background-radius: 20; -fx-padding: 8 24; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-width: 1.5;
+                               -fx-border-radius: 20; -fx-font-size: 13px;"/>
+
+                <Button fx:id="btnVideos" text="🎥  Vidéos" onAction="#filtrerVideos"
+                        prefHeight="38"
+                        style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;
+                               -fx-background-radius: 20; -fx-padding: 8 24; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-width: 1.5;
+                               -fx-border-radius: 20; -fx-font-size: 13px;"/>
+
+                <Button fx:id="btnPodcasts" text="🎧  Podcasts" onAction="#filtrerPodcasts"
+                        prefHeight="38"
+                        style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;
+                               -fx-background-radius: 20; -fx-padding: 8 24; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-width: 1.5;
+                               -fx-border-radius: 20; -fx-font-size: 13px;"/>
+
+                <Button fx:id="btnArticles" text="📄  Articles" onAction="#filtrerArticles"
+                        prefHeight="38"
+                        style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;
+                               -fx-background-radius: 20; -fx-padding: 8 24; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-width: 1.5;
+                               -fx-border-radius: 20; -fx-font-size: 13px;"/>
+
+            </HBox>
+
+            <!-- ── LIGNE 2 : Tri + Recherche + Ajouter ── -->
+            <HBox spacing="14" alignment="CENTER_LEFT"
+                  style="-fx-background-color: linear-gradient(to right, #163B2A, #1B4332);
+                         -fx-padding: 12 32 12 32;
+                         -fx-effect: dropshadow(gaussian, rgba(13,43,30,0.50), 16, 0, 0, 6);">
+
+                <!-- Tri -->
+                <HBox spacing="10" alignment="CENTER" prefHeight="40"
+                      style="-fx-background-color: rgba(255,255,255,0.10);
+                             -fx-background-radius: 22; -fx-padding: 0 18;
+                             -fx-border-color: rgba(255,255,255,0.22); -fx-border-width: 1.5;
+                             -fx-border-radius: 22; -fx-min-width: 240px;">
+                    <Label text="↕" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 16px;"/>
+                    <Label text="Trier par :" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                    <ComboBox fx:id="comboTri"
+                              promptText="Plus récent"
+                              prefWidth="150"
+                              onAction="#handleTrier"
+                              style="-fx-background-color: transparent;
+                                     -fx-text-fill: white; -fx-font-size: 13px;
+                                     -fx-border-color: transparent;"/>
+                </HBox>
+
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Barre de recherche -->
+                <HBox spacing="0" alignment="CENTER_LEFT" prefHeight="42"
+                      style="-fx-background-color: white; -fx-background-radius: 26;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 14, 0, 0, 4);
+                             -fx-min-width: 420px;">
+                    <Label text="🔍" style="-fx-font-size: 16px; -fx-padding: 0 8 0 18; -fx-opacity: 0.40;"/>
+                    <TextField fx:id="searchField"
+                               promptText="Rechercher une ressource..."
+                               prefWidth="300"
+                               style="-fx-background-color: transparent; -fx-border-color: transparent;
+                                      -fx-padding: 10 8; -fx-font-size: 14px;
+                                      -fx-text-fill: #1A2E25; -fx-prompt-text-fill: #9AADA6;"/>
+                    <Button text="Rechercher"
+                            onAction="#handleRechercher"
+                            prefHeight="42"
+                            style="-fx-background-color: #1B4332; -fx-text-fill: white;
+                                   -fx-background-radius: 0 24 24 0; -fx-padding: 0 24;
+                                   -fx-font-weight: bold; -fx-font-size: 13.5px; -fx-cursor: hand;"/>
+                </HBox>
+
+                <!-- Bouton Ajouter -->
+                <Button text="＋  Ajouter une ressource"
+                        onAction="#ouvrirAjoutRessource"
+                        prefHeight="42"
+                        style="-fx-background-color: #40916C; -fx-text-fill: white;
+                               -fx-background-radius: 22; -fx-padding: 0 26;
+                               -fx-font-size: 13.5px; -fx-font-weight: bold; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(64,145,108,0.45), 12, 0, 0, 4);"/>
+
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ========== CONTENU PRINCIPAL ========== -->
+    <center>
+        <HBox spacing="0" style="-fx-background-color: #F2F5F9;">
+
+            <!-- Liste des ressources -->
+            <VBox spacing="0" HBox.hgrow="ALWAYS" prefWidth="1250">
+
+                <!-- Bandeau titre + compteur -->
+                <HBox alignment="CENTER_LEFT" spacing="12"
+                      style="-fx-background-color: white; -fx-padding: 16 45;
+                             -fx-border-color: transparent transparent #E8EDEA transparent;
+                             -fx-border-width: 0 0 1 0;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 3);">
+                    <Label fx:id="resultatsLabel"
+                           text="Toutes les ressources"
+                           style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #0D2B1E;"/>
+                    <Label fx:id="nombreLabel"
+                           style="-fx-font-size: 12.5px; -fx-text-fill: #2D6A4F; -fx-font-weight: bold;
+                                  -fx-background-color: #E0F2EB; -fx-background-radius: 20;
+                                  -fx-padding: 4 12;"/>
+                </HBox>
+
+                <!-- Zone de cartes -->
+                <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                            style="-fx-background-color: transparent; -fx-background: #F2F5F9;
+                                   -fx-border-color: transparent;"
+                            VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox style="-fx-padding: 28 45 40 45; -fx-background-color: #F2F5F9;">
+                            <VBox fx:id="ressourcesContainer" spacing="30"/>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </VBox>
+        </HBox>
+    </center>
+
+</BorderPane>

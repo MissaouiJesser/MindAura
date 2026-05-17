@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.AjouterTraitementController"
+      spacing="0"
+      style="-fx-background-color:#F2F5F9; -fx-pref-width:660;">
+
+    <!-- ═══════════════ EN-TÊTE ═══════════════ -->
+    <HBox style="-fx-background-color:#FFFFFF; -fx-padding:18 24 18 24;
+                 -fx-border-color:transparent transparent #EDF1F5 transparent; -fx-border-width:0 0 1 0;"
+          alignment="CENTER_LEFT" spacing="12">
+        <!-- Icône cercle vert -->
+        <StackPane style="-fx-background-color:linear-gradient(to bottom right,#40916C,#1B4332);
+                          -fx-background-radius:50; -fx-min-width:38; -fx-min-height:38;
+                          -fx-pref-width:38; -fx-pref-height:38;
+                          -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.30),8,0,0,2);">
+            <Label text="＋" style="-fx-font-size:18px; -fx-text-fill:#FFFFFF; -fx-font-weight:bold;"/>
+        </StackPane>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="Nouveau traitement"
+                   style="-fx-font-size:17px; -fx-font-weight:bold; -fx-text-fill:#1A2E3D;"/>
+            <Label text="Créer un nouveau programme thérapeutique"
+                   style="-fx-font-size:11px; -fx-text-fill:#7A96A8;"/>
+        </VBox>
+        <Label text="&#128138;" style="-fx-font-size:28px;"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:transparent; -fx-background-color:transparent;">
+        <VBox spacing="16" style="-fx-padding: 20 24 20 24;">
+
+            <!-- ═══ TYPE + OBJECTIF + ETAT ═══ -->
+            <VBox styleClass="form-card" spacing="14">
+                <Label text="Caractéristiques du traitement" styleClass="form-section-label"/>
+
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Type de traitement *" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldType" styleClass="form-combo"
+                                  promptText="Sélectionner..." maxWidth="Infinity"/>
+                        <Label fx:id="errType" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Objectif *" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldObjectif" styleClass="form-combo"
+                                  promptText="Sélectionner..." maxWidth="Infinity"/>
+                        <Label fx:id="errObjectif" text="" styleClass="error-label"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="État *" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldEtat" styleClass="form-combo"
+                                  promptText="État initial..." maxWidth="Infinity"/>
+                        <Label fx:id="errEtat" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+
+            <!-- ═══ DATES ═══ -->
+            <VBox styleClass="form-card" spacing="14">
+                <Label text="Période du traitement" styleClass="form-section-label"/>
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Date de début *" styleClass="form-label"/>
+                        <DatePicker fx:id="fieldDateDebut" promptText="jj/mm/aaaa"
+                                    styleClass="date-picker" maxWidth="Infinity"/>
+                        <Label fx:id="errDateDebut" text="" styleClass="error-label"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Date de fin (optionnel)" styleClass="form-label"/>
+                        <DatePicker fx:id="fieldDateFin" promptText="jj/mm/aaaa"
+                                    styleClass="date-picker" maxWidth="Infinity"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- ═══ PARTICIPANTS ═══ -->
+            <VBox styleClass="form-card" spacing="14">
+                <Label text="Participants" styleClass="form-section-label"/>
+                <Label text="Sélectionnez par nom — aucun identifiant n'est affiché"
+                       style="-fx-text-fill:#8BAABA; -fx-font-size:11px;"/>
+                <HBox spacing="14">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Patient" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldUtilisateur" styleClass="form-combo"
+                                  promptText="Sélectionner le patient..." maxWidth="Infinity"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Coach / Thérapeute" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldCoach" styleClass="form-combo"
+                                  promptText="Sélectionner le coach..." maxWidth="Infinity"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- ═══ DESCRIPTION ═══ -->
+            <VBox styleClass="form-card" spacing="10">
+                <Label text="Description du programme" styleClass="form-section-label"/>
+                <TextArea fx:id="fieldDescription"
+                          promptText="Décrivez les objectifs, méthodes et déroulement du traitement..."
+                          styleClass="form-textarea" prefHeight="100" wrapText="true"/>
+            </VBox>
+
+            <!-- Message global -->
+            <Label fx:id="errGlobal" text="" styleClass="error-label"
+                   style="-fx-font-weight:bold; -fx-font-size:12px;"/>
+
+            <!-- ═══ BOUTONS D'ACTION ═══ -->
+            <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding:4 0 12 0;">
+                <Button text="✕  Annuler" styleClass="btn-secondary" onAction="#handleAnnuler"
+                        prefHeight="40"/>
+                <Button text="✔  Créer le traitement" styleClass="btn-primary" onAction="#handleSave"
+                        prefHeight="40"/>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import java.lang.String?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ClientChatbotController"
+      spacing="0" style="-fx-background-color: #F0F4F8;">
+
+    <stylesheets><String fx:value="/app.css"/></stylesheets>
+
+    <!-- EN-TÊTE CHATBOT -->
+    <HBox alignment="CENTER_LEFT" spacing="15"
+          style="-fx-background-color: linear-gradient(to right, #1e3a8a, #3b82f6); -fx-padding: 15 20;">
+        <Label text="🤖 Assistant IA"
+               style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;"/>
+        <Label text="Posez vos questions"
+               style="-fx-text-fill: #d4e6f1; -fx-font-size: 12;"/>
+    </HBox>
+
+    <!-- ZONE DE CHAT -->
+    <ScrollPane fx:id="scrollChat" VBox.vgrow="ALWAYS"
+                hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                style="-fx-background-color: #F0F4F8; -fx-padding: 0;">
+        <VBox fx:id="chatContainer" spacing="12" style="-fx-padding: 15;">
+            <!-- Les messages s'affichent ici dynamiquement -->
+        </VBox>
+    </ScrollPane>
+
+    <!-- BARRE DE CHARGEMENT -->
+    <ProgressBar fx:id="pbChargement" visible="false" prefHeight="4.0"
+                 style="-fx-accent: #3b82f6;"/>
+
+    <!-- ZONE DE SAISIE -->
+    <VBox spacing="10" style="-fx-padding: 15 20; -fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 1 0 0 0;">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="tfMessage"
+                       promptText="Tapez votre question..."
+                       style="-fx-padding: 10; -fx-font-size: 12; -fx-background-radius: 6;
+                             -fx-border-color: #d1d5db; -fx-border-width: 1;"
+                       HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnEnvoyer" text="📤 Envoyer"
+                    style="-fx-padding: 10 20; -fx-font-size: 12; -fx-font-weight: bold;
+                          -fx-background-color: #3b82f6; -fx-text-fill: white;
+                          -fx-border-radius: 6; -fx-background-radius: 6;
+                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);
+                          -fx-cursor: hand; -fx-min-width: 120;"/>
+        </HBox>
+        <Label text="💡 Conseils: Demandez comment déposer une réclamation, les statuts, les délais de traitement..."
+               style="-fx-text-fill: #6b7280; -fx-font-size: 10; -fx-font-style: italic;"/>
+    </VBox>
+
+</VBox>

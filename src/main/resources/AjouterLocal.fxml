@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AjouterLocalController"
+            prefHeight="750" prefWidth="860"
+            style="-fx-background-color: #F0F4F8;">
+
+    <!-- ═══════════════════════════  EN-TÊTE  ═══════════════════════════ -->
+    <top>
+        <VBox style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F); -fx-padding: 28px 35px 22px 35px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 12, 0, 0, 4);">
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <VBox alignment="CENTER"
+                      style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 14px; -fx-padding: 10px 14px;">
+                    <Label text="➕" style="-fx-font-size: 32px;"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="Ajouter un Nouveau Local"
+                           style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+                    <Label text="Remplissez les informations ci-dessous pour créer un local psychiatrique"
+                           style="-fx-text-fill: rgba(216,243,220,0.90); -fx-font-size: 13px;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ═══════════════════════════  FORMULAIRE  ═══════════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+            <VBox spacing="22" style="-fx-padding: 28px 32px;">
+
+                <!-- ── SECTION : Informations de base ── -->
+                <VBox spacing="18"
+                      style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px 28px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 14, 0, 0, 4); -fx-border-color: #E8F0EC; -fx-border-width: 1.5px; -fx-border-radius: 16px;">
+
+                    <!-- titre section -->
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="📋" style="-fx-font-size: 20px;"/>
+                        <Label text="Informations de Base"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </HBox>
+                    <Separator style="-fx-background-color: #D8F3DC; -fx-opacity: 0.9;"/>
+
+                    <GridPane hgap="22" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Nom -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Nom du Local *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtNom" promptText="Ex: Centre Médical de la Paix"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Type -->
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Type de Local *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <ComboBox fx:id="comboType" maxWidth="Infinity"
+                                      style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Ville -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="Ville *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtVille" promptText="Ex: Tunis"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Capacité -->
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label text="Capacité *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtCapacite" promptText="Ex: 50 personnes"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Adresse — pleine largeur -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                            <Label text="Adresse complète *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtAdresse" promptText="Ex: 15 Avenue Habib Bourguiba"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- Description — pleine largeur -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+                            <Label text="Description"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextArea fx:id="txtDescription" promptText="Description détaillée du local..."
+                                      prefRowCount="3" wrapText="true"
+                                      style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- ── SECTION : Contact ── -->
+                <VBox spacing="18"
+                      style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px 28px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 14, 0, 0, 4); -fx-border-color: #E8F0EC; -fx-border-width: 1.5px; -fx-border-radius: 16px;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="📞" style="-fx-font-size: 20px;"/>
+                        <Label text="Informations de Contact"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </HBox>
+                    <Separator style="-fx-background-color: #D8F3DC;"/>
+
+                    <GridPane hgap="22" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Téléphone -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Téléphone *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtTelephone" promptText="Ex: 12345678"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                            <Label text="📱 8 chiffres requis"
+                                   style="-fx-font-size: 10px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                        </VBox>
+
+                        <!-- Email -->
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Email *"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                            <TextField fx:id="txtEmail" promptText="Ex: contact@centre.tn"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                            <Label text="✉️ Format valide requis"
+                                   style="-fx-font-size: 10px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- ── SECTION : Disponibilité et Image ── -->
+                <VBox spacing="18"
+                      style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px 28px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 14, 0, 0, 4); -fx-border-color: #E8F0EC; -fx-border-width: 1.5px; -fx-border-radius: 16px;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="⚙️" style="-fx-font-size: 20px;"/>
+                        <Label text="Paramètres Additionnels"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    </HBox>
+                    <Separator style="-fx-background-color: #D8F3DC;"/>
+
+                    <!-- Disponibilité -->
+                    <VBox spacing="6">
+                        <Label text="Disponibilité *"
+                               style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                        <ComboBox fx:id="comboDisponibilite" prefWidth="320"
+                                  style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                    </VBox>
+
+                    <!-- Image -->
+                    <VBox spacing="6">
+                        <Label text="Image du Local"
+                               style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2D3748;"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtImageURL" promptText="Sélectionner une image..."
+                                       HBox.hgrow="ALWAYS" editable="false"
+                                       style="-fx-background-color: #FAFAFA; -fx-background-radius: 10px; -fx-padding: 11px 14px; -fx-border-color: #D0DDD5; -fx-border-radius: 10px; -fx-border-width: 1.5px; -fx-font-size: 13px;"/>
+                            <Button fx:id="btnParcourir" text="📁 Parcourir" onAction="#handleParcourir"
+                                    style="-fx-background-color: transparent; -fx-border-color: #2D6A4F; -fx-border-width: 2px; -fx-border-radius: 10px; -fx-text-fill: #1B4332; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 10px; -fx-padding: 10px 18px; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Aperçu image -->
+                    <VBox spacing="8" alignment="CENTER"
+                          style="-fx-background-color: #F5F8F6; -fx-padding: 18px; -fx-background-radius: 12px; -fx-border-color: #C8DDD5; -fx-border-width: 1.5px; -fx-border-radius: 12px; -fx-border-style: dashed;">
+                        <Label text="📷  Aperçu de l'image"
+                               style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                        <ImageView fx:id="imgPreview" fitWidth="220" fitHeight="150" preserveRatio="true"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Message validation -->
+                <Label fx:id="lblMessage" text="" wrapText="true"
+                       style="-fx-font-size: 13px; -fx-padding: 12px 18px; -fx-background-radius: 10px;"/>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- ═══════════════════════════  BOUTONS  ═══════════════════════════ -->
+    <bottom>
+        <HBox spacing="16" alignment="CENTER"
+              style="-fx-background-color: white; -fx-padding: 18px 32px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 12, 0, 0, -3); -fx-border-color: #E8EEF2; -fx-border-width: 1px 0 0 0;">
+            <Button fx:id="btnAnnuler" text="✖  Annuler" onAction="#handleAnnuler"
+                    prefWidth="155"
+                    style="-fx-background-color: transparent; -fx-border-color: #94A3B8; -fx-border-width: 2px; -fx-border-radius: 10px; -fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 10px; -fx-padding: 13px 24px; -fx-cursor: hand;"/>
+            <Button fx:id="btnAjouter" text="✓  Ajouter le Local" onAction="#handleAjouter"
+                    prefWidth="200"
+                    style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 10px; -fx-padding: 13px 28px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 12, 0, 0, 4);"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

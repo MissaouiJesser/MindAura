@@ -1,0 +1,70 @@
+/* accueil.css — styles pour Accueil.fxml
+   Placer dans le même dossier que le FXML ou dans /resources
+   Référencer dans FXML : stylesheets="@accueil.css"
+*/
+
+/* Panneau vert gauche — gradient via CSS externe (fonctionne en JavaFX) */
+.panneau-vert {
+    -fx-background-color: linear-gradient(to bottom, #0D2B1D 0%, #1B4332 55%, #2D6A4F 100%);
+}
+
+/* Fond ivoire colonne droite */
+.panneau-ivoire {
+    -fx-background-color: #F7F3EC;
+}
+
+/* Carte utilisateur */
+.carte-user {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #D8EEE2;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.12), 18, 0, 0, 5);
+}
+
+.carte-user:hover {
+    -fx-border-color: #52B788;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.22), 24, 0, 0, 8);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+}
+
+/* Carte admin */
+.carte-admin {
+    -fx-background-color: linear-gradient(to bottom right, #1A3D2E, #0D2B1D);
+    -fx-background-radius: 16;
+    -fx-border-color: #2A5C40;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 16;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(13,43,29,0.40), 22, 0, 0, 7);
+}
+
+.carte-admin:hover {
+    -fx-border-color: #52B788;
+    -fx-effect: dropshadow(gaussian, rgba(13,43,29,0.60), 28, 0, 0, 10);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+}
+
+/* Pill verte clair */
+.pill-vert {
+    -fx-background-color: #EBF5EE;
+    -fx-background-radius: 10;
+    -fx-text-fill: #2D6A4F;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12;
+}
+
+/* Pill sombre (admin) */
+.pill-sombre {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 10;
+    -fx-text-fill: rgba(255,255,255,0.80);
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12;
+}

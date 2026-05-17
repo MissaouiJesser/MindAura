@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.effect.*?>
+
+<!--
+    FaceAuth.fxml — Intégré dans le panneau droit du Login
+    ───────────────────────────────────────────────────────
+    Même logique que MotDePasseOublie.fxml / VerificationCode.fxml :
+    s'affiche dans rightPanel via loadInRightPanel(), sans Stage externe.
+
+    Dimensions adaptées : largeur 500px, hauteur compacte avec ScrollPane.
+    La barre de titre "Vérification Face ID" remplace l'ancien titlebar de fenêtre.
+-->
+<ScrollPane fitToWidth="true"
+            style="-fx-background-color:#F0F4F8; -fx-background:#F0F4F8;"
+            hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.FaceAuthController"
+            prefWidth="500">
+
+    <VBox alignment="TOP_CENTER" spacing="0" prefWidth="500"
+          style="-fx-background-color:#F0F4F8;">
+
+        <!-- ══════════════════════════════════════════
+             EN-TÊTE FACE ID  (remplace la barre de fenêtre)
+        ══════════════════════════════════════════ -->
+        <VBox spacing="4" alignment="CENTER"
+              style="-fx-background-color:#1B4332;
+                     -fx-padding: 16 24 14 24;
+                     -fx-border-color:#2D6A4F;
+                     -fx-border-width:0 0 2 0;">
+
+            <HBox alignment="CENTER" spacing="10">
+                <ImageView fitWidth="28" fitHeight="28" preserveRatio="true" smooth="true">
+                    <image><Image url="@logo.png"/></image>
+                </ImageView>
+                <Label text="Vérification Face ID"
+                       style="-fx-text-fill:#FFFFFF; -fx-font-size:16px;
+                              -fx-font-weight:bold;
+                              -fx-font-family:'Segoe UI Semibold','Segoe UI',sans-serif;"/>
+                <Label text="  SÉCURISÉ"
+                       style="-fx-background-color:#7B5EA7; -fx-text-fill:white;
+                              -fx-font-size:9px; -fx-font-weight:bold;
+                              -fx-background-radius:20; -fx-padding:3 9 3 9;
+                              -fx-font-family:'Segoe UI',sans-serif;"/>
+            </HBox>
+
+            <Label text="Placez-vous face à la caméra pour confirmer votre identité"
+                   style="-fx-text-fill:rgba(255,255,255,0.65);
+                          -fx-font-size:11px;
+                          -fx-font-family:'Segoe UI',sans-serif;"
+                   wrapText="true" textAlignment="CENTER"/>
+        </VBox>
+
+        <!-- ══════════════════════════════════════════
+             ZONE CAMÉRA + OVERLAYS
+        ══════════════════════════════════════════ -->
+        <StackPane fx:id="cameraPane" prefHeight="340" prefWidth="500"
+                   style="-fx-background-color:linear-gradient(to bottom,#1B4332,#0E2A1F);">
+
+            <!-- Halo ambiant -->
+            <Circle radius="158" fill="rgba(27,67,50,0.5)"
+                    style="-fx-effect:dropshadow(gaussian,rgba(45,106,79,0.6),50,0,0,0);"/>
+
+            <!-- ── FLUX WEBCAM ── -->
+            <ImageView fx:id="cameraView"
+                       fitWidth="300" fitHeight="300"
+                       preserveRatio="false"
+                       smooth="true">
+                <clip>
+                    <!-- centerX/Y = fitWidth/2, fitHeight/2 → cercle parfaitement centré sur l'image -->
+                    <Circle centerX="150" centerY="150" radius="150"/>
+                </clip>
+            </ImageView>
+
+            <!-- ══════════════════════
+                 PHASE 1 : DÉTECTION
+            ══════════════════════ -->
+            <StackPane fx:id="overlayDetection" visible="true">
+
+                <Circle fx:id="detectionRing" radius="153"
+                        fill="TRANSPARENT" stroke="#2D6A4F"
+                        strokeWidth="2.5" strokeDashArray="14,8"
+                        strokeType="OUTSIDE">
+                    <effect><Glow level="0.3"/></effect>
+                </Circle>
+
+                <Circle radius="162" fill="TRANSPARENT"
+                        stroke="rgba(123,94,167,0.3)" strokeWidth="1"
+                        strokeType="OUTSIDE"/>
+
+                <!-- Coins de visée -->
+                <Polyline points="108,92,90,92,90,110"
+                          fill="TRANSPARENT" stroke="#2D6A4F"
+                          strokeWidth="3" strokeLineCap="ROUND" strokeLineJoin="ROUND"/>
+                <Polyline points="392,92,410,92,410,110"
+                          fill="TRANSPARENT" stroke="#2D6A4F"
+                          strokeWidth="3" strokeLineCap="ROUND" strokeLineJoin="ROUND"/>
+                <Polyline points="108,268,90,268,90,250"
+                          fill="TRANSPARENT" stroke="#2D6A4F"
+                          strokeWidth="3" strokeLineCap="ROUND" strokeLineJoin="ROUND"/>
+                <Polyline points="392,268,410,268,410,250"
+                          fill="TRANSPARENT" stroke="#2D6A4F"
+                          strokeWidth="3" strokeLineCap="ROUND" strokeLineJoin="ROUND"/>
+
+                <!-- Croix de ciblage -->
+                <Line startX="-14" startY="0" endX="14" endY="0"
+                      stroke="rgba(45,106,79,0.5)" strokeWidth="1.5"/>
+                <Line startX="0" startY="-14" endX="0" endY="14"
+                      stroke="rgba(45,106,79,0.5)" strokeWidth="1.5"/>
+                <Circle fx:id="targetDot" radius="3.5" fill="#2D6A4F"
+                        style="-fx-effect:dropshadow(gaussian,#2D6A4F,8,0,0,0);"/>
+            </StackPane>
+
+            <!-- ══════════════════════
+                 PHASE 2 : SCAN BIOMÉTRIQUE
+            ══════════════════════ -->
+            <StackPane fx:id="overlayScan" visible="false">
+
+                <Circle radius="153" fill="TRANSPARENT" stroke="#2D6A4F"
+                        strokeWidth="3" strokeType="OUTSIDE">
+                    <effect><Glow level="0.5"/></effect>
+                </Circle>
+
+                <Canvas fx:id="biometricCanvas" width="500" height="340"/>
+
+                <Rectangle fx:id="scanLine"
+                           width="294" height="3" arcWidth="3" arcHeight="3"
+                           fill="linear-gradient(to right,transparent,#7B5EA7 30%,#2D6A4F 50%,#7B5EA7 70%,transparent)"
+                           translateY="-145">
+                    <effect><Glow level="0.9"/></effect>
+                </Rectangle>
+
+                <Rectangle fx:id="scanLineGlow"
+                           width="294" height="16"
+                           fill="linear-gradient(to bottom,transparent,rgba(45,106,79,0.2),transparent)"
+                           translateY="-145"/>
+
+                <Label fx:id="bioLabel1" text="● YEUX" visible="false"
+                       style="-fx-text-fill:#7B5EA7; -fx-font-size:8px; -fx-font-weight:bold;
+                              -fx-font-family:'Consolas',monospace;
+                              -fx-background-color:rgba(14,42,31,0.85);
+                              -fx-padding:2 7 2 7; -fx-background-radius:3;"
+                       translateX="-145" translateY="-48"/>
+                <Label fx:id="bioLabel2" text="● NEZ" visible="false"
+                       style="-fx-text-fill:#7B5EA7; -fx-font-size:8px; -fx-font-weight:bold;
+                              -fx-font-family:'Consolas',monospace;
+                              -fx-background-color:rgba(14,42,31,0.85);
+                              -fx-padding:2 7 2 7; -fx-background-radius:3;"
+                       translateX="145" translateY="19"/>
+                <Label fx:id="bioLabel3" text="● BOUCHE" visible="false"
+                       style="-fx-text-fill:#7B5EA7; -fx-font-size:8px; -fx-font-weight:bold;
+                              -fx-font-family:'Consolas',monospace;
+                              -fx-background-color:rgba(14,42,31,0.85);
+                              -fx-padding:2 7 2 7; -fx-background-radius:3;"
+                       translateX="-145" translateY="82"/>
+                <Label fx:id="bioLabel4" text="● MÂCHOIRE" visible="false"
+                       style="-fx-text-fill:rgba(45,106,79,0.9); -fx-font-size:8px; -fx-font-weight:bold;
+                              -fx-font-family:'Consolas',monospace;
+                              -fx-background-color:rgba(14,42,31,0.85);
+                              -fx-padding:2 7 2 7; -fx-background-radius:3;"
+                       translateX="145" translateY="-78"/>
+            </StackPane>
+
+            <!-- ══════════════════════
+                 PHASE 3 : COMPARAISON IA
+            ══════════════════════ -->
+            <StackPane fx:id="overlayCompare" visible="false">
+
+                <Circle fx:id="compareRingOuter" radius="161"
+                        fill="TRANSPARENT" stroke="rgba(123,94,167,0.55)"
+                        strokeWidth="2" strokeDashArray="7,5"
+                        strokeType="OUTSIDE">
+                    <effect><Glow level="0.4"/></effect>
+                </Circle>
+
+                <Circle fx:id="compareRingInner" radius="148"
+                        fill="TRANSPARENT" stroke="rgba(45,106,79,0.6)"
+                        strokeWidth="1.5" strokeDashArray="4,9"
+                        strokeType="OUTSIDE"/>
+
+                <Canvas fx:id="compareCanvas" width="500" height="340"/>
+
+                <Circle fx:id="orbitDot1" radius="5.5" fill="#7B5EA7"
+                        translateX="0" translateY="-155"
+                        style="-fx-effect:dropshadow(gaussian,#7B5EA7,12,0,0,0);"/>
+                <Circle fx:id="orbitDot2" radius="5.5" fill="#2D6A4F"
+                        translateX="155" translateY="0"
+                        style="-fx-effect:dropshadow(gaussian,#2D6A4F,12,0,0,0);"/>
+                <Circle fx:id="orbitDot3" radius="5.5" fill="#7B5EA7"
+                        translateX="0" translateY="155"
+                        style="-fx-effect:dropshadow(gaussian,#7B5EA7,12,0,0,0);"/>
+                <Circle fx:id="orbitDot4" radius="5.5" fill="#2D6A4F"
+                        translateX="-155" translateY="0"
+                        style="-fx-effect:dropshadow(gaussian,#2D6A4F,12,0,0,0);"/>
+
+                <VBox alignment="CENTER" spacing="4">
+                    <Label fx:id="aiLabel" text="ANALYSE IA"
+                           style="-fx-text-fill:rgba(255,255,255,0.15); -fx-font-size:9px;
+                                  -fx-font-weight:bold; -fx-font-family:'Consolas',monospace;"/>
+                    <Label fx:id="matchProgress" text="0%"
+                           style="-fx-text-fill:rgba(45,106,79,0.65); -fx-font-size:12px;
+                                  -fx-font-weight:bold; -fx-font-family:'Consolas',monospace;"/>
+                </VBox>
+            </StackPane>
+
+            <!-- Anneau résultat final -->
+            <Circle fx:id="faceRingOuter" radius="152"
+                    fill="TRANSPARENT" stroke="transparent"
+                    strokeWidth="0" strokeType="OUTSIDE"/>
+
+            <!-- Label position caméra -->
+            <Label fx:id="facePositionHint" text=""
+                   style="-fx-text-fill:rgba(255,255,255,0.9); -fx-font-size:11px;
+                          -fx-font-family:'Segoe UI',sans-serif;
+                          -fx-background-color:rgba(27,67,50,0.9);
+                          -fx-background-radius:14;
+                          -fx-border-color:rgba(45,106,79,0.6);
+                          -fx-border-width:1; -fx-border-radius:14;
+                          -fx-padding:5 14 5 14;"
+                   StackPane.alignment="BOTTOM_CENTER"
+                   translateY="-14"/>
+
+            <ProgressIndicator fx:id="progressRing"
+                               prefWidth="300" prefHeight="300"
+                               visible="false" opacity="0"
+                               style="-fx-progress-color:#2D6A4F;"/>
+        </StackPane>
+
+        <!-- ══════════════════════════════════════════
+             SCORE DE SIMILARITÉ
+        ══════════════════════════════════════════ -->
+        <Label fx:id="similarityLabel" text=""
+               style="-fx-text-fill:#2D6A4F; -fx-font-size:24px; -fx-font-weight:bold;
+                      -fx-font-family:'Segoe UI',sans-serif; -fx-padding:6 0 2 0;"/>
+
+        <!-- ══════════════════════════════════════════
+             STATUT + PHASE CHIP
+        ══════════════════════════════════════════ -->
+        <VBox alignment="CENTER" spacing="4" style="-fx-padding:8 36 4 36;">
+            <Label fx:id="statusLabel" text="🔍 Recherche d'un visage..."
+                   wrapText="true" textAlignment="CENTER"
+                   style="-fx-text-fill:#1A1A2E; -fx-font-size:14px; -fx-font-weight:bold;
+                          -fx-font-family:'Segoe UI Semibold','Segoe UI',sans-serif;"/>
+            <Label fx:id="statusSub" text="Placez-vous face à la caméra"
+                   wrapText="true" textAlignment="CENTER"
+                   style="-fx-text-fill:#5A6475; -fx-font-size:11px;
+                          -fx-font-family:'Segoe UI',sans-serif;"/>
+            <HBox alignment="CENTER" style="-fx-padding:3 0 0 0;">
+                <Label fx:id="phaseChip" text="● DÉTECTION"
+                       style="-fx-background-color:rgba(27,67,50,0.1);
+                              -fx-text-fill:#2D6A4F; -fx-font-size:9px;
+                              -fx-font-weight:bold; -fx-font-family:'Consolas',monospace;
+                              -fx-background-radius:12; -fx-padding:3 10 3 10;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Barre de progression -->
+        <StackPane style="-fx-padding:5 60 2 60;">
+            <Rectangle height="4" width="370" arcWidth="4" arcHeight="4" fill="#D8E4DC"/>
+            <ProgressBar fx:id="timeProgressBar" prefWidth="370" prefHeight="4"
+                         style="-fx-accent:#2D6A4F; -fx-background-color:transparent; -fx-border-width:0;"
+                         progress="1.0"/>
+        </StackPane>
+
+        <!-- Indicateurs tentatives -->
+        <HBox alignment="CENTER" spacing="6" style="-fx-padding:7 0 2 0;">
+            <Region fx:id="attemptIndicator1"
+                    style="-fx-background-color:#1B4332; -fx-background-radius:4;
+                           -fx-min-width:30; -fx-min-height:5;"/>
+            <Region fx:id="attemptIndicator2"
+                    style="-fx-background-color:#1B4332; -fx-background-radius:4;
+                           -fx-min-width:30; -fx-min-height:5;"/>
+            <Region fx:id="attemptIndicator3"
+                    style="-fx-background-color:#1B4332; -fx-background-radius:4;
+                           -fx-min-width:30; -fx-min-height:5;"/>
+        </HBox>
+
+        <Label fx:id="attemptsLabel" text="3 tentatives restantes"
+               style="-fx-text-fill:#5A6475; -fx-font-size:11px;
+                      -fx-font-family:'Segoe UI',sans-serif; -fx-padding:0 0 4 0;"/>
+
+        <!-- ══════════════════════════════════════════
+             BOUTONS
+        ══════════════════════════════════════════ -->
+        <HBox alignment="CENTER" spacing="12" style="-fx-padding:4 30 10 30;">
+
+            <StackPane fx:id="btnRetry" visible="false" onMouseClicked="#handleRetry"
+                       style="-fx-background-color:#1B4332; -fx-background-radius:30;
+                              -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.45),14,0,0,4);
+                              -fx-cursor:hand;">
+                <HBox alignment="CENTER" spacing="8" style="-fx-padding:11 26 11 26;">
+                    <Label text="🔄" style="-fx-font-size:14px; -fx-text-fill:white;"/>
+                    <Label text="Réessayer"
+                           style="-fx-text-fill:#FFFFFF; -fx-font-size:13px;
+                                  -fx-font-weight:bold; -fx-font-family:'Segoe UI',sans-serif;"/>
+                </HBox>
+            </StackPane>
+
+            <!-- Annuler → revient au panneau login (plus de fermeture de fenêtre) -->
+            <StackPane onMouseClicked="#handleCancel"
+                       style="-fx-background-color:#FFFFFF; -fx-background-radius:30;
+                              -fx-border-color:#C8D8CE; -fx-border-width:1.5;
+                              -fx-border-radius:30; -fx-cursor:hand;
+                              -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.08),8,0,0,2);">
+                <HBox alignment="CENTER" spacing="8" style="-fx-padding:11 26 11 26;">
+                    <Label text="←" style="-fx-text-fill:#5A6475; -fx-font-size:14px;"/>
+                    <Label text="Retour"
+                           style="-fx-text-fill:#5A6475; -fx-font-size:13px;
+                                  -fx-font-family:'Segoe UI',sans-serif; -fx-font-weight:500;"/>
+                </HBox>
+            </StackPane>
+
+        </HBox>
+
+        <!-- Pied de page -->
+        <HBox alignment="CENTER" spacing="6" style="-fx-padding:0 0 14 0;">
+            <Separator prefWidth="55" style="-fx-background-color:#C8D8CE; -fx-opacity:0.7;"/>
+            <Label text="🔒" style="-fx-text-fill:#7B5EA7; -fx-font-size:10px;"/>
+            <Label text="Analyse 100% locale • Aucune donnée envoyée"
+                   style="-fx-text-fill:#5A6475; -fx-font-size:10px;
+                          -fx-font-family:'Segoe UI',sans-serif;"/>
+            <Separator prefWidth="55" style="-fx-background-color:#C8D8CE; -fx-opacity:0.7;"/>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

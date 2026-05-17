@@ -1,0 +1,989 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color:#F0F4F8; -fx-background:#F0F4F8;" styleClass="content-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.DashboardHomeController">
+
+    <VBox fx:id="rootContentVBox" spacing="20" styleClass="content-pane">
+
+        <!-- ═══════════════════════════════════════════════════════
+             BIENVENUE
+        ═══════════════════════════════════════════════════════ -->
+        <HBox fx:id="welcomeCard" alignment="CENTER_LEFT" spacing="0" styleClass="welcome-card" opacity="0">
+            <VBox spacing="7" HBox.hgrow="ALWAYS">
+                <Label fx:id="welcomeLabel" styleClass="welcome-title" text="Bonjour" />
+                <Label styleClass="welcome-sub" text="Tableau de bord MindAura — Vue d'ensemble en temps réel" wrapText="true" />
+            </VBox>
+            <VBox alignment="CENTER_RIGHT" spacing="3">
+                <Label fx:id="dateLabel" style="-fx-text-fill:rgba(255,255,255,0.7); -fx-font-size:11px;" text="" />
+            </VBox>
+        </HBox>
+
+        <!-- ═══════════════════════════════════════════════════════
+             KPI UTILISATEURS
+        ═══════════════════════════════════════════════════════ -->
+        <Label styleClass="section-title" text="Statistiques Utilisateurs" />
+        <HBox fx:id="kpiUsersRow" spacing="14" opacity="0">
+            <VBox spacing="10" styleClass="stat-card stat-card-blue" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-blue">
+                        <FontIcon iconLiteral="fas-users" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="totalUsersLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Utilisateurs total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-green" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-green">
+                        <FontIcon iconLiteral="fas-user-check" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="actifsLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Comptes actifs" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-red" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-red">
+                        <FontIcon iconLiteral="fas-user-times" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="inactifsLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Comptes inactifs" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-purple" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-purple">
+                        <FontIcon iconLiteral="fas-user-shield" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="adminsLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Administrateurs" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- PIECHART RÔLES + TABLE DERNIERS INSCRITS -->
+        <HBox fx:id="userChartsRow" spacing="14" opacity="0">
+            <VBox spacing="10" style="-fx-padding:18 22;" styleClass="table-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="form-section-label" text="Répartition par rôle" />
+                <VBox fx:id="rolesChartBox" spacing="0" VBox.vgrow="ALWAYS" />
+            </VBox>
+            <VBox spacing="14" style="-fx-padding:18 22;" styleClass="table-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="form-section-label" text="Derniers inscrits" />
+                <TableView fx:id="recentUsersTable" fixedCellSize="42" prefHeight="220" styleClass="custom-table">
+                    <columns>
+                        <TableColumn fx:id="colUserNom" prefWidth="165" text="Nom complet" />
+                        <TableColumn fx:id="colUserEmail" prefWidth="190" text="Email" />
+                        <TableColumn fx:id="colUserRole" prefWidth="105" text="Rôle" />
+                        <TableColumn fx:id="colUserStatut" prefWidth="85" text="Statut" />
+                    </columns>
+                    <placeholder><VBox alignment="CENTER"><Label style="-fx-text-fill:#CBD5E1;" text="Aucun utilisateur" /></VBox></placeholder>
+                </TableView>
+            </VBox>
+        </HBox>
+
+        <!-- ═══════════════════════════════════════════════════════
+             KPI TRAITEMENTS
+        ═══════════════════════════════════════════════════════ -->
+        <Label styleClass="section-title" text="Statistiques Traitements" />
+        <HBox fx:id="kpiTraitementsRow" spacing="14" opacity="0">
+            <VBox spacing="10" styleClass="stat-card stat-card-gold" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-gold">
+                        <FontIcon iconLiteral="fas-pills" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="totalTraitementsLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Traitements total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-blue" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-blue">
+                        <FontIcon iconLiteral="fas-play-circle" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="enCoursLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="En cours" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-green" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-green">
+                        <FontIcon iconLiteral="fas-check-circle" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="terminesLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Terminés" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-red" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-red">
+                        <FontIcon iconLiteral="fas-pause-circle" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="suspendusLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Suspendus" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- BARCHART TYPE + BARCHART ÉTAT + TABLE RÉCENTS -->
+        <HBox fx:id="traitementChartsRow" spacing="14" opacity="0">
+            <VBox spacing="10" style="-fx-padding:18 22;" styleClass="table-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="form-section-label" text="Répartition par type" />
+                <VBox fx:id="typeChartBox" spacing="0" VBox.vgrow="ALWAYS" />
+            </VBox>
+            <VBox spacing="10" style="-fx-padding:18 22;" styleClass="table-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="form-section-label" text="Répartition par état" />
+                <VBox fx:id="etatChartBox" spacing="0" VBox.vgrow="ALWAYS" />
+            </VBox>
+            <VBox spacing="0" styleClass="table-card" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" styleClass="table-card-header">
+                    <Label styleClass="table-card-title" text="Derniers traitements" HBox.hgrow="ALWAYS">
+                        <HBox.margin><Insets right="10.0" /></HBox.margin>
+                    </Label>
+                    <Button onAction="#goToTraitements" styleClass="btn-view" text="Voir tout →">
+                        <HBox.margin><Insets /></HBox.margin>
+                    </Button>
+                </HBox>
+                <TableView fx:id="recentTraitementsTable" fixedCellSize="42" prefHeight="200" styleClass="custom-table">
+                    <columns>
+                        <TableColumn fx:id="colTraitType" prefWidth="125" text="Type" />
+                        <TableColumn fx:id="colTraitObj" prefWidth="145" text="Objectif" />
+                        <TableColumn fx:id="colTraitEtat" prefWidth="105" text="État" />
+                    </columns>
+                    <placeholder><VBox alignment="CENTER"><Label style="-fx-text-fill:#CBD5E1;" text="Aucun traitement" /></VBox></placeholder>
+                </TableView>
+            </VBox>
+        </HBox>
+
+        <!-- ═══════════════════════════════════════════════════════
+             HISTORIQUE CONNEXION
+        ═══════════════════════════════════════════════════════ -->
+        <HBox alignment="CENTER_LEFT" spacing="0">
+            <Label styleClass="section-title" text="Historique de Connexion" HBox.hgrow="ALWAYS" />
+            <Label fx:id="connexionCountLabel" style="-fx-text-fill:#95A3B0; -fx-font-size:12px; -fx-padding:0 0 0 8;" text="" />
+        </HBox>
+        <VBox fx:id="connexionSection" spacing="0" styleClass="table-card" opacity="0">
+            <HBox alignment="CENTER_LEFT" styleClass="table-card-header">
+                <Label styleClass="table-card-title" text="50 dernières connexions" HBox.hgrow="ALWAYS" />
+                <Label style="-fx-text-fill:#95A3B0; -fx-font-size:11px;" text="Mis à jour à chaque démarrage" />
+            </HBox>
+            <TableView fx:id="connexionTable" fixedCellSize="46" prefHeight="260" styleClass="custom-table">
+                <columns>
+                    <TableColumn fx:id="colCxNom" prefWidth="195" text="Utilisateur" />
+                    <TableColumn fx:id="colCxEmail" prefWidth="210" text="Email" />
+                    <TableColumn fx:id="colCxRole" prefWidth="115" text="Rôle" />
+                    <TableColumn fx:id="colCxDate" prefWidth="180" text="Date / Heure" />
+                    <TableColumn fx:id="colCxStatut" prefWidth="100" text="Statut" />
+                </columns>
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="8">
+                        <Label styleClass="empty-text" text="Aucune connexion enregistrée" />
+                    </VBox>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             ICHRAK — RESERVATIONS & LOCAUX
+        ═══════════════════════════════════════════════════════════════════════ -->
+        <HBox fx:id="ichrakHeader" alignment="CENTER_LEFT" spacing="16" styleClass="module-header" opacity="0">
+            <StackPane styleClass="module-header-icon">
+                <FontIcon iconLiteral="fas-hospital-alt" iconSize="24" iconColor="white" />
+            </StackPane>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label styleClass="module-header-title" text="Gestion Réservations &amp; Locaux" />
+                <Label styleClass="module-header-sub" text="Statistiques et historique des modifications" />
+            </VBox>
+            <Button onAction="#handleRafraichir" styleClass="btn-refresh btn-refresh-green">
+                <graphic>
+                    <HBox spacing="6" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-sync-alt" iconSize="13" iconColor="white" />
+                        <Label text="Rafraîchir" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;" />
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- KPI Locaux -->
+        <HBox fx:id="kpiLocauxRow" spacing="14" opacity="0">
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(255,140,0,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-hospital" iconSize="22" iconColor="#FF8C00" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTotalLocaux" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Locaux au total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(45,106,79,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-check-circle" iconSize="22" iconColor="#2D6A4F" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiDisponibles" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Locaux disponibles" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(123,94,167,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-calendar-alt" iconSize="22" iconColor="#7B5EA7" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTotalReservations" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Reservations totales" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(27,67,50,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-bullseye" iconSize="22" iconColor="#1B4332" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiConfirmees" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Confirmees" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- KPI Revenu -->
+        <HBox fx:id="kpiRevenuRow" spacing="14" opacity="0">
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 50px; -fx-pref-height: 50px;">
+                        <FontIcon iconLiteral="fas-coins" iconSize="24" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="3">
+                        <Label fx:id="kpiRevenuTotal" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: white;" text="-- DT" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Revenu total (reservations confirmees)" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #FF8C00, #FF6B35); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(255,140,0,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 50px; -fx-pref-height: 50px;">
+                        <FontIcon iconLiteral="fas-chart-line" iconSize="24" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="3">
+                        <Label fx:id="kpiRevenuMoyen" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: white;" text="-- DT" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.9); -fx-font-weight: 600;" text="Revenu moyen par reservation" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Graphiques Occupation + Motifs -->
+        <HBox fx:id="ichrakChartsRow" spacing="16" opacity="0">
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(255,140,0,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-bar" iconSize="18" iconColor="#FF8C00" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Occupation par Local" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Reservations actives (Confirmees + En Attente)" />
+                    </VBox>
+                </HBox>
+                <StackPane style="-fx-padding: 16px 18px 18px 18px; -fx-min-height: 260px;">
+                    <Canvas fx:id="canvasChart" height="230" width="420" />
+                    <Label fx:id="lblChartVide" style="-fx-font-size: 13px; -fx-text-fill: #9CA3AF;" text="Aucune donnee disponible" visible="false" />
+                </StackPane>
+            </VBox>
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(123,94,167,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-pie" iconSize="18" iconColor="#7B5EA7" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Repartition par Motif" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Toutes les reservations par type de consultation" />
+                    </VBox>
+                </HBox>
+                <StackPane style="-fx-padding: 16px 18px 18px 18px; -fx-min-height: 260px;">
+                    <Canvas fx:id="canvasPie" height="230" width="420" />
+                    <Label fx:id="lblPieVide" style="-fx-font-size: 13px; -fx-text-fill: #9CA3AF;" text="Aucune donnee disponible" visible="false" />
+                </StackPane>
+            </VBox>
+        </HBox>
+
+        <!-- Historique + Top Modif -->
+        <HBox fx:id="ichrakHistoRow" spacing="16" opacity="0">
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(123,94,167,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-history" iconSize="18" iconColor="#7B5EA7" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Historique des Modifications" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Qui a change quoi et quand" />
+                    </VBox>
+                    <HBox alignment="CENTER" spacing="6">
+                        <Label style="-fx-font-size: 11px; -fx-text-fill: #5A6475;" text="Res. #" />
+                        <TextField fx:id="txtFiltreReservation" prefWidth="60" promptText="ID..." style="-fx-font-size: 11px; -fx-background-color: #F8FAFC; -fx-border-color: #D8E9E4; -fx-border-width: 1.5px; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 5px 8px;" />
+                        <Button onAction="#handleFiltrerHistorique" style="-fx-font-size: 10px; -fx-padding: 5px 10px; -fx-background-color: #1B4332; -fx-text-fill: white; -fx-background-radius: 7px; -fx-cursor: hand;" text="Filtrer" />
+                        <Button onAction="#handleToutHistorique" style="-fx-font-size: 10px; -fx-padding: 5px 8px; -fx-background-color: #F0F4F8; -fx-text-fill: #5A6475; -fx-background-radius: 7px; -fx-cursor: hand; -fx-border-color: #D8E9E4; -fx-border-width: 1.5px;" text="Tout" />
+                    </HBox>
+                </HBox>
+                <TableView fx:id="tableHistorique" prefHeight="280" style="-fx-background-color: transparent;">
+                    <columns>
+                        <TableColumn fx:id="colHistReservation" prefWidth="58" text="Res. #" />
+                        <TableColumn fx:id="colHistChamp" prefWidth="125" text="Champ" />
+                        <TableColumn fx:id="colHistAncienne" prefWidth="135" text="Avant" />
+                        <TableColumn fx:id="colHistNouvelle" prefWidth="135" text="Apres" />
+                        <TableColumn fx:id="colHistPar" prefWidth="75" text="Par" />
+                        <TableColumn fx:id="colHistDate" prefWidth="125" text="Date et Heure" />
+                    </columns>
+                    <placeholder><Label style="-fx-font-size: 12px; -fx-text-fill: #9CA3AF;" text="Aucune modification enregistree" /></placeholder>
+                </TableView>
+            </VBox>
+            <VBox prefWidth="320" spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(255,140,0,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-trophy" iconSize="18" iconColor="#FF8C00" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Les Plus Modifiees" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Top 10 reservations les plus retouchees" />
+                    </VBox>
+                </HBox>
+                <TableView fx:id="tableTopModif" prefHeight="280" style="-fx-background-color: transparent;">
+                    <columns>
+                        <TableColumn fx:id="colTopLabel" prefWidth="200" text="Reservation" />
+                        <TableColumn fx:id="colTopNb" prefWidth="115" text="Modifications" />
+                    </columns>
+                    <placeholder><Label style="-fx-font-size: 12px; -fx-text-fill: #9CA3AF;" text="Aucun historique enregistre" /></placeholder>
+                </TableView>
+            </VBox>
+        </HBox>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             TESTS PSYCHOLOGIQUES
+        ═══════════════════════════════════════════════════════════════════════ -->
+        <HBox fx:id="testsHeader" alignment="CENTER_LEFT" spacing="16" styleClass="module-header" opacity="0">
+            <StackPane styleClass="module-header-icon">
+                <FontIcon iconLiteral="fas-brain" iconSize="24" iconColor="white" />
+            </StackPane>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label styleClass="module-header-title" text="Statistiques des Tests Psychologiques" />
+                <Label styleClass="module-header-sub" text="Vue récapitulative des passations et résultats par type de test" />
+            </VBox>
+            <Button onAction="#actualiserStatsTests" styleClass="btn-refresh btn-refresh-green">
+                <graphic>
+                    <HBox spacing="6" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-sync-alt" iconSize="13" iconColor="white" />
+                        <Label text="Actualiser" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;" />
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- KPI Tests -->
+        <HBox fx:id="kpiTestsRow" spacing="14" opacity="0">
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(15,52,96,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-clipboard-list" iconSize="22" iconColor="#0F3460" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTotalTests" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Tests au total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(45,106,79,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-pen-alt" iconSize="22" iconColor="#2D6A4F" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTotalPassations" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Passations totales" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(123,94,167,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-comments" iconSize="22" iconColor="#7B5EA7" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTotalReponsesTests" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Réponses totales" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #0F3460, #16213E); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(15,52,96,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-medal" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="3">
+                        <Label fx:id="kpiScoreTotalTests" style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: white;" text="-- pts" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Score total cumulé" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Résumé global -->
+        <Label fx:id="lblResume" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #5A6475; -fx-padding: 0 4px;" />
+
+        <!-- Tableau récapitulatif Tests -->
+        <VBox fx:id="testsTableCard" spacing="10" style="-fx-background-color: white; -fx-background-radius: 14px; -fx-padding: 18px 22px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);" opacity="0">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <StackPane style="-fx-background-color: rgba(15,52,96,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                    <FontIcon iconLiteral="fas-file-alt" iconSize="18" iconColor="#0F3460" />
+                </StackPane>
+                <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;" text="Tableau récapitulatif par type de test" />
+            </HBox>
+            <TableView fx:id="tableViewStats" prefHeight="220" styleClass="custom-table">
+                <columns>
+                    <TableColumn fx:id="colType" prefWidth="180" text="Type de test" />
+                    <TableColumn fx:id="colNbTests" prefWidth="100" text="Nb tests" />
+                    <TableColumn fx:id="colNbPassations" prefWidth="120" text="Nb passations" />
+                    <TableColumn fx:id="colTotalReponses" prefWidth="159.99996948242188" text="Total réponses" />
+                    <TableColumn fx:id="colScoreTotal" prefWidth="222.4000244140625" text="Score total" />
+                    <TableColumn fx:id="colScoreMoyen" prefWidth="264.79999999999995" text="Score moyen" />
+                </columns>
+                <placeholder>
+                    <VBox alignment="CENTER" prefHeight="194.0" prefWidth="721.0">
+                        <Label style="-fx-text-fill:#CBD5E1;" text="Aucune donnée disponible" />
+                    </VBox>
+                </placeholder>
+            </TableView>
+            <HBox fx:id="paginationContainer" alignment="CENTER" style="-fx-padding: 8 0 0 0;" />
+        </VBox>
+
+        <!-- BarChart Passations + PieChart Répartition -->
+        <HBox fx:id="testsChartsRow" spacing="16" opacity="0">
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(15,52,96,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-bar" iconSize="18" iconColor="#0F3460" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Passations par type de test" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Nombre de passations réalisées par catégorie" />
+                    </VBox>
+                </HBox>
+                <VBox style="-fx-padding: 16px 18px 18px 18px; -fx-min-height: 300px;">
+                    <BarChart fx:id="barChartPassations" legendVisible="true" prefHeight="280" VBox.vgrow="ALWAYS">
+                        <xAxis><CategoryAxis label="Type" side="BOTTOM" /></xAxis>
+                        <yAxis><NumberAxis label="Nombre" side="LEFT" /></yAxis>
+                    </BarChart>
+                </VBox>
+            </VBox>
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(123,94,167,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-pie" iconSize="18" iconColor="#7B5EA7" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Répartition des réponses par type" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Distribution des réponses clients par catégorie" />
+                    </VBox>
+                </HBox>
+                <VBox style="-fx-padding: 16px 18px 18px 18px; -fx-min-height: 300px;">
+                    <PieChart fx:id="pieChartTypes" legendVisible="true" prefHeight="280" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             YASSINE — RÉCLAMATIONS
+        ═══════════════════════════════════════════════════════════════════════ -->
+        <HBox fx:id="reclamationsHeader" alignment="CENTER_LEFT" spacing="16" styleClass="module-header" opacity="0">
+            <StackPane styleClass="module-header-icon">
+                <FontIcon iconLiteral="fas-comment-dots" iconSize="24" iconColor="white" />
+            </StackPane>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label styleClass="module-header-title" text="Statistiques des Réclamations" />
+                <Label styleClass="module-header-sub" text="Vue d'ensemble des réclamations, statuts et satisfaction client" />
+            </VBox>
+            <Button onAction="#actualiserStatsReclamations" styleClass="btn-refresh btn-refresh-green">
+                <graphic>
+                    <HBox spacing="6" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-sync-alt" iconSize="13" iconColor="white" />
+                        <Label text="Actualiser" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;" />
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- KPI Réclamations -->
+        <HBox fx:id="kpiReclamationsRow" spacing="14" opacity="0">
+            <!-- Total -->
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(26,26,46,0.10); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-clipboard" iconSize="22" iconColor="#1A1A2E" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTotalReclamations" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Réclamations total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <!-- Traitées -->
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-border-color: #2D6A4F; -fx-border-width: 0 0 4 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(45,106,79,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-check-double" iconSize="22" iconColor="#2D6A4F" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiTraitees" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #2D6A4F;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Traitées / résolues" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <!-- En cours -->
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-border-color: #F59E0B; -fx-border-width: 0 0 4 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(245,158,11,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-spinner" iconSize="22" iconColor="#F59E0B" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiEnCours" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #F59E0B;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="En traitement" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <!-- En attente -->
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-border-color: #EF4444; -fx-border-width: 0 0 4 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(239,68,68,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-exclamation-circle" iconSize="22" iconColor="#EF4444" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiEnAttente" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #EF4444;" text="--" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Non traitées" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <!-- Taux résolution -->
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #2D6A4F, #1B4332); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(45,106,79,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-percentage" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="3">
+                        <Label fx:id="kpiTauxResolution" style="-fx-font-size: 24px; -fx-font-weight: 900; -fx-text-fill: white;" text="-- %" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Taux de résolution" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <!-- Note moyenne -->
+            <VBox spacing="8" style="-fx-padding: 18px; -fx-background-color: white; -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(245,158,11,0.12); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-star" iconSize="22" iconColor="#F59E0B" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="kpiNoteMoyenne" style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #F59E0B;" text="-- / 5" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Note moyenne satisfaction" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Graphiques Réclamations -->
+        <HBox fx:id="reclamationsChartsRow" spacing="16" opacity="0">
+            <VBox fx:id="pieStatutsBox" spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(45,106,79,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-pie" iconSize="18" iconColor="#2D6A4F" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Répartition par statut" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Traitées / En cours / En attente" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox fx:id="barCategoriesBox" spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(45,106,79,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-bar" iconSize="18" iconColor="#2D6A4F" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Réclamations par catégorie" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Nombre de réclamations par type de catégorie" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             MENYAR — RESSOURCES
+        ═══════════════════════════════════════════════════════════════════════ -->
+        <HBox fx:id="ressourcesHeader" alignment="CENTER_LEFT" spacing="16" styleClass="module-header" opacity="0">
+            <StackPane styleClass="module-header-icon">
+                <FontIcon iconLiteral="fas-book-open" iconSize="24" iconColor="white" />
+            </StackPane>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label styleClass="module-header-title" text="Statistiques des Ressources" />
+                <Label styleClass="module-header-sub" text="Vues, likes et répartition des ressources publiées" />
+            </VBox>
+            <Button onAction="#actualiserStatsRessources" styleClass="btn-refresh btn-refresh-green">
+                <graphic>
+                    <HBox spacing="6" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-sync-alt" iconSize="13" iconColor="white" />
+                        <Label text="Actualiser" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;" />
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- KPI Ressources -->
+        <HBox fx:id="kpiRessourcesRow" spacing="14" opacity="0">
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-box-open" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="lblTotalRessources" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: white;" text="0" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Total Ressources" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #0369A1, #0284C7); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-eye" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="lblTotalVues" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: white;" text="0" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Total Vues" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #6D28D9, #7C3AED); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(109,40,217,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-heart" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="lblTotalLikes" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: white;" text="0" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Total Likes" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="8" style="-fx-padding: 20px; -fx-background-color: linear-gradient(to bottom right, #B45309, #D97706); -fx-background-radius: 14px; -fx-effect: dropshadow(gaussian, rgba(180,83,9,0.35), 14, 0, 0, 4);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10px; -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                        <FontIcon iconLiteral="fas-chart-line" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label fx:id="lblMoyenneVues" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: white;" text="0" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-weight: 600;" text="Moyenne Vues / ressource" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Ressource la plus vue + la plus aimée -->
+        <HBox fx:id="ressourcesTop2Row" spacing="14" opacity="0">
+            <VBox spacing="6" style="-fx-padding: 18px 22px; -fx-background-color: white; -fx-background-radius: 14px; -fx-border-color: #D1FAE5; -fx-border-width: 0 0 0 4; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-eye" iconSize="13" iconColor="#5A6475" />
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Ressource la plus vue" />
+                </HBox>
+                <Label fx:id="lblPlusVue" style="-fx-font-size: 15px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="-" wrapText="true" />
+            </VBox>
+            <VBox spacing="6" style="-fx-padding: 18px 22px; -fx-background-color: white; -fx-background-radius: 14px; -fx-border-color: #EDE9FE; -fx-border-width: 0 0 0 4; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-heart" iconSize="13" iconColor="#5A6475" />
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #5A6475; -fx-font-weight: 600;" text="Ressource la plus aimée" />
+                </HBox>
+                <Label fx:id="lblPlusAimee" style="-fx-font-size: 15px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E;" text="-" wrapText="true" />
+            </VBox>
+        </HBox>
+
+        <!-- Graphiques Ressources -->
+        <HBox fx:id="ressourcesCharts1Row" spacing="16" opacity="0">
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(109,40,217,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-pie" iconSize="18" iconColor="#6D28D9" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Répartition par type" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="PDF / Vidéo / Autres" />
+                    </VBox>
+                </HBox>
+                <VBox style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 260px;">
+                    <PieChart fx:id="rPieChartTypes" legendVisible="true" prefHeight="240" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </VBox>
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(3,105,161,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-pie" iconSize="18" iconColor="#0369A1" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Répartition par catégorie" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Distribution par catégorie de ressource" />
+                    </VBox>
+                </HBox>
+                <VBox style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 260px;">
+                    <PieChart fx:id="rPieChartCategories" legendVisible="true" prefHeight="240" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <HBox fx:id="ressourcesCharts2Row" spacing="16" opacity="0">
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(27,67,50,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-bar" iconSize="18" iconColor="#1B4332" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Top 5 — Plus vues" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Ressources avec le plus grand nombre de vues" />
+                    </VBox>
+                </HBox>
+                <VBox style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 280px;">
+                    <BarChart fx:id="rBarChartVues" legendVisible="false" prefHeight="260" VBox.vgrow="ALWAYS">
+                        <xAxis><CategoryAxis label="Ressource" side="BOTTOM" /></xAxis>
+                        <yAxis><NumberAxis label="Vues" side="LEFT" /></yAxis>
+                    </BarChart>
+                </VBox>
+            </VBox>
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(109,40,217,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-thumbs-up" iconSize="18" iconColor="#6D28D9" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Top 5 — Plus aimées" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Ressources avec le plus grand nombre de likes" />
+                    </VBox>
+                </HBox>
+                <VBox style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 280px;">
+                    <BarChart fx:id="rBarChartLikes" legendVisible="false" prefHeight="260" VBox.vgrow="ALWAYS">
+                        <xAxis><CategoryAxis label="Ressource" side="BOTTOM" /></xAxis>
+                        <yAxis><NumberAxis label="Likes" side="LEFT" /></yAxis>
+                    </BarChart>
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <VBox fx:id="ressourcesNiveauxCard" spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" opacity="0">
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                <StackPane style="-fx-background-color: rgba(180,83,9,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                    <FontIcon iconLiteral="fas-layer-group" iconSize="18" iconColor="#B45309" />
+                </StackPane>
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Répartition par niveau" />
+                    <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Nombre de ressources par niveau de difficulté" />
+                </VBox>
+            </HBox>
+            <VBox style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 260px;">
+                <BarChart fx:id="rBarChartNiveaux" legendVisible="false" prefHeight="240" VBox.vgrow="ALWAYS">
+                    <xAxis><CategoryAxis label="Niveau" side="BOTTOM" /></xAxis>
+                    <yAxis><NumberAxis label="Ressources" side="LEFT" /></yAxis>
+                </BarChart>
+            </VBox>
+        </VBox>
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             RANIA — ÉVÉNEMENTS & PARTICIPATIONS
+        ════════════════════════════════════════════════════════════════════ -->
+        <HBox fx:id="ranieHeader" alignment="CENTER_LEFT" spacing="16" styleClass="module-header" opacity="0">
+            <StackPane styleClass="module-header-icon">
+                <FontIcon iconLiteral="fas-calendar-check" iconSize="24" iconColor="white" />
+            </StackPane>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label styleClass="module-header-title" text="Statistiques Événements &amp; Participations" />
+                <Label styleClass="module-header-sub" text="Module de gestion des événements — Rania" />
+            </VBox>
+            <Button onAction="#actualiserStatsEvenements" styleClass="btn-refresh btn-refresh-green">
+                <graphic>
+                    <HBox spacing="5" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-sync-alt" iconSize="12" iconColor="white" />
+                        <Label text="Actualiser" style="-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 700;" />
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- KPI Événements -->
+        <Label styleClass="section-title" text="Statistiques Événements" />
+        <HBox fx:id="kpiEvenementsRow" spacing="14" opacity="0">
+            <VBox spacing="10" styleClass="stat-card stat-card-blue" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-blue">
+                        <FontIcon iconLiteral="fas-calendar-check" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="evTotalLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Événements total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-green" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-green">
+                        <FontIcon iconLiteral="fas-check-circle" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="evActifsLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Actifs" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-red" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-red">
+                        <FontIcon iconLiteral="fas-times-circle" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="evAnnulesLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Annulés" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-purple" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-purple">
+                        <FontIcon iconLiteral="fas-calendar-alt" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="evPlanifiesLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Planifiés" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- KPI Participations -->
+        <Label styleClass="section-title" text="Statistiques Participations" />
+        <HBox fx:id="kpiParticipationsRow" spacing="14" opacity="0">
+            <VBox spacing="10" styleClass="stat-card stat-card-gold" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-gold">
+                        <FontIcon iconLiteral="fas-ticket-alt" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="partTotalLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Participations total" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-green" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-green">
+                        <FontIcon iconLiteral="fas-user-check" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="partConfirmeesLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Confirmées" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-blue" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-blue">
+                        <FontIcon iconLiteral="fas-hourglass-half" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="partAttenteLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="En attente" />
+                    </VBox>
+                </HBox>
+            </VBox>
+            <VBox spacing="10" styleClass="stat-card stat-card-purple" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <StackPane styleClass="stat-icon-bg-purple">
+                        <FontIcon iconLiteral="fas-chair" iconSize="22" iconColor="white" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="evPlacesDispoLabel" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Places disponibles" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Graphiques Événements -->
+        <HBox fx:id="evenementsChartsRow" spacing="16" opacity="0">
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(79,110,247,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-bar" iconSize="18" iconColor="#4F6EF7" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Participations par type d'événement" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Nombre d'inscrits selon la catégorie de l'événement" />
+                    </VBox>
+                </HBox>
+                <VBox fx:id="evBarTypesBox" style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 280px;" />
+            </VBox>
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                    <StackPane style="-fx-background-color: rgba(139,92,246,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                        <FontIcon iconLiteral="fas-chart-pie" iconSize="18" iconColor="#8B5CF6" />
+                    </StackPane>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Répartition des statuts" />
+                        <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Actif / Planifié / Annulé / Complet" />
+                    </VBox>
+                </HBox>
+                <VBox fx:id="evPieStatutsBox" style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 280px;" />
+            </VBox>
+        </HBox>
+
+        <!-- Top 5 Événements -->
+        <VBox fx:id="evenementsTop5Card" spacing="0" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);" opacity="0">
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 20px; -fx-border-color: #F0F4F8; -fx-border-width: 0 0 2 0;">
+                <StackPane style="-fx-background-color: rgba(16,185,129,0.1); -fx-background-radius: 9px; -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                    <FontIcon iconLiteral="fas-fire" iconSize="18" iconColor="#10B981" />
+                </StackPane>
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;" text="Top 5 — Événements les plus demandés" />
+                    <Label style="-fx-font-size: 9px; -fx-text-fill: #5A6475;" text="Classement par nombre de participants inscrits" />
+                </VBox>
+            </HBox>
+            <VBox fx:id="evBarTop5Box" style="-fx-padding: 12px 16px 16px 16px; -fx-min-height: 260px;" />
+        </VBox>
+
+    </VBox>
+</ScrollPane>

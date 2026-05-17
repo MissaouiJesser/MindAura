@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.ChoixController"
+            styleClass="root"
+            prefWidth="900" prefHeight="650">
+
+    <!-- =============================================
+         ÉCRAN DE CHOIX BACK OFFICE / FRONT OFFICE
+         ============================================= -->
+
+    <center>
+        <VBox alignment="CENTER" spacing="50" style="-fx-background-color: linear-gradient(to bottom right, #F0F4F8, #E8F5E9);">
+            <padding>
+                <Insets top="60" bottom="60" left="40" right="40"/>
+            </padding>
+
+            <!-- ========== LOGO ET TITRE ========== -->
+            <VBox alignment="CENTER" spacing="15">
+                <ImageView fitHeight="120" fitWidth="120" preserveRatio="true">
+                    <image>
+                        <Image url="@/images/mindaura_logo.png"/>
+                    </image>
+                </ImageView>
+
+                <!-- Titre principal -->
+                <Label text="MindAura" styleClass="main-title"
+                       style="-fx-font-size: 48px; -fx-font-weight: 900; -fx-text-fill: #1B4332; -fx-font-family: 'Orbitron', 'Poppins', sans-serif;"/>
+
+                <!-- Sous-titre -->
+                <Label text="Gestion des Locaux Psychiatriques" styleClass="main-subtitle"
+                       style="-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #2D6A4F;"/>
+
+                <!-- Séparateur -->
+                <Region prefHeight="30"/>
+
+                <!-- Message de bienvenue -->
+                <Label text="Bienvenue ! Choisissez votre espace"
+                       style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E; -fx-font-family: 'Poppins';"/>
+            </VBox>
+
+            <!-- ========== CARTES DE CHOIX ========== -->
+            <HBox alignment="CENTER" spacing="40">
+                <padding>
+                    <Insets top="20" bottom="20"/>
+                </padding>
+
+                <!-- CARTE FRONT OFFICE -->
+                <VBox alignment="CENTER" spacing="25" styleClass="card, hover-lift"
+                      style="-fx-background-color: white; -fx-background-radius: 20px; -fx-padding: 40px 35px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5); -fx-min-width: 320px; -fx-min-height: 380px;">
+
+                    <!-- Icône -->
+                    <VBox alignment="CENTER" spacing="15"
+                          style="-fx-background-color: linear-gradient(to bottom right, #D8F3DC, #B7E4C7); -fx-background-radius: 20px; -fx-padding: 25px; -fx-min-width: 120px; -fx-min-height: 120px;">
+                        <Label text="👥" style="-fx-font-size: 60px;"/>
+                    </VBox>
+
+                    <!-- Titre -->
+                    <Label text="Espace Public" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #1B4332; -fx-font-family: 'Poppins';"/>
+
+                    <!-- Description -->
+                    <VBox alignment="CENTER" spacing="8">
+                        <Label text="✓ Consulter les locaux disponibles" style="-fx-font-size: 13px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                        <Label text="✓ Réserver en ligne facilement" style="-fx-font-size: 13px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                        <Label text="✓ Gérer vos réservations" style="-fx-font-size: 13px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Bouton -->
+                    <Button fx:id="btnFrontOffice" text="Accéder" onAction="#handleFrontOffice"
+                            styleClass="btn-primary"
+                            style="-fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F); -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 16px; -fx-background-radius: 12px; -fx-padding: 16px 50px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(27, 67, 50, 0.3), 12, 0, 0, 3); -fx-min-width: 200px;"/>
+                </VBox>
+
+                <!-- CARTE BACK OFFICE -->
+                <VBox alignment="CENTER" spacing="25" styleClass="card, hover-lift"
+                      style="-fx-background-color: white; -fx-background-radius: 20px; -fx-padding: 40px 35px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5); -fx-min-width: 320px; -fx-min-height: 380px;">
+
+                    <!-- Icône -->
+                    <VBox alignment="CENTER" spacing="15"
+                          style="-fx-background-color: linear-gradient(to bottom right, #f7ddd5, #f1a080); -fx-background-radius: 20px; -fx-padding: 25px; -fx-min-width: 120px; -fx-min-height: 120px;">
+                        <Label text="🔐" style="-fx-font-size: 60px;"/>
+                    </VBox>
+
+                    <!-- Titre -->
+                    <Label text="Espace Admin" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #e69263; -fx-font-family: 'Poppins';"/>
+
+                    <!-- Description -->
+                    <VBox alignment="CENTER" spacing="8">
+                        <Label text="✓ Gérer tous les locaux" style="-fx-font-size: 13px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                        <Label text="✓ Suivre les réservations" style="-fx-font-size: 13px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                        <Label text="✓ Consulter les statistiques" style="-fx-font-size: 13px; -fx-text-fill: #5A6475; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Bouton -->
+                    <Button fx:id="btnBackOffice" text="Accéder" onAction="#handleBackOffice"
+                            style="-fx-background-color: linear-gradient(to right, #f3c8b7, #f1a080); -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 16px; -fx-background-radius: 12px; -fx-padding: 16px 50px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgb(230,146,99), 12, 0, 0, 3); -fx-min-width: 200px;"/>
+                </VBox>
+            </HBox>
+
+            <!-- ========== SÉLECTEUR DE LANGUE ========== -->
+            <HBox alignment="CENTER" spacing="12">
+                <VBox.margin><Insets top="10" bottom="5"/></VBox.margin>
+                <Label text="🌐 Langue :"
+                       style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #5A6475;"/>
+                <ComboBox fx:id="comboLangue"
+                          prefWidth="165"
+                          style="-fx-background-color: white;
+                                 -fx-border-color: #D1D5DB;
+                                 -fx-border-width: 1.5px;
+                                 -fx-border-radius: 10px;
+                                 -fx-background-radius: 10px;
+                                 -fx-font-size: 13px;
+                                 -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- ========== PIED DE PAGE ========== -->
+            <Label text="© 2026 MindAura - Votre bien-être mental, notre priorité"
+                   style="-fx-font-size: 12px; -fx-text-fill: #9CA3AF; -fx-font-weight: 500;">
+                <VBox.margin>
+                    <Insets top="30"/>
+                </VBox.margin>
+            </Label>
+        </VBox>
+    </center>
+
+</BorderPane>

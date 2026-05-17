@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@style22.css"
+            fx:controller="tn.esprit.controllers.StatistiquesParTypeController">
+
+    <top>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: #1B4332; -fx-padding: 15;">
+                <Button text="← Retour" onAction="#retour"
+                        style="-fx-background-color: rgba(255,255,255,0.12);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 12px;"/>
+                <Label text="📊 Statistiques des test" textFill="white">
+                    <font>
+                        <Font name="System Bold" size="22"/>
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="🔄 Actualiser" onAction="#actualiser" styleClass="btn-neutral"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #F0F4F8;">
+            <VBox spacing="20" style="-fx-padding: 20;">
+                <Label fx:id="lblResume" style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+
+                <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
+                    <Label text="Tableau récapitulatif" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+                    <TableView fx:id="tableViewStats" prefHeight="220" styleClass="table-view">
+                        <columns>
+                            <TableColumn fx:id="colType" prefWidth="180" text="Type de test"/>
+                            <TableColumn fx:id="colNbTests" prefWidth="100" text="Nb tests"/>
+                            <TableColumn fx:id="colNbPassations" prefWidth="120" text="Nb passations"/>
+                            <TableColumn fx:id="colTotalReponses" prefWidth="120" text="Total réponses"/>
+                            <TableColumn fx:id="colScoreTotal" prefWidth="100" text="Score total"/>
+                            <TableColumn fx:id="colScoreMoyen" prefWidth="110" text="Score moyen"/>
+                        </columns>
+                    </TableView>
+                    <HBox fx:id="paginationContainer" alignment="CENTER" style="-fx-padding: 8 0 0 0;"/>
+                </VBox>
+
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                        <Label text="Passations par type" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+                        <BarChart fx:id="barChartPassations" prefHeight="280" prefWidth="400" legendVisible="true">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM" label="Type"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis side="LEFT" label="Nombre"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                    <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                        <Label text="Répartition des réponses" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+                        <PieChart fx:id="pieChartTypes" prefHeight="280" prefWidth="350" legendVisible="true"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane stylesheets="@style22.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.GestionQuestionsController">
+
+    <!-- Header avec infos du test -->
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-background-color: white; -fx-padding: 14 24 14 24;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);
+                     -fx-border-color: transparent transparent #E2E8F0 transparent;
+                     -fx-border-width: 0 0 1 0;">
+
+            <Button text="← Retour" onAction="#retour" styleClass="btn-secondary"/>
+
+            <Separator orientation="VERTICAL" prefHeight="24"/>
+
+            <Label text="Test :" style="-fx-font-weight: bold; -fx-text-fill: #5A6475; -fx-font-size: 13;"/>
+            <Label fx:id="lblTestTitre" text=""
+                   style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+
+            <Separator orientation="VERTICAL" prefHeight="24"/>
+
+            <Label text="Type :" style="-fx-font-weight: bold; -fx-text-fill: #5A6475; -fx-font-size: 13;"/>
+            <Label fx:id="lblTestType" text=""
+                   style="-fx-font-size: 13; -fx-text-fill: #2D6A4F; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <!-- Centre -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 25; -fx-background-color: #F0F4F8;">
+
+            <!-- Barre d'outils -->
+            <HBox spacing="15" alignment="CENTER_LEFT"
+                  style="-fx-padding: 15; -fx-background-color: white;
+                         -fx-background-radius: 10;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);">
+
+                <!-- ✅ Seul "Nouvelle Question" reste ici ; Modifier/Supprimer sont dans chaque cellule -->
+                <Button text="+ Nouvelle Question" onAction="#ajouterQuestion" styleClass="btn-success"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblNbQuestions" text="Total : 0 question(s)"
+                       style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #5A6475;"/>
+                <Button text="🔄 Actualiser" onAction="#actualiser" styleClass="btn-neutral"/>
+            </HBox>
+
+            <!-- ListView -->
+            <ListView fx:id="listViewQuestions" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);"/>
+
+            <!-- Pagination -->
+            <HBox fx:id="paginationContainer" alignment="CENTER"
+                  style="-fx-padding: 8 0 0 0;"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>

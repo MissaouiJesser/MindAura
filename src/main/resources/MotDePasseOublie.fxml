@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.controllers.MotDePasseOublieController"
+           styleClass="login-root"
+           prefWidth="520" prefHeight="480">
+
+    <VBox alignment="CENTER" spacing="0"
+          style="-fx-background-color:#FFFFFF;
+                 -fx-background-radius:20;
+                 -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.13),30,0,0,8);
+                 -fx-max-width:460; -fx-padding:0;">
+
+        <!-- EN-TÊTE coloré -->
+        <VBox alignment="CENTER" spacing="10"
+              style="-fx-background-color:linear-gradient(to bottom right,#1B4332,#2D6A4F);
+                     -fx-background-radius:20 20 0 0;
+                     -fx-padding:36 40 36 40;">
+            <Label text="🔐" style="-fx-font-size:38px;"/>
+            <Label text="Mot de passe oublié ?"
+                   style="-fx-text-fill:#FFFFFF; -fx-font-size:22px; -fx-font-weight:700;"/>
+            <Label text="Entrez votre email pour recevoir un code de vérification"
+                   style="-fx-text-fill:rgba(255,255,255,0.82); -fx-font-size:13px;"
+                   wrapText="true" textAlignment="CENTER"/>
+        </VBox>
+
+        <!-- FORMULAIRE -->
+        <VBox spacing="18" style="-fx-padding:36 40 36 40;">
+
+            <!-- Email -->
+            <VBox spacing="7">
+                <Label text="Adresse email" styleClass="form-label"/>
+                <TextField fx:id="emailField"
+                           promptText="votre@email.com"
+                           styleClass="form-field"/>
+                <Label fx:id="errorLabel" text=""
+                       style="-fx-text-fill:#E74C3C; -fx-font-size:11px; -fx-font-weight:bold;"/>
+            </VBox>
+
+            <!-- Bouton Envoyer -->
+            <Button fx:id="btnEnvoyer"
+                    text="Envoyer le code de vérification"
+                    styleClass="btn-login"
+                    onAction="#handleEnvoyer"/>
+
+            <!-- Lien retour -->
+            <HBox alignment="CENTER" spacing="5" style="-fx-padding:4 0 0 0;">
+                <Label text="←" style="-fx-text-fill:#5A6475; -fx-font-size:13px;"/>
+                <Label text="Retour à la connexion"
+                       styleClass="link-label"
+                       onMouseClicked="#handleRetour"/>
+            </HBox>
+
+        </VBox>
+    </VBox>
+</StackPane>

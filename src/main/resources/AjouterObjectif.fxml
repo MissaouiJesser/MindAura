@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane stylesheets="@style22.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AjouterObjectifController">
+
+
+
+    <!-- Center -->
+    <center>
+        <Label fx:id="lblTitre" text="" textFill="white"/>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #F0F4F8;">
+            <VBox spacing="20" style="-fx-padding: 30;">
+
+
+                <!-- Informations de base -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                    <Label text="Informations de Base" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Separator/>
+
+                    <VBox spacing="5">
+                        <Label text="Titre de l'Objectif *" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="txtTitre" promptText="Ex: Réduire l'anxiété quotidienne" style="-fx-font-size: 14;"/>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <Label text="Description" style="-fx-font-weight: bold;"/>
+                        <TextArea fx:id="txtDescription" promptText="Description détaillée de l'objectif..."
+                                  prefRowCount="3" wrapText="true" style="-fx-font-size: 14;"/>
+                    </VBox>
+
+                    <HBox spacing="20">
+
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Catégorie *" style="-fx-font-weight: bold;"/>
+                            <ComboBox fx:id="cmbType" id="comboType" prefWidth="250">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Santé mentale"/>
+                                        <String fx:value="Confiance en soi"/>
+                                        <String fx:value="Gestion du stress"/>
+                                        <String fx:value="Bien-être"/>
+                                        <String fx:value="Relations sociales"/>
+                                        <String fx:value="Développement personnel"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Durée Estimée (jours) *" style="-fx-font-weight: bold;"/>
+                            <Spinner fx:id="spinDuree" prefWidth="150"/>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Difficulté *" style="-fx-font-weight: bold;"/>
+                            <ComboBox fx:id="cmbDifficulte" prefWidth="150" style="-fx-font-size: 14;">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Facile"/>
+                                        <String fx:value="Moyen"/>
+                                        <String fx:value="Difficile"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Critères de recommandation -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                    <Label text="Critères de Recommandation" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Separator/>
+
+                    <VBox spacing="5">
+                        <Label text="Type de Test" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="cmbTypeTest" prefWidth="250" style="-fx-font-size: 14;">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Anxiété"/>
+                                    <String fx:value="Dépression"/>
+                                    <String fx:value="Stress"/>
+                                    <String fx:value="Personnalité"/>
+                                    <String fx:value="Intelligence émotionnelle"/>
+                                    <String fx:value="Confiance en soi"/>
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <Label text="Niveau Recommandé" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="cmbNiveauRecommande" prefWidth="250" style="-fx-font-size: 14;">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Faible"/>
+                                    <String fx:value="Modéré"/>
+                                    <String fx:value="Élevé"/>
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </VBox>
+
+                    <HBox spacing="20">
+                        <VBox spacing="5">
+                            <Label text="Score Minimum" style="-fx-font-weight: bold;"/>
+                            <Spinner fx:id="spinScoreMin" prefWidth="150"/>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Score Maximum" style="-fx-font-weight: bold;"/>
+                            <Spinner fx:id="spinScoreMax" prefWidth="150"/>
+                        </VBox>
+                    </HBox>
+
+                    <Label text="L'objectif sera recommandé aux patients ayant ce type de test avec un score entre min et max"
+                           style="-fx-text-fill: #5A6475; -fx-font-size: 12; -fx-font-style: italic;" wrapText="true"/>
+                </VBox>
+
+                <!-- Visibilité -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                    <Label text="Visibilité" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Separator/>
+
+                    <CheckBox fx:id="chkPublic" text="Objectif public (visible par tous les patients)"
+                              selected="true" style="-fx-font-size: 14;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Footer -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-background-color: #F0F4F8; -fx-padding: 15;">
+            <Button text="Annuler" onAction="#annuler"
+                    style="-fx-background-color: #7B5EA7; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 30;"/>
+            <Button fx:id="btnEnregistrer" text="Enregistrer" onAction="#enregistrer"
+                    style="-fx-background-color: #1B4332; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 30;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

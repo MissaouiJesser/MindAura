@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.controllers.LoginController"
+           prefWidth="1100" prefHeight="700"
+           styleClass="login-root"
+           style="-fx-min-width: 1100; -fx-min-height: 750;">
+
+    <HBox alignment="CENTER" spacing="0">
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             PANNEAU GAUCHE - PRÉSENTATION VISUELLE
+        ═══════════════════════════════════════════════════════════════ -->
+        <StackPane prefWidth="500" styleClass="login-left-panel">
+
+            <StackPane>
+                <VBox styleClass="login-left-bg"/>
+                <VBox styleClass="login-left-overlay"/>
+            </StackPane>
+
+            <ScrollPane fitToWidth="true" fitToHeight="true"
+                        style="-fx-background:transparent; -fx-background-color:transparent;"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+
+                <VBox alignment="CENTER" spacing="24" style="-fx-padding: 40 40 40 40;">
+
+                    <StackPane>
+                        <ImageView fitWidth="180" fitHeight="180" preserveRatio="true">
+                            <image>
+                                <Image url="@logo.png" backgroundLoading="true"/>
+                            </image>
+                        </ImageView>
+                    </StackPane>
+
+                    <VBox alignment="CENTER" spacing="8">
+                        <HBox alignment="CENTER" spacing="8">
+                            <Label text="Mind" styleClass="login-hero-title"/>
+                            <Label text="Aura" styleClass="login-hero-title-accent"/>
+                        </HBox>
+                        <Label text="PSYCHOLOGIE &amp; DÉVELOPPEMENT PERSONNEL"
+                               styleClass="login-hero-subtitle"/>
+                    </VBox>
+
+                    <HBox alignment="CENTER" spacing="8" style="-fx-padding: 12 0 12 0;">
+                        <Line endX="60" styleClass="login-divider"/>
+                        <Label text="✦" styleClass="login-divider-icon"/>
+                        <Line endX="60" styleClass="login-divider"/>
+                    </HBox>
+
+                    <VBox alignment="CENTER" spacing="16" style="-fx-max-width: 420; -fx-padding: 0 20 0 20;">
+                        <Label text="Votre Plateforme de Bien-être Mental"
+                               styleClass="login-desc-title"
+                               wrapText="true" textAlignment="CENTER"/>
+
+                        <VBox spacing="14" style="-fx-padding: 20 0 0 0;">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="👤" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Gestion des utilisateurs, rôles et profils"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="📔" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Tests psychologiques et suivi des progrès"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="🎯" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Objectifs personnels et analyse émotionnelle"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="📚" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Ressources éducatives et système de commentaires"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="📅" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Réservations de consultations et gestion des séances"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="💬" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Support, réclamations et suivi des demandes"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane styleClass="feature-icon-box">
+                                    <Label text="🎉" style="-fx-font-size: 20px;"/>
+                                </StackPane>
+                                <Label text="Organisation d'événements et participation"
+                                       styleClass="feature-text" wrapText="true"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+        </StackPane>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             PANNEAU DROIT - FORMULAIRES
+             Enveloppé dans un StackPane pour l'image de fond
+        ═══════════════════════════════════════════════════════════════ -->
+        <StackPane prefWidth="600" HBox.hgrow="ALWAYS">
+
+            <!-- ── IMAGE DE FOND ── -->
+            <ImageView fitWidth="600" fitHeight="750"
+                       preserveRatio="false" smooth="true"
+                       StackPane.alignment="CENTER">
+                <image><Image url="@background.jpg" backgroundLoading="true"/></image>
+            </ImageView>
+
+            <!-- ── OVERLAY pour lisibilité (blanc semi-transparent) ── -->
+            <Rectangle fill="rgba(255,255,255,0.5)"
+                       width="600" height="750"/>
+
+            <VBox fx:id="rightPanel"
+                  alignment="CENTER" prefWidth="600"
+                  styleClass="login-right-panel" spacing="0">
+
+                <HBox alignment="CENTER" spacing="6" style="-fx-padding: 0 0 20 0;">
+                    <Label text="Mind" styleClass="login-brand"/>
+                    <Label text="Aura" styleClass="login-brand login-brand-accent"/>
+                </HBox>
+
+                <TabPane fx:id="tabPane" styleClass="tab-pane-login" tabClosingPolicy="UNAVAILABLE"
+                         VBox.vgrow="ALWAYS">
+
+                    <!-- ═════════════════════════════════════════════════════════
+                         ONGLET CONNEXION
+                    ═════════════════════════════════════════════════════════ -->
+                    <Tab text="  Connexion  ">
+                        <VBox spacing="18" style="-fx-padding: 30 50 30 50;" alignment="CENTER">
+                            <Label text="Bienvenue" styleClass="login-title"/>
+                            <Label text="Connectez-vous pour continuer"
+                                   styleClass="login-subtitle" style="-fx-padding: 0 0 10 0;"/>
+
+                            <VBox spacing="6">
+                                <Label text="Adresse email" styleClass="form-label"/>
+                                <TextField fx:id="loginEmail" promptText="votre@email.com" styleClass="form-field"/>
+                            </VBox>
+
+                            <VBox spacing="6">
+                                <Label text="Mot de passe" styleClass="form-label"/>
+                                <HBox alignment="CENTER_LEFT" spacing="0">
+                                    <StackPane HBox.hgrow="ALWAYS">
+                                        <PasswordField fx:id="loginPassword" promptText="••••••••" styleClass="form-field"/>
+                                        <TextField fx:id="loginPasswordVisible" promptText="••••••••" styleClass="form-field" visible="false" managed="false"/>
+                                    </StackPane>
+                                    <Button fx:id="btnToggleLoginPwd"
+                                            text="👁"
+                                            onAction="#handleToggleLoginPassword"
+                                            style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                               -fx-font-size:16px; -fx-cursor:hand; -fx-padding:0 8 0 8;
+                                               -fx-min-width:36; -fx-min-height:36;"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- ── SE SOUVENIR DE MOI + MDP OUBLIÉ ──────────────── -->
+                            <HBox alignment="CENTER_LEFT" spacing="0">
+
+                                <!-- Case "Se souvenir de moi" -->
+                                <HBox alignment="CENTER_LEFT" spacing="8" HBox.hgrow="ALWAYS"
+                                      style="-fx-cursor:hand;" onMouseClicked="#handleToggleSouvenir">
+                                    <!-- Checkbox custom stylisée -->
+                                    <StackPane fx:id="checkboxPane"
+                                               style="-fx-min-width:18; -fx-min-height:18;
+                                                  -fx-pref-width:18; -fx-pref-height:18;
+                                                  -fx-background-color:#FFFFFF;
+                                                  -fx-border-color:#C5CDD8; -fx-border-width:1.5;
+                                                  -fx-background-radius:5; -fx-border-radius:5;
+                                                  -fx-cursor:hand;">
+                                        <Label fx:id="checkmark" text="✓"
+                                               visible="false"
+                                               style="-fx-text-fill:#FFFFFF; -fx-font-size:11px;
+                                                  -fx-font-weight:900;"/>
+                                    </StackPane>
+                                    <Label text="Se souvenir de moi"
+                                           style="-fx-text-fill:#5A6475; -fx-font-size:12px; -fx-cursor:hand;"/>
+                                </HBox>
+
+                                <!-- Lien mot de passe oublié -->
+                                <Label text="Mot de passe oublié ?"
+                                       styleClass="link-label"
+                                       style="-fx-font-size:12px; -fx-text-fill:#2D6A4F; -fx-cursor:hand;"
+                                       onMouseClicked="#handleMotDePasseOublie"/>
+                            </HBox>
+
+                            <Label fx:id="loginErrorLabel" text="" styleClass="error-label"/>
+
+                            <Button fx:id="loginBtn" text="Se connecter" styleClass="btn-login" onAction="#handleLogin"/>
+
+                            <HBox alignment="CENTER" spacing="4" style="-fx-padding: 6 0 0 0;">
+                                <Label text="Pas encore de compte ? " style="-fx-text-fill:#5A6475; -fx-font-size:12px;"/>
+                                <Label text="S'inscrire" styleClass="link-label" onMouseClicked="#switchToRegister"/>
+                            </HBox>
+                        </VBox>
+                    </Tab>
+
+                    <!-- ═════════════════════════════════════════════════════════
+                         ONGLET INSCRIPTION
+                    ═════════════════════════════════════════════════════════ -->
+                    <Tab text="  Inscription  ">
+                        <ScrollPane fitToWidth="true" fitToHeight="true"
+                                    style="-fx-background:transparent; -fx-background-color:transparent;"
+                                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                            <VBox spacing="14" style="-fx-padding: 20 50 20 50;">
+
+                                <Label text="Créer un compte" styleClass="login-title"/>
+                                <Label text="Rejoignez MindAura dès maintenant"
+                                       styleClass="login-subtitle" style="-fx-padding: 0 0 6 0;"/>
+
+                                <!-- Photo de profil -->
+                                <VBox spacing="10" alignment="CENTER"
+                                      styleClass="photo-upload-section">
+                                    <Label text="Photo de profil" styleClass="form-label"
+                                           style="-fx-font-size:13px;"/>
+                                    <HBox alignment="CENTER" spacing="18">
+                                        <StackPane fx:id="photoPreviewPane"
+                                                   style="-fx-min-width:85; -fx-min-height:85;
+                                                      -fx-pref-width:85; -fx-pref-height:85;">
+                                            <StackPane fx:id="photoPlaceholder"
+                                                       styleClass="photo-placeholder">
+                                                <Label text="?" style="-fx-text-fill:#FFFFFF; -fx-font-size:32px; -fx-font-weight:bold;"/>
+                                            </StackPane>
+                                            <ImageView fx:id="photoImageView"
+                                                       fitWidth="85" fitHeight="85"
+                                                       preserveRatio="false"
+                                                       visible="false"
+                                                       style="-fx-background-radius:50;"/>
+                                        </StackPane>
+                                        <VBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                            <Label fx:id="photoNameLabel"
+                                                   text="Aucune photo sélectionnée"
+                                                   styleClass="photo-picker-label"
+                                                   wrapText="true"/>
+                                            <HBox spacing="8">
+                                                <Button text="Choisir une photo"
+                                                        styleClass="btn-change-photo"
+                                                        onAction="#handleChoosePhoto"/>
+                                                <Button fx:id="btnRemovePhoto"
+                                                        text="Supprimer"
+                                                        styleClass="btn-danger"
+                                                        style="-fx-font-size:11px; -fx-padding:6 12 6 12;"
+                                                        onAction="#handleRemovePhoto"
+                                                        visible="false" managed="false"/>
+                                            </HBox>
+                                            <Label text="JPG, PNG, GIF - Max 5 MB"
+                                                   style="-fx-text-fill:#9CA8B3; -fx-font-size:10px;"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
+
+                                <Separator style="-fx-background-color:#E5E9ED;"/>
+
+                                <!-- Prénom + Nom -->
+                                <HBox spacing="12">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Prénom *" styleClass="form-label"/>
+                                        <TextField fx:id="regPrenom" promptText="Prénom" styleClass="form-field"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Nom *" styleClass="form-label"/>
+                                        <TextField fx:id="regNom" promptText="Nom" styleClass="form-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Email -->
+                                <VBox spacing="5">
+                                    <Label text="Adresse email *" styleClass="form-label"/>
+                                    <TextField fx:id="regEmail" promptText="votre@email.com" styleClass="form-field"/>
+                                </VBox>
+
+                                <!-- Téléphone -->
+                                <VBox spacing="5">
+                                    <Label text="Téléphone" styleClass="form-label"/>
+                                    <TextField fx:id="regTelephone" promptText="+216 XX XXX XXX" styleClass="form-field"/>
+                                </VBox>
+
+                                <!-- Date de naissance -->
+                                <VBox spacing="5">
+                                    <Label text="Date de naissance *" styleClass="form-label"/>
+                                    <DatePicker fx:id="regDateNaissance" promptText="jj/mm/aaaa" styleClass="date-picker"/>
+                                </VBox>
+
+                                <!-- Bio -->
+                                <VBox spacing="5">
+                                    <Label text="Biographie *" styleClass="form-label"/>
+                                    <TextArea fx:id="regBio" promptText="Parlez-nous un peu de vous..."
+                                              styleClass="form-field"
+                                              wrapText="true"
+                                              prefRowCount="3"
+                                              minHeight="90"
+                                              prefHeight="90"
+                                              maxHeight="90"/>
+                                </VBox>
+
+                                <!-- Mot de passe -->
+                                <HBox spacing="12">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Mot de passe *" styleClass="form-label"/>
+                                        <HBox alignment="CENTER_LEFT" spacing="0">
+                                            <StackPane HBox.hgrow="ALWAYS">
+                                                <PasswordField fx:id="regPassword" promptText="Min. 6 caractères" styleClass="form-field"/>
+                                                <TextField fx:id="regPasswordVisible" promptText="Min. 6 caractères" styleClass="form-field" visible="false" managed="false"/>
+                                            </StackPane>
+                                            <Button fx:id="btnToggleRegPwd" text="👁"
+                                                    onAction="#handleToggleRegPassword"
+                                                    style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                                       -fx-font-size:16px; -fx-cursor:hand; -fx-padding:0 8 0 8;
+                                                       -fx-min-width:36; -fx-min-height:36;"/>
+                                        </HBox>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Confirmer *" styleClass="form-label"/>
+                                        <HBox alignment="CENTER_LEFT" spacing="0">
+                                            <StackPane HBox.hgrow="ALWAYS">
+                                                <PasswordField fx:id="regPasswordConfirm" promptText="Répéter le mot de passe" styleClass="form-field"/>
+                                                <TextField fx:id="regPasswordConfirmVisible" promptText="Répéter le mot de passe" styleClass="form-field" visible="false" managed="false"/>
+                                            </StackPane>
+                                            <Button fx:id="btnToggleRegPwdConfirm" text="👁"
+                                                    onAction="#handleToggleRegPasswordConfirm"
+                                                    style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                                       -fx-font-size:16px; -fx-cursor:hand; -fx-padding:0 8 0 8;
+                                                       -fx-min-width:36; -fx-min-height:36;"/>
+                                        </HBox>
+                                    </VBox>
+                                </HBox>
+
+                                <Label fx:id="regErrorLabel" text="" styleClass="error-label"/>
+
+                                <Button text="Créer mon compte" styleClass="btn-login" onAction="#handleRegister"/>
+
+                                <HBox alignment="CENTER" spacing="4" style="-fx-padding: 0 0 10 0;">
+                                    <Label text="Déjà un compte ? " style="-fx-text-fill:#5A6475; -fx-font-size:12px;"/>
+                                    <Label text="Se connecter" styleClass="link-label" onMouseClicked="#switchToLogin"/>
+                                </HBox>
+
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
+
+                </TabPane>
+            </VBox>
+
+        </StackPane><!-- fin StackPane panneau droit -->
+    </HBox>
+</StackPane>

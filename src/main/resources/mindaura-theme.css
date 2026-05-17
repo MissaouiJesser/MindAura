@@ -1,0 +1,682 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * MindAura Theme — Feuille de style unifiée
+ * Inspirée du Front Office utilisateur (UserHome.fxml)
+ * Palette principale : Vert MindAura + accents violet
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────── Variables / Palette ───────────────── */
+* {
+    -mindaura-primary:        #1B4332;   /* Vert très foncé (navbar, fonds) */
+    -mindaura-primary-dark:   #0D2B1F;   /* Vert plus foncé encore */
+    -mindaura-primary-hover:  #2D6A4F;   /* Vert hover boutons */
+    -mindaura-primary-light:  #40916C;   /* Vert clair (gradients) */
+    -mindaura-accent:         #BBF7D0;   /* Vert clair (textes accentués) */
+    -mindaura-accent-soft:    #D1FAE5;   /* Vert très clair (badges) */
+    -mindaura-accent-mint:    #B8E6D5;   /* Vert menthe */
+    -mindaura-purple:         #7B5EA7;   /* Violet accent */
+    -mindaura-purple-soft:    #A78BCA;   /* Violet clair */
+
+    -mindaura-bg:             #F0F4F8;   /* Fond principal app */
+    -mindaura-bg-soft:        #F2F5F9;   /* Fond secondaire */
+    -mindaura-bg-card:        #FFFFFF;   /* Fond cartes */
+    -mindaura-bg-dark:        #1A1A2E;   /* Fond sombre footer */
+
+    -mindaura-text:           #1A1A2E;   /* Texte principal */
+    -mindaura-text-soft:      #5A6475;   /* Texte secondaire */
+    -mindaura-text-light:     #7A96A8;   /* Texte placeholder */
+    -mindaura-text-on-dark:   #FFFFFF;   /* Texte sur fond sombre */
+
+    -mindaura-border:         #E2E8F0;   /* Bordures cartes */
+    -mindaura-border-light:   #EDF1F5;   /* Bordures discrètes */
+    -mindaura-border-focus:   #2D6A4F;   /* Bordures focus */
+
+    -mindaura-row-hover:      #D8EAD8;   /* Hover lignes */
+    -mindaura-row-soft:       #E8F5E9;   /* Hover discret */
+
+    /* Couleurs sémantiques (gardent leur signification, mais tonalité MindAura) */
+    -mindaura-success:        #059669;
+    -mindaura-success-dark:   #047857;
+    -mindaura-warning:        #D97706;
+    -mindaura-warning-dark:   #B45309;
+    -mindaura-danger:         #DC2626;
+    -mindaura-danger-dark:    #991B1B;
+    -mindaura-info:           #2D6A4F;
+    -mindaura-info-dark:      #1B4332;
+}
+
+/* ───────────────── Racine ───────────────── */
+.root {
+    -fx-background-color: -mindaura-bg;
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+    -fx-font-size: 13px;
+}
+
+/* ───────────────── Navbar / Headers ───────────────── */
+.mindaura-navbar {
+    -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);
+    -fx-padding: 18px 40px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 14, 0, 0, 4);
+}
+
+.mindaura-header {
+    -fx-background-color: linear-gradient(to bottom, #2D6A4F, #1B4332);
+    -fx-padding: 16 24;
+}
+
+.mindaura-header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.mindaura-header-subtitle {
+    -fx-text-fill: #BBF7D0;
+    -fx-font-size: 13px;
+}
+
+/* ───────────────── Boutons principaux ───────────────── */
+
+/* Bouton primaire (vert MindAura) */
+.btn-mindaura-primary {
+    -fx-background-color: linear-gradient(to bottom right, #2D6A4F, #1B4332);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 12px;
+    -fx-padding: 11px 22px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 10, 0, 0, 3);
+    -fx-border-color: transparent;
+}
+.btn-mindaura-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #40916C, #2D6A4F);
+    -fx-effect: dropshadow(gaussian, rgba(45,106,79,0.55), 14, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-mindaura-primary:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #1B4332, #0D2B1F);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Bouton secondaire (contour) */
+.btn-mindaura-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1B4332;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+}
+.btn-mindaura-secondary:hover {
+    -fx-background-color: #D8EAD8;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.18), 8, 0, 0, 2);
+}
+.btn-mindaura-secondary:pressed {
+    -fx-background-color: #BBF7D0;
+}
+
+/* Bouton accent violet */
+.btn-mindaura-accent {
+    -fx-background-color: linear-gradient(to bottom right, #9333EA, #7C3AED);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 12px;
+    -fx-padding: 11px 22px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.45), 10, 0, 0, 3);
+    -fx-border-color: transparent;
+}
+.btn-mindaura-accent:hover {
+    -fx-background-color: linear-gradient(to bottom right, #A855F7, #9333EA);
+    -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.6), 14, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-mindaura-accent:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Bouton succès */
+.btn-mindaura-success {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 12px;
+    -fx-padding: 11px 22px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.45), 10, 0, 0, 3);
+    -fx-border-color: transparent;
+}
+.btn-mindaura-success:hover {
+    -fx-background-color: linear-gradient(to bottom right, #10B981, #059669);
+    -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.6), 14, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-mindaura-success:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Bouton danger */
+.btn-mindaura-danger {
+    -fx-background-color: linear-gradient(to bottom right, #DC2626, #991B1B);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 12px;
+    -fx-padding: 11px 22px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(220,38,38,0.45), 10, 0, 0, 3);
+    -fx-border-color: transparent;
+}
+.btn-mindaura-danger:hover {
+    -fx-background-color: linear-gradient(to bottom right, #EF4444, #DC2626);
+    -fx-effect: dropshadow(gaussian, rgba(220,38,38,0.6), 14, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-mindaura-danger:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Bouton neutre (gris) */
+.btn-mindaura-neutral {
+    -fx-background-color: #5A6475;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 12px;
+    -fx-padding: 10px 18px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.btn-mindaura-neutral:hover {
+    -fx-background-color: #6B7585;
+    -fx-effect: dropshadow(gaussian, rgba(90,100,117,0.4), 10, 0, 0, 3);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-mindaura-neutral:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Bouton transparent (sur fond sombre) */
+.btn-mindaura-ghost {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-text-fill: #BBF7D0;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 18px;
+    -fx-border-color: rgba(187,247,208,0.35);
+    -fx-border-radius: 20px;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+.btn-mindaura-ghost:hover {
+    -fx-background-color: rgba(255,255,255,0.20);
+    -fx-border-color: #BBF7D0;
+}
+.btn-mindaura-ghost:pressed {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* ───────────────── Champs de saisie ───────────────── */
+.mindaura-input,
+.text-field,
+.text-area,
+.password-field {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: -mindaura-text;
+    -fx-prompt-text-fill: -mindaura-text-light;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: -mindaura-border;
+    -fx-border-width: 1.5px;
+    -fx-padding: 9px 12px;
+    -fx-font-size: 13px;
+}
+.mindaura-input:focused,
+.text-field:focused,
+.text-area:focused,
+.password-field:focused {
+    -fx-border-color: -mindaura-border-focus;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(45,106,79,0.18), 6, 0, 0, 0);
+}
+
+/* ───────────────── ComboBox / DatePicker ───────────────── */
+.combo-box, .date-picker {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: -mindaura-border;
+    -fx-border-width: 1.5px;
+}
+.combo-box:focused, .date-picker:focused {
+    -fx-border-color: -mindaura-border-focus;
+    -fx-border-width: 2px;
+}
+.combo-box .list-cell {
+    -fx-text-fill: -mindaura-text;
+    -fx-padding: 6px 12px;
+}
+.combo-box-popup .list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: -mindaura-border-focus;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -mindaura-row-soft;
+    -fx-text-fill: -mindaura-primary;
+}
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: -mindaura-primary;
+    -fx-text-fill: white;
+}
+
+/* ───────────────── Cartes (cards) ───────────────── */
+.mindaura-card {
+    -fx-background-color: -mindaura-bg-card;
+    -fx-background-radius: 14px;
+    -fx-padding: 22px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 3);
+    -fx-border-color: -mindaura-border;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+}
+.mindaura-card:hover {
+    -fx-border-color: -mindaura-primary-hover;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.15), 18, 0, 0, 5);
+}
+
+/* ───────────────── Labels ───────────────── */
+.mindaura-title {
+    -fx-text-fill: -mindaura-text;
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+}
+.mindaura-subtitle {
+    -fx-text-fill: -mindaura-text-soft;
+    -fx-font-size: 13px;
+}
+.mindaura-label {
+    -fx-text-fill: -mindaura-text;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+/* ───────────────── Badges ───────────────── */
+.mindaura-badge {
+    -fx-background-color: -mindaura-accent-soft;
+    -fx-text-fill: -mindaura-primary-hover;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12px;
+    -fx-padding: 4px 12px;
+}
+.mindaura-badge-purple {
+    -fx-background-color: derive(#7B5EA7, 75%);
+    -fx-text-fill: #7B5EA7;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12px;
+    -fx-padding: 4px 12px;
+}
+
+/* ───────────────── TableView ───────────────── */
+.table-view {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: -mindaura-border;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.06), 10, 0, 0, 3);
+}
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #1B4332, #0D2B1F);
+    -fx-background-radius: 12px 12px 0 0;
+}
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 10px 8px;
+}
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER_LEFT;
+}
+.table-view .table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: -mindaura-border-light;
+    -fx-border-width: 0 0 1 0;
+}
+.table-view .table-row-cell:odd {
+    -fx-background-color: -mindaura-bg-soft;
+}
+.table-view .table-row-cell:hover {
+    -fx-background-color: -mindaura-row-soft;
+}
+.table-view .table-row-cell:selected {
+    -fx-background-color: -mindaura-row-hover;
+    -fx-text-fill: -mindaura-text;
+}
+.table-view .table-cell {
+    -fx-text-fill: -mindaura-text;
+    -fx-padding: 9px 8px;
+    -fx-font-size: 12.5px;
+    -fx-border-color: transparent;
+}
+
+/* ───────────────── ListView ───────────────── */
+.list-view {
+    -fx-background-color: -mindaura-bg;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 4px 0;
+}
+.list-cell:filled:hover {
+    -fx-background-color: -mindaura-row-soft;
+}
+.list-cell:filled:selected,
+.list-cell:filled:selected:hover {
+    -fx-background-color: -mindaura-row-hover;
+    -fx-text-fill: -mindaura-text;
+}
+
+/* ───────────────── ScrollPane / ScrollBar ───────────────── */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar .thumb {
+    -fx-background-color: derive(#2D6A4F, 30%);
+    -fx-background-radius: 6px;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: #2D6A4F;
+}
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* ───────────────── TabPane ───────────────── */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 8 18;
+    -fx-background-radius: 10 10 0 0;
+}
+.tab-pane .tab:selected {
+    -fx-background-color: #FFFFFF;
+}
+.tab-pane .tab .tab-label {
+    -fx-text-fill: -mindaura-text-soft;
+    -fx-font-weight: 700;
+    -fx-font-size: 12.5px;
+}
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -mindaura-primary;
+}
+
+/* ───────────────── Pagination / pager ───────────────── */
+.mindaura-pager {
+    -fx-background-color: #E2E8F0;
+    -fx-text-fill: -mindaura-text;
+    -fx-padding: 6 12;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+}
+.mindaura-pager:hover {
+    -fx-background-color: -mindaura-accent-soft;
+    -fx-text-fill: -mindaura-primary;
+}
+
+/* ───────────────── Séparateurs ───────────────── */
+.separator .line {
+    -fx-border-color: -mindaura-border;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ───────────────── Tooltip ───────────────── */
+.tooltip {
+    -fx-background-color: -mindaura-primary;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-padding: 6 12;
+    -fx-background-radius: 6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Compatibilité — classes héritées (mappent vers le thème MindAura)
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* boutons hérités de app.css */
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom right, #2D6A4F, #1B4332);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.3), 8, 0, 0, 2);
+}
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #40916C, #2D6A4F);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-primary:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
+
+.btn-accent {
+    -fx-background-color: linear-gradient(to bottom right, #9333EA, #7C3AED);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.4), 8, 0, 0, 2);
+}
+.btn-accent:hover {
+    -fx-background-color: linear-gradient(to bottom right, #A855F7, #9333EA);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-accent:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
+
+.btn-success {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.4), 8, 0, 0, 2);
+}
+.btn-success:hover {
+    -fx-background-color: linear-gradient(to bottom right, #10B981, #059669);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-success:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
+
+.btn-neutral {
+    -fx-background-color: #5A6475;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-background-radius: 10;
+}
+.btn-neutral:hover {
+    -fx-background-color: #6B7585;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-neutral:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
+
+/* boutons d'ajout existants */
+.btn-add-primary {
+    -fx-background-color: linear-gradient(to bottom right, #2D6A4F, #1B4332);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 11;
+    -fx-cursor: hand;
+    -fx-padding: 10 22 10 22;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 12, 0, 0, 4);
+}
+.btn-add-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #40916C, #2D6A4F);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+.btn-add-primary:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
+
+.btn-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1B4332;
+    -fx-font-weight: 700;
+    -fx-font-size: 12.5px;
+    -fx-background-radius: 11;
+    -fx-border-radius: 11;
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 1.5;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover {
+    -fx-background-color: #D8EAD8;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.15), 8, 0, 0, 2);
+}
+.btn-secondary:pressed { -fx-background-color: #BBF7D0; }
+
+.btn-filter {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #2D6A4F;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 1.2;
+    -fx-padding: 8 14;
+    -fx-cursor: hand;
+}
+.btn-filter:hover {
+    -fx-background-color: #D1FAE5;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-export-csv {
+    -fx-background-color: linear-gradient(to bottom right, #2D6A4F, #1B4332);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-background-radius: 10;
+    -fx-padding: 8 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.3), 8, 0, 0, 2);
+}
+.btn-export-csv:hover {
+    -fx-background-color: linear-gradient(to bottom right, #40916C, #2D6A4F);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.search-box {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1.5;
+    -fx-padding: 8 14;
+    -fx-font-size: 13px;
+}
+.search-box:focused {
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 2;
+}
+
+.form-combo {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1.5;
+    -fx-padding: 4 8;
+    -fx-font-size: 12px;
+}
+.form-combo:focused { -fx-border-color: #2D6A4F; -fx-border-width: 2; }
+
+.form-label {
+    -fx-text-fill: #1A2E3D;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.error-label {
+    -fx-text-fill: #DC2626;
+    -fx-font-size: 10.5px;
+}
+
+.date-picker {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1.5;
+    -fx-font-size: 12px;
+}
+.date-picker:focused { -fx-border-color: #2D6A4F; -fx-border-width: 2; }
+
+.text-field-search {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1.5;
+    -fx-padding: 8 12;
+}
+.text-field-search:focused { -fx-border-color: #2D6A4F; -fx-border-width: 2; }

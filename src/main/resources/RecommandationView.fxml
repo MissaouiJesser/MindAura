@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx/21.0.0"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.RecommandationControllerParticipation"
+      spacing="0"
+      style="-fx-background-color:#F0F7F0;">
+
+    <!-- ═══════════════════  HEADER VERT  ═══════════════════ -->
+    <HBox alignment="CENTER_LEFT" spacing="16"
+          style="-fx-background-color:linear-gradient(to right, #1B5E20, #2E7D32);
+                 -fx-padding:14 24; -fx-min-height:64;
+                 -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.25),10,0,0,3);">
+
+        <Button fx:id="btnRetour" onAction="#retourPagePrecedente"
+                style="-fx-background-color:rgba(255,255,255,0.15);
+                       -fx-background-radius:20; -fx-padding:7 16; -fx-cursor:hand;
+                       -fx-border-color:rgba(255,255,255,0.35); -fx-border-width:1;
+                       -fx-border-radius:20;">
+            <graphic>
+                <HBox spacing="6" alignment="CENTER">
+                    <FontIcon iconLiteral="fas-arrow-left" iconSize="12" iconColor="white"/>
+                    <Label text="Retour" style="-fx-text-fill:white; -fx-font-size:12px; -fx-font-weight:700;"/>
+                </HBox>
+            </graphic>
+        </Button>
+
+        <Region prefWidth="1" prefHeight="28"
+                style="-fx-background-color:rgba(255,255,255,0.25);"/>
+
+        <VBox spacing="1" HBox.hgrow="ALWAYS">
+            <Label text="Recommandations Intelligentes"
+                   style="-fx-text-fill:#FFFFFF; -fx-font-size:18px; -fx-font-weight:900;"/>
+            <Label text="Suggestions personnalisees basees sur votre historique"
+                   style="-fx-text-fill:rgba(255,255,255,0.75); -fx-font-size:11.5px;"/>
+        </VBox>
+
+        <Button onAction="#rafraichir"
+                style="-fx-background-color:#FFFFFF; -fx-background-radius:20;
+                       -fx-padding:7 18; -fx-cursor:hand;
+                       -fx-border-color:#A5D6A7; -fx-border-width:1.5; -fx-border-radius:20;
+                       -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.12),6,0,0,2);">
+            <graphic>
+                <HBox spacing="6" alignment="CENTER">
+                    <FontIcon iconLiteral="fas-sync-alt" iconSize="12" iconColor="#2E7D32"/>
+                    <Label text="Rafraichir" style="-fx-text-fill:#2E7D32; -fx-font-size:12px; -fx-font-weight:700;"/>
+                </HBox>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <!-- ═══════════════════  PROFIL UTILISATEUR  ═══════════════════ -->
+    <HBox spacing="14" alignment="CENTER_LEFT"
+          style="-fx-background-color:#FFFFFF; -fx-padding:16 24;
+                 -fx-border-color:#C8E6C9; -fx-border-width:0 0 1 0;">
+
+        <StackPane style="-fx-background-color:#E8F5E9; -fx-background-radius:50;
+                          -fx-min-width:44; -fx-min-height:44;
+                          -fx-max-width:44; -fx-max-height:44;
+                          -fx-border-color:#A5D6A7; -fx-border-width:2; -fx-border-radius:50;">
+            <FontIcon iconLiteral="fas-user" iconSize="18" iconColor="#2E7D32"/>
+        </StackPane>
+
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label fx:id="profilLabel" text="Chargement du profil..."
+                   style="-fx-text-fill:#1B5E20; -fx-font-size:13px; -fx-font-weight:700;"/>
+            <Label fx:id="userEmailLabel" text=""
+                   style="-fx-text-fill:#888888; -fx-font-size:11px;"/>
+        </VBox>
+
+        <HBox spacing="6" alignment="CENTER"
+              style="-fx-background-color:#E8F5E9; -fx-background-radius:20;
+                     -fx-padding:6 14; -fx-border-color:#A5D6A7;
+                     -fx-border-radius:20; -fx-border-width:1;">
+            <FontIcon iconLiteral="fas-lock" iconSize="11" iconColor="#2E7D32"/>
+            <Label text="Compte connecte"
+                   style="-fx-text-fill:#2E7D32; -fx-font-size:11px; -fx-font-weight:700;"/>
+        </HBox>
+    </HBox>
+
+    <!-- Message d'erreur -->
+    <Label fx:id="statusLabel" text="" visible="false" managed="false"
+           style="-fx-font-size:12px; -fx-text-fill:#C62828;
+                  -fx-background-color:#FFEBEE; -fx-background-radius:8;
+                  -fx-padding:8 16; -fx-border-color:#EF9A9A;
+                  -fx-border-width:1; -fx-border-radius:8;"/>
+
+    <!-- ═══════════════════  CONTENU  ═══════════════════ -->
+    <HBox spacing="16" VBox.vgrow="ALWAYS" style="-fx-padding:20 24 24 24;">
+
+        <!-- Colonne RECOMMANDATIONS -->
+        <VBox spacing="12" HBox.hgrow="ALWAYS">
+
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-background-color:#FFFFFF; -fx-background-radius:10;
+                         -fx-padding:10 16; -fx-border-color:#C8E6C9;
+                         -fx-border-width:1; -fx-border-radius:10;">
+                <FontIcon iconLiteral="fas-star" iconSize="14" iconColor="#F59E0B"/>
+                <Label fx:id="recommandationTitle" text="Pour vous"
+                       style="-fx-text-fill:#1B5E20; -fx-font-size:15px; -fx-font-weight:800;"
+                       HBox.hgrow="ALWAYS"/>
+                <Label text="Top recommandations"
+                       style="-fx-background-color:#E8F5E9; -fx-background-radius:20;
+                              -fx-padding:3 10; -fx-text-fill:#388E3C;
+                              -fx-font-size:10px; -fx-font-weight:700;
+                              -fx-border-color:#A5D6A7; -fx-border-width:1; -fx-border-radius:20;"/>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background:transparent; -fx-background-color:transparent;
+                               -fx-border-color:transparent;">
+                <content>
+                    <VBox fx:id="recoContainer" spacing="10">
+                        <padding><Insets top="2" right="4" bottom="2" left="2"/></padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </VBox>
+
+        <!-- Colonne TENDANCES -->
+        <VBox spacing="12" prefWidth="300" minWidth="270"
+              style="-fx-background-color:#FFFFFF; -fx-background-radius:14;
+                     -fx-border-color:#C8E6C9; -fx-border-width:1; -fx-border-radius:14;
+                     -fx-padding:16;
+                     -fx-effect:dropshadow(gaussian,rgba(0,100,0,0.08),12,0,0,4);">
+
+            <HBox spacing="8" alignment="CENTER_LEFT"
+                  style="-fx-background-color:#E8F5E9; -fx-background-radius:10;
+                         -fx-padding:10 14; -fx-border-color:#C8E6C9;
+                         -fx-border-width:1; -fx-border-radius:10;">
+                <FontIcon iconLiteral="fas-fire" iconSize="14" iconColor="#E65100"/>
+                <VBox spacing="1">
+                    <Label text="Tendances"
+                           style="-fx-text-fill:#1B5E20; -fx-font-size:14px; -fx-font-weight:800;"/>
+                    <Label text="Evenements populaires du moment"
+                           style="-fx-text-fill:#66BB6A; -fx-font-size:10px;"/>
+                </VBox>
+            </HBox>
+
+            <VBox fx:id="tendanceContainer" spacing="10"/>
+        </VBox>
+    </HBox>
+</VBox>

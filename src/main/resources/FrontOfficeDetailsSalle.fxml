@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="tn.esprit.controllers.FrontOfficeDetailsSalleController"
+      spacing="0" style="-fx-background-color: #F0F4F8;">
+
+    <!-- CORPS -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color:#F0F4F8;-fx-background:#F0F4F8;">
+        <HBox spacing="28" style="-fx-background-color:#F0F4F8;">
+            <padding><Insets top="30" bottom="40" left="40" right="40"/></padding>
+
+            <!-- PANNEAU GAUCHE : détails -->
+            <VBox spacing="20" prefWidth="420" minWidth="320">
+                <StackPane style="-fx-background-color:#D1FAE5;-fx-background-radius:16px;
+                                  -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.10),14,0,0,4);"
+                           prefHeight="260">
+                    <ImageView fx:id="imgSalle" fitWidth="420" fitHeight="260"
+                               preserveRatio="false" smooth="true"/>
+                    <Label fx:id="lblImgPlaceholder" text="&#x1F3E0;"
+                           style="-fx-font-size:80px;-fx-text-fill:#6EE7B7;" visible="false"/>
+                </StackPane>
+
+                <VBox spacing="14"
+                      style="-fx-background-color:white;-fx-background-radius:16px;
+                             -fx-padding:22px;
+                             -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.07),14,0,0,3);">
+                    <Label text="&#x2139;  Informations"
+                           style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#065F46;"/>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="&#x1F3F7;" style="-fx-font-size:16px;"/>
+                        <VBox>
+                            <Label text="Nom" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                            <Label fx:id="lblNom" style="-fx-font-size:15px;-fx-font-weight:700;-fx-text-fill:#1A1A2E;"/>
+                        </VBox>
+                    </HBox>
+                    <Separator/>
+                    <HBox spacing="30">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="&#x1F4CB;" style="-fx-font-size:16px;"/>
+                            <VBox>
+                                <Label text="Type" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                                <Label fx:id="lblType" style="-fx-font-size:13px;-fx-font-weight:600;-fx-text-fill:#374151;"/>
+                            </VBox>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="&#x2699;" style="-fx-font-size:16px;"/>
+                            <VBox>
+                                <Label text="Statut" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                                <Label fx:id="lblStatut" style="-fx-font-size:13px;-fx-font-weight:700;"/>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                    <Separator/>
+                    <HBox spacing="30">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="&#x1F465;" style="-fx-font-size:16px;"/>
+                            <VBox>
+                                <Label text="Capacite" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                                <Label fx:id="lblCapacite" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#059669;"/>
+                            </VBox>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="&#x1F3E2;" style="-fx-font-size:16px;"/>
+                            <VBox>
+                                <Label text="Etage" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                                <Label fx:id="lblEtage" style="-fx-font-size:13px;-fx-font-weight:600;-fx-text-fill:#374151;"/>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                    <Separator/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="&#x1F4CD;" style="-fx-font-size:16px;"/>
+                        <VBox>
+                            <Label text="Local parent" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                            <Label fx:id="lblLocalParent" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#2D6A4F;"/>
+                        </VBox>
+                    </HBox>
+                    <Separator/>
+                    <HBox spacing="10" alignment="TOP_LEFT">
+                        <Label text="&#x1F527;" style="-fx-font-size:16px;"/>
+                        <VBox>
+                            <Label text="Equipements" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                            <Label fx:id="lblEquipements"
+                                   style="-fx-font-size:12px;-fx-text-fill:#374151;"
+                                   wrapText="true" maxWidth="300"/>
+                        </VBox>
+                    </HBox>
+                    <Separator/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="&#x1F7E2;" style="-fx-font-size:14px;"/>
+                        <VBox>
+                            <Label text="Disponibilite" style="-fx-font-size:11px;-fx-text-fill:#9CA3AF;-fx-font-weight:600;"/>
+                            <Label fx:id="lblDisponibilite" style="-fx-font-size:13px;-fx-font-weight:700;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- PANNEAU DROIT : formulaire -->
+            <VBox spacing="18" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color:white;-fx-background-radius:18px;
+                         -fx-padding:28px;
+                         -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.08),16,0,0,4);">
+
+                <!-- Titre formulaire -->
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <StackPane style="-fx-background-color:#D1FAE5;-fx-background-radius:10px;
+                                      -fx-min-width:42px;-fx-pref-width:42px;
+                                      -fx-min-height:42px;-fx-pref-height:42px;">
+                        <Label text="&#x1F4C5;" style="-fx-font-size:20px;"/>
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label text="Formulaire de Reservation"
+                               style="-fx-font-size:18px;-fx-font-weight:900;-fx-text-fill:#1B4332;"/>
+                        <Label text="Choisissez vos preferences et confirmez votre reservation"
+                               style="-fx-font-size:12px;-fx-text-fill:#9CA3AF;"/>
+                    </VBox>
+                </HBox>
+                <Separator/>
+
+                <!-- Nom de la salle (affiché automatiquement, lecture seule) -->
+                <VBox spacing="5">
+                    <Label text="Salle reservee"
+                           style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT"
+                          style="-fx-background-color:#F0FDF4;-fx-background-radius:10px;
+                                 -fx-border-color:#86EFAC;-fx-border-width:1.5px;
+                                 -fx-border-radius:10px;-fx-padding:12px 16px;">
+                        <Label text="&#x1F3E0;" style="-fx-font-size:18px;"/>
+                        <Label fx:id="lblNomSalle"
+                               style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#15803D;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Nom et Prénom (pré-remplis depuis la session) -->
+                <HBox spacing="16">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Nom"
+                               style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                        <TextField fx:id="txtNomCl" promptText="Nom"
+                                   style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                          -fx-border-width:1.5px;-fx-border-radius:8px;
+                                          -fx-background-radius:8px;-fx-padding:10px 12px;-fx-font-size:13px;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Prenom"
+                               style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                        <TextField fx:id="txtPrenomCl" promptText="Prenom"
+                                   style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                          -fx-border-width:1.5px;-fx-border-radius:8px;
+                                          -fx-background-radius:8px;-fx-padding:10px 12px;-fx-font-size:13px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Date -->
+                <VBox spacing="5">
+                    <Label text="Date de Reservation *"
+                           style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                    <DatePicker fx:id="dateReservation" maxWidth="Infinity"
+                                style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                       -fx-border-width:1.5px;-fx-border-radius:8px;
+                                       -fx-background-radius:8px;-fx-pref-height:42px;"/>
+                </VBox>
+
+                <!-- Heure début -->
+                <VBox spacing="5">
+                    <Label text="Heure de debut *"
+                           style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Spinner fx:id="spinnerHeureDebut" prefWidth="80" prefHeight="40"
+                                 style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                        -fx-border-width:1.5px;-fx-border-radius:8px;-fx-background-radius:8px;"/>
+                        <Label text="h" style="-fx-font-size:14px;-fx-text-fill:#6B7280;-fx-font-weight:700;"/>
+                        <Spinner fx:id="spinnerMinuteDebut" prefWidth="80" prefHeight="40"
+                                 style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                        -fx-border-width:1.5px;-fx-border-radius:8px;-fx-background-radius:8px;"/>
+                        <Label text="min" style="-fx-font-size:14px;-fx-text-fill:#6B7280;-fx-font-weight:700;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Heure fin -->
+                <VBox spacing="5">
+                    <Label text="Heure de fin *"
+                           style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Spinner fx:id="spinnerHeureFin" prefWidth="80" prefHeight="40"
+                                 style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                        -fx-border-width:1.5px;-fx-border-radius:8px;-fx-background-radius:8px;"/>
+                        <Label text="h" style="-fx-font-size:14px;-fx-text-fill:#6B7280;-fx-font-weight:700;"/>
+                        <Spinner fx:id="spinnerMinuteFin" prefWidth="80" prefHeight="40"
+                                 style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                        -fx-border-width:1.5px;-fx-border-radius:8px;-fx-background-radius:8px;"/>
+                        <Label text="min" style="-fx-font-size:14px;-fx-text-fill:#6B7280;-fx-font-weight:700;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Motif -->
+                <VBox spacing="5">
+                    <Label text="Motif *"
+                           style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                    <ComboBox fx:id="comboMotif" maxWidth="Infinity"
+                              style="-fx-background-color:#F9FAFB;-fx-border-color:#E5E7EB;
+                                     -fx-border-width:1.5px;-fx-border-radius:8px;
+                                     -fx-background-radius:8px;-fx-pref-height:42px;"/>
+                </VBox>
+
+                <!-- Prix calculé automatiquement -->
+                <VBox spacing="5">
+                    <Label text="Prix calcule automatiquement"
+                           style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT"
+                          style="-fx-background-color:#ECFDF5;-fx-background-radius:10px;
+                                 -fx-border-color:#6EE7B7;-fx-border-width:1.5px;
+                                 -fx-border-radius:10px;-fx-padding:12px 16px;">
+                        <Label text="&#x1F4B0;" style="-fx-font-size:18px;"/>
+                        <Label fx:id="lblPrixCalcule" text="0 DT"
+                               style="-fx-font-size:20px;-fx-font-weight:900;-fx-text-fill:#059669;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Message feedback -->
+                <Label fx:id="lblMessage" text="" wrapText="true"
+                       style="-fx-font-size:13px;-fx-font-weight:600;"/>
+
+                <!-- Bouton confirmer -->
+                <Button fx:id="btnReserver"
+                        text="&#x2705;  Confirmer la Reservation"
+                        onAction="#handleReserver"
+                        maxWidth="Infinity"
+                        style="-fx-background-color:linear-gradient(to right,#059669,#047857);
+                               -fx-text-fill:white;-fx-font-weight:800;-fx-font-size:15px;
+                               -fx-background-radius:12px;-fx-padding:14px 24px;-fx-cursor:hand;
+                               -fx-effect:dropshadow(gaussian,rgba(5,150,105,0.45),14,0,0,4);">
+                    <VBox.margin><Insets top="6"/></VBox.margin>
+                </Button>
+
+            </VBox>
+        </HBox>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.effect.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.PhotoUploadController"
+      prefWidth="480" prefHeight="580"
+      alignment="TOP_CENTER" spacing="0"
+      style="-fx-background-color: #F0F4F8;">
+
+    <!-- BARRE DE TITRE -->
+    <HBox alignment="CENTER_LEFT" prefHeight="66" prefWidth="480"
+          style="-fx-background-color: #1B4332;
+                 -fx-padding: 0 28 0 28;
+                 -fx-border-color: #2D6A4F;
+                 -fx-border-width: 0 0 2 0;">
+        <ImageView fitWidth="34" fitHeight="34" preserveRatio="true" smooth="true">
+            <image><Image url="@logo.png"/></image>
+            <HBox.margin><Insets right="12"/></HBox.margin>
+        </ImageView>
+        <VBox alignment="CENTER_LEFT" spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="Photo de profil"
+                   style="-fx-text-fill: #FFFFFF; -fx-font-size: 16px;
+                          -fx-font-weight: bold;
+                          -fx-font-family: 'Segoe UI Semibold', 'Segoe UI', sans-serif;"/>
+            <Label text="Requise pour activer le Face ID"
+                   style="-fx-text-fill: rgba(255,255,255,0.6);
+                          -fx-font-size: 11px; -fx-font-family: 'Segoe UI', sans-serif;"/>
+        </VBox>
+        <Label text="FACE ID"
+               style="-fx-background-color: #7B5EA7; -fx-text-fill: white;
+                      -fx-font-size: 9px; -fx-font-weight: bold;
+                      -fx-background-radius: 20; -fx-padding: 4 10 4 10;
+                      -fx-font-family: 'Segoe UI', sans-serif;"/>
+    </HBox>
+
+    <!-- CORPS -->
+    <VBox alignment="CENTER" spacing="0" VBox.vgrow="ALWAYS"
+          style="-fx-padding: 22 32 10 32;">
+
+        <!-- Carte principale -->
+        <VBox alignment="CENTER" spacing="16"
+              style="-fx-background-color: #FFFFFF;
+                     -fx-background-radius: 18;
+                     -fx-border-color: #D8E4DC;
+                     -fx-border-width: 1; -fx-border-radius: 18;
+                     -fx-padding: 26 32 26 32;
+                     -fx-effect: dropshadow(gaussian,rgba(27,67,50,0.10),18,0,0,4);">
+
+            <!-- Salutation -->
+            <Label fx:id="userNameLabel" text="Bonjour !"
+                   style="-fx-text-fill: #1A1A2E; -fx-font-size: 18px;
+                          -fx-font-weight: bold;
+                          -fx-font-family: 'Segoe UI Semibold', 'Segoe UI', sans-serif;"/>
+
+            <!-- Explication -->
+            <Label text="MindAura utilise la reconnaissance faciale locale pour sécuriser votre connexion. Ajoutez une photo nette, visage bien visible."
+                   wrapText="true" textAlignment="CENTER" maxWidth="360"
+                   style="-fx-text-fill: #5A6475; -fx-font-size: 12px;
+                          -fx-font-family: 'Segoe UI', sans-serif; -fx-line-spacing: 3;"/>
+
+            <Separator style="-fx-background-color: #EEF2F0; -fx-opacity: 0.8;" prefWidth="360"/>
+
+            <!-- Zone preview photo -->
+            <StackPane alignment="CENTER" prefWidth="150" prefHeight="150">
+                <Circle radius="76" fill="TRANSPARENT" stroke="#D8EDE2" strokeWidth="2.5"/>
+                <Circle radius="70" fill="#F0F7F3" stroke="#C8D8CE" strokeWidth="1"/>
+                <StackPane fx:id="photoPlaceholder"
+                           style="-fx-background-color: linear-gradient(to bottom right,#2D6A4F,#1B4332);
+                                  -fx-background-radius: 60;">
+                    <Circle radius="60" fill="TRANSPARENT"/>
+                    <Label text="👤" style="-fx-font-size: 48px;"/>
+                </StackPane>
+                <ImageView fx:id="photoPreview"
+                           fitWidth="120" fitHeight="120"
+                           preserveRatio="false" visible="false">
+                    <clip><Circle centerX="60" centerY="60" radius="60"/></clip>
+                </ImageView>
+                <Label text="✓"
+                       style="-fx-background-color: #2D6A4F; -fx-text-fill: white;
+                              -fx-font-size: 11px; -fx-font-weight: bold;
+                              -fx-background-radius: 12; -fx-padding: 2 7 2 7;"
+                       StackPane.alignment="BOTTOM_CENTER" translateY="8"/>
+            </StackPane>
+
+            <!-- Nom fichier -->
+            <HBox alignment="CENTER" spacing="6">
+                <Label text="📎" style="-fx-font-size: 12px; -fx-opacity: 0.5;"/>
+                <Label fx:id="photoNameLabel" text="Aucune photo sélectionnée"
+                       style="-fx-text-fill: #9CA8B3; -fx-font-size: 11px;
+                              -fx-font-family: 'Segoe UI', sans-serif;"/>
+            </HBox>
+
+            <!-- Boutons choix / suppression -->
+            <HBox alignment="CENTER" spacing="10">
+                <StackPane onMouseClicked="#handleChoosePhoto"
+                           style="-fx-background-color: #1B4332; -fx-background-radius: 24;
+                                  -fx-cursor: hand;
+                                  -fx-effect: dropshadow(gaussian,rgba(27,67,50,0.4),12,0,0,3);">
+                    <HBox alignment="CENTER" spacing="8" style="-fx-padding: 11 22 11 22;">
+                        <Label text="📂" style="-fx-font-size: 14px;"/>
+                        <Label text="Choisir une photo"
+                               style="-fx-text-fill: #FFFFFF; -fx-font-size: 13px;
+                                      -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif;"/>
+                    </HBox>
+                </StackPane>
+                <StackPane fx:id="btnRemove" visible="false" managed="false"
+                           onMouseClicked="#handleRemovePhoto"
+                           style="-fx-background-color: #FFFFFF; -fx-background-radius: 24;
+                                  -fx-border-color: #F1A9A0; -fx-border-width: 1.5;
+                                  -fx-border-radius: 24; -fx-cursor: hand;">
+                    <HBox alignment="CENTER" spacing="6" style="-fx-padding: 11 16 11 16;">
+                        <Label text="✕" style="-fx-text-fill: #C0392B; -fx-font-size: 13px;"/>
+                        <Label text="Supprimer"
+                               style="-fx-text-fill: #C0392B; -fx-font-size: 13px;
+                                      -fx-font-family: 'Segoe UI', sans-serif;"/>
+                    </HBox>
+                </StackPane>
+            </HBox>
+
+            <!-- Info format -->
+            <HBox alignment="CENTER" spacing="5"
+                  style="-fx-background-color: rgba(27,67,50,0.06);
+                         -fx-background-radius: 10; -fx-padding: 7 14 7 14;">
+                <Label text="ℹ" style="-fx-text-fill: #2D6A4F; -fx-font-size: 12px;"/>
+                <Label text="JPG, PNG, GIF  •  Max 5 MB  •  Visage bien visible"
+                       style="-fx-text-fill: #5A6475; -fx-font-size: 10px;
+                              -fx-font-family: 'Segoe UI', sans-serif;"/>
+            </HBox>
+
+            <!-- Message erreur -->
+            <Label fx:id="errorLabel" text="" wrapText="true"
+                   textAlignment="CENTER" maxWidth="360"
+                   style="-fx-font-size: 11px; -fx-font-weight: bold;"/>
+
+        </VBox>
+
+        <!-- Boutons principaux -->
+        <HBox alignment="CENTER" spacing="12" style="-fx-padding: 18 0 0 0;">
+            <StackPane onMouseClicked="#handleSave"
+                       style="-fx-background-color: #1B4332; -fx-background-radius: 28;
+                              -fx-cursor: hand;
+                              -fx-effect: dropshadow(gaussian,rgba(27,67,50,0.45),14,0,0,4);">
+                <HBox alignment="CENTER" spacing="9" style="-fx-padding: 13 28 13 28;">
+                    <Label text="✅" style="-fx-font-size: 14px;"/>
+                    <Label text="Enregistrer et continuer"
+                           style="-fx-text-fill: #FFFFFF; -fx-font-size: 13px;
+                                  -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif;"/>
+                </HBox>
+            </StackPane>
+            <StackPane onMouseClicked="#handleCancel"
+                       style="-fx-background-color: #FFFFFF; -fx-background-radius: 28;
+                              -fx-border-color: #C8D8CE; -fx-border-width: 1.5;
+                              -fx-border-radius: 28; -fx-cursor: hand;
+                              -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
+                <HBox alignment="CENTER" spacing="8" style="-fx-padding: 13 24 13 24;">
+                    <Label text="✕" style="-fx-text-fill: #5A6475; -fx-font-size: 12px;"/>
+                    <Label text="Annuler"
+                           style="-fx-text-fill: #5A6475; -fx-font-size: 13px;
+                                  -fx-font-family: 'Segoe UI', sans-serif; -fx-font-weight: 500;"/>
+                </HBox>
+            </StackPane>
+        </HBox>
+
+    </VBox>
+
+    <!-- PIED DE PAGE -->
+    <HBox alignment="CENTER" spacing="6" style="-fx-padding: 0 0 16 0;">
+        <Separator prefWidth="55" style="-fx-background-color: #C8D8CE; -fx-opacity: 0.7;"/>
+        <Label text="🔒" style="-fx-text-fill: #7B5EA7; -fx-font-size: 10px;"/>
+        <Label text="Analyse 100% locale  •  Aucune donnée envoyée"
+               style="-fx-text-fill: #5A6475; -fx-font-size: 10px;
+                      -fx-font-family: 'Segoe UI', sans-serif;"/>
+        <Separator prefWidth="55" style="-fx-background-color: #C8D8CE; -fx-opacity: 0.7;"/>
+    </HBox>
+
+</VBox>

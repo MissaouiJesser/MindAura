@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    ChatbotEventView.fxml
+    Vue du chatbot intelligent – espace utilisateur MindAura.
+
+    Placer ce fichier dans : src/main/resources/ChatbotEventView.fxml
+-->
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ChatbotEventController"
+      spacing="0"
+      style="-fx-background-color: transparent;">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         HEADER
+    ════════════════════════════════════════════════════════════════ -->
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color: rgba(10,22,18,0.72);
+                 -fx-border-color: rgba(82,183,136,0.18);
+                 -fx-border-width: 0 0 1 0;
+                 -fx-padding: 16 24;">
+
+        <!-- Icône avatar -->
+        <StackPane minWidth="44" minHeight="44" maxWidth="44" maxHeight="44">
+            <Label text="🤖"
+                   style="-fx-font-size: 24px;
+                          -fx-background-color: rgba(82,183,136,0.16);
+                          -fx-background-radius: 22;
+                          -fx-padding: 6 8;"
+                   alignment="CENTER"/>
+        </StackPane>
+
+        <!-- Titre + statut -->
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="Assistant MindAura"
+                   style="-fx-text-fill: white;
+                          -fx-font-size: 15px;
+                          -fx-font-weight: 700;"/>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="●"
+                       style="-fx-text-fill: #52B788; -fx-font-size: 8px;"/>
+                <Label fx:id="statusLabel"
+                       text="En ligne · Prêt à vous aider"
+                       style="-fx-text-fill: rgba(255,255,255,0.42);
+                              -fx-font-size: 11px;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Bouton effacer -->
+        <Button fx:id="clearButton" text="🗑  Effacer"
+                style="-fx-background-color: rgba(255,255,255,0.05);
+                       -fx-border-color: rgba(255,255,255,0.12);
+                       -fx-border-radius: 8; -fx-background-radius: 8;
+                       -fx-text-fill: rgba(255,255,255,0.50);
+                       -fx-font-size: 11px; -fx-padding: 6 14;
+                       -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ZONE DE MESSAGES (scrollable)
+    ════════════════════════════════════════════════════════════════ -->
+    <ScrollPane fx:id="chatScrollPane"
+                VBox.vgrow="ALWAYS"
+                fitToWidth="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                style="-fx-background-color: transparent;
+                       -fx-background: transparent;
+                       -fx-border-color: transparent;
+                       -fx-focus-color: transparent;
+                       -fx-faint-focus-color: transparent;">
+
+        <content>
+            <VBox fx:id="chatMessagesContainer"
+                  spacing="8"
+                  style="-fx-background-color: transparent;
+                         -fx-padding: 14 0 14 0;"/>
+        </content>
+    </ScrollPane>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ZONE DE SAISIE
+    ════════════════════════════════════════════════════════════════ -->
+    <VBox spacing="6"
+          style="-fx-background-color: rgba(10,22,18,0.78);
+                 -fx-border-color: rgba(82,183,136,0.18);
+                 -fx-border-width: 1 0 0 0;
+                 -fx-padding: 12 18 14 18;">
+
+        <HBox spacing="10" alignment="CENTER">
+
+            <TextField fx:id="userInputField"
+                       promptText="Posez votre question sur les événements…"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: rgba(255,255,255,0.07);
+                              -fx-border-color: rgba(82,183,136,0.28);
+                              -fx-border-radius: 22; -fx-background-radius: 22;
+                              -fx-text-fill: white;
+                              -fx-prompt-text-fill: rgba(255,255,255,0.28);
+                              -fx-padding: 10 18;
+                              -fx-font-size: 13px;"/>
+
+            <Button fx:id="sendButton" text="➤"
+                    minWidth="42" minHeight="42"
+                    maxWidth="42" maxHeight="42"
+                    style="-fx-background-color: linear-gradient(135deg,#52B788,#2d9b6f);
+                           -fx-background-radius: 21;
+                           -fx-text-fill: white;
+                           -fx-font-size: 15px;
+                           -fx-font-weight: 700;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian,rgba(82,183,136,0.45),10,0,0,2);"/>
+        </HBox>
+
+        <Label text="Alimenté par Claude AI  ·  Données récupérées en temps réel depuis la BD"
+               maxWidth="Infinity"
+               alignment="CENTER"
+               style="-fx-text-fill: rgba(255,255,255,0.20);
+                      -fx-font-size: 10px;"/>
+    </VBox>
+
+</VBox>

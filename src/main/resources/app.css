@@ -1,0 +1,211 @@
+/* Palette principale */
+* {
+    -fx-primary: #1B4332;
+    -fx-primary-hover: #2D6A4F;
+    -fx-background: #F0F4F8;
+    -fx-accent-badge: #7B5EA7;
+    -fx-text-main: #1A1A2E;
+    -fx-text-secondary: #5A6475;
+    -fx-row-hover: #D8EAD8;
+    -fx-border-focus: #2D6A4F;
+}
+
+.root {
+    -fx-background-color: #F0F4F8;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+}
+
+/* Boutons primaires */
+.btn-primary {
+    -fx-background-color: #1B4332;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-background-radius: 6;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2D6A4F;
+}
+
+/* Boutons secondaires / accent */
+.btn-accent {
+    -fx-background-color: #7B5EA7;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+    -fx-background-radius: 6;
+}
+
+.btn-accent:hover {
+    -fx-background-color: derive(#7B5EA7, 15%);
+}
+
+/* Labels */
+.label-title {
+    -fx-text-fill: #1A1A2E;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.label-secondary {
+    -fx-text-fill: #5A6475;
+    -fx-font-size: 12px;
+}
+
+/* Cartes */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.card:hover {
+    -fx-border-color: #2D6A4F;
+    -fx-background-color: #FAFCFA;
+}
+
+/* ListView / lignes */
+.list-cell:filled:selected:hover {
+    -fx-background-color: #D8EAD8;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #E8F5E9;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 4 0;
+}
+
+/* Champs de texte */
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 2;
+}
+
+.text-field, .text-area {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 8;
+}
+
+/* Badges */
+.badge {
+    -fx-background-color: #7B5EA7;
+    -fx-text-fill: white;
+    -fx-padding: 4 10;
+    -fx-background-radius: 12;
+    -fx-font-size: 11px;
+}
+
+.badge-statut {
+    -fx-background-color: #2D6A4F;
+}
+
+/* TableView */
+.table-view {
+    -fx-font-size: 12px;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.table-view .column-header {
+    -fx-background-color: #F0F4F8;
+    -fx-text-fill: #1A1A2E;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-border-color: #E2E8F0;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-padding: 8;
+    -fx-border-color: #F0F4F8;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #F5F9F7;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #D8EAD8;
+}
+
+/* ScrollPane */
+.scroll-pane {
+    -fx-hbar-policy: AS_NEEDED;
+    -fx-vbar-policy: AS_NEEDED;
+}
+
+.scroll-bar {
+    -fx-base: #E2E8F0;
+    -fx-control-inner-background: #F0F4F8;
+}
+
+.scroll-bar:hover {
+    -fx-base: #D0D9E0;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-padding: 8;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #E2E8F0;
+}
+
+.combo-box:focused {
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 2;
+}
+
+/* Spinner */
+.spinner {
+    -fx-padding: 8;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #E2E8F0;
+}
+
+.spinner:focused {
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 2;
+}
+
+/* Separator */
+.separator {
+    -fx-padding: 0 10;
+}
+
+/* HBox et VBox avec grow */
+.hbox, .vbox {
+    -fx-spacing: 10;
+}
+
+/* Responsive pour petits écrans */
+@media (max-width: 800px) {
+    .root {
+        -fx-font-size: 11px;
+    }
+
+    .label-title {
+        -fx-font-size: 16px;
+    }
+
+    .btn-primary, .btn-accent {
+        -fx-padding: 8 16;
+        -fx-font-size: 11px;
+    }
+
+    .table-view {
+        -fx-font-size: 10px;
+    }
+}

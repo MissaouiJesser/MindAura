@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.controllers.FrontOfficeMesReservationsController"
+            prefWidth="1400" prefHeight="850"
+            style="-fx-background-color: #F0F4F8;">
+
+    <top>
+        <VBox spacing="0">
+
+            <!-- ══════════════ HERO BANNER ══════════════ -->
+            <HBox alignment="CENTER_LEFT" spacing="20"
+                  style="-fx-background-color: linear-gradient(to right, #1B4332 0%, #2D6A4F 60%, #0D2B1F 100%);
+                         -fx-padding: 20px 40px;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 14, 0, 0, 4);
+                         -fx-min-height: 82px;">
+
+                <!-- Icône section -->
+                <StackPane style="-fx-background-color: rgba(255,255,255,0.13);
+                                  -fx-background-radius: 14px;
+                                  -fx-border-color: rgba(187,247,208,0.3);
+                                  -fx-border-width: 1.5px; -fx-border-radius: 14px;
+                                  -fx-min-width: 50px; -fx-pref-width: 50px;
+                                  -fx-min-height: 50px; -fx-pref-height: 50px;">
+                    <Label text="📋" style="-fx-font-size: 22px;"/>
+                </StackPane>
+
+                <!-- Titre + stats -->
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Mes Réservations"
+                           style="-fx-font-size: 22px; -fx-font-weight: 900;
+                                  -fx-text-fill: white; -fx-font-family: 'Georgia';"/>
+                    <Label fx:id="lblStatistiques" text="Chargement..."
+                           style="-fx-font-size: 12px; -fx-text-fill: #86EFAC; -fx-font-weight: 600;"/>
+                </VBox>
+
+                <!-- Boutons de navigation -->
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="✨  Recommandations"
+                            onAction="#handleNavigateToRecommandations"
+                            style="-fx-background-color: rgba(123,94,167,0.85);
+                                   -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 11.5px;
+                                   -fx-background-radius: 10px; -fx-padding: 9px 16px; -fx-cursor: hand;
+                                   -fx-border-color: rgba(187,247,208,0.25); -fx-border-width: 1px;
+                                   -fx-border-radius: 10px;"/>
+                    <Button text="📅  Calendrier"
+                            onAction="#handleNavigateToCalendrier"
+                            style="-fx-background-color: rgba(217,119,6,0.85);
+                                   -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 11.5px;
+                                   -fx-background-radius: 10px; -fx-padding: 9px 16px; -fx-cursor: hand;
+                                   -fx-border-color: rgba(187,247,208,0.25); -fx-border-width: 1px;
+                                   -fx-border-radius: 10px;"/>
+                    <Button text="🗺️  Carte"
+                            onAction="#handleNavigateToCarte"
+                            style="-fx-background-color: rgba(5,150,105,0.85);
+                                   -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 11.5px;
+                                   -fx-background-radius: 10px; -fx-padding: 9px 16px; -fx-cursor: hand;
+                                   -fx-border-color: rgba(187,247,208,0.25); -fx-border-width: 1px;
+                                   -fx-border-radius: 10px;"/>
+                    <Region style="-fx-background-color: rgba(187,247,208,0.2);
+                                   -fx-pref-width: 1.5px; -fx-min-height: 32px; -fx-pref-height: 32px;"/>
+                    <Button text="← Retour aux Locaux"
+                            onAction="#handleRetourChoix"
+                            style="-fx-background-color: rgba(255,255,255,0.12);
+                                   -fx-border-color: rgba(187,247,208,0.45); -fx-border-width: 1.5px;
+                                   -fx-border-radius: 10px; -fx-background-radius: 10px;
+                                   -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 11.5px;
+                                   -fx-padding: 9px 18px; -fx-cursor: hand;"/>
+                </HBox>
+            </HBox>
+
+            <!-- ══════════════ BARRE RECHERCHE + FILTRES ══════════════ -->
+            <HBox alignment="CENTER_LEFT" spacing="14"
+                  style="-fx-background-color: white;
+                         -fx-padding: 14px 40px;
+                         -fx-border-color: #E2E8F0; -fx-border-width: 0 0 1.5px 0;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);">
+
+                <HBox alignment="CENTER_LEFT" spacing="0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #F8FAFC;
+                             -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                             -fx-border-radius: 12px; -fx-background-radius: 12px;
+                             -fx-padding: 0 12px; -fx-max-width: 340px; -fx-pref-height: 42px;">
+                    <Label text="🔍" style="-fx-font-size: 13px; -fx-text-fill: #9CA3AF;"/>
+                    <TextField fx:id="searchField"
+                               promptText="Rechercher une réservation..."
+                               HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: transparent; -fx-border-color: transparent;
+                                      -fx-font-size: 13px; -fx-text-fill: #1A1A2E;
+                                      -fx-prompt-text-fill: #9CA3AF; -fx-padding: 0 8px;"/>
+                </HBox>
+
+                <ComboBox fx:id="filterStatutComboBox"
+                          promptText="Tous les statuts"
+                          style="-fx-background-color: white; -fx-background-radius: 10px;
+                                 -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                                 -fx-border-radius: 10px; -fx-min-width: 190px; -fx-pref-height: 42px;
+                                 -fx-font-size: 13px;"/>
+
+                <Button fx:id="btnRafraichir" text="🔄" onAction="#handleRafraichir"
+                        style="-fx-background-color: #F1F5F9; -fx-background-radius: 10px;
+                               -fx-padding: 10px 15px; -fx-cursor: hand;
+                               -fx-border-color: #E2E8F0; -fx-border-width: 1.5px;
+                               -fx-border-radius: 10px; -fx-font-size: 16px; -fx-pref-height: 42px;"/>
+            </HBox>
+
+        </VBox>
+    </top>
+
+    <!-- ══════════════════════ CONTENU PRINCIPAL ══════════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: #F0F4F8; -fx-background: #F0F4F8;
+                           -fx-border-color: transparent;">
+            <VBox spacing="24" style="-fx-background-color: #F0F4F8;">
+                <padding>
+                    <Insets top="28" bottom="36" left="40" right="40"/>
+                </padding>
+
+                <!-- ═══ CARTES STATISTIQUES ═══ -->
+                <HBox fx:id="statsBox" spacing="18" alignment="CENTER_LEFT">
+
+                    <!-- Total -->
+                    <VBox fx:id="cardTotal" spacing="0" alignment="CENTER_LEFT"
+                          HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16px;
+                                 -fx-border-color: #E2E8F0; -fx-border-radius: 16px; -fx-border-width: 1.5px;
+                                 -fx-padding: 20px 22px;
+                                 -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.08), 14, 0, 0, 4);">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane style="-fx-background-color: #F0FFF4; -fx-background-radius: 12px;
+                                              -fx-min-width: 46px; -fx-min-height: 46px;
+                                              -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                                <Label text="📋" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="statTotal" text="—"
+                                       style="-fx-font-size: 30px; -fx-font-weight: 900;
+                                              -fx-text-fill: #1B4332; -fx-font-family: 'Georgia';"/>
+                                <Label text="Total"
+                                       style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Confirmées -->
+                    <VBox fx:id="cardConfirmees" spacing="0" alignment="CENTER_LEFT"
+                          HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16px;
+                                 -fx-border-color: #BBF7D0; -fx-border-radius: 16px; -fx-border-width: 1.5px;
+                                 -fx-padding: 20px 22px;
+                                 -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.08), 14, 0, 0, 4);">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane style="-fx-background-color: #D1FAE5; -fx-background-radius: 12px;
+                                              -fx-min-width: 46px; -fx-min-height: 46px;
+                                              -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                                <Label text="✅" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="statConfirmees" text="—"
+                                       style="-fx-font-size: 30px; -fx-font-weight: 900;
+                                              -fx-text-fill: #059669; -fx-font-family: 'Georgia';"/>
+                                <Label text="Confirmées"
+                                       style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- En Attente -->
+                    <VBox fx:id="cardAttente" spacing="0" alignment="CENTER_LEFT"
+                          HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16px;
+                                 -fx-border-color: #DDD6FE; -fx-border-radius: 16px; -fx-border-width: 1.5px;
+                                 -fx-padding: 20px 22px;
+                                 -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.1), 14, 0, 0, 4);">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane style="-fx-background-color: #EDE9FE; -fx-background-radius: 12px;
+                                              -fx-min-width: 46px; -fx-min-height: 46px;
+                                              -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                                <Label text="⏳" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="statAttente" text="—"
+                                       style="-fx-font-size: 30px; -fx-font-weight: 900;
+                                              -fx-text-fill: #7B5EA7; -fx-font-family: 'Georgia';"/>
+                                <Label text="En Attente"
+                                       style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Annulées -->
+                    <VBox fx:id="cardAnnulees" spacing="0" alignment="CENTER_LEFT"
+                          HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16px;
+                                 -fx-border-color: #FECACA; -fx-border-radius: 16px; -fx-border-width: 1.5px;
+                                 -fx-padding: 20px 22px;
+                                 -fx-effect: dropshadow(gaussian, rgba(220,38,38,0.08), 14, 0, 0, 4);">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane style="-fx-background-color: #FEE2E2; -fx-background-radius: 12px;
+                                              -fx-min-width: 46px; -fx-min-height: 46px;
+                                              -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                                <Label text="❌" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="statAnnulees" text="—"
+                                       style="-fx-font-size: 30px; -fx-font-weight: 900;
+                                              -fx-text-fill: #DC2626; -fx-font-family: 'Georgia';"/>
+                                <Label text="Annulées"
+                                       style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Terminées -->
+                    <VBox fx:id="cardTerminees" spacing="0" alignment="CENTER_LEFT"
+                          HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16px;
+                                 -fx-border-color: #E5E7EB; -fx-border-radius: 16px; -fx-border-width: 1.5px;
+                                 -fx-padding: 20px 22px;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 14, 0, 0, 4);">
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <StackPane style="-fx-background-color: #F3F4F6; -fx-background-radius: 12px;
+                                              -fx-min-width: 46px; -fx-min-height: 46px;
+                                              -fx-pref-width: 46px; -fx-pref-height: 46px;">
+                                <Label text="🏁" style="-fx-font-size: 20px;"/>
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="statTerminees" text="—"
+                                       style="-fx-font-size: 30px; -fx-font-weight: 900;
+                                              -fx-text-fill: #6B7280; -fx-font-family: 'Georgia';"/>
+                                <Label text="Terminées"
+                                       style="-fx-font-size: 12px; -fx-text-fill: #6B7280; -fx-font-weight: 600;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                </HBox>
+
+                <!-- ═══ TABLEAU PRINCIPAL ═══ -->
+                <VBox fx:id="tableCard" spacing="0"
+                      VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 18px;
+                             -fx-border-color: #E2E8F0; -fx-border-radius: 18px; -fx-border-width: 1.5px;
+                             -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.08), 18, 0, 0, 5);">
+
+                    <!-- En-tête du tableau -->
+                    <HBox alignment="CENTER_LEFT" spacing="12"
+                          style="-fx-padding: 20px 24px 16px 24px;
+                                 -fx-border-color: #F1F5F9; -fx-border-width: 0 0 1.5px 0;">
+                        <StackPane style="-fx-background-color: #F0FFF4; -fx-background-radius: 10px;
+                                          -fx-min-width: 36px; -fx-min-height: 36px;
+                                          -fx-pref-width: 36px; -fx-pref-height: 36px;">
+                            <Label text="📋" style="-fx-font-size: 16px;"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Liste de vos réservations"
+                                   style="-fx-font-size: 16px; -fx-font-weight: 800;
+                                          -fx-text-fill: #1A1A2E; -fx-font-family: 'Georgia';"/>
+                            <Label text="Gérez et suivez l'état de toutes vos réservations"
+                                   style="-fx-font-size: 11.5px; -fx-text-fill: #9CA3AF;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- TableView -->
+                    <TableView fx:id="tableReservations" VBox.vgrow="ALWAYS"
+                               style="-fx-background-color: transparent;
+                                      -fx-border-color: transparent;
+                                      -fx-table-cell-border-color: #F1F5F9;
+                                      -fx-font-size: 13px;">
+                        <columns>
+                            <TableColumn fx:id="colId"         text="ID"         prefWidth="65"  style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="colDate"       text="📅 Date"    prefWidth="125"/>
+                            <TableColumn fx:id="colLocal"      text="🏥 Local"   prefWidth="205"/>
+                            <TableColumn fx:id="colHeureDebut" text="⏰ Début"   prefWidth="105" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="colHeureFin"   text="⏱ Fin"     prefWidth="105" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="colMotif"      text="💬 Motif"   prefWidth="180"/>
+                            <TableColumn fx:id="colStatut"     text="🔖 Statut"  prefWidth="145" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="colPrix"       text="💰 Prix"    prefWidth="105" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="colActions"    text="Actions"    prefWidth="160" style="-fx-alignment: CENTER;"/>
+                        </columns>
+
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="16" style="-fx-padding: 60px;">
+                                <Label text="📭" style="-fx-font-size: 52px;"/>
+                                <Label text="Aucune réservation trouvée"
+                                       style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #1A1A2E;"/>
+                                <Label text="Vos réservations apparaîtront ici une fois effectuées"
+                                       style="-fx-font-size: 13px; -fx-text-fill: #9CA3AF;"/>
+                            </VBox>
+                        </placeholder>
+                    </TableView>
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.RecommandationController"
+            prefWidth="1920" prefHeight="1080"
+            style="-fx-background-color: #F2F5F9;">
+
+    <!-- ========== HEADER ========== -->
+    <top>
+        <VBox spacing="0">
+
+            <!-- BARRE PRINCIPALE -->
+            <HBox alignment="CENTER_LEFT" spacing="16"
+                  style="-fx-background-color: linear-gradient(to right, #0A1F16 0%, #1B4332 50%, #2D6A4F 100%);
+                         -fx-padding: 14 40 14 40;
+                         -fx-effect: dropshadow(gaussian, rgba(13,43,30,0.65), 30, 0, 0, 10);">
+
+                <!-- Bouton retour -->
+                <Button onAction="#retourFront"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.18); -fx-border-width: 1.5;
+                               -fx-border-radius: 12; -fx-padding: 10 16;">
+                    <graphic>
+                        <HBox spacing="6" alignment="CENTER">
+                            <Label text="←" style="-fx-font-size: 15px; -fx-text-fill: white;"/>
+                            <Label text="Retour" style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: bold;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Rectangle fill="rgba(255,255,255,0.15)" width="1" height="36"/>
+
+                <!-- Logo + Titre -->
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <StackPane prefWidth="46" prefHeight="46"
+                               style="-fx-background-color: white; -fx-background-radius: 14;
+                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 12, 0, 0, 4);">
+                        <ImageView fitWidth="34" fitHeight="34" preserveRatio="true">
+                            <image><Image url="@/logo-removebg-preview (1).png"/></image>
+                        </ImageView>
+                    </StackPane>
+                    <VBox spacing="2">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="MindAura"
+                                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                            <Label text="✦ Recommandations"
+                                   style="-fx-background-color: rgba(45,106,79,0.6);
+                                          -fx-text-fill: #A7F3D0; -fx-background-radius: 20;
+                                          -fx-padding: 3 10; -fx-font-size: 10px; -fx-font-weight: bold;
+                                          -fx-border-color: rgba(167,243,208,0.3);
+                                          -fx-border-width: 1; -fx-border-radius: 20;"/>
+                        </HBox>
+                        <Label text="Découvrez des ressources sélectionnées pour vous"
+                               style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.60);"/>
+                    </VBox>
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Badge mode + pagination -->
+                <HBox spacing="14" alignment="CENTER">
+                    <Label fx:id="badgeMode" text="🔥 Populaire"
+                           style="-fx-background-color: #B45309; -fx-text-fill: white;
+                                  -fx-background-radius: 20; -fx-padding: 6 16;
+                                  -fx-font-size: 12px; -fx-font-weight: bold;"/>
+
+                    <Rectangle fill="rgba(255,255,255,0.15)" width="1" height="28"/>
+
+                    <HBox fx:id="dotsContainer" spacing="6" alignment="CENTER"/>
+
+                    <Button fx:id="btnPrecedent" text="←" onAction="#pagePrecedente"
+                            style="-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: white;
+                                   -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36;
+                                   -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;
+                                   -fx-border-color: rgba(255,255,255,0.25); -fx-border-width: 1.5;
+                                   -fx-border-radius: 50;"/>
+
+                    <Button fx:id="btnSuivant" text="→" onAction="#pageSuivante"
+                            style="-fx-background-color: white; -fx-text-fill: #1B4332;
+                                   -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36;
+                                   -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);"/>
+                </HBox>
+            </HBox>
+
+            <!-- BARRE TITRE SECTION -->
+            <HBox alignment="CENTER_LEFT" spacing="16"
+                  style="-fx-background-color: #0F2D1F;
+                         -fx-padding: 16 40 16 40;
+                         -fx-border-color: rgba(255,255,255,0.06) transparent transparent transparent;
+                         -fx-border-width: 1 0 0 0;">
+
+                <Rectangle width="4" height="44" arcWidth="4" arcHeight="4"
+                           fill="linear-gradient(to bottom, #52B788, #2D6A4F)"/>
+
+                <VBox spacing="4">
+                    <Label fx:id="titreSection" text="Tendances du moment"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <Label fx:id="sousTexteSection"
+                           text="Les ressources les plus populaires de la communauté"
+                           style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.55);"/>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Légende algorithme -->
+                <HBox spacing="20" alignment="CENTER"
+                      style="-fx-background-color: rgba(255,255,255,0.06);
+                             -fx-background-radius: 12; -fx-padding: 10 18;
+                             -fx-border-color: rgba(255,255,255,0.10);
+                             -fx-border-width: 1; -fx-border-radius: 12;">
+                    <Label text="ℹ️ Score hybride"
+                           style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.70);"/>
+                    <HBox spacing="6" alignment="CENTER">
+                        <Rectangle width="10" height="8" arcWidth="3" arcHeight="3" fill="#52B788"/>
+                        <Label text="65% Contenu" style="-fx-font-size: 10.5px; -fx-text-fill: #52B788;"/>
+                    </HBox>
+                    <Label text="+" style="-fx-text-fill: rgba(255,255,255,0.30); -fx-font-size: 12px;"/>
+                    <HBox spacing="6" alignment="CENTER">
+                        <Rectangle width="10" height="8" arcWidth="3" arcHeight="3" fill="#F59E0B"/>
+                        <Label text="35% Popularité" style="-fx-font-size: 10.5px; -fx-text-fill: #F59E0B;"/>
+                    </HBox>
+                </HBox>
+            </HBox>
+
+        </VBox>
+    </top>
+
+    <!-- ========== CONTENU ========== -->
+    <center>
+        <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: transparent; -fx-background: #F2F5F9;
+                           -fx-border-color: transparent;">
+            <content>
+                <VBox style="-fx-padding: 30 40 40 40; -fx-background-color: #F2F5F9;">
+
+                    <!-- Cartes -->
+                    <StackPane>
+                        <HBox fx:id="cardsContainer" spacing="24" alignment="TOP_LEFT"
+                              style="-fx-background-color: transparent;"/>
+
+                        <!-- État vide -->
+                        <VBox fx:id="emptyState" alignment="CENTER" spacing="16"
+                              visible="false" managed="false"
+                              style="-fx-background-color: white; -fx-background-radius: 20;
+                                     -fx-padding: 60; -fx-min-height: 250;
+                                     -fx-border-color: #E8F0EC; -fx-border-width: 1;
+                                     -fx-border-radius: 20;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 3);">
+                            <Label text="🔍" style="-fx-font-size: 48px;"/>
+                            <Label text="Aucune recommandation disponible"
+                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                            <Label text="Ajoutez des ressources à vos favoris pour obtenir des suggestions personnalisées"
+                                   style="-fx-font-size: 13px; -fx-text-fill: #9CA3AF; -fx-wrap-text: true;"
+                                   maxWidth="420"/>
+                            <Button text="← Retour aux ressources" onAction="#retourFront"
+                                    style="-fx-background-color: #1B4332; -fx-text-fill: white;
+                                           -fx-background-radius: 20; -fx-padding: 10 24;
+                                           -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                        </VBox>
+                    </StackPane>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <!-- ========== FOOTER ========== -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="30"
+              style="-fx-background-color: #0D2B1E; -fx-padding: 16 40;">
+            <Label text="2026 MindAura — Votre bien-être mental est notre priorité"
+                   style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12px;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Confidentialité  ·  Conditions  ·  Contact"
+                   style="-fx-text-fill: rgba(255,255,255,0.28); -fx-font-size: 11px;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

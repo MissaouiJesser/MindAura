@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.FormulaireUtilisateurController"
+      spacing="18"
+      style="-fx-background-color: #FFFFFF; -fx-padding: 26 28 20 28; -fx-pref-width: 520;">
+
+    <!-- Titre formulaire -->
+    <HBox alignment="CENTER_LEFT" spacing="8">
+        <Label text="👤" style="-fx-font-size:20px;"/>
+        <Label fx:id="formTitle" text="Nouvel utilisateur"
+               style="-fx-text-fill:#1A2E3D; -fx-font-size:16px; -fx-font-weight:bold;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Rangée 1 : Prénom + Nom -->
+    <HBox spacing="14">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Prénom *" styleClass="form-label"/>
+            <TextField fx:id="fieldPrenom" promptText="Prénom" styleClass="form-field"/>
+            <Label fx:id="errPrenom" text="" styleClass="error-label"/>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Nom *" styleClass="form-label"/>
+            <TextField fx:id="fieldNom" promptText="Nom" styleClass="form-field"/>
+            <Label fx:id="errNom" text="" styleClass="error-label"/>
+        </VBox>
+    </HBox>
+
+    <!-- Rangée 2 : Email + Téléphone -->
+    <HBox spacing="14">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Email *" styleClass="form-label"/>
+            <TextField fx:id="fieldEmail" promptText="email@exemple.com" styleClass="form-field"/>
+            <Label fx:id="errEmail" text="" styleClass="error-label"/>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Téléphone" styleClass="form-label"/>
+            <TextField fx:id="fieldTelephone" promptText="+216 XX XXX XXX" styleClass="form-field"/>
+        </VBox>
+    </HBox>
+
+    <!-- Rangée 3 : Date naissance + Rôle -->
+    <HBox spacing="14">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Date de naissance *" styleClass="form-label"/>
+            <DatePicker fx:id="fieldDateNaissance" promptText="jj/mm/aaaa"
+                        styleClass="date-picker"/>
+            <Label fx:id="errDate" text="" styleClass="error-label"/>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Rôle *" styleClass="form-label"/>
+            <ComboBox fx:id="fieldRole" styleClass="form-combo" promptText="Sélectionner un rôle"/>
+            <Label fx:id="errRole" text="" styleClass="error-label"/>
+        </VBox>
+    </HBox>
+
+    <!-- Rangée 4 : Mot de passe (seulement en mode ajout) -->
+    <HBox spacing="14" fx:id="passwordRow">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Mot de passe *" styleClass="form-label"/>
+            <PasswordField fx:id="fieldPassword" promptText="Minimum 6 caractères"
+                           styleClass="form-field"/>
+            <Label fx:id="errPassword" text="" styleClass="error-label"/>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Confirmer le mot de passe *" styleClass="form-label"/>
+            <PasswordField fx:id="fieldPasswordConfirm" promptText="Répéter le mot de passe"
+                           styleClass="form-field"/>
+        </VBox>
+    </HBox>
+
+    <!-- Rangée 5 : Statut + Bio -->
+    <HBox spacing="14" alignment="CENTER_LEFT">
+        <CheckBox fx:id="fieldActif" text="Compte actif" selected="true"
+                  style="-fx-font-size:13px; -fx-text-fill:#1A2E3D;"/>
+    </HBox>
+
+    <VBox spacing="5">
+        <Label text="Bio / Notes" styleClass="form-label"/>
+        <TextArea fx:id="fieldBio" promptText="Informations supplémentaires..."
+                  styleClass="form-textarea" prefHeight="72" wrapText="true"/>
+    </VBox>
+
+    <!-- Message erreur global -->
+    <Label fx:id="errGlobal" text="" styleClass="error-label"
+           style="-fx-font-weight:bold;"/>
+
+</VBox>

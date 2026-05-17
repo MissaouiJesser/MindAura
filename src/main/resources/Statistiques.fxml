@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.StatistiquesController"
+            style="-fx-background-color: #F2F5F9;">
+
+    <!-- ===================== HEADER SIMPLIFIÉ (sans retour) ===================== -->
+    <top>
+        <HBox alignment="CENTER_RIGHT" spacing="16"
+              style="-fx-background-color: linear-gradient(to right, #0A1F16, #1B4332, #2D6A4F);
+                     -fx-padding: 14 40;
+                     -fx-effect: dropshadow(gaussian, rgba(13,43,30,0.65), 30, 0, 0, 10);">
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Bouton actualiser -->
+            <Button onAction="#actualiser"
+                    style="-fx-background-color: rgba(167,243,208,0.15);
+                           -fx-border-color: rgba(167,243,208,0.35);
+                           -fx-border-width:1.5; -fx-background-radius:22; -fx-border-radius:22;">
+                <graphic>
+                    <HBox spacing="6" alignment="CENTER">
+                        <Label text="🔄"/>
+                        <Label text="Actualiser" style="-fx-text-fill:#A7F3D0; -fx-font-weight:bold;"/>
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+    </top>
+
+    <!-- ===================== CONTENU (inchangé) ===================== -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color:transparent; -fx-border-color:transparent;">
+            <content>
+                <VBox spacing="28" fillWidth="true"
+                      style="-fx-padding:20 30;">
+
+                    <!-- CARTES KPI -->
+                    <HBox spacing="20" fillHeight="true">
+                        <!-- Total Ressources -->
+                        <VBox HBox.hgrow="ALWAYS" VBox.vgrow="NEVER"
+                              style="-fx-background-color:linear-gradient(to bottom right,#1B4332,#2D6A4F);
+                                     -fx-background-radius:16; -fx-padding:20;">
+                            <Label text="📦 Total Ressources" style="-fx-text-fill:white; -fx-opacity:0.8;"/>
+                            <Label fx:id="lblTotalRessources" text="0"
+                                   style="-fx-text-fill:white; -fx-font-size:36; -fx-font-weight:bold;"/>
+                            <Label text="Ressources publiées" style="-fx-text-fill:white; -fx-opacity:0.5;"/>
+                        </VBox>
+
+                        <!-- Total Vues -->
+                        <VBox HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: linear-gradient(to bottom right, #0369A1, #0284C7);
+                                     -fx-background-radius: 16; -fx-padding: 20;">
+                            <Label text="👁 Total Vues" style="-fx-text-fill:white; -fx-opacity:0.8;"/>
+                            <Label fx:id="lblTotalVues" text="0"
+                                   style="-fx-text-fill:white; -fx-font-size:36; -fx-font-weight:bold;"/>
+                            <Label text="Vues cumulées" style="-fx-text-fill:white; -fx-opacity:0.5;"/>
+                        </VBox>
+
+                        <!-- Total Likes -->
+                        <VBox HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:linear-gradient(to bottom right,#6D28D9,#7C3AED);
+                                     -fx-background-radius:16; -fx-padding:20;">
+                            <Label text="❤ Total Likes" style="-fx-text-fill:white; -fx-opacity:0.8;"/>
+                            <Label fx:id="lblTotalLikes" text="0"
+                                   style="-fx-text-fill:white; -fx-font-size:36; -fx-font-weight:bold;"/>
+                            <Label text="Appréciations" style="-fx-text-fill:white; -fx-opacity:0.5;"/>
+                        </VBox>
+
+                        <!-- Moyenne Vues -->
+                        <VBox HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:linear-gradient(to bottom right,#B45309,#D97706);
+                                     -fx-background-radius:16; -fx-padding:20;">
+                            <Label text="📈 Moyenne Vues" style="-fx-text-fill:white; -fx-opacity:0.8;"/>
+                            <Label fx:id="lblMoyenneVues" text="0"
+                                   style="-fx-text-fill:white; -fx-font-size:36; -fx-font-weight:bold;"/>
+                            <Label text="Vues / ressource" style="-fx-text-fill:white; -fx-opacity:0.5;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- SECTIONS POPULAIRES -->
+                    <HBox spacing="20">
+                        <VBox HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:white; -fx-background-radius:16;
+                                     -fx-padding:20; -fx-border-color:#E0F2EB;">
+                            <Label text="👁 Ressource la plus vue"/>
+                            <Label fx:id="lblPlusVue" text="-" wrapText="true"
+                                   style="-fx-font-size:15; -fx-font-weight:bold;"/>
+                        </VBox>
+
+                        <VBox HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:white; -fx-background-radius:16;
+                                     -fx-padding:20; -fx-border-color:#EDE9FE;">
+                            <Label text="❤ Ressource la plus aimée"/>
+                            <Label fx:id="lblPlusAimee" text="-" wrapText="true"
+                                   style="-fx-font-size:15; -fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- GRAPHIQUES -->
+                    <GridPane hgap="24" vgap="24">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints percentHeight="33"/>
+                            <RowConstraints percentHeight="33"/>
+                            <RowConstraints percentHeight="34"/>
+                        </rowConstraints>
+
+                        <!-- Pie Type -->
+                        <VBox GridPane.rowIndex="0" GridPane.columnIndex="0"
+                              style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:16;">
+                            <PieChart fx:id="pieChartTypes" minHeight="200" minWidth="200"/>
+                        </VBox>
+
+                        <!-- Pie Catégorie -->
+                        <VBox GridPane.rowIndex="0" GridPane.columnIndex="1"
+                              style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:16;">
+                            <PieChart fx:id="pieChartCategories" minHeight="200" minWidth="200"/>
+                        </VBox>
+
+                        <!-- Bar Vues -->
+                        <VBox GridPane.rowIndex="1" GridPane.columnIndex="0"
+                              style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:16;">
+                            <BarChart fx:id="barChartVues">
+                                <xAxis><CategoryAxis/></xAxis>
+                                <yAxis><NumberAxis/></yAxis>
+                            </BarChart>
+                        </VBox>
+
+                        <!-- Bar Likes -->
+                        <VBox GridPane.rowIndex="1" GridPane.columnIndex="1"
+                              style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:16;">
+                            <BarChart fx:id="barChartLikes">
+                                <xAxis><CategoryAxis/></xAxis>
+                                <yAxis><NumberAxis/></yAxis>
+                            </BarChart>
+                        </VBox>
+
+                        <!-- Bar Niveaux -->
+                        <VBox GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"
+                              style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:16;">
+                            <BarChart fx:id="barChartNiveaux">
+                                <xAxis><CategoryAxis/></xAxis>
+                                <yAxis><NumberAxis/></yAxis>
+                            </BarChart>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <!-- ===================== FOOTER ===================== -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="30"
+              style="-fx-background-color:#0D2B1E; -fx-padding:16 40;">
+            <Label text="2026 MindAura — Tableau de bord analytique"
+                   style="-fx-text-fill:rgba(255,255,255,0.55); -fx-font-size:12;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Données en temps réel"
+                   style="-fx-text-fill:rgba(255,255,255,0.28); -fx-font-size:11;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

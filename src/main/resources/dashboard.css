@@ -1,0 +1,602 @@
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  dashboard.css — MindAura Dashboard                                      ║
+ * ║  Palette unifiée :                                                        ║
+ * ║    Primaire     : #1B4332   Hover/Accent : #2D6A4F                        ║
+ * ║    Fond         : #F0F4F8   Badge/violet : #7B5EA7                        ║
+ * ║    Texte main   : #1A1A2E   Texte sec.   : #5A6475                        ║
+ * ║    Row hover    : #D8EAD8   Focus border : #2D6A4F                        ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
+
+/* ─────────────────────────────────────────────────────────
+   SCROLL PANE & LAYOUT DE BASE
+────────────────────────────────────────────────────────── */
+
+.content-scroll {
+    -fx-background-color: #F0F4F8;
+    -fx-background: #F0F4F8;
+}
+
+.content-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-pane {
+    -fx-padding: 24px 28px 40px 28px;
+    -fx-background-color: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────
+   BANNIÈRE DE BIENVENUE
+────────────────────────────────────────────────────────── */
+
+.welcome-card {
+    -fx-background-color: linear-gradient(to right, #1A1A2E, #1B4332, #2D6A4F);
+    -fx-background-radius: 18px;
+    -fx-padding: 24px 32px;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.45), 24, 0, 0, 8);
+}
+
+.welcome-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.welcome-sub {
+    -fx-font-size: 13px;
+    -fx-text-fill: rgba(255,255,255,0.80);
+}
+
+/* ─────────────────────────────────────────────────────────
+   TITRES DE SECTIONS
+────────────────────────────────────────────────────────── */
+
+.section-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1B4332;
+    -fx-background-color: linear-gradient(to right, rgba(27,67,50,0.10), rgba(27,67,50,0.03));
+    -fx-background-radius: 8px;
+    -fx-border-color: transparent transparent transparent #1B4332;
+    -fx-border-width: 0 0 0 4px;
+    -fx-padding: 7px 16px 7px 12px;
+    -fx-letter-spacing: 0.5px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   MODULE HEADER CARDS (grands titres de module — style unifié)
+────────────────────────────────────────────────────────── */
+
+.module-header {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-padding: 18px 22px;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.09), 14, 0, 0, 3);
+    -fx-border-color: transparent transparent transparent #2D6A4F;
+    -fx-border-width: 0 0 0 5px;
+    -fx-border-radius: 16px;
+}
+
+.module-header-icon {
+    -fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+    -fx-background-radius: 14px;
+    -fx-pref-width: 50px;
+    -fx-pref-height: 50px;
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+    -fx-alignment: CENTER;
+}
+
+.module-header-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1A1A2E;
+}
+
+.module-header-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5A6475;
+}
+
+/* ─────────────────────────────────────────────────────────
+   BOUTONS RAFRAÎCHIR
+────────────────────────────────────────────────────────── */
+
+.btn-refresh {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 10px 22px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-text-fill: white;
+}
+
+.btn-refresh-green {
+    -fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.30), 8, 0, 0, 3);
+}
+
+.btn-refresh-green:hover {
+    -fx-background-color: linear-gradient(to right, #2D6A4F, #3D8A6F);
+    -fx-effect: dropshadow(gaussian, rgba(45,106,79,0.50), 14, 0, 0, 5);
+    -fx-translate-y: -1px;
+}
+
+.btn-refresh-green:pressed {
+    -fx-background-color: #1B4332;
+    -fx-translate-y: 1px;
+}
+
+/* Variante violet pour modules secondaires */
+.btn-refresh-violet {
+    -fx-background-color: linear-gradient(to right, #5C3E87, #7B5EA7);
+    -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.30), 8, 0, 0, 3);
+}
+
+.btn-refresh-violet:hover {
+    -fx-background-color: linear-gradient(to right, #7B5EA7, #9B7DC4);
+    -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.50), 14, 0, 0, 5);
+    -fx-translate-y: -1px;
+}
+
+.btn-see-all {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 6px 14px;
+    -fx-background-color: rgba(27,67,50,0.08);
+    -fx-text-fill: #1B4332;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(27,67,50,0.20);
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+.btn-see-all:hover {
+    -fx-background-color: rgba(45,106,79,0.15);
+    -fx-border-color: #2D6A4F;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CARTES KPI — BASE
+────────────────────────────────────────────────────────── */
+
+.kpi-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-padding: 18px 20px 0 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.kpi-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.16), 20, 0, 0, 6);
+    -fx-translate-y: -2px;
+}
+
+/* Valeur principale */
+.kpi-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1A1A2E;
+}
+
+.kpi-value-green  { -fx-text-fill: #2D6A4F; }
+.kpi-value-red    { -fx-text-fill: #DC2626; }
+.kpi-value-gold   { -fx-text-fill: #D97706; }
+.kpi-value-violet { -fx-text-fill: #7B5EA7; }
+.kpi-value-small  { -fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1A1A2E; }
+
+/* Libellé */
+.kpi-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #5A6475;
+    -fx-font-weight: 600;
+}
+
+/* Flèche tendance */
+.kpi-trend       { -fx-font-size: 16px; -fx-font-weight: 900; -fx-text-fill: #5A6475; }
+.kpi-trend-up    { -fx-text-fill: #2D6A4F; }
+.kpi-trend-down  { -fx-text-fill: #DC2626; }
+
+/* Barre colorée en bas */
+.kpi-bar {
+    -fx-background-radius: 0 0 16px 16px;
+    -fx-padding: 0;
+}
+
+/* Icône */
+.kpi-icon-wrap {
+    -fx-background-radius: 12px;
+    -fx-pref-width: 48px;
+    -fx-pref-height: 48px;
+    -fx-min-width: 48px;
+    -fx-min-height: 48px;
+    -fx-alignment: CENTER;
+}
+
+.kpi-icon { -fx-font-size: 22px; }
+
+/* ─────────────────────────────────────────────────────────
+   KPI — VARIANTES COULEURS
+────────────────────────────────────────────────────────── */
+
+/* VERT PRIMAIRE */
+.kpi-icon-green  { -fx-background-color: rgba(27,67,50,0.10); }
+.kpi-bar-green   { -fx-background-color: #1B4332; }
+.kpi-green:hover { -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.28), 20, 0, 0, 6); }
+
+/* VERT ACCENT */
+.kpi-icon-teal   { -fx-background-color: rgba(45,106,79,0.12); }
+.kpi-bar-teal    { -fx-background-color: #2D6A4F; }
+.kpi-teal:hover  { -fx-effect: dropshadow(gaussian, rgba(45,106,79,0.28), 20, 0, 0, 6); }
+
+/* VIOLET */
+.kpi-icon-violet  { -fx-background-color: rgba(123,94,167,0.12); }
+.kpi-bar-violet   { -fx-background-color: #7B5EA7; }
+.kpi-violet:hover { -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.28), 20, 0, 0, 6); }
+
+/* ROUGE */
+.kpi-icon-red  { -fx-background-color: rgba(220,38,38,0.10); }
+.kpi-bar-red   { -fx-background-color: #DC2626; }
+.kpi-red:hover { -fx-effect: dropshadow(gaussian, rgba(220,38,38,0.25), 20, 0, 0, 6); }
+
+/* AMBRE / OR */
+.kpi-icon-gold  { -fx-background-color: rgba(217,119,6,0.10); }
+.kpi-bar-gold   { -fx-background-color: #D97706; }
+.kpi-gold:hover { -fx-effect: dropshadow(gaussian, rgba(217,119,6,0.25), 20, 0, 0, 6); }
+
+/* BLEU NEUTRE (conservé pour compatibilité) */
+.kpi-icon-blue  { -fx-background-color: rgba(45,106,79,0.10); }
+.kpi-bar-blue   { -fx-background-color: #2D6A4F; }
+.kpi-blue:hover { -fx-effect: dropshadow(gaussian, rgba(45,106,79,0.25), 20, 0, 0, 6); }
+
+/* ─────────────────────────────────────────────────────────
+   KPI — CARTES PREMIUM (fond gradient, texte blanc)
+────────────────────────────────────────────────────────── */
+
+.kpi-premium-green {
+    -fx-background-color: linear-gradient(to bottom right, #1B4332, #2D6A4F);
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.40), 16, 0, 0, 5);
+}
+.kpi-premium-green:hover {
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.60), 22, 0, 0, 8);
+    -fx-translate-y: -2px;
+}
+
+.kpi-premium-violet {
+    -fx-background-color: linear-gradient(to bottom right, #5C3E87, #7B5EA7);
+    -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.40), 16, 0, 0, 5);
+}
+.kpi-premium-violet:hover {
+    -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.60), 22, 0, 0, 8);
+    -fx-translate-y: -2px;
+}
+
+.kpi-premium-dark {
+    -fx-background-color: linear-gradient(to bottom right, #1A1A2E, #2D2D4E);
+    -fx-effect: dropshadow(gaussian, rgba(26,26,46,0.40), 16, 0, 0, 5);
+}
+
+.kpi-icon-white   { -fx-background-color: rgba(255,255,255,0.18); }
+
+.kpi-value-white {
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+}
+
+.kpi-label-white {
+    -fx-font-size: 10px;
+    -fx-text-fill: rgba(255,255,255,0.82);
+    -fx-font-weight: 600;
+}
+
+.kpi-trend-white {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: rgba(255,255,255,0.80);
+}
+
+.kpi-bar-white {
+    -fx-background-color: rgba(255,255,255,0.28);
+    -fx-background-radius: 0 0 16px 16px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CARTES GRAPHIQUES
+────────────────────────────────────────────────────────── */
+
+.chart-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-padding: 18px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 3);
+}
+
+.chart-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.12), 18, 0, 0, 5);
+}
+
+.chart-icon-wrap {
+    -fx-background-radius: 9px;
+    -fx-pref-width: 34px;
+    -fx-pref-height: 34px;
+    -fx-min-width: 34px;
+    -fx-min-height: 34px;
+    -fx-alignment: CENTER;
+}
+
+.chart-icon-green  { -fx-background-color: rgba(27,67,50,0.10); }
+.chart-icon-violet { -fx-background-color: rgba(123,94,167,0.10); }
+.chart-icon-teal   { -fx-background-color: rgba(45,106,79,0.10); }
+
+.chart-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1A1A2E;
+}
+
+.chart-sub {
+    -fx-font-size: 10px;
+    -fx-text-fill: #5A6475;
+}
+
+/* ─────────────────────────────────────────────────────────
+   TABLE CARD
+────────────────────────────────────────────────────────── */
+
+.table-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 3);
+}
+
+.table-card-header {
+    -fx-padding: 16px 20px;
+    -fx-border-color: #F0F4F8;
+    -fx-border-width: 0 0 1.5 0;
+}
+
+.table-card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1A1A2E;
+}
+
+/* ─────────────────────────────────────────────────────────
+   TABLES
+────────────────────────────────────────────────────────── */
+
+.custom-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: #E8EFF4;
+}
+
+.custom-table .column-header-background {
+    -fx-background-color: #F0F4F8;
+    -fx-background-radius: 8px 8px 0 0;
+}
+
+.custom-table .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 38px;
+}
+
+.custom-table .column-header .label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #5A6475;
+    -fx-padding: 0 8px;
+}
+
+.custom-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #F0F4F8 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.custom-table .table-row-cell:odd {
+    -fx-background-color: #FAFBFD;
+}
+
+.custom-table .table-row-cell:hover {
+    -fx-background-color: #D8EAD8;
+    -fx-cursor: hand;
+}
+
+.custom-table .table-row-cell:selected {
+    -fx-background-color: rgba(45,106,79,0.12);
+}
+
+.custom-table .table-cell {
+    -fx-font-size: 12px;
+    -fx-text-fill: #1A1A2E;
+    -fx-padding: 0 8px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CHAMPS DE FORMULAIRE (dans les cartes du dashboard)
+────────────────────────────────────────────────────────── */
+
+.custom-text-field {
+    -fx-background-color: #F0F4F8;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #D8E9E4;
+    -fx-border-width: 1.5px;
+    -fx-font-size: 12px;
+    -fx-text-fill: #1A1A2E;
+    -fx-prompt-text-fill: #9CA3AF;
+    -fx-padding: 6px 10px;
+}
+
+.custom-text-field:focused {
+    -fx-border-color: #2D6A4F;
+    -fx-border-width: 2px;
+    -fx-background-color: white;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CHARTS JAVAFX
+────────────────────────────────────────────────────────── */
+
+.dashboard-bar-chart {
+    -fx-background-color: transparent;
+}
+
+.dashboard-bar-chart .chart-plot-background {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 8px;
+}
+
+.dashboard-bar-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #E8EFF4;
+    -fx-stroke-width: 1px;
+}
+
+.dashboard-bar-chart .chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.dashboard-pie-chart {
+    -fx-background-color: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────
+   SCROLLBAR
+────────────────────────────────────────────────────────── */
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #2D6A4F;
+    -fx-background-radius: 10px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #1B4332;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #E8EFF4;
+    -fx-background-radius: 10px;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────
+   BADGES / STATUTS
+────────────────────────────────────────────────────────── */
+
+.badge {
+    -fx-background-radius: 20px;
+    -fx-padding: 4px 12px;
+    -fx-font-weight: 700;
+    -fx-font-size: 11px;
+}
+
+.badge-green {
+    -fx-background-color: rgba(27,67,50,0.12);
+    -fx-text-fill: #1B4332;
+}
+
+.badge-violet {
+    -fx-background-color: rgba(123,94,167,0.12);
+    -fx-text-fill: #7B5EA7;
+}
+
+.badge-red {
+    -fx-background-color: rgba(220,38,38,0.10);
+    -fx-text-fill: #DC2626;
+}
+
+.badge-gold {
+    -fx-background-color: rgba(217,119,6,0.10);
+    -fx-text-fill: #D97706;
+}
+
+/* ─────────────────────────────────────────────────────────
+   DIVERS
+────────────────────────────────────────────────────────── */
+
+.form-section-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1A1A2E;
+}
+
+.empty-text {
+    -fx-text-fill: #5A6475;
+    -fx-font-size: 13px;
+}
+
+.btn-view {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 6px 14px;
+    -fx-background-color: rgba(27,67,50,0.08);
+    -fx-text-fill: #1B4332;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(27,67,50,0.20);
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+.btn-view:hover {
+    -fx-background-color: #1B4332;
+    -fx-text-fill: white;
+}
+
+/* stat-card legacy (compatibilité FXML non migré) */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-padding: 18px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 3);
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.16), 20, 0, 0, 6);
+    -fx-translate-y: -2px;
+}
+
+.stat-value {
+    -fx-font-size: 30px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1A1A2E;
+}
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #5A6475;
+}
+
+.stat-icon {
+    -fx-font-size: 24px;
+}
+
+/* Icônes de stat — fond coloré */
+.stat-icon-bg-blue   { -fx-background-color: rgba(45,106,79,0.12);  -fx-background-radius: 12px; -fx-pref-width:50px; -fx-pref-height:50px; -fx-alignment:CENTER; }
+.stat-icon-bg-green  { -fx-background-color: rgba(27,67,50,0.12);   -fx-background-radius: 12px; -fx-pref-width:50px; -fx-pref-height:50px; -fx-alignment:CENTER; }
+.stat-icon-bg-red    { -fx-background-color: rgba(220,38,38,0.10);  -fx-background-radius: 12px; -fx-pref-width:50px; -fx-pref-height:50px; -fx-alignment:CENTER; }
+.stat-icon-bg-purple { -fx-background-color: rgba(123,94,167,0.12); -fx-background-radius: 12px; -fx-pref-width:50px; -fx-pref-height:50px; -fx-alignment:CENTER; }
+.stat-icon-bg-gold   { -fx-background-color: rgba(217,119,6,0.10);  -fx-background-radius: 12px; -fx-pref-width:50px; -fx-pref-height:50px; -fx-alignment:CENTER; }
+
+.stat-card-blue   { -fx-border-color: transparent transparent #2D6A4F transparent; -fx-border-width: 0 0 3 0; }
+.stat-card-green  { -fx-border-color: transparent transparent #1B4332 transparent; -fx-border-width: 0 0 3 0; }
+.stat-card-red    { -fx-border-color: transparent transparent #DC2626 transparent; -fx-border-width: 0 0 3 0; }
+.stat-card-purple { -fx-border-color: transparent transparent #7B5EA7 transparent; -fx-border-width: 0 0 3 0; }
+.stat-card-gold   { -fx-border-color: transparent transparent #D97706 transparent; -fx-border-width: 0 0 3 0; }

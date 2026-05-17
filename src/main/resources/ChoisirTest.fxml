@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@style22.css"
+            fx:controller="tn.esprit.controllers.ChoisirTestController">
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!--   TOP : NAVBAR + INFO-STRIP + SEARCH BAR                          -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <top>
+        <VBox>
+
+            <!-- ── NAVBAR ── -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-padding: 12px 24px;
+                         -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);">
+                <Label text="Choisissez un test à passer"
+                       style="-fx-font-size: 15px; -fx-font-weight: 700;
+                              -fx-text-fill: white;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="📊  Mes Résultats" onAction="#voirMesResultats"
+                        style="-fx-background-color: #2563EB;
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 10px; -fx-padding: 7px 14px; -fx-cursor: hand;"/>
+                <Button text="🎯  Mes Objectifs" onAction="#voirMesObjectifs"
+                        style="-fx-background-color: #9333EA;
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 10px; -fx-padding: 7px 14px; -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- ── INFO-STRIP : Météo + Citation sur une seule ligne ── -->
+            <HBox style="-fx-background-color: white;
+                         -fx-border-color: #E5E7EB;
+                         -fx-border-width: 0 0 1 0;"
+                  minHeight="52">
+
+                <!-- Météo -->
+                <VBox alignment="CENTER_LEFT" spacing="1"
+                      style="-fx-padding: 6 16;
+                             -fx-background-color: #EBF5FB;
+                             -fx-border-color: #1B4332;
+                             -fx-border-width: 0 0 0 3;"
+                      minWidth="210">
+                    <Label text="☁ Météo Tunis"
+                           style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #1B4332;"/>
+                    <Label fx:id="meteoLabel"
+                           style="-fx-font-size: 12px; -fx-text-fill: #374151;"/>
+                    <Label fx:id="meteoMessageLabel" wrapText="true"
+                           style="-fx-font-size: 10px; -fx-font-style: italic; -fx-text-fill: #6B7280;"/>
+                </VBox>
+
+                <Separator orientation="VERTICAL"
+                           style="-fx-background-color: #E5E7EB;"/>
+
+                <!-- Citation -->
+                <VBox alignment="CENTER_LEFT" spacing="2"
+                      style="-fx-padding: 6 16;
+                             -fx-border-color: #7B5EA7;
+                             -fx-border-width: 0 0 0 3;"
+                      HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" spacing="6">
+                        <Label text="💡 Citation du jour"
+                               style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #7B5EA7;"/>
+                        <Button text="🔄" onAction="#rafraichirCitation"
+                                style="-fx-background-color: transparent;
+                                       -fx-text-fill: #7B5EA7; -fx-cursor: hand;
+                                       -fx-font-size: 13px; -fx-padding: 0 4;"/>
+                    </HBox>
+                    <Label fx:id="citationLabel" wrapText="true"
+                           style="-fx-font-size: 12px; -fx-font-style: italic; -fx-text-fill: #1A1A2E;"/>
+                    <Label fx:id="auteurLabel"
+                           style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF;"/>
+                </VBox>
+            </HBox>
+
+            <!-- ── SEARCH BAR ── -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-background-color: white;
+                         -fx-padding: 8 16;
+                         -fx-border-color: #E5E7EB;
+                         -fx-border-width: 0 0 1 0;">
+                <Label text="🔍" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;"/>
+                <TextField fx:id="txtRecherche" prefWidth="220"
+                           promptText="Rechercher un test..."
+                           style="-fx-background-radius: 20; -fx-border-radius: 20;
+                                  -fx-border-color: #D1D5DB; -fx-padding: 6 12;
+                                  -fx-font-size: 12px;"/>
+                <Label text="Type :"
+                       style="-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                <ComboBox fx:id="cmbFiltreType" prefWidth="160"
+                          style="-fx-font-size: 12px;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblNbResultats"
+                       style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+            </HBox>
+
+        </VBox>
+    </top>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!--   CENTER : Tests à gauche | News à droite                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <center>
+        <HBox spacing="0" style="-fx-background-color: #F0F4F8;">
+
+            <!-- ── COLONNE GAUCHE : Liste des tests ── -->
+            <VBox HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: #F0F4F8; -fx-padding: 10;">
+                <ListView fx:id="listViewTests"
+                          styleClass="list-view-tests"
+                          VBox.vgrow="ALWAYS"
+                          style="-fx-background-color: #F0F4F8;"/>
+            </VBox>
+
+            <!-- Séparateur vertical -->
+            <Separator orientation="VERTICAL"
+                       style="-fx-background-color: #E5E7EB;"/>
+
+            <!-- ── COLONNE DROITE : Articles NewsAPI ── -->
+            <VBox prefWidth="360" minWidth="320"
+                  style="-fx-background-color: white;
+                         -fx-border-color: #E5E7EB;
+                         -fx-border-width: 0 0 0 1;">
+
+                <!-- En-tête news -->
+                <HBox alignment="CENTER_LEFT" spacing="8"
+                      style="-fx-padding: 10 14;
+                             -fx-background-color: linear-gradient(to right, #1B4332, #2D6A4F);
+                             -fx-border-color: #E5E7EB;
+                             -fx-border-width: 0 0 1 0;">
+                    <Label text="📰 Actualités Bien-être"
+                           style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: white;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <ProgressIndicator fx:id="newsLoading"
+                                       prefWidth="20" prefHeight="20"
+                                       visible="false"
+                                       style="-fx-progress-color: white;"/>
+                </HBox>
+
+                <!-- Filtres news -->
+                <VBox spacing="6"
+                      style="-fx-padding: 8 12;
+                             -fx-background-color: #F9FAFB;
+                             -fx-border-color: #E5E7EB;
+                             -fx-border-width: 0 0 1 0;">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🏷️ Thème :"
+                               style="-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <ComboBox fx:id="cmbThemeNews"
+                                  prefWidth="210" onAction="#rechercherNews"
+                                  style="-fx-font-size: 12px;"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="6">
+                        <TextField fx:id="txtRechercheNews"
+                                   promptText="Rechercher un article..."
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-font-size: 12px;
+                                          -fx-background-radius: 20;
+                                          -fx-border-radius: 20;
+                                          -fx-border-color: #D1D5DB;
+                                          -fx-padding: 5 12;"/>
+                        <Button text="🔍" onAction="#rechercherNews"
+                                style="-fx-background-color: #1B4332;
+                                       -fx-text-fill: white;
+                                       -fx-background-radius: 20;
+                                       -fx-padding: 5 12;
+                                       -fx-cursor: hand;
+                                       -fx-font-size: 12px;"/>
+                    </HBox>
+                    <Label fx:id="lblNewsErreur"
+                           style="-fx-text-fill: #EF4444; -fx-font-size: 11px;"
+                           text="" wrapText="true"/>
+                </VBox>
+
+                <!-- Liste articles scrollable -->
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background-color: white; -fx-background: white;
+                                   -fx-border-color: transparent;">
+                    <VBox fx:id="newsContainer" spacing="8"
+                          style="-fx-padding: 10; -fx-background-color: white;"/>
+                </ScrollPane>
+
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!--   BOTTOM : Pagination compacte + Bouton Commencer                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="8"
+              style="-fx-background-color: white;
+                     -fx-padding: 7 16;
+                     -fx-border-color: #E5E7EB;
+                     -fx-border-width: 1 0 0 0;">
+
+            <!-- Bouton Précédent -->
+            <Button fx:id="btnPrev" text="‹" onAction="#pagePrecedente"
+                    styleClass="btn-page"
+                    style="-fx-min-width: 30; -fx-min-height: 30;
+                           -fx-max-width: 30; -fx-max-height: 30;
+                           -fx-font-size: 15px; -fx-font-weight: 700;"/>
+
+            <!-- Boutons de pages numérotées (générés dynamiquement) -->
+            <HBox fx:id="paginationContainer" spacing="4" alignment="CENTER"/>
+
+            <!-- Bouton Suivant -->
+            <Button fx:id="btnNext" text="›" onAction="#pageSuivante"
+                    styleClass="btn-page"
+                    style="-fx-min-width: 30; -fx-min-height: 30;
+                           -fx-max-width: 30; -fx-max-height: 30;
+                           -fx-font-size: 15px; -fx-font-weight: 700;"/>
+
+            <!-- Info page -->
+            <Label fx:id="lblPageInfo"
+                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;
+                          -fx-padding: 0 0 0 6px;"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Bouton Commencer -->
+            <Button text="Commencer le Test ▶"
+                    onAction="#commencerTest"
+                    styleClass="btn-primary"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

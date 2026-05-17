@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="0" style="-fx-background-color: #F0F4F8;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.ClientReclamationDetailController">
+
+    <stylesheets>
+        <URL value="@/app.css" />
+    </stylesheets>
+
+    <!-- En-tête avec bouton retour -->
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: #1A1A2E; -fx-padding: 12 20;">
+        <Button fx:id="btnRetour" style="-fx-background-color: #5A6475; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;" text="← Liste des réclamations" />
+    </HBox>
+
+    <!-- Contenu principal avec scroll -->
+    <ScrollPane fitToWidth="true" style="-fx-background: #F0F4F8; -fx-padding: 20;" VBox.vgrow="ALWAYS">
+        <VBox fx:id="boxContent" spacing="20" style="-fx-padding: 10;">
+
+            <!-- Carte de la réclamation (publication) -->
+            <VBox fx:id="cardPublication" spacing="8" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);                          -fx-border-color: #2D6A4F; -fx-border-width: 2; -fx-border-radius: 8;">
+
+                <Label fx:id="lblAuteurReclamation" style="-fx-text-fill: #2D6A4F; -fx-font-size: 12; -fx-font-weight: bold;" />
+                <Label fx:id="lblSujet" style="-fx-text-fill: #1A1A2E; -fx-font-size: 18; -fx-font-weight: bold;" />
+                <Label fx:id="lblDescription" style="-fx-text-fill: #5A6475; -fx-font-size: 13;" wrapText="true" />
+                <Label fx:id="lblDateReclamation" style="-fx-text-fill: #5A6475; -fx-font-size: 11;" />
+                <HBox fx:id="boxRateReclamation" alignment="CENTER_LEFT" spacing="8" />
+
+                <!-- Badges et boutons -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="lblCategorie" style="-fx-background-color: #7B5EA7; -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 12; -fx-font-size: 11;" />
+                    <Label fx:id="lblStatut" style="-fx-background-color: #2D6A4F; -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 12; -fx-font-size: 11;" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="btnModifierReclamation" style="-fx-background-color: #2D6A4F; -fx-text-fill: white; -fx-padding: 6 14; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-size: 11;" text="Modifier" />
+                    <Button fx:id="btnSupprimerReclamation" style="-fx-background-color: #c62828; -fx-text-fill: white; -fx-padding: 6 14; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-size: 11;" text="Supprimer" />
+                </HBox>
+            </VBox>
+
+            <!-- Titre commentaires -->
+            <Label style="-fx-text-fill: #1A1A2E; -fx-font-size: 16; -fx-font-weight: bold;" text="Commentaires" />
+            <Label fx:id="lblMessage" style="-fx-text-fill: #5A6475; -fx-font-size: 12;" text="" />
+
+            <!-- Liste des commentaires (cartes) -->
+            <VBox fx:id="boxCommentaires" spacing="10" />
+
+            <!-- Formulaire ajouter commentaire -->
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8;                                        -fx-border-color: #2D6A4F; -fx-border-width: 1; -fx-border-radius: 8;">
+                <Label style="-fx-text-fill: #1A1A2E; -fx-font-size: 14; -fx-font-weight: bold;" text="Ajouter un commentaire" />
+                <TextArea fx:id="taContenu" prefRowCount="3" promptText="Votre réponse (min 5 caractères)..." style="-fx-padding: 8; -fx-font-size: 12; -fx-background-radius: 6;" wrapText="true" />
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Button fx:id="btnPublier" style="-fx-background-color: #1B4332; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 24; -fx-background-radius: 6; -fx-cursor: hand;" text="Publier" />
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

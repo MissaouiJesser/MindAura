@@ -1,0 +1,329 @@
+/* =============================================
+   video-player.css - Thème MindAura
+   ============================================= */
+
+.root {
+    -fx-primary: #1B4332;
+    -fx-primary-light: #2D6A4F;
+    -fx-accent: #52B788;
+    -fx-background: #F4F7F5;
+    -fx-surface: white;
+    -fx-text-primary: #1A1A2E;
+    -fx-text-secondary: #5A6475;
+    -fx-border-light: #D4E6DB;
+    -fx-shadow: rgba(27, 67, 50, 0.15);
+}
+
+/* ===== HEADER ===== */
+.header {
+    -fx-background-color: -fx-primary;
+    -fx-padding: 18 32;
+    -fx-effect: dropshadow(gaussian, -fx-shadow, 14, 0, 0, 5);
+}
+
+.btn-retour {
+    -fx-background-color: rgba(255, 255, 255, 0.13);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 22;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-retour:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.25);
+}
+
+.lbl-titre-video {
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.lbl-info-video {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(255, 255, 255, 0.60);
+}
+
+.like-container {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255, 255, 255, 0.20);
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 10 20;
+    -fx-min-width: 70;
+}
+.btn-like {
+    -fx-background-color: transparent;
+    -fx-text-fill: #B7E4C7;
+    -fx-font-size: 24px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+.btn-like:selected { /* quand liké, on change via style dynamique */
+    -fx-text-fill: #2D6A4F;
+}
+.lbl-likes {
+    -fx-text-fill: rgba(255, 255, 255, 0.75);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* ===== VIDÉO ===== */
+.video-container {
+    -fx-background-color: -fx-background;
+    -fx-min-height: 430;
+}
+
+.thumbnail-overlay {
+    -fx-background-color: linear-gradient(to bottom, #DFF0E6, #EEF6F1);
+}
+.thumbnail-image {
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 18, 0, 0, 6);
+}
+.play-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-primary;
+    -fx-font-size: 22px;
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 4;
+}
+.play-circle {
+    -fx-fill: white;
+    -fx-stroke: rgba(45,106,79,0.30);
+    -fx-stroke-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.20), 16, 0, 0, 4);
+}
+.play-circle:hover {
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.40), 20, 0, 0, 6);
+}
+
+/* Contrôles vidéo */
+.controls-bar {
+    -fx-background-color: -fx-surface;
+    -fx-padding: 14 28;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1 0 1 0;
+    -fx-effect: dropshadow(gaussian, -fx-shadow, 6, 0, 0, 2);
+}
+.btn-control {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-background-radius: 8;
+    -fx-min-width: 44px;
+    -fx-min-height: 36px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.3), 8, 0, 0, 3);
+}
+.btn-control:hover {
+    -fx-background-color: -fx-primary-light;
+}
+.time-label {
+    -fx-text-fill: -fx-primary-light;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+.time-total {
+    -fx-text-fill: #7A9B8A;
+    -fx-font-size: 12px;
+}
+.slider {
+    -fx-accent: -fx-primary-light;
+}
+.volume-icon {
+    -fx-text-fill: #4A6B5A;
+    -fx-font-size: 15px;
+}
+
+/* ===== SECTIONS (descriptions, youtube, commentaires) ===== */
+.section-card {
+    -fx-background-color: -fx-surface;
+    -fx-background-radius: 14;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-padding: 20 24;
+    -fx-effect: dropshadow(gaussian, -fx-shadow, 12, 0, 0, 4);
+}
+.section-title {
+    -fx-text-fill: -fx-primary;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+.section-title-underline {
+    -fx-fill: -fx-primary-light;
+    -fx-width: 4px;
+    -fx-height: 20px;
+    -fx-arc-width: 4;
+    -fx-arc-height: 4;
+}
+.section-content {
+    -fx-text-fill: #3D5C4A;
+    -fx-font-size: 13.5px;
+    -fx-line-spacing: 5px;
+    -fx-padding: 0 0 0 14;
+}
+
+/* Suggestions YouTube */
+.youtube-item {
+    -fx-background-color: #0D1117;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+}
+.youtube-item:hover {
+    -fx-background-color: #1A1A2E;
+}
+.youtube-thumb {
+    -fx-fit-width: 100;
+    -fx-fit-height: 60;
+}
+.play-badge {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-background-color: rgba(255,0,0,0.8);
+    -fx-background-radius: 4;
+    -fx-padding: 2 6;
+}
+.youtube-title {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+.youtube-channel {
+    -fx-text-fill: rgba(255,255,255,0.5);
+    -fx-font-size: 11px;
+}
+.btn-youtube {
+    -fx-background-color: #FF0000;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+.btn-youtube:hover {
+    -fx-background-color: #CC0000;
+}
+
+/* Commentaires */
+.comment-input-area {
+    -fx-background-color: -fx-background;
+    -fx-background-radius: 12;
+    -fx-border-color: #C8DDD2;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-padding: 14 16;
+}
+.comment-textarea {
+    -fx-background-color: -fx-surface;
+    -fx-text-fill: -fx-text-primary;
+    -fx-prompt-text-fill: #9DBFAC;
+    -fx-background-radius: 8;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
+}
+.comment-textarea:focused {
+    -fx-border-color: -fx-primary-light;
+    -fx-border-width: 2;
+}
+.btn-annuler {
+    -fx-background-color: -fx-surface;
+    -fx-text-fill: #5A7A6A;
+    -fx-border-color: #C8DDD2;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 9 18;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-annuler:hover {
+    -fx-background-color: #E8F0EB;
+}
+.btn-envoyer {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 9 22;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.25), 8, 0, 0, 3);
+}
+.btn-envoyer:hover {
+    -fx-background-color: -fx-primary-light;
+}
+.comment-box {
+    -fx-background-color: #F0F4F8;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+}
+.comment-box:hover {
+    -fx-background-color: #D9E8E3;
+}
+.comment-username {
+    -fx-text-fill: #7B5EA7;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+.comment-date {
+    -fx-text-fill: #5A6475;
+    -fx-font-size: 11px;
+}
+.comment-content {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2px;
+    -fx-wrap-text: true;
+}
+.comment-action-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7B5EA7;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 3 8;
+}
+.comment-action-btn:hover {
+    -fx-background-color: rgba(123,94,167,0.2);
+    -fx-background-radius: 5;
+}
+.comment-action-btn.delete {
+    -fx-text-fill: #DC2626;
+}
+.comment-action-btn.delete:hover {
+    -fx-background-color: rgba(220,38,38,0.2);
+}
+
+/* Notifications (snackbar) */
+.snackbar {
+    -fx-background-color: #333333;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+.snackbar-success {
+    -fx-background-color: #2D6A4F;
+}
+.snackbar-error {
+    -fx-background-color: #C53030;
+}
+
+/* Loader */
+.progress-indicator {
+    -fx-progress-color: -fx-primary-light;
+}

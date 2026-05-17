@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@style22.css"
+            fx:controller="tn.esprit.controllers.PasserTestController">
+
+    <top>
+        <VBox>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <!--   NAVBAR — même style que MesResultats / MesObjectifs         -->
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-padding: 18px 40px; -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);">
+
+                <!-- Retour -->
+                <Button text="← Retour" onAction="#retour"
+                        style="-fx-background-color: rgba(255,255,255,0.12);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 12px;"/>
+
+                <!-- Titre test -->
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label fx:id="lblTestTitre" text="Test en Cours"
+                           style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblTestType" text=""
+                           style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12px;"/>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Passer un Test (actif — bordure blanche) -->
+                <Button text="📋  Passer un Test" fx:id="btnPasserTest"
+                        style="-fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.5), 10, 0, 0, 3);
+                               -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 12px;"/>
+
+                <!-- Mes Résultats -->
+                <Button text="📊  Mes Résultats" onAction="#handleNavigateToMesResultats"
+                        style="-fx-background-color: linear-gradient(to bottom right, #2563EB, #1D4ED8);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.5), 10, 0, 0, 3);"/>
+
+                <!-- Mes Objectifs -->
+                <Button text="🎯  Mes Objectifs" onAction="#handleNavigateToMesObjectifs"
+                        style="-fx-background-color: linear-gradient(to bottom right, #9333EA, #7C3AED);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.5), 10, 0, 0, 3);"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Nom utilisateur -->
+                <Label fx:id="userNameLabel" text="Utilisateur"
+                       style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+            </HBox>
+
+            <!-- Barre de progression -->
+            <HBox spacing="15" style="-fx-background-color: #F0F4F8; -fx-padding: 15;" alignment="CENTER">
+                <Label text="Progression:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+                <ProgressBar fx:id="progressBar" prefWidth="300" progress="0"/>
+                <Label fx:id="lblProgression" text="Question 0/0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
+            <VBox fx:id="vboxQuestion" spacing="30" style="-fx-padding: 40;" alignment="TOP_CENTER">
+
+                <!-- Numéro et texte de la question -->
+                <VBox spacing="15" alignment="CENTER" maxWidth="800">
+                    <Label fx:id="lblNumeroQuestion" text="Question 1"
+                           style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1B4332;"/>
+                    <Separator prefWidth="400"/>
+                    <Label fx:id="lblTexteQuestion" text="" wrapText="true" textAlignment="CENTER"
+                           style="-fx-font-size: 18; -fx-text-fill: #1A1A2E;"/>
+                </VBox>
+
+                <!-- Zone des réponses (remplie dynamiquement) -->
+                <VBox fx:id="vboxReponses" spacing="18" alignment="CENTER"
+                      maxWidth="700" style="-fx-padding: 10 0 20 0;"/>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Footer — Navigation -->
+    <bottom>
+        <HBox spacing="20" alignment="CENTER"
+              style="-fx-background-color: #F0F4F8; -fx-padding: 20;">
+            <Button fx:id="btnPrecedent" text="← Précédent" onAction="#questionPrecedente" styleClass="btn-secondary"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnSuivant"  text="Suivant →"       onAction="#questionSuivante" styleClass="btn-primary"/>
+            <Button fx:id="btnTerminer" text="✓ Terminer le Test" onAction="#terminerTest"
+                    visible="false" styleClass="btn-success"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

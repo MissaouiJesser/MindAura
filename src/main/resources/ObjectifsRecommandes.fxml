@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@style22.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.ObjectifsRecommandesController">
+
+    <top>
+        <VBox>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <!--   NAVBAR — même style que PasserTest / MesResultats           -->
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-padding: 18px 40px; -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);">
+
+                <!-- Retour -->
+                <Button text="← Retour" onAction="#retour"
+                        style="-fx-background-color: rgba(255,255,255,0.12);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 12px;"/>
+
+                <!-- Titre -->
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label text="Objectifs Recommandés"
+                           style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <HBox spacing="8">
+                        <Label text="Test :"
+                               style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px;"/>
+                        <Label fx:id="lblTestTitre" text=""
+                               style="-fx-text-fill: #BBF7D0; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                        <Label text="|"
+                               style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 12px;"/>
+                        <Label text="Score :"
+                               style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px;"/>
+                        <Label fx:id="lblScore" text=""
+                               style="-fx-text-fill: #FCD34D; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Passer un Test -->
+                <Button text="📋  Passer un Test" onAction="#handleNavigateToChoisirTest"
+                        style="-fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.5), 10, 0, 0, 3);"/>
+
+                <!-- Mes Résultats -->
+                <Button text="📊  Mes Résultats" onAction="#handleNavigateToMesResultats"
+                        style="-fx-background-color: linear-gradient(to bottom right, #2563EB, #1D4ED8);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.5), 10, 0, 0, 3);"/>
+
+                <!-- Mes Objectifs (actif — bordure blanche) -->
+                <Button text="🎯  Mes Objectifs" onAction="#handleNavigateToMesObjectifs"
+                        style="-fx-background-color: linear-gradient(to bottom right, #9333EA, #7C3AED);
+                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 12px; -fx-padding: 11px 18px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(147,51,234,0.5), 10, 0, 0, 3);
+                               -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 12px;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Nom utilisateur -->
+                <Label fx:id="userNameLabel" text="Utilisateur"
+                       style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!--   CONTENU                                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 25; -fx-background-color: #F0F4F8;">
+
+            <Label text="Voici des objectifs recommandés selon vos résultats :"
+                   style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748; -fx-padding: 0 0 10 0;"/>
+
+            <ListView fx:id="listViewObjectifs" prefHeight="380"
+                      style="-fx-font-size: 14; -fx-background-color: white;
+                             -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);"/>
+            <HBox fx:id="paginationContainer" alignment="CENTER" style="-fx-padding: 8 0 0 0;"/>
+
+        </VBox>
+    </center>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!--   FOOTER                                                          -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER_RIGHT"
+              style="-fx-background-color: white; -fx-padding: 20;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, -2);">
+            <Button text="🎯 Adopter cet Objectif" onAction="#adopterObjectif" styleClass="btn-success"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

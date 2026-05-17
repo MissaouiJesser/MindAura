@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane prefHeight="720" prefWidth="1200" style="-fx-background-color: #F2F5F9;" styleClass="app-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.DashboardController">
+
+    <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+    <left>
+        <VBox fx:id="sidebar" styleClass="sidebar">
+
+            <!-- Logo -->
+            <VBox alignment="CENTER" spacing="3" styleClass="sidebar-logo-pane">
+                <ImageView fitHeight="130" fitWidth="130" preserveRatio="true">
+                    <image>
+                        <Image backgroundLoading="true" url="@logo.png" />
+                    </image>
+                </ImageView>
+                <Label styleClass="sidebar-app-name" text="MindAura" />
+                <Label styleClass="sidebar-app-tagline" text="PSYCHOLOGIE &amp; DEV. PERSONNEL" />
+            </VBox>
+
+            <!-- Scrollable menu -->
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS"
+                        style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                <VBox>
+
+                    <!-- Menu principal -->
+                    <Label styleClass="sidebar-section-label" text="NAVIGATION" />
+                    <Button fx:id="btnDashboard" onAction="#showDashboard" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="white" />
+                                <Label text="Tableau de Bord" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Section Ichrak -->
+                    <Label styleClass="sidebar-section-label" text="GESTION D'ICHRAK" />
+                    <Button fx:id="btnLocaux" onAction="#showLocaux" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-hospital" iconSize="16" iconColor="white" />
+                                <Label text="Locaux" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="btnReservations" onAction="#showReservations" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-calendar-alt" iconSize="16" iconColor="white" />
+                                <Label text="Réservations" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="btnSalles" onAction="#showSalles" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-door-open" iconSize="16" iconColor="white" />
+                                <Label text="Salles" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Section Azer -->
+                    <Label styleClass="sidebar-section-label" text="GESTION D'AZER" />
+                    <Button fx:id="btnUtilisateurs" onAction="#showUtilisateurs" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-users" iconSize="16" iconColor="white" />
+                                <Label text="Utilisateurs" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="btnTraitements" onAction="#showTraitements" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-pills" iconSize="16" iconColor="white" />
+                                <Label text="Traitements" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Section Jasser -->
+                    <Label styleClass="sidebar-section-label" text="GESTION DE JASSER" />
+                    <Button fx:id="btnTest" onAction="#showTests" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-brain" iconSize="16" iconColor="white" />
+                                <Label text="Tests Psychologiques" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="btnObjectif" onAction="#showObjectifs" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-bullseye" iconSize="16" iconColor="white" />
+                                <Label text="Objectifs" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Section Yassine -->
+                    <Label styleClass="sidebar-section-label" text="GESTION DE YASSINE" />
+                    <Button fx:id="btnReclamation" onAction="#showReclamations" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-comment-alt" iconSize="16" iconColor="white" />
+                                <Label text="Réclamations et Réponses" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Section Menyar -->
+                    <Label styleClass="sidebar-section-label" text="GESTION DE MENYAR" />
+                    <Button fx:id="btnRessources" onAction="#showRessources" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-book-open" iconSize="16" iconColor="white" />
+                                <Label text="Ressources et Commentaires" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Section Rania -->
+                    <Label styleClass="sidebar-section-label" text="GESTION DE RANIA" />
+                    <Button fx:id="btnEvenements" onAction="#showEvenements" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-calendar-check" iconSize="16" iconColor="white" />
+                                <Label text="Événements" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="btnParticipants" onAction="#showParticipants" styleClass="sidebar-btn">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <FontIcon iconLiteral="fas-ticket-alt" iconSize="16" iconColor="white" />
+                                <Label text="Participants" style="-fx-text-fill: white; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+
+                </VBox>
+            </ScrollPane>
+
+            <!-- Séparateur bas -->
+            <Separator style="-fx-background-color: rgba(255,255,255,0.08);" />
+
+            <!-- Infos utilisateur connecté -->
+            <HBox fx:id="userPanel" alignment="CENTER_LEFT" spacing="10" styleClass="sidebar-user-pane">
+                <!-- Avatar -->
+                <StackPane fx:id="avatarPane" minHeight="36" minWidth="36" styleClass="avatar">
+                    <ImageView fx:id="avatarImageView" fitHeight="36" fitWidth="36" preserveRatio="false" visible="false">
+                        <clip>
+                            <javafx.scene.shape.Circle centerX="18" centerY="18" radius="18" />
+                        </clip>
+                    </ImageView>
+                    <Label fx:id="avatarLabel" styleClass="avatar-text" text="?" />
+                </StackPane>
+                <VBox spacing="1" HBox.hgrow="ALWAYS">
+                    <Label fx:id="userNameLabel" styleClass="sidebar-user-name" text="Utilisateur" />
+                    <Label fx:id="userRoleLabel" styleClass="sidebar-user-role" text="Administrateur" />
+                </VBox>
+                <!-- Bouton déconnexion -->
+                <Button fx:id="logoutBtn" onAction="#handleLogout" styleClass="btn-logout-icon">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="white" />
+                    </graphic>
+                    <tooltip><Tooltip text="Se déconnecter" /></tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </left>
+
+    <!-- ═══════════════════════════ CONTENU PRINCIPAL ═════════════════════════ -->
+    <center>
+        <VBox style="-fx-background-color: #F2F5F9;">
+
+            <!-- Topbar -->
+            <HBox alignment="CENTER_LEFT" spacing="0" styleClass="topbar">
+
+                <!-- ══ BOUTON TOGGLE SIDEBAR ══ -->
+                <Button fx:id="btnToggleSidebar" onAction="#toggleSidebar"
+                        style="-fx-background-color: #1B4332;
+                               -fx-background-radius: 10px;
+                               -fx-border-color: transparent;
+                               -fx-cursor: hand;
+                               -fx-padding: 8 12 8 12;
+                               -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 8, 0, 0, 2);">
+
+                    <HBox.margin>
+                        <Insets right="15"/>
+                    </HBox.margin>
+
+                    <graphic>
+                        <FontIcon fx:id="toggleIcon" iconLiteral="fas-bars" iconSize="17" iconColor="white" />
+                    </graphic>
+                    <tooltip><Tooltip text="Masquer / Afficher le menu" /></tooltip>
+                </Button>
+
+                <VBox alignment="CENTER_LEFT" spacing="1" HBox.hgrow="ALWAYS">
+                    <Label fx:id="topbarTitle" styleClass="topbar-title" text="Tableau de Bord" />
+                    <Label fx:id="topbarSubtitle" styleClass="topbar-subtitle" text="Bienvenue sur MindAura Admin" />
+                </VBox>
+
+                <!-- ══════════ WIDGET MÉTÉO ══════════ -->
+                <HBox fx:id="weatherWidget" alignment="CENTER" spacing="8" style="-fx-background-color: rgba(27,67,50,0.07);
+                             -fx-background-radius: 12;
+                             -fx-padding: 7 16 7 12;
+                             -fx-cursor: hand;">
+
+                    <!-- Icône météo (Label emoji mis à jour dynamiquement par le controller) -->
+                    <Label fx:id="weatherIcon" style="-fx-font-size: 22px;" text="🌤" />
+
+                    <!-- Infos météo -->
+                    <VBox alignment="CENTER_LEFT" spacing="0">
+                        <Label fx:id="weatherTempLabel" style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #1A1A2E;" text="--°C" />
+                        <Label fx:id="weatherDescLabel" style="-fx-font-size: 10px;
+                                      -fx-text-fill: #5A6475;" text="Chargement..." />
+                    </VBox>
+
+                    <!-- Séparateur vertical -->
+                    <Separator orientation="VERTICAL" prefHeight="28" style="-fx-background-color: rgba(0,0,0,0.10);" />
+
+                    <!-- Ville + heure -->
+                    <VBox alignment="CENTER_LEFT" spacing="0">
+                        <Label fx:id="weatherCityLabel" style="-fx-font-size: 11px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #1B4332;" text="Tunis" />
+                        <Label fx:id="topbarDate" style="-fx-font-size: 10px;
+                                      -fx-text-fill: #95A3B0;" text="" />
+                    </VBox>
+                </HBox>
+                <!-- ══════════ FIN WIDGET MÉTÉO ══════════ -->
+
+            </HBox>
+
+            <!-- Zone de contenu dynamique -->
+            <StackPane fx:id="contentArea" style="-fx-background-color: #F2F5F9;" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </center>
+
+</BorderPane>

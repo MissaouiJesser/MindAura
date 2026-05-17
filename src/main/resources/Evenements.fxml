@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.UserEventController"
+      spacing="0"
+      style="-fx-background-color:#F0F4F8;">
+
+    <!-- ══════════════════ EN-TÊTE ══════════════════ -->
+    <VBox spacing="16"
+          style="-fx-background-color:#1B4332;
+                 -fx-padding:32 48 28 48;
+                 -fx-border-color:#2D6A4F; -fx-border-width:0 0 1.5 0;
+                 -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.22),14,0,0,4);">
+
+        <!-- Ligne titre + bouton retour -->
+        <HBox alignment="CENTER_LEFT" spacing="16">
+
+            <Button text="← Retour"
+                    onAction="#goBack"
+                    style="-fx-background-color:rgba(255,255,255,0.10);
+                           -fx-text-fill:#BBF7D0; -fx-font-size:11.5px; -fx-font-weight:700;
+                           -fx-background-radius:20; -fx-padding:6 16;
+                           -fx-border-color:rgba(187,247,208,0.35); -fx-border-radius:20; -fx-border-width:1;
+                           -fx-cursor:hand;"/>
+
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="🎪  Événements"
+                       style="-fx-text-fill:#FFFFFF; -fx-font-size:24px;
+                              -fx-font-weight:900; -fx-font-family:'Georgia';"/>
+                <Label text="Découvrez, inscrivez-vous et échangez avec les participants"
+                       style="-fx-text-fill:rgba(187,247,208,0.75); -fx-font-size:12.5px;"/>
+            </VBox>
+
+            <!-- BOUTON MES RECOMMANDATIONS (conservé) -->
+            <Button text="🎯  Mes recommandations"
+                    onAction="#goRecommandations"
+                    style="-fx-background-color:rgba(255,255,255,0.12);
+                           -fx-text-fill:#BBF7D0; -fx-font-size:12px; -fx-font-weight:700;
+                           -fx-background-radius:12; -fx-padding:10 20;
+                           -fx-border-color:rgba(187,247,208,0.35); -fx-border-radius:12; -fx-border-width:1;
+                           -fx-cursor:hand;"/>
+
+            <!-- Chatbot -->
+            <Button text="🤖  Chatbot"
+                    onAction="#openChatbot"
+                    style="-fx-background-color:rgba(139,92,246,0.15);
+                           -fx-text-fill:#BBF7D0; -fx-font-size:12px; -fx-font-weight:700;
+                           -fx-background-radius:12; -fx-padding:10 20;
+                           -fx-border-color:rgba(139,92,246,0.45); -fx-border-radius:12; -fx-border-width:1;
+                           -fx-cursor:hand;"/>
+
+        </HBox>
+
+        <!-- Barre de recherche + tri -->
+        <HBox spacing="12" alignment="CENTER_LEFT">
+
+            <TextField fx:id="userSearchField"
+                       promptText="🔍  Rechercher un événement, lieu, type…"
+                       onKeyReleased="#filterEvents"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color:rgba(255,255,255,0.12);
+                              -fx-background-radius:10;
+                              -fx-border-color:rgba(187,247,208,0.30); -fx-border-radius:10; -fx-border-width:1;
+                              -fx-text-fill:#FFFFFF; -fx-font-size:13px;
+                              -fx-padding:10 16; -fx-prompt-text-fill:rgba(187,247,208,0.55);"/>
+
+            <ComboBox fx:id="sortCombo"
+                      promptText="Trier par…"
+                      prefWidth="195"
+                      onAction="#filterEvents"
+                      style="-fx-background-color:rgba(255,255,255,0.12);
+                             -fx-background-radius:10;
+                             -fx-border-color:rgba(187,247,208,0.30); -fx-border-radius:10; -fx-border-width:1;
+                             -fx-text-fill:#FFFFFF; -fx-font-size:12px;
+                             -fx-padding:2 0;"/>
+        </HBox>
+    </VBox>
+
+    <!-- ══════════════════ CONTENU SCROLLABLE ══════════════════ -->
+    <ScrollPane fitToWidth="true"
+                VBox.vgrow="ALWAYS"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                style="-fx-background-color:transparent; -fx-background:transparent;
+                       -fx-border-color:transparent;">
+
+        <FlowPane fx:id="userEventContainer"
+                  hgap="22"
+                  vgap="22"
+                  prefWrapLength="1100"
+                  style="-fx-background-color:transparent;">
+            <padding>
+                <Insets top="28" right="40" bottom="40" left="40"/>
+            </padding>
+        </FlowPane>
+
+    </ScrollPane>
+
+</VBox>

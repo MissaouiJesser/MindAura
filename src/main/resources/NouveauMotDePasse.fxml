@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.controllers.NouveauMotDePasseController"
+           styleClass="login-root"
+           prefWidth="520" prefHeight="560">
+
+    <VBox alignment="CENTER" spacing="0"
+          style="-fx-background-color:#FFFFFF;
+                 -fx-background-radius:20;
+                 -fx-effect:dropshadow(gaussian,rgba(27,67,50,0.13),30,0,0,8);
+                 -fx-max-width:460;">
+
+        <!-- EN-TÊTE -->
+        <VBox alignment="CENTER" spacing="10"
+              style="-fx-background-color:linear-gradient(to bottom right,#1B4332,#2D6A4F);
+                     -fx-background-radius:20 20 0 0;
+                     -fx-padding:36 40 36 40;">
+            <Label text="🔑" style="-fx-font-size:38px;"/>
+            <Label text="Nouveau mot de passe"
+                   style="-fx-text-fill:#FFFFFF; -fx-font-size:22px; -fx-font-weight:700;"/>
+            <Label text="Choisissez un mot de passe sécurisé"
+                   style="-fx-text-fill:rgba(255,255,255,0.82); -fx-font-size:13px;"/>
+        </VBox>
+
+        <!-- FORMULAIRE -->
+        <VBox spacing="18" style="-fx-padding:36 40 36 40;">
+
+            <!-- Règles -->
+            <HBox alignment="CENTER_LEFT" spacing="8"
+                  style="-fx-background-color:#F0FFF4;
+                         -fx-border-color:#95D5B2; -fx-border-radius:10;
+                         -fx-background-radius:10; -fx-padding:12 16 12 16;">
+                <Label text="ℹ" style="-fx-font-size:15px; -fx-text-fill:#1B4332;"/>
+                <Label text="Min. 6 caractères, 1 majuscule, 1 chiffre"
+                       style="-fx-text-fill:#1B4332; -fx-font-size:12px; -fx-font-weight:600;"
+                       wrapText="true"/>
+            </HBox>
+
+            <!-- Nouveau mot de passe -->
+            <VBox spacing="7">
+                <Label text="Nouveau mot de passe *" styleClass="form-label"/>
+                <HBox alignment="CENTER_LEFT" spacing="0">
+                    <StackPane HBox.hgrow="ALWAYS">
+                        <PasswordField fx:id="passwordField"
+                                       promptText="••••••••"
+                                       styleClass="form-field"/>
+                        <TextField fx:id="passwordVisible"
+                                   promptText="••••••••"
+                                   styleClass="form-field"
+                                   visible="false" managed="false"/>
+                    </StackPane>
+                    <Button fx:id="btnTogglePwd" text="👁"
+                            onAction="#handleTogglePassword"
+                            style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                   -fx-font-size:16px; -fx-cursor:hand; -fx-padding:0 8 0 8;
+                                   -fx-min-width:36; -fx-min-height:36;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Confirmation -->
+            <VBox spacing="7">
+                <Label text="Confirmer le mot de passe *" styleClass="form-label"/>
+                <HBox alignment="CENTER_LEFT" spacing="0">
+                    <StackPane HBox.hgrow="ALWAYS">
+                        <PasswordField fx:id="confirmField"
+                                       promptText="••••••••"
+                                       styleClass="form-field"/>
+                        <TextField fx:id="confirmVisible"
+                                   promptText="••••••••"
+                                   styleClass="form-field"
+                                   visible="false" managed="false"/>
+                    </StackPane>
+                    <Button fx:id="btnToggleConfirm" text="👁"
+                            onAction="#handleToggleConfirm"
+                            style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                   -fx-font-size:16px; -fx-cursor:hand; -fx-padding:0 8 0 8;
+                                   -fx-min-width:36; -fx-min-height:36;"/>
+                </HBox>
+                <Label fx:id="errorLabel" text=""
+                       style="-fx-text-fill:#E74C3C; -fx-font-size:11px; -fx-font-weight:bold;"/>
+            </VBox>
+
+            <!-- Bouton enregistrer -->
+            <Button text="Enregistrer le nouveau mot de passe"
+                    styleClass="btn-login"
+                    onAction="#handleEnregistrer"/>
+
+        </VBox>
+    </VBox>
+</StackPane>

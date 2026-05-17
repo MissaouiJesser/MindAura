@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+  Reclamations.fxml — Espace client Réclamations, chargé dans le centre de UserHome.
+  Navbar fixe en haut (reste visible au scroll), SessionManager à droite, contenu scrollable en dessous.
+-->
+
+<BorderPane style="-fx-background-color: #F0F4F8;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.ReclamationsController">
+
+    <stylesheets><String fx:value="/app.css" /></stylesheets>
+
+    <!-- NAVBAR FIXE (reste visible au scroll, comme Tests / Locaux) -->
+    <top>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 18px 40px; -fx-background-color: linear-gradient(to bottom right, #1B4332 0%, #0D2B1F 100%);">
+
+                <HBox alignment="CENTER_LEFT" spacing="12" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button fx:id="btnLesReclamations" minWidth="150" onAction="#chargerLesReclamations"
+                        style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: #E5E7EB; -fx-font-weight: 700; -fx-font-size: 12px;
+                               -fx-background-radius: 999; -fx-padding: 9px 20px; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.35); -fx-border-width: 1.5; -fx-border-radius: 999;"
+                        text="Toutes les réclamations" />
+
+                <Button fx:id="btnMesReclamations" minWidth="150" onAction="#ouvrirMesReclamations"
+                        style="-fx-background-color: rgba(15,118,110,0.85); -fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 12px;
+                               -fx-background-radius: 999; -fx-padding: 9px 22px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(13,148,136,0.55), 12, 0, 0, 4);"
+                        text="Mes réclamations" />
+
+                <Button fx:id="btnNouvelleReclamation" onAction="#ouvrirFormulaireAjout"
+                        style="-fx-background-color: linear-gradient(to bottom right, #DC2626, #B91C1C); -fx-text-fill: white;
+                               -fx-font-weight: 800; -fx-font-size: 12px; -fx-background-radius: 999;
+                               -fx-padding: 9px 22px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(220,38,38,0.55), 14, 0, 0, 4);"
+                        text="Nouvelle réclamation" />
+
+                <Region HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- CONTENU CENTRAL -->
+    <center>
+        <HBox spacing="0" HBox.hgrow="ALWAYS">
+            <VBox minWidth="0.0" prefHeight="626.0" prefWidth="0.0" spacing="16" style="-fx-background-color: #1B4332; -fx-padding: 24; -fx-border-color: #0A3420; -fx-border-width: 0 1 0 0;">
+                <VBox alignment="TOP_CENTER" spacing="8" style="-fx-padding: 0 0 16 0; -fx-border-color: #2D6A4F; -fx-border-width: 0 0 1 0;" />
+            </VBox>
+
+            <TabPane style="-fx-background-color: #F0F4F8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                <Tab closable="false" text="Mes Reclamations">
+                    <VBox spacing="12" style="-fx-padding: 20; -fx-background-color: #F0F4F8;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #1A1A2E; -fx-font-size: 11px; -fx-font-weight: bold;" text="Rechercher" />
+                                <TextField fx:id="tfRecherche" promptText="Entrez au moins 3 caracteres..." style="-fx-padding: 10; -fx-font-size: 12; -fx-background-radius: 6; -fx-border-color: #2D6A4F; -fx-border-width: 1;" />
+                            </VBox>
+                            <VBox spacing="6" style="-fx-min-width: 180;">
+                                <Label style="-fx-text-fill: #1A1A2E; -fx-font-size: 11px; -fx-font-weight: bold;" text="Categorie" />
+                                <ComboBox fx:id="cbFiltreRecherche" prefWidth="160" style="-fx-padding: 10; -fx-font-size: 11; -fx-background-radius: 4; -fx-border-color: #2D6A4F; -fx-border-width: 1;" />
+                            </VBox>
+                            <VBox spacing="6" style="-fx-min-width: 180;">
+                                <Label style="-fx-text-fill: #1A1A2E; -fx-font-size: 11px; -fx-font-weight: bold;" text="Statut" />
+                                <ComboBox fx:id="cbFiltreStatut" prefWidth="160" style="-fx-padding: 10; -fx-font-size: 11; -fx-background-radius: 4; -fx-border-color: #2D6A4F; -fx-border-width: 1;" />
+                            </VBox>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label style="-fx-text-fill: #1A1A2E; -fx-font-size: 16px; -fx-font-weight: bold;" text="Vos Reclamations" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="lblMessage" style="-fx-text-fill: #5A6475; -fx-font-size: 11px;" text="" />
+                        </HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="8">
+                            <Label fx:id="lblPage" style="-fx-text-fill: #5A6475; -fx-font-size: 11px;" text="Page 1/1" />
+                            <Button fx:id="btnPrevPage" style="-fx-background-color: #E2E8F0; -fx-text-fill: #1A1A2E; -fx-padding: 4 10; -fx-background-radius: 4; -fx-cursor: hand;" text="◀" />
+                            <Button fx:id="btnNextPage" style="-fx-background-color: #E2E8F0; -fx-text-fill: #1A1A2E; -fx-padding: 4 10; -fx-background-radius: 4; -fx-cursor: hand;" text="▶" />
+                        </HBox>
+                        <ListView fx:id="listReclamations" style="-fx-background-color: #F0F4F8; -fx-border-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS" />
+                    </VBox>
+                </Tab>
+                <Tab closable="false" text="Assistant IA">
+                    <fx:include source="ClientChatbot.fxml" />
+                </Tab>
+            </TabPane>
+        </HBox>
+    </center>
+</BorderPane>

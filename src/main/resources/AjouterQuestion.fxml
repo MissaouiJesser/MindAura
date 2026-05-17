@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@style22.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AjouterQuestionController">
+
+
+    <!-- Center -->
+    <center>
+        <Label fx:id="lblTitre" text="" textFill="white"/>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #F0F4F8;">
+            <VBox spacing="20" style="-fx-padding: 30;">
+
+                <!-- Informations du Test -->
+                <VBox spacing="10" style="-fx-background-color: #1B4332; -fx-padding: 15; -fx-background-radius: 10;">
+                    <Label text="📋 Test :" textFill="white" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <Label fx:id="lblTestInfo" text="" textFill="white" wrapText="true" style="-fx-font-size: 13;"/>
+                </VBox>
+
+                <!-- Question -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                    <Label text="Question" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;"/>
+                    <Separator/>
+
+                    <VBox spacing="5">
+                        <Label text="Texte de la Question *" style="-fx-font-weight: bold;"/>
+                        <TextArea fx:id="txtQuestion" promptText="Saisissez votre question ici..."
+                                  prefRowCount="3" wrapText="true" style="-fx-font-size: 14;"/>
+                    </VBox>
+
+                    <HBox spacing="20">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Type de Question *" style="-fx-font-weight: bold;"/>
+                            <ComboBox fx:id="cmbType" prefWidth="200" onAction="#changerTypeQuestion">
+                            </ComboBox>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Ordre" style="-fx-font-weight: bold;"/>
+                            <Spinner fx:id="spinOrdre" prefWidth="100"/>
+                        </VBox>
+
+                        <VBox spacing="5" alignment="CENTER_LEFT">
+                            <Label text=" "/>
+                            <CheckBox fx:id="chkObligatoire" text="Question obligatoire" selected="true"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Options de réponse -->
+                <VBox fx:id="vboxOptions" spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                    <Label text="Options de Réponse" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Separator/>
+
+                    <!-- Option 1 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="1." style="-fx-font-size: 14; -fx-font-weight: bold;" prefWidth="30"/>
+                        <TextField fx:id="txtOption1" promptText="Texte de l'option 1" HBox.hgrow="ALWAYS"/>
+                        <Label text="Score:" style="-fx-font-weight: bold;"/>
+                        <Spinner fx:id="spinScore1" prefWidth="100"/>
+                    </HBox>
+
+                    <!-- Option 2 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="2." style="-fx-font-size: 14; -fx-font-weight: bold;" prefWidth="30"/>
+                        <TextField fx:id="txtOption2" promptText="Texte de l'option 2" HBox.hgrow="ALWAYS"/>
+                        <Label text="Score:" style="-fx-font-weight: bold;"/>
+                        <Spinner fx:id="spinScore2" prefWidth="100"/>
+                    </HBox>
+
+                    <!-- Option 3 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="3." style="-fx-font-size: 14; -fx-font-weight: bold;" prefWidth="30"/>
+                        <TextField fx:id="txtOption3" promptText="Texte de l'option 3 (optionnel)" HBox.hgrow="ALWAYS"/>
+                        <Label text="Score:" style="-fx-font-weight: bold;"/>
+                        <Spinner fx:id="spinScore3" prefWidth="100"/>
+                    </HBox>
+
+                    <!-- Option 4 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="4." style="-fx-font-size: 14; -fx-font-weight: bold;" prefWidth="30"/>
+                        <TextField fx:id="txtOption4" promptText="Texte de l'option 4 (optionnel)" HBox.hgrow="ALWAYS"/>
+                        <Label text="Score:" style="-fx-font-weight: bold;"/>
+                        <Spinner fx:id="spinScore4" prefWidth="100"/>
+                    </HBox>
+
+                    <!-- Option 5 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="5." style="-fx-font-size: 14; -fx-font-weight: bold;" prefWidth="30"/>
+                        <TextField fx:id="txtOption5" promptText="Texte de l'option 5 (optionnel)" HBox.hgrow="ALWAYS"/>
+                        <Label text="Score:" style="-fx-font-weight: bold;"/>
+                        <Spinner fx:id="spinScore5" prefWidth="100"/>
+                    </HBox>
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Footer -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-background-color: #F0F4F8; -fx-padding: 15;">
+            <Button text="Annuler" onAction="#annuler"
+                    style="-fx-background-color: #7B5EA7; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 30;"/>
+            <Button fx:id="btnEnregistrer" text="Enregistrer" onAction="#enregistrer"
+                    style="-fx-background-color: #1B4332; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 30;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

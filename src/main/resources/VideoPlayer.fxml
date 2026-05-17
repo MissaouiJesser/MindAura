@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+
+<BorderPane style="-fx-background-color: #F4F7F5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.VideoPlayerController">
+
+    <!-- ══════════════════════════════════════
+         HEADER
+    ══════════════════════════════════════ -->
+    <top>
+        <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #1B4332;
+                     -fx-padding: 16 32;
+                     -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.35), 14, 0, 0, 5);">
+
+            <Button fx:id="btnRetour" onAction="#handleRetour" prefHeight="42.0" prefWidth="114.0" style="-fx-background-color: rgba(255,255,255,0.13);
+                           -fx-text-fill: white;
+                           -fx-border-color: rgba(255,255,255,0.28);
+                           -fx-border-width: 1.5;
+                           -fx-border-radius: 10;
+                           -fx-background-radius: 10;
+                           -fx-padding: 10 22;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-cursor: hand;" text="← Retour" />
+
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label fx:id="lblTitreVideo" style="-fx-font-size: 20px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: white;" text="Titre de la vidéo" />
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Circle fill="#52B788" radius="4" />
+                    <Label fx:id="lblInfoVideo" style="-fx-font-size: 12px;
+                                  -fx-text-fill: rgba(255,255,255,0.60);" text="0 vues" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </top>
+
+    <!-- ══════════════════════════════════════
+         CENTER — Contenu principal responsive
+    ══════════════════════════════════════ -->
+    <center>
+        <HBox spacing="0" HBox.hgrow="ALWAYS">
+            <!-- Colonne vidéo : prend 65% de l'espace disponible, avec une largeur minimale de 620 -->
+            <VBox style="-fx-background-color: #F4F7F5;" HBox.hgrow="ALWAYS" minWidth="620" maxWidth="Infinity">
+                <!-- Conteneur vidéo -->
+                <StackPane fx:id="videoContainer" style="-fx-background-color: #E8F0EB; -fx-min-height: 430;" VBox.vgrow="ALWAYS">
+
+                    <VBox prefHeight="430" style="-fx-background-color: linear-gradient(to bottom, #DFF0E6, #EEF6F1);" />
+
+                    <!-- Thumbnail + Play -->
+                    <VBox fx:id="thumbnailContainer" alignment="CENTER" spacing="22" style="-fx-background-color: transparent;">
+                        <StackPane alignment="CENTER">
+                            <Rectangle arcHeight="18" arcWidth="18" fill="transparent" height="390" stroke="rgba(45,106,79,0.18)" strokeWidth="1.5" width="390" />
+                            <ImageView fx:id="thumbnailImage" fitHeight="383" fitWidth="380" preserveRatio="true" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 18, 0, 0, 6);" />
+                        </StackPane>
+                        <StackPane alignment="CENTER">
+                            <Circle fill="rgba(45,106,79,0.10)" radius="46" stroke="rgba(45,106,79,0.22)" strokeWidth="1.5" />
+                            <Circle fill="white" radius="36" stroke="rgba(45,106,79,0.30)" strokeWidth="2" style="-fx-effect: dropshadow(gaussian, rgba(27,67,50,0.20), 16, 0, 0, 4);" />
+                            <Button fx:id="btnPlay" onAction="#handlePlay" style="-fx-background-color: transparent;
+                                                   -fx-text-fill: #1B4332;
+                                                   -fx-font-size: 22px;
+                                                   -fx-cursor: hand;
+                                                   -fx-border-color: transparent;
+                                                   -fx-padding: 0 0 0 4;" text="▶" />
+                        </StackPane>
+                    </VBox>
+
+                    <MediaView fx:id="mediaView" fitHeight="430" fitWidth="860" preserveRatio="true" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 24, 0, 0, 8);" visible="false" />
+                </StackPane>
+
+                <!-- Barre de contrôles -->
+                <HBox fx:id="controlsContainer" alignment="CENTER" spacing="14" style="-fx-background-color: white;
+                         -fx-padding: 14 28;
+                         -fx-border-color: #D4E6DB;
+                         -fx-border-width: 1 0 1 0;" visible="false">
+
+                    <Button fx:id="btnPlayPause" onAction="#handlePlayPause" style="-fx-background-color: #1B4332; -fx-text-fill: white;
+                               -fx-font-size: 15px; -fx-background-radius: 8;
+                               -fx-min-width: 44px; -fx-min-height: 36px; -fx-cursor: hand;" text="⏸" />
+
+                    <Label fx:id="lblTempsActuel" style="-fx-text-fill: #2D6A4F; -fx-font-size: 12px; -fx-font-weight: bold;" text="0:00" />
+
+                    <Slider fx:id="timeSlider" style="-fx-accent: #2D6A4F;" HBox.hgrow="ALWAYS" />
+
+                    <Label fx:id="lblTempstotal" style="-fx-text-fill: #7A9B8A; -fx-font-size: 12px;" text="0:00" />
+
+                    <Label style="-fx-text-fill: #4A6B5A; -fx-font-size: 15px;" text="🔊" />
+
+                    <Slider fx:id="volumeSlider" max="1" min="0" prefWidth="90" style="-fx-accent: #2D6A4F;" value="0.8" />
+                </HBox>
+
+                <!-- Description -->
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F4F7F5;" VBox.vgrow="ALWAYS">
+                    <VBox spacing="16" style="-fx-background-color: #F4F7F5; -fx-padding: 20 24 30 24;">
+
+                        <!-- Description -->
+                        <VBox spacing="10" style="-fx-background-color: white;
+                                 -fx-background-radius: 14;
+                                 -fx-border-color: #D4E6DB;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 14;
+                                 -fx-padding: 18 22;
+                                 -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.07), 10, 0, 0, 3);">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Rectangle arcHeight="2" arcWidth="2" fill="#2D6A4F" height="18" width="4" />
+                                <Label style="-fx-text-fill: #1B4332; -fx-font-size: 14px; -fx-font-weight: bold;" text="Description" />
+                            </HBox>
+                            <Label fx:id="lblDescription" style="-fx-text-fill: #3D5C4A; -fx-font-size: 13px;
+                                          -fx-line-spacing: 5px; -fx-padding: 0 0 0 14;" wrapText="true" />
+                        </VBox>
+
+                        <!-- Suggestions YouTube -->
+                        <VBox fx:id="youtubeContainer" spacing="10" style="-fx-background-color: white;
+                                 -fx-background-radius: 14;
+                                 -fx-border-color: #D4E6DB;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 14;
+                                 -fx-padding: 18 22;
+                                 -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.07), 10, 0, 0, 3);">
+                            <Label style="-fx-text-fill: #8AAA96; -fx-font-size: 13px; -fx-font-style: italic;" text="📺 Chargement des suggestions YouTube..." />
+                        </VBox>
+
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+
+            <!-- Sidebar droite : prend 35% de l'espace, avec une largeur minimale de 380 -->
+            <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS" minWidth="380" maxWidth="Infinity"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent;
+                               -fx-background: #F0F4F2;
+                               -fx-border-color: #D4E6DB;
+                               -fx-border-width: 0 0 0 1;">
+                <VBox spacing="16" style="-fx-background-color: #F0F4F2; -fx-padding: 20 16;">
+
+                    <!-- ── Statistiques ── -->
+                    <VBox spacing="12" style="-fx-background-color: white;
+                             -fx-background-radius: 14;
+                             -fx-border-color: #D4E6DB;
+                             -fx-border-width: 1;
+                             -fx-border-radius: 14;
+                             -fx-padding: 18 20;
+                             -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.07), 10, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label style="-fx-font-size: 15px;" text="📊" />
+                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1B4332;" text="Statistiques" />
+                        </HBox>
+
+                        <!-- Vues -->
+                        <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-background-color: #F0FDF4;
+                                 -fx-background-radius: 10;
+                                 -fx-padding: 12 16;">
+                            <StackPane>
+                                <Circle fill="#D1FAE5" radius="22" />
+                                <Label style="-fx-font-size: 18px;" text="👁" />
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="lblNombreVues" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1B4332;" text="0" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #6B9E80;" text="Vues totales" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Likes -->
+                        <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-background-color: #FFF0F3;
+                                 -fx-background-radius: 10;
+                                 -fx-padding: 12 16;">
+                            <StackPane>
+                                <Circle fill="#FFD6E0" radius="22" />
+                                <Label style="-fx-font-size: 18px;" text="❤" />
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label fx:id="lblNombreLikes" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1B4332;" text="0" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #B07080;" text="J'aime reçus" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Bouton J'aime -->
+                        <Button fx:id="btnLike" maxWidth="Infinity" onAction="#handleLike" style="-fx-background-color: #7B5EA7;
+                                -fx-text-fill: white;
+                                -fx-background-radius: 10;
+                                -fx-padding: 12 20;
+                                -fx-font-size: 13px;
+                                -fx-font-weight: bold;
+                                -fx-cursor: hand;
+                                -fx-effect: dropshadow(gaussian, rgba(123,94,167,0.35), 10, 0, 0, 3);" text="❤  J'aime cette ressource" />
+                    </VBox>
+
+                    <!-- ── Commentaires ── -->
+                    <VBox spacing="14" style="-fx-background-color: white;
+                             -fx-background-radius: 14;
+                             -fx-border-color: #D4E6DB;
+                             -fx-border-width: 1;
+                             -fx-border-radius: 14;
+                             -fx-padding: 18 20;
+                             -fx-effect: dropshadow(gaussian, rgba(27,67,50,0.07), 10, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label style="-fx-font-size: 15px;" text="💬" />
+                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1B4332;" text="Commentaires" />
+                            <Label fx:id="lblNombreCommentaires" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #52B788;" text="(0)" />
+                        </HBox>
+
+                        <!-- Zone de saisie -->
+                        <TextField fx:id="txtCommentaireInline" promptText="Écrire un commentaire..." style="-fx-background-color: #F5F8F6;
+                                      -fx-border-color: #C8DDD2;
+                                      -fx-border-width: 1.5;
+                                      -fx-border-radius: 10;
+                                      -fx-background-radius: 10;
+                                      -fx-padding: 10 14;
+                                      -fx-font-size: 12px;
+                                      -fx-text-fill: #1B3A2C;
+                                      -fx-prompt-text-fill: #9DBFAC;" />
+
+                        <!-- Boutons saisie -->
+                        <HBox alignment="CENTER_RIGHT" spacing="8">
+                            <Button fx:id="btnAnnulerEdition" managed="false" onAction="#handleAnnulerEdition" style="-fx-background-color: white;
+                                           -fx-text-fill: #5A7A6A;
+                                           -fx-border-color: #C8DDD2;
+                                           -fx-border-width: 1.5;
+                                           -fx-border-radius: 8;
+                                           -fx-background-radius: 8;
+                                           -fx-padding: 8 14;
+                                           -fx-font-size: 11px;
+                                           -fx-cursor: hand;" text="Annuler" visible="false" />
+                            <Button fx:id="btnEnvoyerCommentaire" maxWidth="Infinity" onAction="#handleEnvoyerCommentaire" style="-fx-background-color: #1B4332;
+                                           -fx-text-fill: white;
+                                           -fx-background-radius: 8;
+                                           -fx-border-radius: 8;
+                                           -fx-padding: 9 0;
+                                           -fx-font-size: 12px;
+                                           -fx-font-weight: bold;
+                                           -fx-cursor: hand;" text="Publier">
+                                <HBox.hgrow>ALWAYS</HBox.hgrow>
+                            </Button>
+                        </HBox>
+
+                        <!-- Séparateur -->
+                        <Region prefHeight="1" style="-fx-background-color: #E8F0EB;" />
+
+                        <!-- Liste commentaires -->
+                        <VBox fx:id="commentairesContainer" spacing="10" />
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+        </HBox>
+    </center>
+
+</BorderPane>

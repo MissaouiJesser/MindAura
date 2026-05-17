@@ -1,0 +1,134 @@
+/* ===== DARK MODE ===== */
+
+.root,
+VBox,
+HBox,
+BorderPane,
+AnchorPane,
+ScrollPane,
+ScrollPane > .viewport {
+    -fx-background-color: #1a1a2e;
+}
+
+.root {
+    -fx-background-color: #1a1a2e;
+}
+
+.label {
+    -fx-text-fill: #e0e0e0 !important;
+}
+
+.button {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #0f3460;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.button:hover {
+    -fx-background-color: #0f3460;
+}
+
+.list-view {
+    -fx-background-color: #16213e;
+    -fx-border-color: #0f3460;
+}
+
+.list-cell {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+}
+
+.list-cell:selected {
+    -fx-background-color: #0f3460;
+}
+
+.text-area {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #0f3460;
+}
+
+.text-area .content {
+    -fx-background-color: #16213e;
+}
+
+.text-field {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #0f3460;
+    -fx-prompt-text-fill: #888;
+}
+
+.scroll-pane {
+    -fx-background-color: #1a1a2e;
+    -fx-background: #1a1a2e;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: #1a1a2e;
+}
+
+.table-view {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+}
+
+.table-row-cell {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #0f3460;
+}
+
+.column-header {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: white;
+}
+
+.column-header-background {
+    -fx-background-color: #0f3460;
+}
+
+.combo-box {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #0f3460;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #e0e0e0;
+}
+
+.progress-indicator {
+    -fx-progress-color: #7B5EA7;
+}
+
+/* Pagination bar */
+.btn-neutral {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: #e0e0e0;
+}
+
+.btn-neutral:hover {
+    -fx-background-color: #16213e;
+}
+
+.btn-neutral:disabled {
+    -fx-opacity: 0.5;
+}
+
+/* Pagination bar - dark */
+.pagination-bar {
+    -fx-background-color: #16213e;
+    -fx-background-radius: 8;
+}
+
+.pagination-bar .label,
+.pagination-label {
+    -fx-text-fill: #e0e0e0 !important;
+}
