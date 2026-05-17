@@ -10,7 +10,7 @@ import java.util.List;
 
 public class YouTubeService {
 
-    private static final String API_KEY = "AIzaSyAxlUzNRnnFAXQVHYq8motly9225j5dI4E";
+    private static final String API_KEY = "";
     private YouTube youtube;
 
     public YouTubeService() throws Exception {
